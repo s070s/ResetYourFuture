@@ -1,0 +1,19 @@
+table.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.students-table thead th {
+    background: var(--table-header-bg);
+    color: var(--primary);
+    padding: .5rem;
+    text-align: left;
+}
+
+table.students-table tbody td {
+    padding: .5rem;
+}
+
+table.students-table tbody tr:hover {
+    background: var(--bg);
+}

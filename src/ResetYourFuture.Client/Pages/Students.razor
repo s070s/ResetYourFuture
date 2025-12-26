@@ -1,0 +1,44 @@
+@page "/students"
+@inject IStudentService StudentService
+
+<PageTitle>Students</PageTitle>
+
+<table class="table table-striped table-hover students-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>City</th>
+            <th>Profession</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (students == null)
+        {
+            <tr>
+                <td colspan="3"><em>Loading...</em></td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@($"{student.FirstName} {student.LastName}")</td>
+                    <td>@student.Age</td>
+                    <td>@student.City</td>
+                    <td>@student.Profession</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code{
+ private IEnumerable<Student>? students;
+
+    protected override async Task OnInitializedAsync()
+    {
+        students = await StudentService.GetAllAsync();
+    }
+}
