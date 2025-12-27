@@ -4,7 +4,7 @@
     padding: 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--border-subtle);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
 }
 
 /* Header row */
@@ -15,19 +15,21 @@
     gap: .5rem;
     margin-bottom: .75rem;
 }
+
 .students-title {
     margin: 0;
     color: var(--text-strong-accent);
     font-size: 1.125rem;
     font-weight: 700;
 }
+
 .students-actions .btn {
     background: var(--button-regular);
     color: var(--bg-primary);
     border: none;
     padding: .4rem .7rem;
     border-radius: .375rem;
-    box-shadow: 0 4px 10px rgba(168,93,148,0.18);
+    box-shadow: 0 4px 10px rgba(168, 93, 148, 0.18);
 }
 
 /* Table refinements */
@@ -39,29 +41,70 @@
     overflow: hidden;
     border-radius: 0.35rem;
 }
-.students-table thead th {
-    background: linear-gradient(180deg, var(--bg-table-odd), var(--bg-table-even));
-    color: var(--text-strong-accent);
-    padding: .65rem .6rem;
+
+/* Table header cells */
+.students-table th {
+    background: var(--bg-table-header);
+    color: var(--text-accent);
+    padding: 0.55rem 0.6rem;
     text-align: left;
     font-weight: 600;
     border-bottom: 1px solid var(--border-subtle);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-.students-table tbody td {
-    padding: .6rem .6rem;
-    color: var(--text-normal);
-    vertical-align: middle;
-    border-bottom: 1px dashed var(--border-subtle);
 }
 
-/* Row hover + focus */
-.students-table tbody tr:hover,
-.students-table tbody tr:focus-within {
-    background-color: var(--bg-table-even);
-    transition: background-color .12s ease-in-out;
+/* Table data cells */
+.students-table td {
+    background: transparent;
+    color: var(--text-light-normal);
+    padding: 0.45rem 0.6rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Alternating rows */
+.students-table tbody tr:nth-child(even) td {
+    background: var(--bg-table-even);
+}
+
+.students-table tbody tr:nth-child(odd) td {
+    background: var(--bg-table-odd);
+}
+
+/* Row hover */
+.students-table tbody tr:hover td {
+    background: var(--bg-table-row-hover);
+}
+
+/* Button */
+.button-regular {
+    display: inline-block;
+    box-sizing: border-box;
+
+    width: 99.4375px;
+    height: 33.7812px;
+
+    padding: 6.4px 11.2px;
+
+    background-color: rgb(196, 188, 234);
+
+    color: rgb(10, 12, 32);
+
+    border-radius: 6px;
+
+    box-shadow: 0px 4px 10px rgba(168, 93, 148, 0.18);
+
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 21px;
+
+    text-align: center;
+
+    cursor: pointer;
+    vertical-align: middle;
+
+
+
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 /* Small helpers */
@@ -74,10 +117,12 @@
     font-weight: 600;
     font-size: .78rem;
 }
+
 .name-strong {
-    color: var(--text-accent);
     font-weight: 600;
 }
+
+
 .no-data {
     padding: .8rem;
     color: var(--text-normal);

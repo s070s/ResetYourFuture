@@ -2,7 +2,7 @@ html,
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: var(--bg-primary);
-    color: var(--text-normal);
+    color: var(--text-strong-normal);
 }
 
 h1:focus {
@@ -139,14 +139,14 @@ code {
     color: var(--text-strong-accent);
 }
 
-.form-floating > .form-control-plaintext::placeholder,
-.form-floating > .form-control::placeholder {
-    color: var(--text-normal);
+.form-floating>.form-control-plaintext::placeholder,
+.form-floating>.form-control::placeholder {
+    color: var(--text-strong-normal);
     text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder,
-.form-floating > .form-control:focus::placeholder {
+.form-floating>.form-control-plaintext:focus::placeholder,
+.form-floating>.form-control:focus::placeholder {
     text-align: start;
 }
 
@@ -155,36 +155,58 @@ code {
 
 
 :root {
-  /* --------------------------------------------------
+    /* --------------------------------------------------
      Backgrounds
      -------------------------------------------------- */
-  --bg-primary: #0a0c20;        /* Ink Black (main app background) */
-  --bg-surface: #121429; /* reuse Prussian Blue intentionally for card surfaces etc*/
+    --bg-primary: #0a0c20;
+    /* Ink Black (main app background) */
+    --bg-surface: #121429;
+    /* reuse Prussian Blue intentionally for card surfaces etc*/
 
 
-  /* Tables */
-  --bg-table-even: #0a0c20;    /* Ink Black */
-  --bg-table-odd:  #121429;    /* Prussian Blue */
+    /* Tables */
+    --bg-table-even: #10132c;
+    /* Ink Black */
+    --bg-table-odd: #181c3a;
+    /* Prussian Blue */
+    --bg-table-header: #10132c;
+    /* Elevated Prussian Ink */
 
-  /* --------------------------------------------------
+    /* Hover */
+    --bg-table-header-hover: #1b1f44;
+    --bg-table-header-active: #22265a;
+    --bg-table-row-hover: #2d205a;
+
+    /* --------------------------------------------------
      Text
      -------------------------------------------------- */
-  --text-normal: #acadbe;          /* Pale Slate */
-  --text-accent: #c4bcea;          /* Periwinkle */
-  --text-strong-accent: #a85d94;   /* Fuchsia Plum */
+    --text-strong-normal: #5f6778;
+    /* Muted Steel Slate */
+    --text-light-normal: #505a6b;
+    /* Soft Cool Slate */
+    --text-accent: #c4bcea;
+    /* Periwinkle */
+    --text-strong-accent: #a85d94;
+    /* Fuchsia Plum */
 
-  /* --------------------------------------------------
+    /* --------------------------------------------------
      Semantic / Feedback
      -------------------------------------------------- */
-  --color-success: #17c40f;    /* Lime Green */
-  --color-error:   #c53923;    /* Tomato Jam */
-  --color-warning: #f8df08;    /* Bright Gold */
+    --color-success: #17c40f;
+    /* Lime Green */
+    --color-error: #c53923;
+    /* Tomato Jam */
+    --color-warning: #f8df08;
+    /* Bright Gold */
 
-  /* --------------------------------------------------
+    /* --------------------------------------------------
      UI Utilities
      -------------------------------------------------- */
-  --border-subtle: #acadbe40;  /* Pale Slate @ 25% */
-  --focus-ring:    #c4bcea8c;  /* Periwinkle @ 55% */
-  --overlay-soft:  #0a0c20d9;  /* Ink Black @ 85% */
-  --button-regular:#c4bcea;
+    --border-subtle: #acadbe40;
+    /* Pale Slate @ 25% */
+    --focus-ring: #c4bcea8c;
+    /* Periwinkle @ 55% */
+    --overlay-soft: #0a0c20d9;
+    /* Ink Black @ 85% */
+    --button-regular: #c4bcea;
 }
