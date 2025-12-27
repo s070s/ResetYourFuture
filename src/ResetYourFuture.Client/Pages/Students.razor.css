@@ -1,19 +1,86 @@
-table.students-table {
+/* Card / layout */
+.students-card {
+    background: var(--bg-surface);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}
+
+/* Header row */
+.students-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-bottom: .75rem;
+}
+.students-title {
+    margin: 0;
+    color: var(--text-strong-accent);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+.students-actions .btn {
+    background: var(--button-regular);
+    color: var(--bg-primary);
+    border: none;
+    padding: .4rem .7rem;
+    border-radius: .375rem;
+    box-shadow: 0 4px 10px rgba(168,93,148,0.18);
+}
+
+/* Table refinements */
+.students-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+    overflow: hidden;
+    border-radius: 0.35rem;
 }
-
-table.students-table thead th {
-    background: var(--table-header-bg);
-    color: var(--primary);
-    padding: .5rem;
+.students-table thead th {
+    background: linear-gradient(180deg, var(--bg-table-odd), var(--bg-table-even));
+    color: var(--text-strong-accent);
+    padding: .65rem .6rem;
     text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-subtle);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.students-table tbody td {
+    padding: .6rem .6rem;
+    color: var(--text-normal);
+    vertical-align: middle;
+    border-bottom: 1px dashed var(--border-subtle);
 }
 
-table.students-table tbody td {
-    padding: .5rem;
+/* Row hover + focus */
+.students-table tbody tr:hover,
+.students-table tbody tr:focus-within {
+    background-color: var(--bg-table-even);
+    transition: background-color .12s ease-in-out;
 }
 
-table.students-table tbody tr:hover {
-    background: var(--bg);
+/* Small helpers */
+.badge {
+    display: inline-block;
+    padding: .18rem .45rem;
+    border-radius: .4rem;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
+    font-weight: 600;
+    font-size: .78rem;
+}
+.name-strong {
+    color: var(--text-accent);
+    font-weight: 600;
+}
+.no-data {
+    padding: .8rem;
+    color: var(--text-normal);
+    text-align: center;
+    font-style: italic;
 }
