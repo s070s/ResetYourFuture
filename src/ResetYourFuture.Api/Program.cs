@@ -1,7 +1,11 @@
+using ResetYourFuture.Api.Logging;
 using ResetYourFuture.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var clientOrigin = builder.Configuration["AllowedClientOrigin"]?? "https://localhost:7083";
+
+// Add file-based logging
+builder.Logging.AddFileLogger("Logs");
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -26,8 +30,13 @@ app.UseHttpsRedirection();
 // use the exact policy name
 app.UseCors("BlazorClient");
 
+// Get logger for request logging
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Application started. Logs directory: {LogsPath}", Path.GetFullPath("Logs"));
+
 app.MapGet("/api/students", () =>
 {
+    logger.LogInformation("GET /api/students called");
     var students = new List<Student>
     {
         new Student(1, "George", "Kokkalis", 25, "Athens", "Career Counselor"),
