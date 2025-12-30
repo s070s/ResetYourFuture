@@ -1,0 +1,121 @@
+@page "/register"
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Register</PageTitle>
+
+<div class="auth-container">
+    <h2>Create Account</h2>
+
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success">@successMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    @if (errors.Any())
+    {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach (var error in errors)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <EditForm Model="registerRequest" OnValidSubmit="HandleRegister">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <InputText id="firstName" class="form-control" @bind-Value="registerRequest.FirstName" />
+                <ValidationMessage For="@(() => registerRequest.FirstName)" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <InputText id="lastName" class="form-control" @bind-Value="registerRequest.LastName" />
+                <ValidationMessage For="@(() => registerRequest.LastName)" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="registerRequest.Email" />
+            <ValidationMessage For="@(() => registerRequest.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="dob" class="form-label">Date of Birth (optional)</label>
+            <InputText id="dob" type="date" class="form-control" @bind-Value="registerRequest.DateOfBirth" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password (min 8 characters)</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="registerRequest.Password" />
+            <ValidationMessage For="@(() => registerRequest.Password)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="registerRequest.ConfirmPassword" />
+            <ValidationMessage For="@(() => registerRequest.ConfirmPassword)" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <InputCheckbox id="gdprConsent" class="form-check-input" @bind-Value="registerRequest.GdprConsent" />
+            <label for="gdprConsent" class="form-check-label">
+                I consent to the processing of my personal data (required).
+            </label>
+            <ValidationMessage For="@(() => registerRequest.GdprConsent)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@isLoading">
+            @if (isLoading) { <span>Registering...</span> } else { <span>Register</span> }
+        </button>
+    </EditForm>
+
+    <p class="mt-3">
+        Already have an account? <a href="/login">Login</a>
+    </p>
+</div>
+
+@code {
+    private RegisterRequest registerRequest = new();
+    private string? successMessage;
+    private string? errorMessage;
+    private List<string> errors = new();
+    private bool isLoading;
+
+    private async Task HandleRegister()
+    {
+        isLoading = true;
+        successMessage = null;
+        errorMessage = null;
+        errors.Clear();
+
+        var result = await AuthService.RegisterAsync(registerRequest);
+
+        if (result.Success)
+        {
+            successMessage = result.Message ?? "Registration successful! Please check your email.";
+            registerRequest = new(); // Reset form
+        }
+        else
+        {
+            errorMessage = result.Message;
+            if (result.Errors != null)
+            {
+                errors = result.Errors.ToList();
+            }
+        }
+
+        isLoading = false;
+    }
+}

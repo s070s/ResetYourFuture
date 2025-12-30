@@ -1,0 +1,70 @@
+@page "/profile"
+@attribute [Authorize]
+@inject HttpClient Http
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Profile</PageTitle>
+
+<div class="profile-container">
+    <h2>My Profile</h2>
+
+    <AuthorizeView>
+        <Authorized>
+            @if (userInfo == null)
+            {
+                <p>Loading...</p>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <p><strong>Name:</strong> @userInfo.FirstName @userInfo.LastName</p>
+                        <p><strong>Email:</strong> @userInfo.Email</p>
+                        <p><strong>Age:</strong> @(userInfo.Age?.ToString() ?? "Not specified")</p>
+                        <p><strong>Status:</strong> @userInfo.Status</p>
+                        <p><strong>Roles:</strong> @string.Join(", ", userInfo.Roles)</p>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary mt-3" @onclick="Logout">Logout</button>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <p>Redirecting to login...</p>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private UserInfo? userInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            userInfo = await Http.GetFromJsonAsync<UserInfo>("api/auth/me");
+        }
+        catch
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+
+    private class UserInfo
+    {
+        public string Id { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public int? Age { get; set; }
+        public string Status { get; set; } = "";
+        public List<string> Roles { get; set; } = new();
+    }
+}
