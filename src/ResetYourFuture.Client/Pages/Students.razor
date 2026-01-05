@@ -11,36 +11,38 @@
         </div>
     </div>
 
-    <table class="table table-striped table-hover students-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Age</th>
-                <th>City</th>
-                <th>Profession</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (students == null)
-            {
+    <div class="table-responsive">
+        <table class="table table-striped table-hover students-table">
+            <thead>
                 <tr>
-                    <td class="no-data" colspan="4"><em>Loading...</em></td>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>City</th>
+                    <th>Profession</th>
                 </tr>
-            }
-            else
-            {
-                @foreach (var student in students)
+            </thead>
+            <tbody>
+                @if (students == null)
                 {
                     <tr>
-                        <td class="name-strong">@($"{student.FirstName} {student.LastName}")</td>
-                        <td>@student.Age</td>
-                        <td>@student.City</td>
-                        <td><span class="badge">@student.Profession</span></td>
+                        <td class="no-data" colspan="4"><em>Loading...</em></td>
                     </tr>
                 }
-            }
-        </tbody>
-    </table>
+                else
+                {
+                    @foreach (var student in students)
+                    {
+                        <tr>
+                            <td class="name-strong">@($"{student.FirstName} {student.LastName}")</td>
+                            <td>@student.Age</td>
+                            <td>@student.City</td>
+                            <td><span class="badge">@student.Profession</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @code{

@@ -79,3 +79,15 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+main.content {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    min-height: calc(100vh - 3.5rem);
+}

@@ -24,29 +24,31 @@
                     }
                     else
                     {
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Email</th>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                    <th>Roles</th>
-                                    <th>Confirmed</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var user in users)
-                                {
+                        <div class="table-responsive"> <!-- Responsive wrapper added -->
+                            <table class="table table-striped">
+                                <thead>
                                     <tr>
-                                        <td>@user.Email</td>
-                                        <td>@user.FirstName @user.LastName</td>
-                                        <td>@user.Status</td>
-                                        <td>@string.Join(", ", user.Roles)</td>
-                                        <td>@(user.EmailConfirmed ? "✓" : "✗")</td>
+                                        <th>Email</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                        <th>Roles</th>
+                                        <th>Confirmed</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in users)
+                                    {
+                                        <tr>
+                                            <td>@user.Email</td>
+                                            <td>@user.FirstName @user.LastName</td>
+                                            <td>@user.Status</td>
+                                            <td>@string.Join(", ", user.Roles)</td>
+                                            <td>@(user.EmailConfirmed ? "✓" : "✗")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
             </div>
