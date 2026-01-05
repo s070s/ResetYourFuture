@@ -13,6 +13,7 @@
     --text-light-normal: #505a6b;
     --text-accent: #c4bcea;
     --text-strong-accent: #a85d94;
+    --text-light-muted: rgb(154 169 183 / 76%);
     /* Semantic / Feedback */
     --color-success: #17c40f;
     --color-error: #c53923;
@@ -196,6 +197,33 @@ a,
     background-color: rgba(23, 196, 15, 0.2);
     border-color: var(--color-success);
     color: var(--color-success);
+}
+
+/* Inputs in auth pages: background and text matching theme */
+.auth-container .form-control,
+.profile-container .form-control {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    border: 1px solid var(--border-subtle);
+    padding: 0.5rem 0.75rem;
+}
+
+.auth-container .form-control::placeholder,
+.profile-container .form-control::placeholder {
+    color: var(--text-strong-normal);
+    opacity: 1;
+}
+
+.auth-container .form-check-input {
+    background-color: transparent;
+    border-color: var(--border-subtle);
+}
+
+.auth-container .form-control:focus,
+.profile-container .form-control:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
 }
 
 /* Mobile adjustments */

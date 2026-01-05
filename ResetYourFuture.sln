@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResetYourFuture.Client", "src\ResetYourFuture.Client\ResetYourFuture.Client.csproj", "{E118131B-27D2-4FEC-BBFA-691229B69581}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResetYourFuture.Shared", "src\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj", "{CCD2E6E3-E892-4C21-B798-AA4146486799}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "filesToUsewithCopilot", "filesToUsewithCopilot", "{F051E133-1263-4E81-B079-168863EAB39D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,5 +67,9 @@ Global
 		{7DE350D3-04F2-4BBD-AD6F-59EA9CDDC615} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{E118131B-27D2-4FEC-BBFA-691229B69581} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{CCD2E6E3-E892-4C21-B798-AA4146486799} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{F051E133-1263-4E81-B079-168863EAB39D} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {66C538E5-2DBE-49BE-8081-F6355D879770}
 	EndGlobalSection
 EndGlobal
