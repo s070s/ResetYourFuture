@@ -685,6 +685,40 @@
 }
 
 /* ================================================
+   Authenticated Home
+   ================================================ */
+.authenticated-home {
+    max-width: 800px;
+    margin: 4rem auto;
+    padding: 3rem;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 1rem;
+}
+
+.authenticated-home h1 {
+    color: var(--text-accent);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.authenticated-home p {
+    color: var(--text-light-normal);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+.authenticated-home a {
+    color: var(--text-strong-accent);
+    text-decoration: underline;
+}
+
+.authenticated-home a:hover {
+    color: var(--text-accent);
+}
+
+/* ================================================
    Responsive
    ================================================ */
 @media (min-width: 768px) {

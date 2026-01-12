@@ -1,0 +1,147 @@
+/* ================================================
+   Shared Component Styles
+   ================================================ */
+
+/* Responsive containers */
+.auth-container,
+.profile-container,
+.admin-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.admin-container {
+    max-width: 100%;
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-light-normal);
+}
+
+.card-header {
+    background-color: var(--bg-table-header);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-accent);
+}
+
+.card-body {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.card-body p,
+.card-body li {
+    color: var(--text-light-normal);
+}
+
+.card-body strong {
+    color: var(--text-accent);
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Form labels */
+.form-label {
+    color: var(--text-accent);
+}
+
+/* Alerts */
+.alert-danger {
+    background-color: rgba(197, 57, 35, 0.2);
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.alert-success {
+    background-color: rgba(23, 196, 15, 0.2);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+/* Inputs in auth/profile pages */
+.auth-container .form-control,
+.profile-container .form-control {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    border: 1px solid var(--border-subtle);
+    padding: 0.5rem 0.75rem;
+}
+
+.auth-container .form-control::placeholder,
+.profile-container .form-control::placeholder {
+    color: var(--text-strong-normal);
+    opacity: 1;
+}
+
+.auth-container .form-check-input {
+    background-color: transparent;
+    border-color: var(--border-subtle);
+}
+
+.auth-container .form-control:focus,
+.profile-container .form-control:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+}
+
+/* Table cells - global adjustments */
+.table th,
+.table td {
+    color: var(--text-light-normal);
+    border-color: var(--border-subtle);
+}
+
+.table thead th {
+    background-color: var(--bg-table-header);
+    color: var(--text-accent);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.table tbody td {
+    background-color: transparent;
+}
+
+/* Ensure table-striped still applies themed row backgrounds */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--bg-table-odd);
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: var(--bg-table-even);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640.98px) {
+    .auth-container,
+    .profile-container,
+    .admin-container {
+        padding: 0.75rem;
+    }
+
+    .auth-container h2,
+    .profile-container h2,
+    .admin-container h2 {
+        font-size: 1.25rem;
+    }
+
+    .card-header h4 {
+        font-size: 1rem;
+        margin: 0;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 991.98px) {
+    .admin-container {
+        max-width: 90%;
+    }
+}

@@ -1,0 +1,115 @@
+@page "/courses"
+@attribute [Authorize]
+@inject ICourseService CourseService
+@inject NavigationManager Navigation
+
+<PageTitle>Courses - Reset Your Future</PageTitle>
+
+<h1>Available Courses</h1>
+
+@if (_loading)
+{
+    <p>Loading courses...</p>
+}
+else if (_error is not null)
+{
+    <p class="text-danger">@_error</p>
+}
+else if (_courses.Count == 0)
+{
+    <p>No courses available at the moment.</p>
+}
+else
+{
+    <div class="courses-list">
+        @foreach (var course in _courses)
+        {
+            <div class="course-card" @onclick="() => ViewCourse(course.Id)">
+                <h3>@course.Title</h3>
+                @if (!string.IsNullOrEmpty(course.Description))
+                {
+                    <p class="description">@course.Description</p>
+                }
+                <div class="meta">
+                    <span class="lessons">@course.TotalLessons lessons</span>
+                    @if (course.IsEnrolled)
+                    {
+                        <span class="enrolled-badge">✓ Enrolled</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .courses-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .course-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .course-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+
+    .course-card h3 {
+        margin: 0 0 0.5rem 0;
+        color: #333;
+    }
+
+    .course-card .description {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .course-card .meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #888;
+    }
+
+    .enrolled-badge {
+        color: #28a745;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    private List<CourseListItemDto> _courses = [];
+    private bool _loading = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _courses = await CourseService.GetCoursesAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = "Failed to load courses. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ViewCourse(Guid courseId)
+    {
+        Navigation.NavigateTo($"/courses/{courseId}");
+    }
+}

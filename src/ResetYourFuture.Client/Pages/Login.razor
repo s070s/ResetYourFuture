@@ -23,7 +23,12 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="loginRequest.Password" />
+            <div class="input-group">
+                <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="loginRequest.Password" />
+                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
+                    <i class="@passwordIconClass"></i>
+                </button>
+            </div>
             <ValidationMessage For="@(() => loginRequest.Password)" />
         </div>
 
@@ -44,6 +49,15 @@
     private LoginRequest loginRequest = new();
     private string? errorMessage;
     private bool isLoading;
+    private bool showPassword;
+
+    private string passwordInputType => showPassword ? "text" : "password";
+    private string passwordIconClass => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
 
     private async Task HandleLogin()
     {

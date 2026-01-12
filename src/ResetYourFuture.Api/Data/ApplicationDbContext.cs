@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
 
 namespace ResetYourFuture.Api.Data;
 
 /// <summary>
 /// EF Core DbContext with ASP.NET Identity configured for ApplicationUser.
+/// Includes core domain entities for the psychosocial career guidance platform.
 /// </summary>
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
@@ -14,10 +16,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
+    // --- Core Domain DbSets ---
+    public DbSet<Course> Courses => Set<Course>();
+    public DbSet<Module> Modules => Set<Module>();
+    public DbSet<Lesson> Lessons => Set<Lesson>();
+    public DbSet<Assessment> Assessments => Set<Assessment>();
+    public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+    public DbSet<SubscriptionPlan> SubscriptionPlans => Set<SubscriptionPlan>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<LessonCompletion> LessonCompletions => Set<LessonCompletion>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
+        // Apply all entity configurations from this assembly
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // ApplicationUser configuration (Identity-specific)
         builder.Entity<ApplicationUser>(entity =>
         {
             // Ignore computed property

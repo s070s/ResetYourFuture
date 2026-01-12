@@ -58,13 +58,23 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Password (min 8 characters)</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="registerRequest.Password" />
+            <div class="input-group">
+                <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="registerRequest.Password" />
+                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
+                    <i class="@passwordIconClass"></i>
+                </button>
+            </div>
             <ValidationMessage For="@(() => registerRequest.Password)" />
         </div>
 
         <div class="mb-3">
             <label for="confirmPassword" class="form-label">Confirm Password</label>
-            <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="registerRequest.ConfirmPassword" />
+            <div class="input-group">
+                <InputText id="confirmPassword" type="@confirmPasswordInputType" class="form-control" @bind-Value="registerRequest.ConfirmPassword" />
+                <button type="button" class="btn btn-password-toggle" @onclick="ToggleConfirmPasswordVisibility" tabindex="-1">
+                    <i class="@confirmPasswordIconClass"></i>
+                </button>
+            </div>
             <ValidationMessage For="@(() => registerRequest.ConfirmPassword)" />
         </div>
 
@@ -92,6 +102,23 @@
     private string? errorMessage;
     private List<string> errors = new();
     private bool isLoading;
+    private bool showPassword;
+    private bool showConfirmPassword;
+
+    private string passwordInputType => showPassword ? "text" : "password";
+    private string passwordIconClass => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+    private string confirmPasswordInputType => showConfirmPassword ? "text" : "password";
+    private string confirmPasswordIconClass => showConfirmPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        showConfirmPassword = !showConfirmPassword;
+    }
 
     private async Task HandleRegister()
     {

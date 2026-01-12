@@ -1,0 +1,444 @@
+@page "/lessons/{LessonId:guid}"
+@attribute [Authorize]
+@inject ICourseService CourseService
+@inject NavigationManager Navigation
+
+<PageTitle>@(_lesson?.Title ?? "Lesson") - Reset Your Future</PageTitle>
+
+@if (_loading)
+{
+    <p>Loading lesson...</p>
+}
+else if (_error is not null)
+{
+    <p class="text-danger">@_error</p>
+    <button class="btn btn-secondary" @onclick="GoBack">← Back</button>
+}
+else if (_lesson is null)
+{
+    <p>Lesson not found.</p>
+    <button class="btn btn-secondary" @onclick="GoBack">← Back</button>
+}
+else
+{
+    <div class="lesson-container">
+        <div class="lesson-nav-top">
+            <button class="btn-link" @onclick="() => GoToCourse(_lesson.CourseId)">
+                ← @_lesson.CourseTitle
+            </button>
+            <span class="breadcrumb-separator">/</span>
+            <span class="module-name">@_lesson.ModuleTitle</span>
+        </div>
+
+        <h1>@_lesson.Title</h1>
+
+        @if (_lesson.DurationMinutes.HasValue)
+        {
+            <p class="duration">⏱ @_lesson.DurationMinutes minutes</p>
+        }
+
+        <div class="lesson-content">
+            @if (_lesson.ContentType == 2)
+            {
+                @* Video lesson *@
+                <div class="video-container">
+                    <iframe 
+                        src="@_lesson.Content" 
+                        title="@_lesson.Title"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+            }
+            else
+            {
+                @* Text lesson - render as HTML (assumes safe content) *@
+                <div class="text-content">
+                    @((MarkupString)RenderMarkdown(_lesson.Content ?? ""))
+                </div>
+            }
+        </div>
+
+        <div class="lesson-actions">
+            @if (!_lesson.IsCompleted)
+            {
+                <button class="btn btn-success" @onclick="MarkComplete" disabled="@_completing">
+                    @(_completing ? "Saving..." : "✓ Mark as Complete")
+                </button>
+            }
+            else
+            {
+                <span class="completed-indicator">✓ Completed</span>
+            }
+
+            @if (_completionResult is not null)
+            {
+                <div class="progress-update">
+                    Progress: @_completionResult.CompletedLessons / @_completionResult.TotalLessons 
+                    (@_completionResult.ProgressPercent%)
+                    @if (_completionResult.CourseCompleted)
+                    {
+                        <span class="course-completed">🎉 Course Completed!</span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="lesson-navigation">
+            @if (_lesson.PreviousLessonId.HasValue)
+            {
+                <button class="btn btn-secondary" @onclick="() => GoToLesson(_lesson.PreviousLessonId.Value)">
+                    ← Previous Lesson
+                </button>
+            }
+            else
+            {
+                <span></span>
+            }
+
+            @if (_lesson.NextLessonId.HasValue)
+            {
+                <button class="btn btn-primary" @onclick="() => GoToLesson(_lesson.NextLessonId.Value)">
+                    Next Lesson →
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-secondary" @onclick="() => GoToCourse(_lesson.CourseId)">
+                    Back to Course
+                </button>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .lesson-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .lesson-nav-top {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: #007bff;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb-separator {
+        color: #888;
+    }
+
+    .module-name {
+        color: #666;
+    }
+
+    h1 {
+        margin: 0 0 0.5rem 0;
+    }
+
+    .duration {
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .lesson-content {
+        margin-bottom: 2rem;
+    }
+
+    .video-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .text-content {
+        line-height: 1.7;
+        font-size: 1.1rem;
+    }
+
+    .text-content h1,
+    .text-content h2,
+    .text-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .text-content ul,
+    .text-content ol {
+        margin-left: 1.5rem;
+    }
+
+    .text-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .lesson-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+    }
+
+    .btn-success:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+    .completed-indicator {
+        color: #28a745;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .progress-update {
+        color: #666;
+    }
+
+    .course-completed {
+        color: #28a745;
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+
+    .lesson-navigation {
+        display: flex;
+        justify-content: space-between;
+        padding-top: 1rem;
+        border-top: 1px solid #ddd;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public Guid LessonId { get; set; }
+
+    private LessonDetailDto? _lesson;
+    private LessonCompletionResultDto? _completionResult;
+    private bool _loading = true;
+    private bool _completing;
+    private string? _error;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadLesson();
+    }
+
+    private async Task LoadLesson()
+    {
+        _loading = true;
+        _error = null;
+        _completionResult = null;
+
+        try
+        {
+            _lesson = await CourseService.GetLessonAsync(LessonId);
+            if (_lesson is null)
+            {
+                _error = "Lesson not found or you are not enrolled in this course.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = "Failed to load lesson. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task MarkComplete()
+    {
+        _completing = true;
+        try
+        {
+            _completionResult = await CourseService.CompleteLessonAsync(LessonId);
+            if (_completionResult?.Success == true && _lesson is not null)
+            {
+                // Update local state
+                _lesson = _lesson with { IsCompleted = true };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _completing = false;
+        }
+    }
+
+    private void GoToLesson(Guid lessonId)
+    {
+        Navigation.NavigateTo($"/lessons/{lessonId}");
+    }
+
+    private void GoToCourse(Guid courseId)
+    {
+        Navigation.NavigateTo($"/courses/{courseId}");
+    }
+
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/courses");
+    }
+
+    /// <summary>
+    /// Simple markdown to HTML converter for basic formatting.
+    /// Handles headers, bold, lists. For production, use a proper library.
+    /// </summary>
+    private static string RenderMarkdown(string markdown)
+    {
+        if (string.IsNullOrEmpty(markdown))
+            return "";
+
+        var lines = markdown.Split('\n');
+        var html = new System.Text.StringBuilder();
+        var inList = false;
+
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+
+            // Headers
+            if (trimmed.StartsWith("### "))
+            {
+                CloseList(html, ref inList);
+                html.Append($"<h3>{trimmed[4..]}</h3>");
+            }
+            else if (trimmed.StartsWith("## "))
+            {
+                CloseList(html, ref inList);
+                html.Append($"<h2>{trimmed[3..]}</h2>");
+            }
+            else if (trimmed.StartsWith("# "))
+            {
+                CloseList(html, ref inList);
+                html.Append($"<h1>{trimmed[2..]}</h1>");
+            }
+            // Unordered list
+            else if (trimmed.StartsWith("- "))
+            {
+                if (!inList)
+                {
+                    html.Append("<ul>");
+                    inList = true;
+                }
+                html.Append($"<li>{ProcessInline(trimmed[2..])}</li>");
+            }
+            // Numbered list
+            else if (trimmed.Length > 2 && char.IsDigit(trimmed[0]) && trimmed[1] == '.')
+            {
+                if (!inList)
+                {
+                    html.Append("<ol>");
+                    inList = true;
+                }
+                html.Append($"<li>{ProcessInline(trimmed[2..].TrimStart())}</li>");
+            }
+            // Empty line
+            else if (string.IsNullOrEmpty(trimmed))
+            {
+                CloseList(html, ref inList);
+                html.Append("<br/>");
+            }
+            // Paragraph
+            else
+            {
+                CloseList(html, ref inList);
+                html.Append($"<p>{ProcessInline(trimmed)}</p>");
+            }
+        }
+
+        CloseList(html, ref inList);
+        return html.ToString();
+    }
+
+    private static void CloseList(System.Text.StringBuilder html, ref bool inList)
+    {
+        if (inList)
+        {
+            html.Append("</ul>");
+            inList = false;
+        }
+    }
+
+    private static string ProcessInline(string text)
+    {
+        // Bold: **text**
+        text = System.Text.RegularExpressions.Regex.Replace(
+            text, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+        return text;
+    }
+}

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using ResetYourFuture.Api.Domain.Entities;
 
 namespace ResetYourFuture.Api.Identity;
 
@@ -51,4 +52,21 @@ public class ApplicationUser : IdentityUser
     public bool ParentalConsentGiven { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // --- Navigation Properties ---
+    
+    /// <summary>
+    /// Courses the user is enrolled in.
+    /// </summary>
+    public ICollection<Enrollment> Enrollments { get; set; } = [];
+
+    /// <summary>
+    /// Assessments taken by the user.
+    /// </summary>
+    public ICollection<Assessment> Assessments { get; set; } = [];
+
+    /// <summary>
+    /// Subscription history. Only one should be active at a time.
+    /// </summary>
+    public ICollection<UserSubscription> UserSubscriptions { get; set; } = [];
 }

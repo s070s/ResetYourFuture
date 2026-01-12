@@ -10,7 +10,7 @@
     --bg-table-row-hover: #2d205a;
     /* Text */
     --text-strong-normal: #5f6778;
-    --text-light-normal: #505a6b;
+    --text-light-normal: #c3c9d3;
     --text-accent: #c4bcea;
     --text-strong-accent: #a85d94;
     --text-light-muted: rgb(154 169 183 / 76%);
@@ -57,11 +57,6 @@ a,
     box-shadow:
         0 0 0 0.1rem var(--bg-primary),
         0 0 0 0.25rem var(--focus-ring);
-}
-
-/* Layout */
-.content {
-    padding-top: 1.1rem;
 }
 
 /* Validation */
@@ -145,106 +140,8 @@ a,
     content: var(--blazor-load-percentage-text, "Loading");
 }
 
-/* Responsive containers */
-.auth-container,
-.profile-container,
-.admin-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-.admin-container {
-    max-width: 100%;
-}
-
-/* Cards */
-.card {
-    background-color: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-light-normal);
-}
-
-.card-header {
-    background-color: var(--bg-table-header);
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--text-accent);
-}
-
-.card-body {
-    color: var(--text-light-normal);
-}
-
-/* Table responsive wrapper */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Form labels */
-.form-label {
-    color: var(--text-accent);
-}
-
-/* Alerts */
-.alert-danger {
-    background-color: rgba(197, 57, 35, 0.2);
-    border-color: var(--color-error);
-    color: var(--color-error);
-}
-
-.alert-success {
-    background-color: rgba(23, 196, 15, 0.2);
-    border-color: var(--color-success);
-    color: var(--color-success);
-}
-
-/* Inputs in auth pages: background and text matching theme */
-.auth-container .form-control,
-.profile-container .form-control {
-    background-color: var(--bg-table-odd);
-    color: var(--text-accent);
-    border: 1px solid var(--border-subtle);
-    padding: 0.5rem 0.75rem;
-}
-
-.auth-container .form-control::placeholder,
-.profile-container .form-control::placeholder {
-    color: var(--text-strong-normal);
-    opacity: 1;
-}
-
-.auth-container .form-check-input {
-    background-color: transparent;
-    border-color: var(--border-subtle);
-}
-
-.auth-container .form-control:focus,
-.profile-container .form-control:focus {
-    background-color: var(--bg-table-odd);
-    color: var(--text-accent);
-    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
-}
-
-/* Mobile adjustments */
+/* Global form adjustments */
 @media (max-width: 640.98px) {
-    .auth-container,
-    .profile-container,
-    .admin-container {
-        padding: 0.75rem;
-    }
-
-    .auth-container h2,
-    .profile-container h2,
-    .admin-container h2 {
-        font-size: 1.25rem;
-    }
-
-    .card-header h4 {
-        font-size: 1rem;
-        margin: 0;
-    }
-
     .form-control {
         font-size: 16px;
     }
@@ -256,12 +153,5 @@ a,
 
     .row > .col-md-6 {
         margin-bottom: 0.5rem;
-    }
-}
-
-/* Tablet adjustments */
-@media (min-width: 641px) and (max-width: 991.98px) {
-    .admin-container {
-        max-width: 90%;
     }
 }

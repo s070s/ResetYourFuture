@@ -8,6 +8,12 @@ main {
     flex: 1;
 }
 
+main.content {
+    padding-top: 1.1rem;
+    padding-bottom: 2rem;
+    min-height: calc(100vh - 3.5rem);
+}
+
 .sidebar {
     background: linear-gradient(
         180deg,
@@ -84,10 +90,4 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-}
-
-main.content {
-    padding-top: 1.5rem;
-    padding-bottom: 2rem;
-    min-height: calc(100vh - 3.5rem);
 }

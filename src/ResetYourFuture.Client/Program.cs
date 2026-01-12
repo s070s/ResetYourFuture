@@ -40,6 +40,10 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddHttpClient<IStudentService, StudentConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
+// --- Course Service ---
+builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 

@@ -1,0 +1,35 @@
+/* Login page specific styles */
+
+.btn-password-toggle {
+    background-color: var(--bg-table-odd);
+    border: 1px solid var(--border-subtle);
+    border-left: none;
+    color: var(--text-light-normal);
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-password-toggle:hover {
+    background-color: var(--bg-table-header-hover);
+    color: var(--text-accent);
+}
+
+.btn-password-toggle:focus {
+    box-shadow: none;
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+}
+
+.input-group .form-control {
+    border-right: none;
+}
+
+.input-group .form-control:focus {
+    border-right: none;
+}
+
+.input-group .form-control:focus + .btn-password-toggle {
+    border-color: var(--focus-ring);
+}
