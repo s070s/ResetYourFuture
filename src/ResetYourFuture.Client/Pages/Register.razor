@@ -2,7 +2,6 @@
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
-
 <PageTitle>Register</PageTitle>
 
 <div class="auth-container">
@@ -10,7 +9,7 @@
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success">@GetSuccessMessageMarkup()</div>
+        <div class="alert alert-success">@successMessage</div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -145,13 +144,5 @@
         }
 
         isLoading = false;
-    }
-
-    private MarkupString GetSuccessMessageMarkup()
-    {
-        if (string.IsNullOrEmpty(successMessage)) return new MarkupString("");
-        var urlRegex = new Regex(@"(https?://[^\s]+)", RegexOptions.Compiled);
-        var processed = urlRegex.Replace(successMessage, "<a href=\"$1\" class=\"btn btn-success\" target=\"_blank\">$1</a>");
-        return new MarkupString(processed);
     }
 }
