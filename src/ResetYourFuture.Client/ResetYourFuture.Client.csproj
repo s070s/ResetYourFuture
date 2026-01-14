@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- Workaround for SDK bug with static assets compression in paths with special characters -->
     <CompressionEnabled>false</CompressionEnabled>
-    <!-- Ensure cultures are available at runtime in WASM -->
-    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,7 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.0" />
+    <!-- Auth -->
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
