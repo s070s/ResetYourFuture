@@ -6,12 +6,17 @@ using ResetYourFuture.Client;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Client.Services;
+using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7003";
 
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+// --- Localization (required for culture-aware InputDate, formatting, validation) ---
+builder.Services.AddLocalization();
 
 // --- LocalStorage for token persistence ---
 builder.Services.AddBlazoredLocalStorage();
@@ -46,5 +51,16 @@ builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress
 
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
+
+// --- Set global culture to Greek (el-GR) and enforce short date format dd/MM/yy ---
+// Apply this BEFORE builder.Build().RunAsync()
+var culture = new CultureInfo("el-GR");
+// Force short date format: dd/MM/yy
+culture.DateTimeFormat.ShortDatePattern = "dd/MM/yy";
+culture.DateTimeFormat.DateSeparator = "/";
+
+// Apply globally
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 await builder.Build().RunAsync();
