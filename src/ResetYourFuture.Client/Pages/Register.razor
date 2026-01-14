@@ -149,9 +149,24 @@
 
     private MarkupString GetSuccessMessageMarkup()
     {
-        if (string.IsNullOrEmpty(successMessage)) return new MarkupString("");
-        var urlRegex = new Regex(@"(https?://[^\s]+)", RegexOptions.Compiled);
-        var processed = urlRegex.Replace(successMessage, "<a href=\"$1\" class=\"btn btn-success\" target=\"_blank\">$1</a>");
-        return new MarkupString(processed);
+        if (string.IsNullOrEmpty(successMessage)) return new MarkupString(string.Empty);
+
+        var urlRegex = new System.Text.RegularExpressions.Regex(@"(https?://[^\s]+)", System.Text.RegularExpressions.RegexOptions.Compiled);
+        var match = urlRegex.Match(successMessage);
+        if (!match.Success)
+        {
+            var encoded = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(successMessage);
+            return new MarkupString(encoded);
+        }
+
+        var prefix = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(successMessage.Substring(0, match.Index));
+        var url = match.Value;
+        // Escape URL for use in href, then HTML-encode to prevent attribute injection
+        var href = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(System.Uri.EscapeUriString(url));
+        var suffix = System.Text.Encodings.Web.HtmlEncoder.Default.Encode(successMessage.Substring(match.Index + match.Length));
+
+        var anchor = $"<a href=\"{href}\" class=\"btn btn-success btn-sm ms-2\" target=\"_blank\" rel=\"noopener noreferrer\">Verification Url</a>";
+
+        return new MarkupString(prefix + anchor + suffix);
     }
 }

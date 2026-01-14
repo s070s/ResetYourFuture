@@ -83,7 +83,7 @@ public class AuthController : ControllerBase
         return Ok(new AuthResponse
         {
             Success = true,
-            Message = $"Registration successful. Please confirm your email. (Dev: {confirmUrl})"
+            Message = $"Registration successful. Please confirm your email. : {confirmUrl})"
         });
     }
 
