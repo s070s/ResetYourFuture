@@ -103,6 +103,46 @@ Deploy:
 Deliverable:
 • Live prototype
 
+
+
+
+OtherTODO
+• After Login Remember me checkbox and functionality
+
+• Profile route goes first in the navmenu after the Home route
+
+• In Login and Registration make sure to trim space,tab at the front and at the end in input data
+(username,password especially) after clicking submit and before sending the http
+
+• Add an icon in front of the Courses item in the navigation menu
+
+• Link for confirmation after registration using email or by pressing a button for testing purposes
+
+• Students cant see course contents if they are not enrolled
+
+• Admin do not have a Courses Route in the navMenu, Admins cant enroll in courses
+
+• Admins have a Course Analytics route in the nav menu that shows Admin analytics for logged in users,
+subscribed users,completion analytics of users
+
+• Admin route in navigation menu provides a table where the Admin can change user credentials,remove users 
+completely
+
+• Home/Landing Page route in navigation menu does not appear for logged in users of any role.
+
+• Localization for English and Greek
+
+• If credentials are invalid in the login page do not pop up browser dialog for saving the credentials
+
+• If email already exists on the Database return in Registration that the user already exists
+
+• Make the calendar more beautiful in Registration page
+
+• Store the courses,Lectures in json files instead of seeding them
+
+• When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
+
+
 WHAT IS INTENTIONALLY NOT BUILT (YET)
 
 Explicitly postponed to protect April deadline:
@@ -113,10 +153,5 @@ Explicitly postponed to protect April deadline:
 • Advanced analytics
 • Mobile app
 • Full payment enforcement
-• Link for confirmation after registration using email or by pressing a button for testing purposes
-• Students cant see course contents if they are not enrolled
-• Admin instead of Courses have a Course Analytics page
-• Admin analytics for logged in users
-• Courses,Lectures Stored in json files
-• Admin Course Creator feature
+• Admin Course Creator feature,Courses,Lectures Stored in json files
 • AI features using slm like ollama
