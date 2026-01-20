@@ -11,9 +11,9 @@ public class LocalFileStorage : IFileStorage
     
     // File size limits (in bytes)
     private const long MaxAvatarSize = 5 * 1024 * 1024; // 5 MB
-    private const long MaxPdfSize = 50 * 1024 * 1024; // 50 MB
+    private const long MaxPdfSize = 20 * 1024 * 1024; // 20 MB
     private const long MaxVideoSize = 500 * 1024 * 1024; // 500 MB
-    private const long MaxBackgroundImageSize = 10 * 1024 * 1024; // 10 MB
+    private const long MaxBackgroundImageSize = 8 * 1024 * 1024; // 8 MB
     
     // Allowed content types
     private static readonly HashSet<string> AllowedImageTypes = new(StringComparer.OrdinalIgnoreCase)
