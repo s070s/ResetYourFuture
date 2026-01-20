@@ -172,4 +172,95 @@ public class AdminController : ControllerBase
         _logger.LogInformation("Admin deleted user {UserId}", userId);
         return Ok("User deleted.");
     }
+
+    /// <summary>
+    /// Search users by email or name.
+    /// </summary>
+    [HttpGet("users/search")]
+    public async Task<ActionResult<IEnumerable<object>>> SearchUsers([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return BadRequest("Search query is required");
+        }
+
+        var users = await _userManager.Users
+            .Where(u => u.Email!.Contains(query) || 
+                       u.FirstName.Contains(query) || 
+                       u.LastName.Contains(query))
+            .Take(50)
+            .ToListAsync();
+
+        var result = new List<object>();
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            result.Add(new
+            {
+                user.Id,
+                user.Email,
+                user.FirstName,
+                user.LastName,
+                user.DisplayName,
+                user.EmailConfirmed,
+                Roles = roles
+            });
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Generate password reset token for a user (admin force reset).
+    /// </summary>
+    [HttpPost("users/{userId}/force-password-reset")]
+    public async Task<ActionResult<object>> ForcePasswordReset(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("User not found");
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        
+        _logger.LogInformation("Admin generated password reset token for user {UserId}", userId);
+        
+        return Ok(new { userId = user.Id, resetToken = token });
+    }
+
+    /// <summary>
+    /// Disable user account (lockout).
+    /// </summary>
+    [HttpPost("users/{userId}/disable")]
+    public async Task<IActionResult> DisableUser(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("User not found");
+
+        var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors.Select(e => e.Description));
+        }
+
+        _logger.LogInformation("Admin disabled user {UserId}", userId);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Enable user account (remove lockout).
+    /// </summary>
+    [HttpPost("users/{userId}/enable")]
+    public async Task<IActionResult> EnableUser(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("User not found");
+
+        var result = await _userManager.SetLockoutEndDateAsync(user, null);
+        if (!result.Succeeded)
+        {
+            return BadRequest(result.Errors.Select(e => e.Description));
+        }
+
+        _logger.LogInformation("Admin enabled user {UserId}", userId);
+        return NoContent();
+    }
 }

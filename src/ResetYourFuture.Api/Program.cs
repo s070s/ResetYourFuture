@@ -66,6 +66,8 @@ builder.Services.AddAuthorizationBuilder()
 
 // --- Services ---
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+builder.Services.AddScoped<IEmailService, StubEmailService>();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 

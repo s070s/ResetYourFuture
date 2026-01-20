@@ -119,11 +119,18 @@ public class CoursesController : ControllerBase
 
     /// <summary>
     /// Enroll the current user in a course.
+    /// Admins cannot enroll - this is for students only.
     /// </summary>
     [HttpPost("{courseId:guid}/enroll")]
     public async Task<ActionResult<EnrollmentResultDto>> Enroll(Guid courseId)
     {
         var userId = UserId;
+
+        // Reject enrollment for admin users
+        if (User.IsInRole("Admin"))
+        {
+            return StatusCode(403, new EnrollmentResultDto(false, "Administrators cannot enroll in courses", null));
+        }
 
         var course = await _db.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished);
         if (course is null)
