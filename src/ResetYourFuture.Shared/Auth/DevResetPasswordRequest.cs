@@ -2,13 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ResetYourFuture.Shared.Auth;
 
-public class LoginRequest
+public class DevResetPasswordRequest
 {
     [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    [Required]
-    public string Password { get; set; } = string.Empty;
-
-    public bool RememberMe { get; set; }
+    [Required, MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
 }

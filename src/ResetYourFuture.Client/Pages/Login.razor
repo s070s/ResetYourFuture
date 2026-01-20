@@ -12,7 +12,7 @@
         <div class="alert alert-danger">@errorMessage</div>
     }
 
-    <EditForm Model="loginRequest" OnValidSubmit="HandleLogin">
+    <EditForm Model="loginRequest" OnValidSubmit="HandleLogin" autocomplete="off">
         <DataAnnotationsValidator />
 
         <div class="mb-3">
@@ -30,6 +30,11 @@
                 </button>
             </div>
             <ValidationMessage For="@(() => loginRequest.Password)" />
+        </div>
+
+        <div class="mb-3 form-check">
+            <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginRequest.RememberMe" />
+            <label class="form-check-label" for="rememberMe">Remember Me</label>
         </div>
 
         <button type="submit" class="btn btn-primary" disabled="@isLoading">
@@ -63,6 +68,10 @@
     {
         isLoading = true;
         errorMessage = null;
+
+        // Trim inputs
+        loginRequest.Email = loginRequest.Email?.Trim() ?? string.Empty;
+        loginRequest.Password = loginRequest.Password?.Trim() ?? string.Empty;
 
         var result = await AuthService.LoginAsync(loginRequest);
 

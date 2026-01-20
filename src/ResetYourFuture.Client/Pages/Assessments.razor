@@ -1,0 +1,56 @@
+@page "/assessments"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Assessments
+@inject HttpClient Http
+@inject NavigationManager Nav
+@attribute [Authorize(Roles = "Student")]
+
+<h3>Available Assessments</h3>
+
+<div class="row">
+    @if (assessments == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (assessments.Count == 0)
+    {
+        <p>No assessments available at this time.</p>
+    }
+    else
+    {
+        @foreach (var assessment in assessments)
+        {
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@assessment.Title</h5>
+                        <p class="card-text">@assessment.Description</p>
+                        <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">Start</button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<AssessmentDefinitionDto>? assessments;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            assessments = await Http.GetFromJsonAsync<List<AssessmentDefinitionDto>>("api/assessments");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessments: {ex.Message}");
+            assessments = new List<AssessmentDefinitionDto>();
+        }
+    }
+
+    private void StartAssessment(Guid id)
+    {
+        Nav.NavigateTo($"/assessments/{id}");
+    }
+}

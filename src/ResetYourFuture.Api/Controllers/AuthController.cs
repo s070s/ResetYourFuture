@@ -1,6 +1,10 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ResetYourFuture.Api.Data;
+using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Services;
 using ResetYourFuture.Shared.Auth;
@@ -15,17 +19,23 @@ public class AuthController : ControllerBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly ILogger<AuthController> _logger;
+    private readonly ApplicationDbContext _context;
+    private readonly IWebHostEnvironment _env;
 
     public AuthController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         ITokenService tokenService,
-        ILogger<AuthController> logger)
+        ILogger<AuthController> logger,
+        ApplicationDbContext context,
+        IWebHostEnvironment env)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
         _logger = logger;
+        _context = context;
+        _env = env;
     }
 
     /// <summary>
@@ -147,7 +157,22 @@ public class AuthController : ControllerBase
         var (token, expiration) = await _tokenService.GenerateAccessTokenAsync(user);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
-        // TODO: Store refresh token in DB associated with user for rotation/revocation
+        // Store refresh token in database
+        var refreshTokenExpiration = request.RememberMe 
+            ? DateTimeOffset.UtcNow.AddDays(30) 
+            : DateTimeOffset.UtcNow.AddDays(7);
+
+        var refreshTokenEntity = new RefreshToken
+        {
+            UserId = user.Id,
+            TokenHash = HashToken(refreshToken),
+            ExpiresAt = refreshTokenExpiration,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        _context.RefreshTokens.Add(refreshTokenEntity);
+        await _context.SaveChangesAsync();
+
         _logger.LogInformation("User {Email} logged in.", request.Email);
 
         return Ok(new AuthResponse
@@ -157,6 +182,13 @@ public class AuthController : ControllerBase
             RefreshToken = refreshToken,
             Expiration = expiration
         });
+    }
+
+    private static string HashToken(string token)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+        return Convert.ToBase64String(hash);
     }
 
     /// <summary>
@@ -239,4 +271,49 @@ public class AuthController : ControllerBase
             Roles = roles
         });
     }
+
+#if DEBUG
+    /// <summary>
+    /// Dev-only: Confirm email without token (development mode only).
+    /// </summary>
+    [HttpPost("dev/confirm-email")]
+    public async Task<ActionResult<AuthResponse>> DevConfirmEmail([FromBody] string email)
+    {
+        if (!_env.IsDevelopment())
+            return NotFound();
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+            return NotFound(new AuthResponse { Success = false, Message = "User not found." });
+
+        user.EmailConfirmed = true;
+        await _userManager.UpdateAsync(user);
+
+        _logger.LogInformation("Email confirmed for {Email} (dev mode)", email);
+        return Ok(new AuthResponse { Success = true, Message = "Email confirmed (dev mode)" });
+    }
+
+    /// <summary>
+    /// Dev-only: Reset password without token (development mode only).
+    /// </summary>
+    [HttpPost("dev/reset-password")]
+    public async Task<ActionResult<AuthResponse>> DevResetPassword([FromBody] DevResetPasswordRequest request)
+    {
+        if (!_env.IsDevelopment())
+            return NotFound();
+
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            return NotFound(new AuthResponse { Success = false, Message = "User not found." });
+
+        var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await _userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);
+        
+        if (!result.Succeeded)
+            return BadRequest(new AuthResponse { Success = false, Errors = result.Errors.Select(e => e.Description) });
+
+        _logger.LogInformation("Password reset for {Email} (dev mode)", request.Email);
+        return Ok(new AuthResponse { Success = true, Message = "Password reset (dev mode)" });
+    }
+#endif
 }

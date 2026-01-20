@@ -1,0 +1,199 @@
+@page "/admin/courses/{CourseId:guid}"
+@page "/admin/courses/new"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Courses
+@inject HttpClient Http
+@inject NavigationManager Nav
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(IsNew ? "Create Course" : "Edit Course")</PageTitle>
+
+<h2>@(IsNew ? "Create Course" : "Edit Course")</h2>
+
+@if (!IsNew && course == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@courseModel" OnValidSubmit="@HandleSubmit">
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <InputText class="form-control" @bind-Value="courseModel.Title" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputTextArea class="form-control" @bind-Value="courseModel.Description" rows="4" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@isSaving">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </EditForm>
+
+    @if (!IsNew && course != null)
+    {
+        <hr />
+        <h4>Modules</h4>
+        
+        @if (course.Modules.Any())
+        {
+            <div class="list-group mb-3">
+                @foreach (var module in course.Modules.OrderBy(m => m.SortOrder))
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>@module.Title</h6>
+                                <small>@module.Lessons.Count lesson(s)</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-primary" @onclick="() => EditModule(module.Id)">Edit</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        
+        <button class="btn btn-success" @onclick="AddModule">Add Module</button>
+
+        <hr />
+        <h4>Actions</h4>
+        @if (course.Id != Guid.Empty)
+        {
+            <button class="btn btn-success" @onclick="PublishCourse">Publish Course</button>
+            <button class="btn btn-warning" @onclick="UnpublishCourse">Unpublish Course</button>
+        }
+    }
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+@code {
+    [Parameter]
+    public Guid CourseId { get; set; }
+
+    private bool IsNew => CourseId == Guid.Empty;
+    private CourseDetailDto? course;
+    private CourseModel courseModel = new();
+    private bool isSaving = false;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsNew)
+        {
+            await LoadCourse();
+        }
+    }
+
+    private async Task LoadCourse()
+    {
+        try
+        {
+            course = await Http.GetFromJsonAsync<CourseDetailDto>($"api/admin/courses/{CourseId}");
+            if (course != null)
+            {
+                courseModel.Title = course.Title;
+                courseModel.Description = course.Description;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error loading course: {ex.Message}";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSaving = true;
+        try
+        {
+            HttpResponseMessage response;
+            if (IsNew)
+            {
+                response = await Http.PostAsJsonAsync("api/admin/courses", courseModel);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync($"api/admin/courses/{CourseId}", courseModel);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                Nav.NavigateTo("/admin/courses");
+            }
+            else
+            {
+                message = "Error saving course";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        Nav.NavigateTo("/admin/courses");
+    }
+
+    private void AddModule()
+    {
+        message = "Module management not yet implemented - use API directly";
+    }
+
+    private void EditModule(Guid moduleId)
+    {
+        message = "Module editing not yet implemented - use API directly";
+    }
+
+    private async Task PublishCourse()
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/courses/{CourseId}/publish", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCourse();
+                message = "Course published";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task UnpublishCourse()
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/courses/{CourseId}/unpublish", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCourse();
+                message = "Course unpublished";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private class CourseModel
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+    }
+}

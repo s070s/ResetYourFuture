@@ -1,0 +1,117 @@
+@page "/assessments/mine"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Assessments
+@inject HttpClient Http
+@attribute [Authorize(Roles = "Student")]
+
+<h3>My Assessment Submissions</h3>
+
+@if (submissions == null)
+{
+    <p>Loading...</p>
+}
+else if (submissions.Count == 0)
+{
+    <div class="alert alert-info">
+        <p>You haven't submitted any assessments yet.</p>
+        <a href="/assessments" class="btn btn-primary">Take an Assessment</a>
+    </div>
+}
+else
+{
+    @if (latestSubmission != null)
+    {
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5>Latest Submission</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">@latestSubmission.AssessmentTitle</h6>
+                <p class="text-muted">Submitted: @latestSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+                <button class="btn btn-primary" @onclick="() => ViewSubmission(latestSubmission.Id)">View Details</button>
+            </div>
+        </div>
+    }
+
+    <h4>All Submissions</h4>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Assessment</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var submission in submissions.OrderByDescending(s => s.SubmittedAt))
+                {
+                    <tr>
+                        <td>@submission.AssessmentTitle</td>
+                        <td>@submission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">View</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (selectedSubmission != null)
+{
+    <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@selectedSubmission.AssessmentTitle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Submitted:</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+                    <h6>Your Answers:</h6>
+                    <pre>@selectedSubmission.AnswersJson</pre>
+                    @if (!string.IsNullOrEmpty(selectedSubmission.SummaryJson))
+                    {
+                        <h6>Summary:</h6>
+                        <pre>@selectedSubmission.SummaryJson</pre>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<AssessmentSubmissionDto>? submissions;
+    private AssessmentSubmissionDto? latestSubmission;
+    private AssessmentSubmissionDto? selectedSubmission;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            submissions = await Http.GetFromJsonAsync<List<AssessmentSubmissionDto>>("api/assessments/my-submissions");
+            latestSubmission = submissions?.OrderByDescending(s => s.SubmittedAt).FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading submissions: {ex.Message}");
+            submissions = new List<AssessmentSubmissionDto>();
+        }
+    }
+
+    private void ViewSubmission(Guid id)
+    {
+        selectedSubmission = submissions?.FirstOrDefault(s => s.Id == id);
+    }
+
+    private void CloseModal()
+    {
+        selectedSubmission = null;
+    }
+}

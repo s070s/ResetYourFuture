@@ -1,0 +1,167 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@inject HttpClient Http
+
+<PageTitle>User Management</PageTitle>
+
+<div class="admin-container">
+    <h2>User Management</h2>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Search by email or name..." @bind="searchTerm" @bind:event="oninput" />
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            @if (users == null)
+            {
+                <p>Loading users...</p>
+            }
+            else if (!filteredUsers.Any())
+            {
+                <p>No users found.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Roles</th>
+                                <th>Confirmed</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in filteredUsers)
+                            {
+                                <tr>
+                                    <td>@user.Email</td>
+                                    <td>@user.FirstName @user.LastName</td>
+                                    <td>@user.Status</td>
+                                    <td>@string.Join(", ", user.Roles)</td>
+                                    <td>@(user.EmailConfirmed ? "✓" : "✗")</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">Reset Password</button>
+                                        @if (user.Status == "Active")
+                                        {
+                                            <button class="btn btn-sm btn-danger" @onclick="() => DisableUser(user.Id)">Disable</button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-success" @onclick="() => EnableUser(user.Id)">Enable</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert alert-info mt-3">@message</div>
+            }
+        </Authorized>
+        <NotAuthorized>
+            <div class="alert alert-danger">
+                Access denied. Admin role required.
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private List<UserDto>? users;
+    private string searchTerm = string.Empty;
+    private string message = string.Empty;
+
+    private IEnumerable<UserDto> filteredUsers => users?
+        .Where(u => string.IsNullOrEmpty(searchTerm) || 
+                    u.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    $"{u.FirstName} {u.LastName}".Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        ?? Enumerable.Empty<UserDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<UserDto>>("api/admin/users");
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            message = "Access denied";
+        }
+    }
+
+    private async Task ForcePasswordReset(string userId)
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/users/{userId}/force-password-reset", null);
+            if (response.IsSuccessStatusCode)
+            {
+                message = "Password reset initiated for user";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task DisableUser(string userId)
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/users/{userId}/disable", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadUsers();
+                message = "User disabled";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task EnableUser(string userId)
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/users/{userId}/enable", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadUsers();
+                message = "User enabled";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private class UserDto
+    {
+        public string Id { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+        public string Status { get; set; } = "";
+        public bool EmailConfirmed { get; set; }
+        public List<string> Roles { get; set; } = new();
+    }
+}
+

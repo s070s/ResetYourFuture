@@ -9,7 +9,14 @@
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success">@successMessage</div>
+        <div class="alert alert-success">
+            @successMessage
+            #if DEBUG
+            <div class="mt-3">
+                <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
+            </div>
+            #endif
+        </div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -104,6 +111,7 @@
     private bool isLoading;
     private bool showPassword;
     private bool showConfirmPassword;
+    private string registeredEmail = string.Empty;
 
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIconClass => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
@@ -127,6 +135,14 @@
         errorMessage = null;
         errors.Clear();
 
+        // Trim all text inputs
+        registerRequest.Email = registerRequest.Email?.Trim() ?? string.Empty;
+        registerRequest.Password = registerRequest.Password?.Trim() ?? string.Empty;
+        registerRequest.ConfirmPassword = registerRequest.ConfirmPassword?.Trim() ?? string.Empty;
+        registerRequest.FirstName = registerRequest.FirstName?.Trim() ?? string.Empty;
+        registerRequest.LastName = registerRequest.LastName?.Trim() ?? string.Empty;
+
+        registeredEmail = registerRequest.Email;
         var result = await AuthService.RegisterAsync(registerRequest);
 
         if (result.Success)
@@ -136,13 +152,44 @@
         }
         else
         {
+            // Handle duplicate email error
             errorMessage = result.Message;
             if (result.Errors != null)
             {
                 errors = result.Errors.ToList();
+                if (errors.Any(e => e.Contains("already taken") || e.Contains("duplicate") || e.Contains("exists")))
+                {
+                    errorMessage = "This email address is already registered. Please use a different email or try logging in.";
+                }
             }
         }
 
         isLoading = false;
     }
+
+#if DEBUG
+    [Inject] private HttpClient Http { get; set; } = default!;
+
+    private async Task DevConfirmEmail()
+    {
+        if (string.IsNullOrEmpty(registeredEmail)) return;
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/auth/dev/confirm-email", registeredEmail);
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Email confirmed! You can now log in.";
+            }
+            else
+            {
+                errorMessage = "Error confirming email";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+    }
+#endif
 }

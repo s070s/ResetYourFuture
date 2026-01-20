@@ -1,0 +1,150 @@
+@page "/admin/courses"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Courses
+@using Microsoft.JSInterop
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Course Management</PageTitle>
+
+<h2>Course Management</h2>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CreateCourse">Create New Course</button>
+</div>
+
+@if (courses == null)
+{
+    <p>Loading...</p>
+}
+else if (courses.Count == 0)
+{
+    <p>No courses found.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Enrollments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in courses)
+                {
+                    <tr>
+                        <td>@course.Title</td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                N/A
+                            </span>
+                        </td>
+                        <td>0</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditCourse(course.Id)">Edit</button>
+                            <button class="btn btn-sm btn-success" @onclick="() => PublishCourse(course.Id)">Publish</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+@code {
+    private List<CourseListItemDto>? courses;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCourses();
+    }
+
+    private async Task LoadCourses()
+    {
+        try
+        {
+            courses = await Http.GetFromJsonAsync<List<CourseListItemDto>>("api/admin/courses");
+        }
+        catch (Exception ex)
+        {
+            message = $"Error loading courses: {ex.Message}";
+        }
+    }
+
+    private void CreateCourse()
+    {
+        Nav.NavigateTo("/admin/courses/new");
+    }
+
+    private void EditCourse(Guid id)
+    {
+        Nav.NavigateTo($"/admin/courses/{id}");
+    }
+
+    private async Task PublishCourse(Guid id)
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/courses/{id}/publish", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCourses();
+                message = "Course published";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task UnpublishCourse(Guid id)
+    {
+        try
+        {
+            var response = await Http.PostAsync($"api/admin/courses/{id}/unpublish", null);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCourses();
+                message = "Course unpublished";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteCourse(Guid id)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this course?"))
+            return;
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/admin/courses/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadCourses();
+                message = "Course deleted";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+}

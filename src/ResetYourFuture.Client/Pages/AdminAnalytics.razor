@@ -1,0 +1,161 @@
+@page "/admin/analytics"
+@using Microsoft.AspNetCore.Authorization
+@inject HttpClient Http
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Analytics</PageTitle>
+
+<h2>Analytics Dashboard</h2>
+
+@if (stats == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.TotalUsers</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.ActiveUsers</h3>
+                    <p>Active Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.TotalEnrollments</h3>
+                    <p>Total Enrollments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.CompletedCourses</h3>
+                    <p>Completed Courses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Course Enrollment Stats</h5>
+                </div>
+                <div class="card-body">
+                    @if (stats.CourseStats != null && stats.CourseStats.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Enrollments</th>
+                                    <th>Completions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var courseStat in stats.CourseStats)
+                                {
+                                    <tr>
+                                        <td>@courseStat.CourseTitle</td>
+                                        <td>@courseStat.EnrollmentCount</td>
+                                        <td>@courseStat.CompletionCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No course data available</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Assessment Stats</h5>
+                </div>
+                <div class="card-body">
+                    @if (stats.AssessmentStats != null && stats.AssessmentStats.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Assessment</th>
+                                    <th>Submissions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var assessmentStat in stats.AssessmentStats)
+                                {
+                                    <tr>
+                                        <td>@assessmentStat.AssessmentTitle</td>
+                                        <td>@assessmentStat.SubmissionCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No assessment data available</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private AnalyticsStats? stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            stats = await Http.GetFromJsonAsync<AnalyticsStats>("api/admin/analytics");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading analytics: {ex.Message}");
+        }
+    }
+
+    private class AnalyticsStats
+    {
+        public int TotalUsers { get; set; }
+        public int ActiveUsers { get; set; }
+        public int TotalEnrollments { get; set; }
+        public int CompletedCourses { get; set; }
+        public List<CourseStatDto>? CourseStats { get; set; }
+        public List<AssessmentStatDto>? AssessmentStats { get; set; }
+    }
+
+    private class CourseStatDto
+    {
+        public string CourseTitle { get; set; } = string.Empty;
+        public int EnrollmentCount { get; set; }
+        public int CompletionCount { get; set; }
+    }
+
+    private class AssessmentStatDto
+    {
+        public string AssessmentTitle { get; set; } = string.Empty;
+        public int SubmissionCount { get; set; }
+    }
+}

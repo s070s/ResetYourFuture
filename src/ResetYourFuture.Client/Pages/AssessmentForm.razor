@@ -1,0 +1,181 @@
+@page "/assessments/{AssessmentId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Assessments
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+@attribute [Authorize(Roles = "Student")]
+
+<h3>@assessment?.Title</h3>
+
+@if (assessment == null)
+{
+    <p>Loading...</p>
+}
+else if (submitted)
+{
+    <div class="alert alert-success">
+        <h4>Assessment Submitted Successfully!</h4>
+        <p>Thank you for completing the assessment.</p>
+        <button class="btn btn-primary" @onclick="ViewHistory">View My Submissions</button>
+    </div>
+}
+else
+{
+    <p>@assessment.Description</p>
+
+    <EditForm Model="@answers" OnValidSubmit="@HandleSubmit">
+        @if (questions != null)
+        {
+            @foreach (var question in questions)
+            {
+                <div class="mb-3">
+                    <label class="form-label"><strong>@question.Text</strong></label>
+                    @if (question.Type == "text")
+                    {
+                        <input type="text" class="form-control" @bind="answers[question.Id]" />
+                    }
+                    else if (question.Type == "single-select")
+                    {
+                        <select class="form-select" @bind="answers[question.Id]">
+                            <option value="">-- Select --</option>
+                            @foreach (var option in question.Options ?? new List<string>())
+                            {
+                                <option value="@option">@option</option>
+                            }
+                        </select>
+                    }
+                    else if (question.Type == "multi-select")
+                    {
+                        @foreach (var option in question.Options ?? new List<string>())
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="@($"{question.Id}_{option}")"
+                                       @onchange="@(e => ToggleMultiSelect(question.Id, option, (bool)e.Value!))" />
+                                <label class="form-check-label" for="@($"{question.Id}_{option}")">@option</label>
+                            </div>
+                        }
+                    }
+                    else if (question.Type == "likert")
+                    {
+                        <div class="btn-group" role="group">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                var value = i;
+                                <input type="radio" class="btn-check" name="@question.Id" id="@($"{question.Id}_{i}")"
+                                       @onchange="@(() => answers[question.Id] = value.ToString())" />
+                                <label class="btn btn-outline-primary" for="@($"{question.Id}_{i}")">@i</label>
+                            }
+                        </div>
+                    }
+                    else if (question.Type == "date")
+                    {
+                        <input type="date" class="form-control" 
+                               value="@answers[question.Id]"
+                               @onchange="@(e => answers[question.Id] = e.Value?.ToString() ?? string.Empty)" />
+                    }
+                </div>
+            }
+        }
+
+        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">Submit Assessment</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid AssessmentId { get; set; }
+
+    private AssessmentDefinitionDto? assessment;
+    private List<QuestionSchema>? questions;
+    private Dictionary<string, string> answers = new();
+    private bool isSubmitting = false;
+    private bool submitted = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>($"api/assessments/{AssessmentId}");
+            if (assessment != null)
+            {
+                var schema = JsonSerializer.Deserialize<AssessmentSchema>(assessment.SchemaJson);
+                questions = schema?.Questions ?? new List<QuestionSchema>();
+                
+                // Initialize answers dictionary
+                foreach (var q in questions)
+                {
+                    answers[q.Id] = string.Empty;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessment: {ex.Message}");
+        }
+    }
+
+    private void ToggleMultiSelect(string questionId, string option, bool isChecked)
+    {
+        var current = answers.ContainsKey(questionId) ? answers[questionId] : string.Empty;
+        var selected = string.IsNullOrEmpty(current) ? new List<string>() : current.Split(',').ToList();
+
+        if (isChecked && !selected.Contains(option))
+        {
+            selected.Add(option);
+        }
+        else if (!isChecked && selected.Contains(option))
+        {
+            selected.Remove(option);
+        }
+
+        answers[questionId] = string.Join(",", selected);
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        try
+        {
+            var answersJson = JsonSerializer.Serialize(answers);
+            var request = new SubmitAssessmentRequest(answersJson, null);
+            
+            var response = await Http.PostAsJsonAsync($"api/assessments/{AssessmentId}/submit", request);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                submitted = true;
+            }
+            else
+            {
+                Console.WriteLine($"Error submitting assessment: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error submitting assessment: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void ViewHistory()
+    {
+        Nav.NavigateTo("/assessments/mine");
+    }
+
+    private class AssessmentSchema
+    {
+        public List<QuestionSchema> Questions { get; set; } = new();
+    }
+
+    private class QuestionSchema
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public List<string>? Options { get; set; }
+    }
+}
