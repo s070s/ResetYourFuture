@@ -4,7 +4,7 @@ namespace ResetYourFuture.Api.Domain.Entities;
 /// Represents a full learning program (e.g. "Reset Your Future").
 /// Independent of UI or pricing. Contains ordered Modules.
 /// </summary>
-public class Course
+public class Course : AuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -17,15 +17,6 @@ public class Course
     /// Optional description for catalog/marketing.
     /// </summary>
     public string? Description { get; set; }
-
-    /// <summary>
-    /// Soft-publish control. Unpublished courses are not visible to learners.
-    /// </summary>
-    public bool IsPublished { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; set; }
 
     // Navigation: one Course has many Modules
     public ICollection<Module> Modules { get; set; } = [];

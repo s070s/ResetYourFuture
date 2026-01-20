@@ -4,7 +4,7 @@ namespace ResetYourFuture.Api.Domain.Entities;
 /// Groups Lessons within a Course. Ordered via SortOrder.
 /// Belongs to exactly one Course.
 /// </summary>
-public class Module
+public class Module : AuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -22,10 +22,6 @@ public class Module
     /// Determines display order within the parent Course.
     /// </summary>
     public int SortOrder { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; set; }
 
     // Foreign key to Course
     public Guid CourseId { get; set; }

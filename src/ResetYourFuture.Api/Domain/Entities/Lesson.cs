@@ -1,12 +1,10 @@
-using ResetYourFuture.Api.Domain.Enums;
-
 namespace ResetYourFuture.Api.Domain.Entities;
 
 /// <summary>
-/// Educational unit within a Module. Contains either text or video content.
+/// Educational unit within a Module. Contains text, PDF, or video content.
 /// Belongs to exactly one Module.
 /// </summary>
-public class Lesson
+public class Lesson : AuditableEntity
 {
     public Guid Id { get; set; }
 
@@ -16,16 +14,19 @@ public class Lesson
     public required string Title { get; set; }
 
     /// <summary>
-    /// Type of content: Text or Video.
-    /// </summary>
-    public ContentType ContentType { get; set; }
-
-    /// <summary>
-    /// For Video: URL or external reference.
-    /// For Text: rich text / markdown content.
-    /// Storage interpretation depends on ContentType.
+    /// Text or markdown content for the lesson.
     /// </summary>
     public string? Content { get; set; }
+
+    /// <summary>
+    /// Path to PDF file (if lesson has PDF attachment).
+    /// </summary>
+    public string? PdfPath { get; set; }
+
+    /// <summary>
+    /// Path to video file (if lesson has video).
+    /// </summary>
+    public string? VideoPath { get; set; }
 
     /// <summary>
     /// Estimated duration in minutes. Useful for progress tracking.
@@ -36,10 +37,6 @@ public class Lesson
     /// Determines display order within the parent Module.
     /// </summary>
     public int SortOrder { get; set; }
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime? UpdatedAt { get; set; }
 
     // Foreign key to Module
     public Guid ModuleId { get; set; }

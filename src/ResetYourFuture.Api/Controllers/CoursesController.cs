@@ -30,6 +30,15 @@ public class CoursesController : ControllerBase
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? throw new UnauthorizedAccessException("User ID not found in claims");
 
+    // Helper to determine content type from lesson fields
+    private static int GetContentType(Lesson lesson)
+    {
+        // Priority: Video > PDF > Text
+        if (!string.IsNullOrEmpty(lesson.VideoPath)) return 2; // Video
+        if (!string.IsNullOrEmpty(lesson.PdfPath)) return 3;   // PDF (new type)
+        return 1; // Text (default)
+    }
+
     /// <summary>
     /// Get list of all published courses with enrollment status.
     /// </summary>
@@ -97,7 +106,7 @@ public class CoursesController : ControllerBase
                 m.Lessons.Select(l => new LessonSummaryDto(
                     l.Id,
                     l.Title,
-                    (int)l.ContentType,
+                    GetContentType(l),
                     l.DurationMinutes,
                     l.SortOrder,
                     completedLessonIds.Contains(l.Id)
@@ -193,7 +202,7 @@ public class CoursesController : ControllerBase
         var dto = new LessonDetailDto(
             lesson.Id,
             lesson.Title,
-            (int)lesson.ContentType,
+            GetContentType(lesson),
             lesson.Content,
             lesson.DurationMinutes,
             isCompleted,

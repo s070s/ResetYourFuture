@@ -11,6 +11,10 @@ public class ApplicationUser : IdentityUser
     // --- Profile ---
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
+    
+    public string? DisplayName { get; set; }
+    
+    public string? AvatarPath { get; set; }
 
     /// <summary>
     /// Stored as DATE in SQL Server. Use DateOnly for clean semantics.
@@ -61,12 +65,17 @@ public class ApplicationUser : IdentityUser
     public ICollection<Enrollment> Enrollments { get; set; } = [];
 
     /// <summary>
-    /// Assessments taken by the user.
+    /// Assessment submissions by the user.
     /// </summary>
-    public ICollection<Assessment> Assessments { get; set; } = [];
+    public ICollection<AssessmentSubmission> AssessmentSubmissions { get; set; } = [];
 
     /// <summary>
     /// Subscription history. Only one should be active at a time.
     /// </summary>
     public ICollection<UserSubscription> UserSubscriptions { get; set; } = [];
+    
+    /// <summary>
+    /// Refresh tokens for this user.
+    /// </summary>
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 }

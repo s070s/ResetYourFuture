@@ -17,13 +17,16 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
             .IsRequired()
             .HasMaxLength(200);
 
-        // Content can be large (rich text / markdown or URL)
+        // Content can be large (rich text / markdown)
         builder.Property(l => l.Content)
             .HasMaxLength(50000);
 
-        // ContentType stored as int
-        builder.Property(l => l.ContentType)
-            .HasConversion<int>();
+        // File paths for PDF and video
+        builder.Property(l => l.PdfPath)
+            .HasMaxLength(500);
+
+        builder.Property(l => l.VideoPath)
+            .HasMaxLength(500);
 
         // Relationship: Lesson belongs to exactly one Module
         builder.HasOne(l => l.Module)
