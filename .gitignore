@@ -4,3 +4,7 @@ obj/
 .vs/
 .vscode/
 Logs/
+*.db
+*.db-shm
+*.db-wal
+App_Data/
