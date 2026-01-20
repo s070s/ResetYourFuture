@@ -72,6 +72,19 @@ a,
     color: var(--color-error);
 }
 
+/* Fix white background on email input blur */
+.form-control.valid:not(:focus) {
+    background-color: transparent !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px var(--bg-surface) inset !important;
+    -webkit-text-fill-color: var(--text-light-normal) !important;
+}
+
 /* Blazor error UI */
 #blazor-error-ui {
     color-scheme: dark only;

@@ -1,5 +1,6 @@
 @page "/"
 @inject NavigationManager Navigation
+@inject HttpClient Http
 
 <PageTitle>Reset Your Future | Career Guidance</PageTitle>
 
@@ -12,7 +13,7 @@
     </Authorized>
     <NotAuthorized>
         <!-- Hero Section -->
-        <section class="hero-section">
+        <section class="hero-section" style="@heroBackgroundStyle">
             <div class="hero-bg-overlay"></div>
             <div class="hero-glow hero-glow-1"></div>
             <div class="hero-glow hero-glow-2"></div>
@@ -297,9 +298,31 @@
 
 @code {
     private string InstagramUrl => Configuration["Social:Instagram"] ?? "https://instagram.com/yourprofile";
+    private string? backgroundImageUrl;
+    private string heroBackgroundStyle => !string.IsNullOrEmpty(backgroundImageUrl) 
+        ? $"background-image: url('{backgroundImageUrl}'); background-size: cover; background-position: center;"
+        : string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var response = await Http.GetFromJsonAsync<BackgroundImageResponse>("api/site/background-image");
+            backgroundImageUrl = response?.Url;
+        }
+        catch
+        {
+            // Fail gracefully if endpoint doesn't exist or returns error
+        }
+    }
 
     private void NavigateToRegister()
     {
         Navigation.NavigateTo("/register");
+    }
+
+    private class BackgroundImageResponse
+    {
+        public string? Url { get; set; }
     }
 }

@@ -1,0 +1,15 @@
+@inject NavigationManager Nav
+
+<div class="culture-selector">
+    <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("en")'>EN</button>
+    <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("el")'>EL</button>
+</div>
+
+@code {
+    private void SetCulture(string culture)
+    {
+        var uri = new Uri(Nav.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var query = $"?culture={culture}&redirectUri={uri}";
+        Nav.NavigateTo($"/api/culture/set{query}", forceLoad: true);
+    }
+}
