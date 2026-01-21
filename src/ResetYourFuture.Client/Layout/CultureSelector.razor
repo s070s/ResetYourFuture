@@ -12,8 +12,8 @@
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
         
-        // Route to landing page if not logged in, home page if logged in
-        var redirectUri = isAuthenticated ? "/" : "/";
+        // Always route to home page after language change
+        var redirectUri = "/";
         var query = $"?culture={culture}&redirectUri={redirectUri}";
         Nav.NavigateTo($"/api/culture/set{query}", forceLoad: true);
     }
