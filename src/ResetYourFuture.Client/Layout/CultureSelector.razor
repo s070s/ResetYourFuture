@@ -1,5 +1,4 @@
 @inject NavigationManager Nav
-@inject AuthenticationStateProvider AuthStateProvider
 
 <div class="culture-selector">
     <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("en")'>EN</button>
@@ -7,11 +6,8 @@
 </div>
 
 @code {
-    private async Task SetCulture(string culture)
+    private void SetCulture(string culture)
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
-        
         // Always route to home page after language change
         var redirectUri = "/";
         var query = $"?culture={culture}&redirectUri={redirectUri}";
