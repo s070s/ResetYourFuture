@@ -49,16 +49,10 @@
                 </AuthorizeView>
 
                 <AuthorizeView Roles="Admin">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="bi bi-gear-nav-menu" aria-hidden="true"></span> Admin
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
-                            <li><NavLink class="dropdown-item" href="admin/users">Users</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="admin/courses">Courses</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="admin/assessments">Assessments</NavLink></li>
-                            <li><NavLink class="dropdown-item" href="admin/analytics">Analytics</NavLink></li>
-                        </ul>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/users">
+                            <span class="bi bi-shield-lock-nav-menu" aria-hidden="true"></span> Admin
+                        </NavLink>
                     </li>
                 </AuthorizeView>
             </ul>

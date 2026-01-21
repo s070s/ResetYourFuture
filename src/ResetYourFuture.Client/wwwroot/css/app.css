@@ -60,10 +60,6 @@ a,
 }
 
 /* Validation */
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid var(--color-success);
-}
-
 .invalid {
     outline: 1px solid var(--color-error);
 }
