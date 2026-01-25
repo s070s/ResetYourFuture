@@ -1,6 +1,5 @@
 @page "/"
 @inject NavigationManager Navigation
-@inject HttpClient Http
 
 <PageTitle>Reset Your Future | Career Guidance</PageTitle>
 
@@ -15,8 +14,6 @@
         <!-- Hero Section -->
         <section class="hero-section" style="@heroBackgroundStyle">
             <div class="hero-bg-overlay"></div>
-            <div class="hero-glow hero-glow-1"></div>
-            <div class="hero-glow hero-glow-2"></div>
             
             <div class="container hero-content">
                 <div class="hero-text">
@@ -273,7 +270,7 @@
                         <p class="footer-role">Σύμβουλος Επαγγελματικού Προσανατολισμού</p>
                     </div>
                     <div class="footer-social">
-                        <a href="https://youtube.com" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                        <a href="@YoutubeUrl" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
                                 <path d="m10 15 5-3-5-3z"></path>
@@ -297,32 +294,18 @@
 </AuthorizeView>
 
 @code {
+    // Use the client-served static image. Leading slash ensures the request goes to the client host.
+    // Change the filename if you used .jpg instead of .png.
     private string InstagramUrl => Configuration["Social:Instagram"] ?? "https://instagram.com/yourprofile";
-    private string? backgroundImageUrl;
+    private string YoutubeUrl => Configuration["Social:Youtube"] ?? "https://youtube.com";
+
+    private string? backgroundImageUrl = "/images/background.png";
     private string heroBackgroundStyle => !string.IsNullOrEmpty(backgroundImageUrl) 
         ? $"background-image: url('{backgroundImageUrl}'); background-size: cover; background-position: center;"
         : string.Empty;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            var response = await Http.GetFromJsonAsync<BackgroundImageResponse>("api/site/background-image");
-            backgroundImageUrl = response?.Url;
-        }
-        catch
-        {
-            // Fail gracefully if endpoint doesn't exist or returns error
-        }
-    }
-
     private void NavigateToRegister()
     {
         Navigation.NavigateTo("/register");
-    }
-
-    private class BackgroundImageResponse
-    {
-        public string? Url { get; set; }
     }
 }
