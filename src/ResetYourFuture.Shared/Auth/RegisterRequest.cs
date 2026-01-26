@@ -20,9 +20,9 @@ public class RegisterRequest
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Optional. Format: yyyy-MM-dd
+    /// Optional. Use DateTime (client & API). Date-only semantics are stored as DateOnly on the user entity.
     /// </summary>
-    public string? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 
     /// <summary>
     /// Must be true to register. GDPR requirement.

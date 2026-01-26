@@ -110,7 +110,6 @@ OtherTODO
 • Students cant see course contents if they are not enrolled
 • Admin do not have a Courses Route in the navMenu, Admins cant enroll in courses
 • If credentials are invalid in the login page do not pop up browser dialog for saving the credentials
-• Make the calendar more beautiful in Registration page and have it use the root theme colors
 • Store the courses,Lectures in json files instead of seeding them
 • When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
 • In Login Email after input and losing focus the input field turns white (css class form-control modified valid)

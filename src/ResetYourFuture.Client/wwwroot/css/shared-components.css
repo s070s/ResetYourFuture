@@ -67,6 +67,14 @@
 }
 
 /* Inputs in auth/profile pages */
+
+
+/* Fix white background on email input blur */
+.form-control.valid:not(:focus) {
+    background-color: transparent !important;
+}
+
+
 .auth-container .form-control,
 .profile-container .form-control {
     background-color: var(--bg-table-odd);
@@ -91,6 +99,43 @@
     background-color: var(--bg-table-odd);
     color: var(--text-accent);
     box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+}
+
+/* Datepicker & valid form control theme overrides
+   - Placed here so they load after app.css and win the cascade.
+   - Use root color variables to match the dark theme. */
+
+.auth-container .form-control.valid:not(:focus),
+.profile-container .form-control.valid:not(:focus),
+input[type="date"].form-control.valid:not(:focus) {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-light-normal) !important;
+    border: 1px solid var(--border-subtle);
+    box-shadow: none;
+}
+
+/* Ensure date inputs inherit theme and show correct text color */
+input[type="date"].form-control,
+.auth-container input[type="date"],
+.profile-container input[type="date"] {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+}
+
+/* WebKit: make the native calendar icon visible in dark theme */
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.05);
+    opacity: 0.9;
+}
+
+/* Keep focus ring consistent with app theme */
+.form-control:focus,
+input[type="date"].form-control:focus {
+    box-shadow:
+        0 0 0 0.1rem var(--bg-primary),
+        0 0 0 0.25rem var(--focus-ring);
+    outline: none;
 }
 
 /* Table cells - global adjustments */

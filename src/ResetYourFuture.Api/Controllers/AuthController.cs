@@ -48,10 +48,11 @@ public class AuthController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(new AuthResponse { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
+        // Map incoming DateTime? to DateOnly? used by ApplicationUser
         DateOnly? dob = null;
-        if (!string.IsNullOrEmpty(request.DateOfBirth) && DateOnly.TryParse(request.DateOfBirth, out var parsed))
+        if (request.DateOfBirth.HasValue)
         {
-            dob = parsed;
+            dob = DateOnly.FromDateTime(request.DateOfBirth.Value.Date);
         }
 
         var user = new ApplicationUser

@@ -52,15 +52,19 @@ builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 
-// --- Set global culture to Greek (el-GR) and enforce short date format dd/MM/yy ---
+// --- Set cultures and enforce short date format dd/MM/yy ---
 // Apply this BEFORE builder.Build().RunAsync()
-var culture = new CultureInfo("el-GR");
-// Force short date format: dd/MM/yy
-culture.DateTimeFormat.ShortDatePattern = "dd/MM/yy";
-culture.DateTimeFormat.DateSeparator = "/";
+ 
 
-// Apply globally
-CultureInfo.DefaultThreadCurrentCulture = culture;
-CultureInfo.DefaultThreadCurrentUICulture = culture;
+var supportedCultures = new[]
+{
+    new CultureInfo("en-GB"),
+    new CultureInfo("el-GR")
+};
+var defaultCulture = supportedCultures[0];
+
+CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+ 
 
 await builder.Build().RunAsync();

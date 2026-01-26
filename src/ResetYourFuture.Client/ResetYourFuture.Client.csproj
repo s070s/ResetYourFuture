@@ -8,6 +8,8 @@
     <CompressionEnabled>false</CompressionEnabled>
     <!-- Ensure cultures are available at runtime in WASM -->
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Load all globalization data so culture can be changed at startup -->
+    <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>
