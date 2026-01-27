@@ -7,7 +7,6 @@ using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Client.Services;
 using System.Globalization;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7003";

@@ -1,19 +1,8 @@
 using System.Net.Http.Json;
+using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.Courses;
 
 namespace ResetYourFuture.Client.Services;
-
-/// <summary>
-/// Client service for course-related API operations.
-/// </summary>
-public interface ICourseService
-{
-    Task<List<CourseListItemDto>> GetCoursesAsync();
-    Task<CourseDetailDto?> GetCourseAsync(Guid courseId);
-    Task<EnrollmentResultDto?> EnrollAsync(Guid courseId);
-    Task<LessonDetailDto?> GetLessonAsync(Guid lessonId);
-    Task<LessonCompletionResultDto?> CompleteLessonAsync(Guid lessonId);
-}
 
 /// <summary>
 /// HTTP implementation of ICourseService.
