@@ -1,13 +1,35 @@
 @page "/login"
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
+@inject IWebAssemblyHostEnvironment Env
+@inject HttpClient Http
 
 <PageTitle>Login</PageTitle>
 
 <div class="auth-container">
     <h2>Login</h2>
 
-    @if (!string.IsNullOrEmpty(errorMessage))
+    @if (!string.IsNullOrEmpty(devSuccessMessage))
+    {
+        <div class="alert alert-success">@devSuccessMessage</div>
+    }
+
+    @if (unconfirmedEmailPending)
+    {
+        <div class="alert alert-warning">
+            <div>Email not confirmed.</div>
+
+            @if (Env.IsDevelopment())
+            {
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-warning" @onclick="DevConfirmPendingEmail">Dev: Confirm Email</button>
+                </div>
+            }
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage) && !unconfirmedEmailPending)
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
@@ -53,8 +75,13 @@
 @code {
     private LoginRequest loginRequest = new();
     private string? errorMessage;
+    private string? devSuccessMessage;
     private bool isLoading;
     private bool showPassword;
+
+    // Tracks whether the most recent failure is due to unconfirmed email and which email is pending
+    private bool unconfirmedEmailPending;
+    private string pendingUnconfirmedEmail = string.Empty;
 
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIconClass => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
@@ -68,6 +95,9 @@
     {
         isLoading = true;
         errorMessage = null;
+        devSuccessMessage = null;
+        unconfirmedEmailPending = false;
+        pendingUnconfirmedEmail = string.Empty;
 
         // Trim inputs
         loginRequest.Email = loginRequest.Email?.Trim() ?? string.Empty;
@@ -81,9 +111,49 @@
         }
         else
         {
+            // Preserve original message
             errorMessage = result.Message ?? "Login failed.";
+
+            // Detect "email not confirmed" failure and surface a dev-only confirm action.
+            // NOTE: without a machine-readable failure code from the API, the client must infer this.
+            // If you want a robust non-string check, add a structured flag to the API response.
+            if (Env.IsDevelopment() && !string.IsNullOrEmpty(result.Message)
+                && result.Message.Contains("email not confirmed", StringComparison.OrdinalIgnoreCase))
+            {
+                unconfirmedEmailPending = true;
+                pendingUnconfirmedEmail = loginRequest.Email;
+                // Hide generic error when showing the targeted unconfirmed-email UI
+                errorMessage = null;
+            }
         }
 
         isLoading = false;
+    }
+
+    private async Task DevConfirmPendingEmail()
+    {
+        if (string.IsNullOrEmpty(pendingUnconfirmedEmail)) return;
+
+        try
+        {
+            // Call existing dev-only API used on Register page. This endpoint is development-only and guarded server-side.
+            var response = await Http.PostAsJsonAsync("api/auth/dev/confirm-email", pendingUnconfirmedEmail);
+
+            if (response.IsSuccessStatusCode)
+            {
+                unconfirmedEmailPending = false;
+                devSuccessMessage = "Email confirmed (dev). You can now log in.";
+            }
+            else
+            {
+                // Try to read returned error message if available
+                var apiResp = await response.Content.ReadFromJsonAsync<AuthResponse>();
+                errorMessage = apiResp?.Message ?? "Error confirming email.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error confirming email: {ex.Message}";
+        }
     }
 }
