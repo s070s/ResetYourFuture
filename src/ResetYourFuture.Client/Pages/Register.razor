@@ -1,20 +1,33 @@
 @page "/register"
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment Env
 
 <PageTitle>Register</PageTitle>
 
 <div class="auth-container">
     <h2>Create Account</h2>
 
-    @if (!string.IsNullOrEmpty(successMessage))
+
+
+
+    @if (Env.IsDevelopment())
     {
-        <div class="alert alert-success">
-            @successMessage
-            <div class="mt-3">
-                <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
-            </div>
-        </div>
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success" style="overflow-wrap: anywhere;">
+                    @successMessage
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
+                    </div>
+                </div>
+            }        
+    }
+    else
+    {
+        <!-- In non-development show a short sanitized message so raw URL is never exposed in production -->
+        <div>Registration successful! Please check your email.</div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
