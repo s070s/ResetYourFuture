@@ -1,7 +1,10 @@
 using ResetYourFuture.Shared.Auth;
 
-namespace ResetYourFuture.Client.Services;
+namespace ResetYourFuture.Client.Interfaces;
 
+/// <summary>
+/// Authentication service interface for client-side auth operations.
+/// </summary>
 public interface IAuthService
 {
     Task<AuthResponse> RegisterAsync(RegisterRequest request);

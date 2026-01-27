@@ -5,14 +5,9 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Api.Identity;
+using ResetYourFuture.Api.Interfaces;
 
 namespace ResetYourFuture.Api.Services;
-
-public interface ITokenService
-{
-    Task<(string AccessToken, DateTime Expiration)> GenerateAccessTokenAsync(ApplicationUser user);
-    string GenerateRefreshToken();
-}
 
 /// <summary>
 /// Generates JWT access tokens and opaque refresh tokens.

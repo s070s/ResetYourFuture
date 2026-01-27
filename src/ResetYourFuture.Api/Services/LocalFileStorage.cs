@@ -1,3 +1,5 @@
+using ResetYourFuture.Api.Interfaces;
+
 namespace ResetYourFuture.Api.Services;
 
 /// <summary>

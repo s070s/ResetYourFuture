@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.Auth;
 
 namespace ResetYourFuture.Client.Services;

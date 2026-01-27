@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
-using ResetYourFuture.Api.Services;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.Models.Admin;
 using System.Security.Claims;
 

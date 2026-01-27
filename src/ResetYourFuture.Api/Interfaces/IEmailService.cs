@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Api.Services;
+namespace ResetYourFuture.Api.Interfaces;
 
 /// <summary>
 /// Abstraction for sending transactional emails.

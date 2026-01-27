@@ -6,9 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Api.Logging;
 using ResetYourFuture.Api.Services;
-using ResetYourFuture.Shared.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -261,22 +261,7 @@ app.MapControllers();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Application started. Logs: {LogsPath}", Path.GetFullPath("Logs"));
 
-// --- Demo endpoint (keep for now) ---
-app.MapGet("/api/students", () =>
-{
-    logger.LogInformation("GET /api/students called");
-    var students = new List<Student>
-    {
-        new Student(1, "George", "Kokkalis", 25, "Athens", "Career Counselor"),
-        new Student(2, "Maria", "Papadopoulou", 30, "Thessaloniki", "Engineer"),
-        new Student(3, "Dimitris", "Nikolaidis", 28, "Patras", "Teacher"),
-        new Student(4, "Elena", "Vasilaki", 35, "Heraklion", "Doctor"),
-        new Student(5, "Kostas", "Georgiou", 22, "Larissa", "Student")
-    };
-    return students;
-})
-.WithName("GetStudents");
-
 app.Run();
+
 
 

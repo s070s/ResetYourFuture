@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Api.Services;
+namespace ResetYourFuture.Api.Interfaces;
 
 /// <summary>
 /// Abstraction for file storage operations.
@@ -35,6 +35,6 @@ public interface IFileStorage
     /// Checks if a file exists in storage.
     /// </summary>
     /// <param name="filePath">Relative file path from database</param>
-    /// <returns>True if file exists</returns>
+    /// <returns>True if file exists, false otherwise</returns>
     bool FileExists(string filePath);
 }

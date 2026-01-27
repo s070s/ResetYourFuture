@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Identity;
-using ResetYourFuture.Api.Services;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.Models.Profile;
 
 namespace ResetYourFuture.Api.Controllers;

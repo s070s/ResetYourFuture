@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
-using ResetYourFuture.Api.Services;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.Auth;
 
 namespace ResetYourFuture.Api.Controllers;

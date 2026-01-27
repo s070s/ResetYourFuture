@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ResetYourFuture.Client;
-using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Client.Services;
 using System.Globalization;
@@ -39,10 +38,6 @@ builder.Services.AddScoped(sp =>
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     return factory.CreateClient("AuthenticatedApi");
 });
-
-// --- Typed HttpClient for Student consumer (with auth) ---
-builder.Services.AddHttpClient<IStudentService, StudentConsumer>(c => c.BaseAddress = new Uri(apiBase))
-    .AddHttpMessageHandler<AuthHeaderHandler>();
 
 // --- Course Service ---
 builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress = new Uri(apiBase))
