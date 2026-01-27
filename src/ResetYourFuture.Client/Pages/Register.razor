@@ -1,6 +1,4 @@
 @page "/register"
-@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
-@inject IWebAssemblyHostEnvironment Env
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
 
@@ -11,21 +9,11 @@
 
     @if (!string.IsNullOrEmpty(successMessage))
     {
-        <div class="alert alert-success mw-100">
-            @if (Env.IsDevelopment())
-            {
-                <!-- Use Bootstrap's text-break and CSS overflow-wrap for robust breaking of long URLs -->
-                <div class="text-break" style="overflow-wrap: anywhere;">@successMessage</div>
-
-                <div class="mt-3">
-                    <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
-                </div>
-            }
-            else
-            {
-                <!-- In non-development show a short sanitized message so raw URL is never exposed in production -->
-                <div>Registration successful! Please check your email.</div>
-            }
+        <div class="alert alert-success">
+            @successMessage
+            <div class="mt-3">
+                <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
+            </div>
         </div>
     }
 
@@ -166,7 +154,14 @@
             errorMessage = result.Message;
             if (result.Errors != null)
             {
-                errors = result.Errors.ToList();
+                // Filter out Identity errors that mention username/UserName because the UI does not expose a username field
+                // and usernames are set to the email server-side. Showing username errors is confusing to users.
+                errors = result.Errors
+                    .Where(e => !(e?.Contains("username", StringComparison.OrdinalIgnoreCase) == true
+                                  || e?.Contains("user name", StringComparison.OrdinalIgnoreCase) == true
+                                  || e?.Contains("UserName", StringComparison.OrdinalIgnoreCase) == true))
+                    .ToList();
+
                 if (errors.Any(e => e.Contains("already taken") || e.Contains("duplicate") || e.Contains("exists")))
                 {
                     errorMessage = "This email address is already registered. Please use a different email or try logging in.";
