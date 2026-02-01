@@ -15,10 +15,14 @@ namespace ResetYourFuture.Api.Controllers;
 [Authorize(Policy = "AdminOnly")]
 public class AdminController : ControllerBase
 {
+    // Identity UserManager used to manage and query application users.
     private readonly UserManager<ApplicationUser> _userManager;
+    // Identity RoleManager used to manage roles in the system.
     private readonly RoleManager<IdentityRole> _roleManager;
+    // Logger for recording admin operations and errors.
     private readonly ILogger<AdminController> _logger;
 
+    // Constructor receives dependencies via dependency injection.
     public AdminController(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
@@ -35,9 +39,12 @@ public class AdminController : ControllerBase
     [HttpGet("users")]
     public async Task<ActionResult<IEnumerable<object>>> GetUsers()
     {
+        // Load all users from the Identity store.
         var users = await _userManager.Users.ToListAsync();
+        // Prepare a lightweight result list for the response.
         var result = new List<object>();
 
+        // For each user, fetch roles and shape the response object.
         foreach (var user in users)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -55,6 +62,7 @@ public class AdminController : ControllerBase
             });
         }
 
+        // Return 200 OK with the user list.
         return Ok(result);
     }
 
@@ -64,9 +72,11 @@ public class AdminController : ControllerBase
     [HttpGet("users/{userId}")]
     public async Task<ActionResult<object>> GetUser(string userId)
     {
+        // Find the user by id; return 404 if not found.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound();
 
+        // Fetch user roles and return a detailed user object.
         var roles = await _userManager.GetRolesAsync(user);
         return Ok(new
         {
@@ -91,19 +101,24 @@ public class AdminController : ControllerBase
     [HttpPost("users/{userId}/roles/{roleName}")]
     public async Task<ActionResult> AssignRole(string userId, string roleName)
     {
+        // Ensure the user exists before operating on roles.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found.");
 
+        // Validate that the role exists.
         if (!await _roleManager.RoleExistsAsync(roleName))
             return BadRequest($"Role '{roleName}' does not exist.");
 
+        // Prevent assigning the same role twice.
         if (await _userManager.IsInRoleAsync(user, roleName))
             return BadRequest($"User already has role '{roleName}'.");
 
+        // Add the role and handle potential errors.
         var result = await _userManager.AddToRoleAsync(user, roleName);
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
 
+        // Log the assignment and return success.
         _logger.LogInformation("Admin assigned role {Role} to user {UserId}", roleName, userId);
         return Ok($"Role '{roleName}' assigned.");
     }
@@ -114,16 +129,20 @@ public class AdminController : ControllerBase
     [HttpDelete("users/{userId}/roles/{roleName}")]
     public async Task<ActionResult> RemoveRole(string userId, string roleName)
     {
+        // Ensure the user exists.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found.");
 
+        // Ensure the user actually has the role before attempting removal.
         if (!await _userManager.IsInRoleAsync(user, roleName))
             return BadRequest($"User does not have role '{roleName}'.");
 
+        // Remove the role and handle errors.
         var result = await _userManager.RemoveFromRoleAsync(user, roleName);
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
 
+        // Log removal and return success.
         _logger.LogInformation("Admin removed role {Role} from user {UserId}", roleName, userId);
         return Ok($"Role '{roleName}' removed.");
     }
@@ -134,6 +153,7 @@ public class AdminController : ControllerBase
     [HttpGet("roles")]
     public async Task<ActionResult<IEnumerable<string>>> GetRoles()
     {
+        // Project roles to their names and return.
         var roles = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
         return Ok(roles);
     }
@@ -144,13 +164,16 @@ public class AdminController : ControllerBase
     [HttpPost("roles/{roleName}")]
     public async Task<ActionResult> CreateRole(string roleName)
     {
+        // Prevent creating duplicate roles.
         if (await _roleManager.RoleExistsAsync(roleName))
             return BadRequest($"Role '{roleName}' already exists.");
 
+        // Create the role and check result for failures.
         var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
 
+        // Log creation and return success.
         _logger.LogInformation("Admin created role {Role}", roleName);
         return Ok($"Role '{roleName}' created.");
     }
@@ -161,14 +184,16 @@ public class AdminController : ControllerBase
     [HttpDelete("users/{userId}")]
     public async Task<ActionResult> DeleteUser(string userId)
     {
+        // Find the user and return 404 if missing.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found.");
 
-        // Hard delete for now. In production, consider soft-delete + data anonymization.
+        // Hard delete for now; prefer soft-delete in production.
         var result = await _userManager.DeleteAsync(user);
         if (!result.Succeeded)
             return BadRequest(result.Errors.Select(e => e.Description));
 
+        // Log deletion and acknowledge success.
         _logger.LogInformation("Admin deleted user {UserId}", userId);
         return Ok("User deleted.");
     }
@@ -179,11 +204,13 @@ public class AdminController : ControllerBase
     [HttpGet("users/search")]
     public async Task<ActionResult<IEnumerable<object>>> SearchUsers([FromQuery] string query)
     {
+        // Validate query input.
         if (string.IsNullOrWhiteSpace(query))
         {
             return BadRequest("Search query is required");
         }
 
+        // Query the Identity store for matching users (limit to 50).
         var users = await _userManager.Users
             .Where(u => u.Email!.Contains(query) || 
                        u.FirstName.Contains(query) || 
@@ -191,6 +218,7 @@ public class AdminController : ControllerBase
             .Take(50)
             .ToListAsync();
 
+        // Build response objects including roles for each user.
         var result = new List<object>();
         foreach (var user in users)
         {
@@ -207,6 +235,7 @@ public class AdminController : ControllerBase
             });
         }
 
+        // Return 200 OK with search results.
         return Ok(result);
     }
 
@@ -216,13 +245,17 @@ public class AdminController : ControllerBase
     [HttpPost("users/{userId}/force-password-reset")]
     public async Task<ActionResult<object>> ForcePasswordReset(string userId)
     {
+        // Ensure the user exists before generating a token.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found");
 
+        // Generate a password reset token via Identity.
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         
+        // Log action for audit purposes.
         _logger.LogInformation("Admin generated password reset token for user {UserId}", userId);
         
+        // Return token to the caller (admin should transmit securely).
         return Ok(new { userId = user.Id, resetToken = token });
     }
 
@@ -232,15 +265,18 @@ public class AdminController : ControllerBase
     [HttpPost("users/{userId}/disable")]
     public async Task<IActionResult> DisableUser(string userId)
     {
+        // Find the user and return 404 if not present.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found");
 
+        // Set lockout end date to effectively disable login.
         var result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors.Select(e => e.Description));
         }
 
+        // Log and return NoContent to indicate success.
         _logger.LogInformation("Admin disabled user {UserId}", userId);
         return NoContent();
     }
@@ -251,15 +287,18 @@ public class AdminController : ControllerBase
     [HttpPost("users/{userId}/enable")]
     public async Task<IActionResult> EnableUser(string userId)
     {
+        // Find the user and return 404 if not present.
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return NotFound("User not found");
 
+        // Clear lockout to allow the user to login again.
         var result = await _userManager.SetLockoutEndDateAsync(user, null);
         if (!result.Succeeded)
         {
             return BadRequest(result.Errors.Select(e => e.Description));
         }
 
+        // Log and return NoContent.
         _logger.LogInformation("Admin enabled user {UserId}", userId);
         return NoContent();
     }

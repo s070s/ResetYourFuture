@@ -16,15 +16,19 @@ namespace ResetYourFuture.Api.Controllers;
 [Authorize(Policy = "AdminOnly")]
 public class AdminAssessmentsController : ControllerBase
 {
+    // EF Core DB context used to read and write application data
     private readonly ApplicationDbContext _db;
+    // Logger for recording informational and error messages
     private readonly ILogger<AdminAssessmentsController> _logger;
 
+    // Constructor receives dependencies via dependency injection
     public AdminAssessmentsController(ApplicationDbContext db, ILogger<AdminAssessmentsController> logger)
     {
         _db = db;
         _logger = logger;
     }
 
+    // Helper property to get the current authenticated user's ID or throw if missing
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? throw new UnauthorizedAccessException("User ID not found");
 
@@ -34,6 +38,7 @@ public class AdminAssessmentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<AssessmentDefinitionListItemDto>>> GetAssessments()
     {
+        // Query DB for assessment definitions and project to lightweight DTOs with submission counts
         var assessments = await _db.AssessmentDefinitions
             .Select(a => new AssessmentDefinitionListItemDto(
                 a.Id,
@@ -46,6 +51,7 @@ public class AdminAssessmentsController : ControllerBase
             .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
+        // Return 200 OK with the list of assessments
         return Ok(assessments);
     }
 
@@ -55,12 +61,13 @@ public class AdminAssessmentsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<AssessmentDefinitionDto>> CreateAssessment([FromBody] SaveAssessmentDefinitionRequest request)
     {
-        // Check for duplicate key
+        // Ensure the requested key is unique to avoid duplicates
         if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key))
         {
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        // Build a new assessment entity with provided data and initial metadata
         var assessment = new AssessmentDefinition
         {
             Id = Guid.NewGuid(),
@@ -72,9 +79,11 @@ public class AdminAssessmentsController : ControllerBase
             UpdatedByUserId = UserId
         };
 
+        // Add and persist the new entity
         _db.AssessmentDefinitions.Add(assessment);
         await _db.SaveChangesAsync();
 
+        // Map persisted entity to DTO for response
         var dto = new AssessmentDefinitionDto(
             assessment.Id,
             assessment.Key,
@@ -87,6 +96,7 @@ public class AdminAssessmentsController : ControllerBase
             assessment.PublishedAt
         );
 
+        // Return 201 Created with location header pointing to the assessments list endpoint
         return CreatedAtAction(nameof(GetAssessments), new { id = assessment.Id }, dto);
     }
 
@@ -96,18 +106,20 @@ public class AdminAssessmentsController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<AssessmentDefinitionDto>> UpdateAssessment(Guid id, [FromBody] SaveAssessmentDefinitionRequest request)
     {
+        // Try to find the assessment by id and return 404 if not found
         var assessment = await _db.AssessmentDefinitions.FindAsync(id);
         if (assessment == null)
         {
             return NotFound();
         }
 
-        // Check for duplicate key (excluding current assessment)
+        // Ensure the new key does not clash with another assessment
         if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key && a.Id != id))
         {
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        // Apply updates and metadata (updated time and user)
         assessment.Key = request.Key;
         assessment.Title = request.Title;
         assessment.Description = request.Description;
@@ -115,8 +127,10 @@ public class AdminAssessmentsController : ControllerBase
         assessment.UpdatedAt = DateTimeOffset.UtcNow;
         assessment.UpdatedByUserId = UserId;
 
+        // Persist changes
         await _db.SaveChangesAsync();
 
+        // Map updated entity to DTO and return 200 OK
         var dto = new AssessmentDefinitionDto(
             assessment.Id,
             assessment.Key,
@@ -138,12 +152,14 @@ public class AdminAssessmentsController : ControllerBase
     [HttpPost("{id:guid}/publish")]
     public async Task<IActionResult> PublishAssessment(Guid id)
     {
+        // Find the assessment or return 404
         var assessment = await _db.AssessmentDefinitions.FindAsync(id);
         if (assessment == null)
         {
             return NotFound();
         }
 
+        // If not already published, mark published, set timestamps and user, then save
         if (!assessment.IsPublished)
         {
             assessment.IsPublished = true;
@@ -152,6 +168,7 @@ public class AdminAssessmentsController : ControllerBase
             await _db.SaveChangesAsync();
         }
 
+        // Return 204 No Content to indicate success without body
         return NoContent();
     }
 
@@ -161,12 +178,14 @@ public class AdminAssessmentsController : ControllerBase
     [HttpGet("{id:guid}/submissions")]
     public async Task<ActionResult<List<AssessmentSubmissionListItemDto>>> GetSubmissions(Guid id)
     {
+        // Ensure the assessment exists before querying submissions
         var assessment = await _db.AssessmentDefinitions.FindAsync(id);
         if (assessment == null)
         {
             return NotFound();
         }
 
+        // Query submissions, include the user navigation, map to DTOs and order by submitted time
         var submissions = await _db.AssessmentSubmissions
             .Where(s => s.AssessmentDefinitionId == id)
             .Include(s => s.User)
@@ -180,6 +199,7 @@ public class AdminAssessmentsController : ControllerBase
             ))
             .ToListAsync();
 
+        // Return 200 OK with the list of submissions
         return Ok(submissions);
     }
 }

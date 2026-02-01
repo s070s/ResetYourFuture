@@ -16,9 +16,12 @@ namespace ResetYourFuture.Api.Controllers;
 [Authorize(Policy = "AdminOnly")]
 public class AdminAnalyticsController : ControllerBase
 {
+    // EF Core DB context used to query application data (courses, enrollments, etc.)
     private readonly ApplicationDbContext _db;
+    // Identity user manager used to query and manage application users and their roles
     private readonly UserManager<ApplicationUser> _userManager;
 
+    // Constructor receives dependencies via dependency injection
     public AdminAnalyticsController(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {
         _db = db;
@@ -31,12 +34,16 @@ public class AdminAnalyticsController : ControllerBase
     [HttpGet("summary")]
     public async Task<ActionResult<AnalyticsSummaryDto>> GetSummary()
     {
+        // Count total users using the Identity user store (efficient SQL COUNT)
         var totalUsers = await _userManager.Users.CountAsync();
         
+        // Load all users into memory so we can check each user's roles
         var allUsers = await _userManager.Users.ToListAsync();
+        // Lists to separate admin and student users for simple counting
         var adminUsers = new List<ApplicationUser>();
         var studentUsers = new List<ApplicationUser>();
         
+        // Iterate users and classify by role; GetRolesAsync queries the role table for each user
         foreach (var user in allUsers)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -50,13 +57,16 @@ public class AdminAnalyticsController : ControllerBase
             }
         }
 
+        // Compute totals from the classified lists
         var totalAdmins = adminUsers.Count;
         var totalStudents = studentUsers.Count;
+        // Use EF Core counts to get totals for courses and related entities
         var totalCourses = await _db.Courses.CountAsync();
         var publishedCourses = await _db.Courses.CountAsync(c => c.IsPublished);
         var activeEnrollments = await _db.Enrollments.CountAsync();
         var totalAssessmentSubmissions = await _db.AssessmentSubmissions.CountAsync();
 
+        // Create the DTO that will be serialized to JSON and returned to the client
         var dto = new AnalyticsSummaryDto(
             totalUsers,
             totalStudents,
@@ -67,6 +77,7 @@ public class AdminAnalyticsController : ControllerBase
             totalAssessmentSubmissions
         );
 
+        // Return 200 OK with the DTO payload
         return Ok(dto);
     }
 }
