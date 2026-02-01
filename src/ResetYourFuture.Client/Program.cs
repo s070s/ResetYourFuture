@@ -2,15 +2,17 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using ResetYourFuture.Client;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Client.Services;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7003";
 
-builder.RootComponents.Add<App>("#app");
+builder.RootComponents.Add<App>(selector: "#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // --- Localization (required for culture-aware InputDate, formatting, validation) ---
@@ -48,7 +50,6 @@ builder.Services.AddAuthorizationCore();
 
 // --- Set cultures and enforce short date format dd/MM/yy ---
 // Apply this BEFORE builder.Build().RunAsync()
- 
 
 var supportedCultures = new[]
 {
@@ -57,8 +58,56 @@ var supportedCultures = new[]
 };
 var defaultCulture = supportedCultures[0];
 
+// Set defaults first; these may be overridden below if a culture is supplied in the URL or cookie.
 CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
 CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
- 
 
-await builder.Build().RunAsync();
+var host = builder.Build();
+
+// Read culture from query string (preferred) or from the RequestLocalization cookie, then apply it
+try
+{
+    var js = host.Services.GetRequiredService<IJSRuntime>();
+
+    // Try URL query parameter first: e.g. ?culture=el-GR or ?culture=el
+    var requestedCulture = await js.InvokeAsync<string>("eval", "new URL(window.location.href).searchParams.get('culture')");
+    if (!string.IsNullOrWhiteSpace(requestedCulture))
+    {
+        var normalized = requestedCulture.ToLowerInvariant() switch
+        {
+            "en" => "en-GB",
+            "el" => "el-GR",
+            _ => requestedCulture
+        };
+
+        var ci = new CultureInfo(normalized);
+        CultureInfo.DefaultThreadCurrentCulture = ci;
+        CultureInfo.DefaultThreadCurrentUICulture = ci;
+
+        // Remove culture query param from URL to keep it clean
+        await js.InvokeVoidAsync("eval", "const u=new URL(window.location.href); u.searchParams.delete('culture'); history.replaceState({}, document.title, u.pathname + u.search);");
+    }
+    else
+    {
+        // Fallback: if server set the RequestLocalization cookie for the API host and the cookie is visible on this origin (rare),
+        // read it and apply. Cookie format: c=<culture>|uic=<ui-culture>
+        var cookieVal = await js.InvokeAsync<string>("eval", "document.cookie.split('; ').find(c=>c.startsWith('__RequestCulture='))?.split('=')[1] ?? null");
+        if (!string.IsNullOrWhiteSpace(cookieVal))
+        {
+            var match = Regex.Match(cookieVal, @"c=([^|;]+)");
+            if (match.Success)
+            {
+                var normalized = match.Groups[1].Value;
+                var ci = new CultureInfo(normalized);
+                CultureInfo.DefaultThreadCurrentCulture = ci;
+                CultureInfo.DefaultThreadCurrentUICulture = ci;
+            }
+        }
+    }
+}
+catch
+{
+    // If JSInterop fails for any reason, keep the default culture.
+}
+
+await host.RunAsync();

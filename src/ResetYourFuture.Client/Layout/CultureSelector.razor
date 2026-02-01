@@ -8,9 +8,11 @@
 @code {
     private void SetCulture(string culture)
     {
-        // Always route to home page after language change
+        //Refactor this to use a dedicated endpoint
+        // Always route to home page after language change.
+        // Navigate to the client root with ?culture=... and force a full reload so Program.cs reads the query on startup.
         var redirectUri = "/";
-        var query = $"?culture={culture}&redirectUri={redirectUri}";
-        Nav.NavigateTo($"/api/culture/set{query}", forceLoad: true);
+        var target = $"{redirectUri}?culture={culture}";
+        Nav.NavigateTo(target, forceLoad: true);
     }
 }

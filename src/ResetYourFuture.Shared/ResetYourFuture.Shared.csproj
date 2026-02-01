@@ -11,4 +11,20 @@
     <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
 
+  <!-- RESX localization - Update metadata for embedded resources -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\HomeRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>HomeRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\HomeRes.el.resx">
+      <DependentUpon>HomeRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\HomeRes.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>HomeRes.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

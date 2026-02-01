@@ -128,7 +128,7 @@ one line per comment
 subscribed users,completion analytics of users
 • Admin route in navigation menu provides a table where the Admin can change user credentials,remove users 
 completely
-• Implement Localization for English and Greek using resx files.
+
 
 
 

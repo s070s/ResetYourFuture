@@ -1,13 +1,13 @@
 @page "/"
 @inject NavigationManager Navigation
 
-<PageTitle>Reset Your Future | Career Guidance</PageTitle>
+<PageTitle>@HomeRes.PageTitle</PageTitle>
 
 <AuthorizeView>
     <Authorized>
         <div class="authenticated-home">
-            <h1>Καλώς ήρθες, @context.User.Identity?.Name!</h1>
-            <p>Είσαι συνδεδεμένος. Επισκέψου το <a href="/profile">προφίλ</a> σου για να δεις τα στοιχεία σου.</p>
+            <h1>@string.Format(HomeRes.WelcomeUser, context.User.Identity?.Name)</h1>
+            <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
         </div>
     </Authorized>
     <NotAuthorized>
@@ -18,16 +18,15 @@
             <div class="container hero-content">
                 <div class="hero-text">
                     <h1 class="hero-title">
-                        Από την απογοήτευση στη σαφήνεια<br>
-                        <span class="text-gradient">Από το Zero στο Hero</span>
+                        @HomeRes.HeroTitleLine1<br>
+                        <span class="text-gradient">@HomeRes.HeroTitleLine2</span>
                     </h1>
                     <p class="hero-subtitle">
-                        Η πρώτη ελληνική online πλατφόρμα που συνδυάζει επαγγελματικό προσανατολισμό 
-                        με ψυχοκοινωνική ενδυνάμωση για μαθητές και αποφοίτους Λυκείου.
+                        @HomeRes.HeroSubtitle
                     </p>
                     <div class="hero-cta">
                         <button class="btn-cta" @onclick="NavigateToRegister">
-                            Κλείσε δωρεάν διαγνωστική συνεδρία
+                            @HomeRes.HeroCtaButton
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M5 12h14"></path>
                                 <path d="m12 5 7 7-7 7"></path>
@@ -49,7 +48,7 @@
             <div class="container">
                 <div class="section-content">
                     <h2 class="section-title">
-                        Αν αυτά σου φαίνονται γνώριμα, <span class="text-gradient">είσαι στο σωστό μέρος</span>
+                        @HomeRes.ProblemTitle <span class="text-gradient">@HomeRes.ProblemTitleHighlight</span>
                     </h2>
                     
                     <div class="problem-grid">
@@ -61,7 +60,7 @@
                                     <line x1="12" x2="12.01" y1="16" y2="16"></line>
                                 </svg>
                             </div>
-                            <p>Δεν πέτυχες τους βαθμούς που περίμενες</p>
+                            <p>@HomeRes.ProblemCard1</p>
                         </div>
                         
                         <div class="problem-card">
@@ -72,7 +71,7 @@
                                     <line x1="12" x2="12.01" y1="16" y2="16"></line>
                                 </svg>
                             </div>
-                            <p>Νιώθεις χαμένος χωρίς ξεκάθαρη κατεύθυνση</p>
+                            <p>@HomeRes.ProblemCard2</p>
                         </div>
                         
                         <div class="problem-card">
@@ -83,7 +82,7 @@
                                     <line x1="12" x2="12.01" y1="16" y2="16"></line>
                                 </svg>
                             </div>
-                            <p>Αισθάνεσαι πίεση από γονείς και κοινωνία</p>
+                            <p>@HomeRes.ProblemCard3</p>
                         </div>
                         
                         <div class="problem-card">
@@ -94,12 +93,12 @@
                                     <line x1="12" x2="12.01" y1="16" y2="16"></line>
                                 </svg>
                             </div>
-                            <p>Αμφισβητείς τον εαυτό σου και τις δυνατότητές σου</p>
+                            <p>@HomeRes.ProblemCard4</p>
                         </div>
                     </div>
                     
                     <p class="problem-conclusion">
-                        Δεν είσαι αποτυχημένος. <span class="text-gradient font-bold">Απλώς κανείς δεν σου έμαθε πώς να διαχειρίζεσαι την αποτυχία.</span>
+                        @HomeRes.ProblemConclusion <span class="text-gradient font-bold">@HomeRes.ProblemConclusionHighlight</span>
                     </p>
                 </div>
             </div>
@@ -109,7 +108,7 @@
         <section class="section section-solution">
             <div class="container">
                 <h2 class="section-title">
-                    Τι είναι το <span class="text-gradient">Reset Your Future</span>
+                    @HomeRes.SolutionTitle <span class="text-gradient">@HomeRes.SolutionTitleHighlight</span>
                 </h2>
                 
                 <div class="solution-grid">
@@ -120,8 +119,8 @@
                                 <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>
                             </svg>
                         </div>
-                        <h3>Online Courses</h3>
-                        <p>Δομημένα μαθήματα αυτογνωσίας, ανθεκτικότητας και λήψης αποφάσεων.</p>
+                        <h3>@HomeRes.SolutionCard1Title</h3>
+                        <p>@HomeRes.SolutionCard1Text</p>
                     </div>
                     
                     <div class="solution-card">
@@ -130,8 +129,8 @@
                                 <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
                             </svg>
                         </div>
-                        <h3>Συμβουλευτικές Συνεδρίες</h3>
-                        <p>Ατομική και ομαδική υποστήριξη με ξεκάθαρο πλάνο δράσης.</p>
+                        <h3>@HomeRes.SolutionCard2Title</h3>
+                        <p>@HomeRes.SolutionCard2Text</p>
                     </div>
                     
                     <div class="solution-card">
@@ -143,8 +142,8 @@
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                             </svg>
                         </div>
-                        <h3>Κοινότητα Υποστήριξης</h3>
-                        <p>Δεν είσαι μόνος. Μαθαίνεις και εξελίσσεσαι μαζί με άλλους.</p>
+                        <h3>@HomeRes.SolutionCard3Title</h3>
+                        <p>@HomeRes.SolutionCard3Text</p>
                     </div>
                 </div>
             </div>
@@ -157,20 +156,20 @@
             
             <div class="container">
                 <h2 class="section-title">
-                    Από το <span class="text-light-muted">Zero State</span> στο <span class="text-gradient">Hero State</span>
+                    @HomeRes.MethodTitleFrom <span class="text-light-muted">@HomeRes.MethodTitleZeroState</span> @HomeRes.MethodTitleTo <span class="text-gradient">@HomeRes.MethodTitleHeroState</span>
                 </h2>
                 
                 <div class="method-grid">
                     <div class="state-card zero-state">
                         <div class="state-header">
                             <span class="state-dot zero-dot"></span>
-                            <h3>Zero State</h3>
+                            <h3>@HomeRes.ZeroStateTitle</h3>
                         </div>
                         <ul class="state-list">
-                            <li><span class="bullet zero-bullet"></span>Ανασφάλεια</li>
-                            <li><span class="bullet zero-bullet"></span>Σύγχυση</li>
-                            <li><span class="bullet zero-bullet"></span>Φόβος αποτυχίας</li>
-                            <li><span class="bullet zero-bullet"></span>Κοινωνική πίεση</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState1</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState2</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState3</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState4</li>
                         </ul>
                     </div>
                     
@@ -188,14 +187,14 @@
                     <div class="state-card hero-state">
                         <div class="state-header">
                             <span class="state-dot hero-dot"></span>
-                            <h3 class="text-gradient">Hero State</h3>
+                            <h3 class="text-gradient">@HomeRes.HeroStateTitle</h3>
                         </div>
                         <ul class="state-list">
-                            <li><span class="bullet hero-bullet"></span>Αυτογνωσία</li>
-                            <li><span class="bullet hero-bullet"></span>Ανθεκτικότητα</li>
-                            <li><span class="bullet hero-bullet"></span>Ελπίδα</li>
-                            <li><span class="bullet hero-bullet"></span>Αυτοπεποίθηση</li>
-                            <li><span class="bullet hero-bullet"></span>Δράση</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState1</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState2</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState3</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState4</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState5</li>
                         </ul>
                     </div>
                 </div>
@@ -206,7 +205,7 @@
         <section class="section section-story">
             <div class="container">
                 <h2 class="section-title">
-                    Η ιστορία πίσω από το <span class="text-gradient">Reset Your Future</span>
+                    @HomeRes.StoryTitle <span class="text-gradient">@HomeRes.StoryTitleHighlight</span>
                 </h2>
                 
                 <div class="story-card">
@@ -218,17 +217,16 @@
                     </div>
                     
                     <blockquote>
-                        «Το 2014 απέτυχα στις Πανελλαδικές. Ένιωσα χαμένος και χωρίς κατεύθυνση. 
-                        Σήμερα βοηθάω μαθητές να μετατρέψουν την αποτυχία σε δύναμη και σχέδιο δράσης.»
+                        «@HomeRes.StoryQuote»
                     </blockquote>
                     
                     <div class="author">
                         <div class="author-avatar">
-                            <span class="text-gradient">ΓΚ</span>
+                            <span class="text-gradient">@HomeRes.StoryAuthorInitials</span>
                         </div>
                         <div class="author-info">
-                            <p class="author-name">Γεώργιος Κόκκαλης</p>
-                            <p class="author-title">Ιδρυτής</p>
+                            <p class="author-name">@HomeRes.StoryAuthorName</p>
+                            <p class="author-title">@HomeRes.StoryAuthorTitle</p>
                         </div>
                     </div>
                 </div>
@@ -242,13 +240,13 @@
             <div class="container">
                 <div class="cta-card">
                     <h2 class="cta-title">
-                        Το επόμενο βήμα <span class="text-gradient">ξεκινά εδώ</span>
+                        @HomeRes.CtaTitle <span class="text-gradient">@HomeRes.CtaTitleHighlight</span>
                     </h2>
                     <p class="cta-text">
-                        Κλείσε δωρεάν μια σύντομη διαγνωστική συνεδρία και δες αν το Reset Your Future είναι για σένα.
+                        @HomeRes.CtaText
                     </p>
                     <button class="btn-cta btn-cta-large" @onclick="NavigateToRegister">
-                        Κλείσε δωρεάν συνεδρία
+                        @HomeRes.CtaButton
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M5 12h14"></path>
                             <path d="m12 5 7 7-7 7"></path>
@@ -263,11 +261,11 @@
             <div class="container">
                 <div class="footer-content">
                     <div class="footer-brand">
-                        <span class="footer-logo">Reset Your Future</span>
+                        <span class="footer-logo">@HomeRes.FooterBrand</span>
                     </div>
                     <div class="footer-author">
-                        <p class="footer-name">Γεώργιος Κόκκαλης</p>
-                        <p class="footer-role">Σύμβουλος Επαγγελματικού Προσανατολισμού</p>
+                        <p class="footer-name">@HomeRes.FooterAuthorName</p>
+                        <p class="footer-role">@HomeRes.FooterAuthorRole</p>
                     </div>
                     <div class="footer-social">
                         <a href="@YoutubeUrl" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
@@ -286,7 +284,7 @@
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>© 2026 Reset Your Future</p>
+                    <p>@HomeRes.FooterCopyright</p>
                 </div>
             </div>
         </footer>

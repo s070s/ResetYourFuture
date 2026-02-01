@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Reset Your Future | Επαγγελματικός Προσανατολισμός</value>
+  </data>
+  <data name="WelcomeUser" xml:space="preserve">
+    <value>Καλώς ήρθες, {0}!</value>
+  </data>
+  <data name="AuthenticatedMessage" xml:space="preserve">
+    <value>Είσαι συνδεδεμένος. Επισκέψου το &lt;a href="/profile"&gt;προφίλ&lt;/a&gt; σου για να δεις τα στοιχεία σου.</value>
+  </data>
+  <data name="HeroTitleLine1" xml:space="preserve">
+    <value>Από την απογοήτευση στη σαφήνεια</value>
+  </data>
+  <data name="HeroTitleLine2" xml:space="preserve">
+    <value>Από το Zero στο Hero</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>Η πρώτη ελληνική online πλατφόρμα που συνδυάζει επαγγελματικό προσανατολισμό με ψυχοκοινωνική ενδυνάμωση για μαθητές και αποφοίτους Λυκείου.</value>
+  </data>
+  <data name="HeroCtaButton" xml:space="preserve">
+    <value>Κλείσε δωρεάν διαγνωστική συνεδρία</value>
+  </data>
+  <data name="ProblemTitle" xml:space="preserve">
+    <value>Αν αυτά σου φαίνονται γνώριμα,</value>
+  </data>
+  <data name="ProblemTitleHighlight" xml:space="preserve">
+    <value>είσαι στο σωστό μέρος</value>
+  </data>
+  <data name="ProblemCard1" xml:space="preserve">
+    <value>Δεν πέτυχες τους βαθμούς που περίμενες</value>
+  </data>
+  <data name="ProblemCard2" xml:space="preserve">
+    <value>Νιώθεις χαμένος χωρίς ξεκάθαρη κατεύθυνση</value>
+  </data>
+  <data name="ProblemCard3" xml:space="preserve">
+    <value>Αισθάνεσαι πίεση από γονείς και κοινωνία</value>
+  </data>
+  <data name="ProblemCard4" xml:space="preserve">
+    <value>Αμφισβητείς τον εαυτό σου και τις δυνατότητές σου</value>
+  </data>
+  <data name="ProblemConclusion" xml:space="preserve">
+    <value>Δεν είσαι αποτυχημένος.</value>
+  </data>
+  <data name="ProblemConclusionHighlight" xml:space="preserve">
+    <value>Απλώς κανείς δεν σου έμαθε πώς να διαχειρίζεσαι την αποτυχία.</value>
+  </data>
+  <data name="SolutionTitle" xml:space="preserve">
+    <value>Τι είναι το</value>
+  </data>
+  <data name="SolutionTitleHighlight" xml:space="preserve">
+    <value>Reset Your Future</value>
+  </data>
+  <data name="SolutionCard1Title" xml:space="preserve">
+    <value>Online Courses</value>
+  </data>
+  <data name="SolutionCard1Text" xml:space="preserve">
+    <value>Δομημένα μαθήματα αυτογνωσίας, ανθεκτικότητας και λήψης αποφάσεων.</value>
+  </data>
+  <data name="SolutionCard2Title" xml:space="preserve">
+    <value>Συμβουλευτικές Συνεδρίες</value>
+  </data>
+  <data name="SolutionCard2Text" xml:space="preserve">
+    <value>Ατομική και ομαδική υποστήριξη με ξεκάθαρο πλάνο δράσης.</value>
+  </data>
+  <data name="SolutionCard3Title" xml:space="preserve">
+    <value>Κοινότητα Υποστήριξης</value>
+  </data>
+  <data name="SolutionCard3Text" xml:space="preserve">
+    <value>Δεν είσαι μόνος. Μαθαίνεις και εξελίσσεσαι μαζί με άλλους.</value>
+  </data>
+  <data name="MethodTitleFrom" xml:space="preserve">
+    <value>Από το</value>
+  </data>
+  <data name="MethodTitleZeroState" xml:space="preserve">
+    <value>Zero State</value>
+  </data>
+  <data name="MethodTitleTo" xml:space="preserve">
+    <value>στο</value>
+  </data>
+  <data name="MethodTitleHeroState" xml:space="preserve">
+    <value>Hero State</value>
+  </data>
+  <data name="ZeroStateTitle" xml:space="preserve">
+    <value>Zero State</value>
+  </data>
+  <data name="ZeroState1" xml:space="preserve">
+    <value>Ανασφάλεια</value>
+  </data>
+  <data name="ZeroState2" xml:space="preserve">
+    <value>Σύγχυση</value>
+  </data>
+  <data name="ZeroState3" xml:space="preserve">
+    <value>Φόβος αποτυχίας</value>
+  </data>
+  <data name="ZeroState4" xml:space="preserve">
+    <value>Κοινωνική πίεση</value>
+  </data>
+  <data name="HeroStateTitle" xml:space="preserve">
+    <value>Hero State</value>
+  </data>
+  <data name="HeroState1" xml:space="preserve">
+    <value>Αυτογνωσία</value>
+  </data>
+  <data name="HeroState2" xml:space="preserve">
+    <value>Ανθεκτικότητα</value>
+  </data>
+  <data name="HeroState3" xml:space="preserve">
+    <value>Ελπίδα</value>
+  </data>
+  <data name="HeroState4" xml:space="preserve">
+    <value>Αυτοπεποίθηση</value>
+  </data>
+  <data name="HeroState5" xml:space="preserve">
+    <value>Δράση</value>
+  </data>
+  <data name="StoryTitle" xml:space="preserve">
+    <value>Η ιστορία πίσω από το</value>
+  </data>
+  <data name="StoryTitleHighlight" xml:space="preserve">
+    <value>Reset Your Future</value>
+  </data>
+  <data name="StoryQuote" xml:space="preserve">
+    <value>Το 2014 απέτυχα στις Πανελλαδικές. Ένιωσα χαμένος και χωρίς κατεύθυνση. Σήμερα βοηθάω μαθητές να μετατρέψουν την αποτυχία σε δύναμη και σχέδιο δράσης.</value>
+  </data>
+  <data name="StoryAuthorInitials" xml:space="preserve">
+    <value>ΓΚ</value>
+  </data>
+  <data name="StoryAuthorName" xml:space="preserve">
+    <value>Γεώργιος Κόκκαλης</value>
+  </data>
+  <data name="StoryAuthorTitle" xml:space="preserve">
+    <value>Ιδρυτής</value>
+  </data>
+  <data name="CtaTitle" xml:space="preserve">
+    <value>Το επόμενο βήμα</value>
+  </data>
+  <data name="CtaTitleHighlight" xml:space="preserve">
+    <value>ξεκινά εδώ</value>
+  </data>
+  <data name="CtaText" xml:space="preserve">
+    <value>Κλείσε δωρεάν μια σύντομη διαγνωστική συνεδρία και δες αν το Reset Your Future είναι για σένα.</value>
+  </data>
+  <data name="CtaButton" xml:space="preserve">
+    <value>Κλείσε δωρεάν συνεδρία</value>
+  </data>
+  <data name="FooterBrand" xml:space="preserve">
+    <value>Reset Your Future</value>
+  </data>
+  <data name="FooterAuthorName" xml:space="preserve">
+    <value>Γεώργιος Κόκκαλης</value>
+  </data>
+  <data name="FooterAuthorRole" xml:space="preserve">
+    <value>Σύμβουλος Επαγγελματικού Προσανατολισμού</value>
+  </data>
+  <data name="FooterCopyright" xml:space="preserve">
+    <value>© 2026 Reset Your Future</value>
+  </data>
+</root>
