@@ -39,11 +39,11 @@ public class AdminCoursesController : ControllerBase
     public async Task<ActionResult<List<AdminCourseDto>>> GetCourses()
     {
         // Query courses including related modules, lessons and enrollments and project to DTOs.
+        // Note: SQLite doesn't support DateTimeOffset in ORDER BY, so we order client-side.
         var courses = await _db.Courses
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)
             .Include(c => c.Enrollments)
-            .OrderByDescending(c => c.CreatedAt)
             .Select(c => new AdminCourseDto(
                 c.Id,
                 c.Title,
@@ -57,8 +57,8 @@ public class AdminCoursesController : ControllerBase
             ))
             .ToListAsync();
 
-        // Return 200 OK with the list of courses for the admin UI.
-        return Ok(courses);
+        // Return 200 OK with the list of courses for the admin UI (ordered by newest first).
+        return Ok(courses.OrderByDescending(c => c.CreatedAt).ToList());
     }
 
     /// <summary>

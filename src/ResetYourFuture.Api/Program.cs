@@ -143,104 +143,11 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
-        // --- Seed Sample Courses (Development only) ---
-        if (!await db.Courses.AnyAsync())
-        {
-            var course1 = new Course
-            {
-                Id = Guid.NewGuid(),
-                Title = "Reset Your Future: Career Discovery",
-                Description = "A comprehensive program to help you discover your career path and develop essential skills for the modern job market.",
-                IsPublished = true,
-                Modules =
-                [
-                    new Module
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Introduction to Career Planning",
-                        Description = "Learn the fundamentals of career planning and self-assessment.",
-                        SortOrder = 1,
-                        Lessons =
-                        [
-                            new Lesson
-                            {
-                                Id = Guid.NewGuid(),
-                                Title = "Welcome to the Course",
-                                VideoPath = "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                                DurationMinutes = 5,
-                                SortOrder = 1
-                            },
-                            new Lesson
-                            {
-                                Id = Guid.NewGuid(),
-                                Title = "Understanding Your Values",
-                                Content = "# Understanding Your Values\n\nYour values are the foundation of a fulfilling career. In this lesson, we'll explore:\n\n## What are Values?\n\nValues are the principles and beliefs that guide your decisions and behavior. They represent what's truly important to you.\n\n## Why Values Matter in Career Planning\n\n1. **Job Satisfaction**: When your work aligns with your values, you feel more fulfilled.\n2. **Decision Making**: Values help you make difficult career choices.\n3. **Motivation**: Working in alignment with your values increases intrinsic motivation.\n\n## Exercise: Identify Your Top 5 Values\n\nTake a moment to reflect on what matters most to you. Consider areas like:\n- Family and relationships\n- Financial security\n- Creativity and innovation\n- Helping others\n- Personal growth\n- Work-life balance",
-                                DurationMinutes = 15,
-                                SortOrder = 2
-                            }
-                        ]
-                    },
-                    new Module
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Skills Assessment",
-                        Description = "Identify and evaluate your current skills and competencies.",
-                        SortOrder = 2,
-                        Lessons =
-                        [
-                            new Lesson
-                            {
-                                Id = Guid.NewGuid(),
-                                Title = "Hard Skills vs Soft Skills",
-                                VideoPath = "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                                DurationMinutes = 10,
-                                SortOrder = 1
-                            },
-                            new Lesson
-                            {
-                                Id = Guid.NewGuid(),
-                                Title = "Transferable Skills",
-                                Content = "# Transferable Skills\n\nTransferable skills are abilities you can use in any job or industry.\n\n## Common Transferable Skills\n\n- **Communication**: Writing, speaking, presenting\n- **Leadership**: Managing projects, mentoring others\n- **Problem Solving**: Analytical thinking, creativity\n- **Organization**: Time management, planning\n- **Technology**: Digital literacy, software proficiency\n\n## How to Identify Your Transferable Skills\n\n1. Review your past experiences (work, education, volunteering)\n2. List the tasks you performed\n3. Identify the underlying skills used\n4. Match these to potential career paths",
-                                DurationMinutes = 12,
-                                SortOrder = 2
-                            }
-                        ]
-                    }
-                ]
-            };
-
-            var course2 = new Course
-            {
-                Id = Guid.NewGuid(),
-                Title = "Building Your Personal Brand",
-                Description = "Learn how to create and maintain a professional personal brand that opens doors to new opportunities.",
-                IsPublished = true,
-                Modules =
-                [
-                    new Module
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = "Personal Branding Basics",
-                        Description = "Understanding the fundamentals of personal branding.",
-                        SortOrder = 1,
-                        Lessons =
-                        [
-                            new Lesson
-                            {
-                                Id = Guid.NewGuid(),
-                                Title = "What is Personal Branding?",
-                                Content = "# What is Personal Branding?\n\nPersonal branding is the practice of defining and promoting what you stand for.\n\n## Key Elements\n\n- **Identity**: Who you are and what makes you unique\n- **Value Proposition**: What you offer to employers or clients\n- **Visibility**: How you present yourself online and offline\n\n## Why It Matters\n\nIn today's competitive job market, a strong personal brand can:\n- Differentiate you from other candidates\n- Attract opportunities to you\n- Build trust and credibility",
-                                DurationMinutes = 10,
-                                SortOrder = 1
-                            }
-                        ]
-                    }
-                ]
-            };
-
-            db.Courses.AddRange(course1, course2);
-            await db.SaveChangesAsync();
-        }
+        // --- Seed Sample Courses from JSON (Development only) ---
+        var seedLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var jsonSeedPath = config["SeedData:JsonPath"] 
+            ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ResetYourFuture.Shared", "JSON");
+        await CourseSeeder.SeedFromJsonAsync(db, jsonSeedPath, seedLogger);
     }
 }
 

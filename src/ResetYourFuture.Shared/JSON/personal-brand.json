@@ -1,0 +1,20 @@
+{
+  "title": "Building Your Personal Brand",
+  "description": "Learn how to create and maintain a professional personal brand that opens doors to new opportunities.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Personal Branding Basics",
+      "description": "Understanding the fundamentals of personal branding.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "What is Personal Branding?",
+          "content": "# What is Personal Branding?\n\nPersonal branding is the practice of defining and promoting what you stand for.\n\n## Key Elements\n\n- **Identity**: Who you are and what makes you unique\n- **Value Proposition**: What you offer to employers or clients\n- **Visibility**: How you present yourself online and offline\n\n## Why It Matters\n\nIn today's competitive job market, a strong personal brand can:\n- Differentiate you from other candidates\n- Attract opportunities to you\n- Build trust and credibility",
+          "durationMinutes": 10,
+          "sortOrder": 1
+        }
+      ]
+    }
+  ]
+}
