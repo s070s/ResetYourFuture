@@ -4,11 +4,12 @@
 @inject NavigationManager Navigation
 @inject IWebAssemblyHostEnvironment Env
 @inject HttpClient Http
+@using ResetYourFuture.Shared.Resources.Messages;
 
-<PageTitle>Login</PageTitle>
+<PageTitle>@GlobalRes.Label_Login</PageTitle>
 
 <div class="auth-container">
-    <h2>Login</h2>
+    <h2>@GlobalRes.Label_Login</h2>
 
     @if (!string.IsNullOrEmpty(devSuccessMessage))
     {
@@ -16,35 +17,31 @@
     }
 
     @if (unconfirmedEmailPending)
-    {
-        <div class="alert alert-warning">
-            <div>Email not confirmed.</div>
+    { 
+        @if (Env.IsDevelopment())
+        {
+            <div class="mt-2">
+                <button class="btn btn-sm btn-warning" @onclick="DevConfirmPendingEmail">@GlobalRes.Label_ConfirmEmail</button>
+            </div>
+        }
 
-            @if (Env.IsDevelopment())
-            {
-                <div class="mt-2">
-                    <button class="btn btn-sm btn-warning" @onclick="DevConfirmPendingEmail">Dev: Confirm Email</button>
-                </div>
-            }
-        </div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage) && !unconfirmedEmailPending)
     {
         <div class="alert alert-danger">@errorMessage</div>
     }
-
     <EditForm Model="loginRequest" OnValidSubmit="HandleLogin" autocomplete="off">
         <DataAnnotationsValidator />
 
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">@GlobalRes.Label_Info_Email</label>
             <InputText id="email" class="form-control" @bind-Value="loginRequest.Email" />
             <ValidationMessage For="@(() => loginRequest.Email)" />
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
+            <label for="password" class="form-label">@GlobalRes.Label_Password</label>
             <div class="input-group">
                 <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="loginRequest.Password" />
                 <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
@@ -56,19 +53,19 @@
 
         <div class="mb-3 form-check">
             <InputCheckbox id="rememberMe" class="form-check-input" @bind-Value="loginRequest.RememberMe" />
-            <label class="form-check-label" for="rememberMe">Remember Me</label>
+            <label class="form-check-label" for="rememberMe">@GlobalRes.Label_RememberMe</label>
         </div>
 
         <button type="submit" class="btn btn-primary" disabled="@isLoading">
-            @if (isLoading) { <span>Logging in...</span> } else { <span>Login</span> }
+            @if (isLoading) { <span>@GlobalRes.Label_LoggingIn</span> } else { <span>@GlobalRes.Label_Login</span> }
         </button>
     </EditForm>
 
     <p class="mt-3">
-        Don't have an account? <a href="/register">Register</a>
+        Don't have an account? <a href="/register">@GlobalRes.Label_Register</a>
     </p>
     <p>
-        <a href="/forgot-password">Forgot password?</a>
+        <a href="/forgot-password">@GlobalRes.Label_ForgotPassword</a>
     </p>
 </div>
 
@@ -112,7 +109,7 @@
         else
         {
             // Preserve original message
-            errorMessage = result.Message ?? "Login failed.";
+            errorMessage = result.Message ?? ErrorMessagesRes.LoginError;
 
             // Detect "email not confirmed" failure and surface a dev-only confirm action.
             // NOTE: without a machine-readable failure code from the API, the client must infer this.
@@ -142,18 +139,18 @@
             if (response.IsSuccessStatusCode)
             {
                 unconfirmedEmailPending = false;
-                devSuccessMessage = "Email confirmed (dev). You can now log in.";
+                devSuccessMessage = SuccessMessagesRes.EmailConfirmationSuccess;
             }
             else
             {
                 // Try to read returned error message if available
                 var apiResp = await response.Content.ReadFromJsonAsync<AuthResponse>();
-                errorMessage = apiResp?.Message ?? "Error confirming email.";
+                errorMessage = apiResp?.Message ?? ErrorMessagesRes.EmailConfirmationError;
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error confirming email: {ex.Message}";
+            errorMessage = $"{ErrorMessagesRes.EmailConfirmationError}: {ex.Message}";
         }
     }
 }

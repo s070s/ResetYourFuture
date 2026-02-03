@@ -12,24 +12,24 @@
                     <Authorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="profile">
-                                <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Profile
+                                <span class="bi bi-person-nav-menu" aria-hidden="true"></span> @NavMenuRes.Profile
                             </NavLink>
                         </li>
                     </Authorized>
                     <NotAuthorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                                <span class="bi bi-home-nav-menu" aria-hidden="true"></span> Home
+                                <span class="bi bi-home-nav-menu" aria-hidden="true"></span> @NavMenuRes.Home
                             </NavLink>
                         </li>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="login">
-                                <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Login
+                                <span class="bi bi-person-nav-menu" aria-hidden="true"></span> @NavMenuRes.Login
                             </NavLink>
                         </li>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="register">
-                                <span class="bi bi-person-plus-nav-menu" aria-hidden="true"></span> Register
+                                <span class="bi bi-person-plus-nav-menu" aria-hidden="true"></span> @NavMenuRes.Register
                             </NavLink>
                         </li>
                     </NotAuthorized>
@@ -38,12 +38,12 @@
                 <AuthorizeView Roles="Student">
                     <li class="nav-item">
                         <NavLink class="nav-link" href="courses">
-                            <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Courses
+                            <span class="bi bi-book-nav-menu" aria-hidden="true"></span> @NavMenuRes.Courses
                         </NavLink>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" href="assessments">
-                            <span class="bi bi-list-check" aria-hidden="true"></span> Assessments
+                            <span class="bi bi-list-check" aria-hidden="true"></span> @NavMenuRes.Assessments
                         </NavLink>
                     </li>
                 </AuthorizeView>
@@ -51,22 +51,22 @@
                 <AuthorizeView Roles="Admin">
                     <li class="nav-item">
                         <NavLink class="nav-link" href="admin/users">
-                            <span class="bi bi-shield-lock-nav-menu" aria-hidden="true"></span> Users
+                            <span class="bi bi-shield-lock-nav-menu" aria-hidden="true"></span> @NavMenuRes.Users
                         </NavLink>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" href="admin/courses">
-                            <span class="bi bi-book-nav-menu" aria-hidden="true"></span> Courses
+                            <span class="bi bi-book-nav-menu" aria-hidden="true"></span> @NavMenuRes.Courses
                         </NavLink>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" href="admin/assessments">
-                            <span class="bi bi-list-check" aria-hidden="true"></span> Assessments
+                            <span class="bi bi-list-check" aria-hidden="true"></span> @NavMenuRes.Assessments
                         </NavLink>
                     </li>
                     <li class="nav-item">
                         <NavLink class="nav-link" href="admin/analytics">
-                            <span class="bi bi-bar-chart-nav-menu" aria-hidden="true"></span> Analytics
+                            <span class="bi bi-bar-chart-nav-menu" aria-hidden="true"></span> @NavMenuRes.Analytics
                         </NavLink>
                     </li>
                 </AuthorizeView>

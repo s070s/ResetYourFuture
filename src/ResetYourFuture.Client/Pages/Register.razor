@@ -4,10 +4,10 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @inject IWebAssemblyHostEnvironment Env
 
-<PageTitle>Register</PageTitle>
+<PageTitle>@GlobalRes.Label_Register</PageTitle>
 
 <div class="auth-container">
-    <h2>Create Account</h2>
+    <h2>@GlobalRes.Label_CreateAccount</h2>
 
 
 
@@ -19,15 +19,14 @@
                 <div class="alert alert-success" style="overflow-wrap: anywhere;">
                     @successMessage
                     <div class="mt-3">
-                        <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">Dev: Confirm Email</button>
+                    <button class="btn btn-sm btn-warning" @onclick="DevConfirmEmail">@GlobalRes.Label_ConfirmEmail</button>
                     </div>
                 </div>
             }        
     }
     else
     {
-        <!-- In non-development show a short sanitized message so raw URL is never exposed in production -->
-        <div>Registration successful! Please check your email.</div>
+        <div>@SuccessMessagesRes.RegistrationSuccess</div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -52,30 +51,30 @@
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label for="firstName" class="form-label">First Name</label>
+                <label for="firstName" class="form-label">@GlobalRes.Label_Info_FirstName</label>
                 <InputText id="firstName" class="form-control" @bind-Value="registerRequest.FirstName" />
                 <ValidationMessage For="@(() => registerRequest.FirstName)" />
             </div>
             <div class="col-md-6 mb-3">
-                <label for="lastName" class="form-label">Last Name</label>
+                <label for="lastName" class="form-label">@GlobalRes.Label_Info_LastName</label>
                 <InputText id="lastName" class="form-control" @bind-Value="registerRequest.LastName" />
                 <ValidationMessage For="@(() => registerRequest.LastName)" />
             </div>
         </div>
 
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
+            <label for="email" class="form-label">@GlobalRes.Label_Info_Email</label>
             <InputText id="email" class="form-control" @bind-Value="registerRequest.Email" />
             <ValidationMessage For="@(() => registerRequest.Email)" />
         </div>
 
         <div class="mb-3">
-            <label for="dob" class="form-label">Date of Birth (optional)</label>
+            <label for="dob" class="form-label">@GlobalRes.Label_Info_DateOfBirth</label>
             <InputDate id="dob" class="form-control" @bind-Value="registerRequest.DateOfBirth" />
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">Password (min 8 characters)</label>
+            <label for="password" class="form-label">@GlobalRes.Label_Password @GlobalRes.Label_Minimum8Chars</label>
             <div class="input-group">
                 <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="registerRequest.Password" />
                 <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
@@ -159,7 +158,7 @@
 
         if (result.Success)
         {
-            successMessage = result.Message ?? "Registration successful! Please check your email.";
+            successMessage = result.Message ?? SuccessMessagesRes.RegistrationSuccess;
             registerRequest = new() { DateOfBirth = new DateTime(2000,1,1) }; // Reset, keep default DOB
         }
         else
@@ -177,7 +176,7 @@
 
                 if (errors.Any(e => e.Contains("already taken") || e.Contains("duplicate") || e.Contains("exists")))
                 {
-                    errorMessage = "This email address is already registered. Please use a different email or try logging in.";
+                    errorMessage = ErrorMessagesRes.EmailTakenError;
                 }
             }
         }
@@ -196,16 +195,16 @@
             var response = await Http.PostAsJsonAsync("api/auth/dev/confirm-email", registeredEmail);
             if (response.IsSuccessStatusCode)
             {
-                successMessage = "Email confirmed! You can now log in.";
+                successMessage = SuccessMessagesRes.EmailConfirmationSuccess;
             }
             else
             {
-                errorMessage = "Error confirming email";
+                errorMessage = ErrorMessagesRes.EmailConfirmationError;
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            errorMessage = $"{ErrorMessagesRes.Error}: {ex.Message}";
         }
     }
 }

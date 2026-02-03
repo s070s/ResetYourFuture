@@ -11,8 +11,79 @@
     <PackageReference Include="FluentValidation" Version="12.1.1" />
   </ItemGroup>
 
-  <!-- RESX localization - Update metadata for embedded resources -->
   <ItemGroup>
+
+    <!-- Admin -->
+    <EmbeddedResource Update="Resources\AdminRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AdminRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\AdminRes.el.resx">
+      <DependentUpon>AdminRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\AdminRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AdminRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Assessment -->
+    <EmbeddedResource Update="Resources\AssessmentRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AssessmentRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\AssessmentRes.el.resx">
+      <DependentUpon>AssessmentRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\AssessmentRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AssessmentRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Course -->
+    <EmbeddedResource Update="Resources\CourseRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CourseRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CourseRes.el.resx">
+      <DependentUpon>CourseRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\CourseRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CourseRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Error Messages -->
+    <EmbeddedResource Update="Resources\Messages\ErrorMessagesRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ErrorMessagesRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Messages\ErrorMessagesRes.el.resx">
+      <DependentUpon>ErrorMessagesRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\Messages\ErrorMessagesRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ErrorMessagesRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Global -->
+    <EmbeddedResource Update="Resources\GlobalRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>GlobalRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\GlobalRes.el.resx">
+      <DependentUpon>GlobalRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\GlobalRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GlobalRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Home -->
     <EmbeddedResource Update="Resources\HomeRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>HomeRes.Designer.cs</LastGenOutput>
@@ -21,10 +92,39 @@
       <DependentUpon>HomeRes.resx</DependentUpon>
     </EmbeddedResource>
     <Compile Update="Resources\HomeRes.Designer.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>HomeRes.resx</DependentUpon>
     </Compile>
+
+    <!-- NavMenu -->
+    <EmbeddedResource Update="Resources\NavMenuRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>NavMenuRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\NavMenuRes.el.resx">
+      <DependentUpon>NavMenuRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\NavMenuRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NavMenuRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Success Messages -->
+    <EmbeddedResource Update="Resources\Messages\SuccessMessagesRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SuccessMessagesRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Messages\SuccessMessagesRes.el.resx">
+      <DependentUpon>SuccessMessagesRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\Messages\SuccessMessagesRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SuccessMessagesRes.resx</DependentUpon>
+    </Compile>
+
   </ItemGroup>
 
 </Project>

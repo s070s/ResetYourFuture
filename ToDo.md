@@ -131,6 +131,13 @@ completely
 
 
 
+LOCALIZED FULLY
+Register.razor
+Login.razor
+Navmenu.razor
+
+
+
 
 
 
