@@ -130,7 +130,7 @@
     <value>Create Account</value>
   </data>
   <data name="Label_Info_DateOfBirth" xml:space="preserve">
-    <value>Date of Birth (optional)</value>
+    <value>Date of Birth</value>
   </data>
   <data name="Label_Info_Email" xml:space="preserve">
     <value>Email</value>

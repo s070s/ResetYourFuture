@@ -130,7 +130,7 @@
     <value>Δημιουργία Λογαριασμού</value>
   </data>
   <data name="Label_Info_DateOfBirth" xml:space="preserve">
-    <value>Ημ.Γέννησης (προαιρετικά)</value>
+    <value>Ημ.Γέννησης</value>
   </data>
   <data name="Label_Info_Email" xml:space="preserve">
     <value>Email</value>

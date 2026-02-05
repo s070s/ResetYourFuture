@@ -106,7 +106,7 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Date of Birth (optional).
+        ///   Looks up a localized string similar to Date of Birth.
         /// </summary>
         public static string Label_Info_DateOfBirth {
             get {
