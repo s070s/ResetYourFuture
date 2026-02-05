@@ -112,18 +112,10 @@ You are a principal .NET Engineer and the author of this solution
 You are free to search the solution for context
 add comments for a junior .NET to understand this file
 one line per comment
-• Students cant see course contents if they are not enrolled
 • Admin do not have a Courses Route in the navMenu, Admins cant enroll in courses
 • If credentials are invalid in the login page do not pop up browser dialog for saving the credentials
 • When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
-• In Login Email after input and losing focus the input field turns white (css class form-control modified valid)
-<input id="email" class="form-control modified valid" _bl_2="">
-• See if this is implemented already.. if not do implement it yourself If email already exists on the Database return in Registration that the user already exists
-• After Login Remember me checkbox and functionality
-• In Login and Registration make sure to trim space,tab at the front and at the end in input data
-(username,password especially) after clicking submit and before sending the http
-• Link for confirmation after registration using email or by pressing a button for testing purposes
-• Admins have a Course Analytics route in the nav menu that shows Admin analytics for logged in users,
+  • Admins have a Course Analytics route in the nav menu that shows Admin analytics for logged in users,
 subscribed users,completion analytics of users
 • Admin route in navigation menu provides a table where the Admin can change user credentials,remove users 
 completely
