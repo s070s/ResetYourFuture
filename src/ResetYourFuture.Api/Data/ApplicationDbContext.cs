@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
 
@@ -28,6 +29,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<LessonCompletion> LessonCompletions => Set<LessonCompletion>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+
+    /// <summary>
+    /// Register value converters that apply to all entities.
+    /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
+    /// storing as ISO 8601 strings makes ORDER BY work natively.
+    /// </summary>
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetToStringConverter>();
+        configurationBuilder.Properties<DateTimeOffset?>()
+            .HaveConversion<DateTimeOffsetToStringConverter>();
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

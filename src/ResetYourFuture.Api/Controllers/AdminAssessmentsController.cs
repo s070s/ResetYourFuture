@@ -40,6 +40,7 @@ public class AdminAssessmentsController : ControllerBase
     {
         // Query DB for assessment definitions and project to lightweight DTOs with submission counts
         var assessments = await _db.AssessmentDefinitions
+            .OrderByDescending(a => a.CreatedAt)
             .Select(a => new AssessmentDefinitionListItemDto(
                 a.Id,
                 a.Key,
@@ -48,7 +49,6 @@ public class AdminAssessmentsController : ControllerBase
                 a.Submissions.Count,
                 a.CreatedAt
             ))
-            .OrderByDescending(a => a.CreatedAt)
             .ToListAsync();
 
         // Return 200 OK with the list of assessments

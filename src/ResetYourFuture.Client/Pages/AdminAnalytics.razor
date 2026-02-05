@@ -128,7 +128,7 @@ else
     {
         try
         {
-            stats = await Http.GetFromJsonAsync<AnalyticsStats>("api/admin/analytics");
+            stats = await Http.GetFromJsonAsync<AnalyticsStats>("api/admin/analytics/summary");
         }
         catch (Exception ex)
         {
