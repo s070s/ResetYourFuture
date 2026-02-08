@@ -7,7 +7,7 @@ A Blazor WebAssembly + ASP.NET Core Web API application with JWT-based authentic
 ## Prerequisites
 
 - .NET SDK 9.x
-- (No database server required — uses SQLite)
+- (Developed using LocalDB Microsoft SQL Server)
 
 ---
 
@@ -27,18 +27,7 @@ dotnet tool restore
 
 > This installs `dotnet-ef` locally for migration commands.
 
-### 3. Database
-
-The database is created automatically on first run (SQLite file: `ResetYourFuture.db`).
-
-To recreate from scratch:
-
-```powershell
-Remove-Item src/ResetYourFuture.Api/ResetYourFuture.db -ErrorAction SilentlyContinue
-dotnet run --project src/ResetYourFuture.Api
-```
-
-### 4. Run
+### 3. Run
 
 **Option A — Two terminals:**
 
@@ -49,6 +38,7 @@ dotnet run --project src/ResetYourFuture.Api --launch-profile https
 # Terminal 2 (Client on https://localhost:7083)
 dotnet run --project src/ResetYourFuture.Client
 ```
+ 
 
 **Option B — VS Code task:**
 
@@ -62,28 +52,16 @@ Run `Run Both (Client + API)` from Tasks → Run Task.
 | API | https://localhost:7003 |
 | OpenAPI | https://localhost:7003/openapi/v1.json |
 
----
 
-## Project Structure
+**Option C — Visual Studio:**
 
-```
-ResetYourFuture/
-├── src/
-│   ├── ResetYourFuture.Api/          # ASP.NET Core Web API
-│   │   ├── Controllers/              # AuthController, AdminController
-│   │   ├── Data/                     # ApplicationDbContext
-│   │   ├── Identity/                 # ApplicationUser, UserStatus
-│   │   ├── Logging/                  # File-based logger
-│   │   └── Services/                 # TokenService (JWT)
-│   ├── ResetYourFuture.Client/       # Blazor WebAssembly
-│   │   ├── Pages/                    # Login, Register, Profile, Admin
-│   │   └── Services/                 # AuthService, JwtAuthStateProvider
-│   └── ResetYourFuture.Shared/       # Shared DTOs
-│       └── Auth/                     # Request/Response models
-└── tests/                            # (placeholder)
-```
+1. Open the solution in Visual Studio.
+2. Set the `ResetYourFuture.Api` and `ResetYourFuture.Client` projects as startup projects.
+3. Start debugging (F5) to run both projects.
 
 ---
+
+ 
 
 ## Authentication
 
@@ -125,11 +103,8 @@ Since no email service is configured, the API returns the confirmation URL in th
 }
 ```
 
-**To confirm:** Copy the `devConfirmationUrl` and paste it into your browser or use PowerShell:
+**To confirm:** Copy the `devConfirmationUrl` and paste it into your browser or click the button:
 
-```powershell
-Invoke-RestMethod -Uri "<paste-the-url-here>" -Method Get
-```
 
 ### Admin Endpoints
 
@@ -147,20 +122,8 @@ Invoke-RestMethod -Uri "<paste-the-url-here>" -Method Get
 
 ## Database
 
-The application uses **SQLite** for local development. The database file (`ResetYourFuture.db`) is created automatically on first run.
+The application uses **SQL Server** with LocalDB and uses Migrations.
 
-### Common Commands
-
-```powershell
-# Delete database (will be recreated on next run)
-Remove-Item src/ResetYourFuture.Api/ResetYourFuture.db
-
-# View database with SQLite CLI (if installed)
-sqlite3 src/ResetYourFuture.Api/ResetYourFuture.db ".tables"
-
-# Query users
-sqlite3 src/ResetYourFuture.Api/ResetYourFuture.db "SELECT Email, FirstName, LastName FROM AspNetUsers"
-```
 
 ### EF Core Migrations (Optional)
 
@@ -196,24 +159,46 @@ dotnet ef database update 0
 
 ```json
 {
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=ResetYourFuture.db"
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
   },
+  "AllowedHosts": "*",
+  "AllowedClientOrigin": "https://localhost:7083",
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ResetYourFutureDb;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Application Name=\"SQL Server Management Studio\";Command Timeout=0"
+  },
+
   "Jwt": {
     "Key": "CHANGE_THIS_IN_PRODUCTION_MIN_32_CHARS!!",
     "Issuer": "ResetYourFuture.Api",
     "Audience": "ResetYourFuture.Client",
-    "AccessTokenExpirationMinutes": 60
+    "AccessTokenExpirationMinutes": 60,
+    "RefreshTokenExpirationDays": 7
   },
-  "AllowedClientOrigin": "https://localhost:7083"
+  "SeedData": {
+
+    "JsonPaths": {
+      "Courses": "../ResetYourFuture.Shared/JSON/Courses",
+      "Assessments": "../ResetYourFuture.Shared/JSON/Assessments"
+    }
+  }
 }
+
 ```
 
 ### appsettings.json (Client - wwwroot)
 
 ```json
 {
-  "ApiBaseUrl": "https://localhost:7003"
+  "ApiBaseUrl": "https://localhost:7003",
+  "Social": {
+    "Instagram": "https://instagram.com/",
+    "Youtube": "https://youtube.com"
+  }
 }
 ```
 
@@ -241,61 +226,10 @@ app.MapGet("/api/example", (ILogger<Program> log) =>
 
 ---
 
-## Test API with PowerShell
-
-### Register
-
-```powershell
-$body = @{
-    email = "test@example.com"
-    password = "Password123"
-    confirmPassword = "Password123"
-    firstName = "Test"
-    lastName = "User"
-    gdprConsent = $true
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "https://localhost:7003/api/auth/register" -Method Post -Body $body -ContentType "application/json"
-```
-
-### Login
-
-```powershell
-$body = @{ email = "test@example.com"; password = "Password123" } | ConvertTo-Json
-$response = Invoke-RestMethod -Uri "https://localhost:7003/api/auth/login" -Method Post -Body $body -ContentType "application/json"
-$token = $response.token
-```
-
-### Authenticated request
-
-```powershell
-Invoke-RestMethod -Uri "https://localhost:7003/api/auth/me" -Headers @{ Authorization = "Bearer $token" }
-```
-
----
-
+ 
 ## Troubleshooting
 
-### Client build fails with static web assets error
-
-Already mitigated in `.csproj`. If it recurs:
-
-```powershell
-Remove-Item -Recurse -Force src/ResetYourFuture.Client/obj
-dotnet build ResetYourFuture.sln
-```
-
-### Database connection fails
-
-Delete the SQLite file and restart the API to recreate:
-
-```powershell
-Remove-Item src/ResetYourFuture.Api/ResetYourFuture.db -ErrorAction SilentlyContinue
-```
-
-### JWT token invalid
-
-Check that `Jwt:Key` in `appsettings.json` is at least 32 characters.
+ 
 
 ### HTTPS certificate not trusted
 
@@ -340,39 +274,7 @@ Available via **Terminal → Run Task**:
 | Trust Dev Certificates | Trust ASP.NET Core dev certs |
 
 ---
-
-## Architecture Notes
-
-- **JWT tokens** stored in localStorage (Blazor WASM)
-- **Refresh tokens** generated but not persisted server-side (placeholder for production)
-- **Email confirmation** tokens returned in dev response (no email service configured)
-- **Parental consent** placeholder for under-18 users (logged, not enforced)
-- **GDPR consent** required at registration
-
----
-
-## For Evaluators
-
-The solution builds and runs locally with **no external dependencies**. Database uses SQLite (auto-created). All auth flows are functional via API. Client UI is minimal but complete.
-
-```powershell
-# Full setup from scratch
-dotnet build ResetYourFuture.sln
-dotnet tool restore
-
-# Start API (creates SQLite DB automatically)
-Start-Process powershell -ArgumentList "dotnet run --project src/ResetYourFuture.Api --launch-profile https"
-
-# Start Client
-dotnet run --project src/ResetYourFuture.Client
-```
-
-### Quick API Test
-
-```powershell
-# Health check (after both are running)
-Invoke-RestMethod -Uri "https://localhost:7003/api/students" -Method Get
-```
+ 
 
 ### Tasks.json in .vscode
 
