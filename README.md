@@ -173,13 +173,19 @@ cd src/ResetYourFuture.Api
 dotnet tool restore
 
 # Add migration
-dotnet ef migrations add MigrationName --context ApplicationDbContext
+dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --context ApplicationDbContext
 
 # Apply migrations
 dotnet ef database update
 
+# Remove last migration (if needed)
+ dotnet ef migrations remove --project src/ResetYourFuture.Api
+
 # Generate SQL script
 dotnet ef migrations script --output migration.sql
+
+# Rollback to Migration 0
+dotnet ef database update 0
 ```
 
 ---

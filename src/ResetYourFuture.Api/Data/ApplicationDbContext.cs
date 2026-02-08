@@ -12,8 +12,8 @@ namespace ResetYourFuture.Api.Data;
 /// </summary>
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
+    public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options )
+        : base( options )
     {
     }
 
@@ -35,7 +35,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
     /// storing as ISO 8601 strings makes ORDER BY work natively.
     /// </summary>
-    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    protected override void ConfigureConventions( ModelConfigurationBuilder configurationBuilder )
     {
         configurationBuilder.Properties<DateTimeOffset>()
             .HaveConversion<DateTimeOffsetToStringConverter>();
@@ -43,32 +43,32 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HaveConversion<DateTimeOffsetToStringConverter>();
     }
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating( ModelBuilder builder )
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating( builder );
 
         // Apply all entity configurations from this assembly
-        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly( typeof( ApplicationDbContext ).Assembly );
 
         // ApplicationUser configuration (Identity-specific)
-        builder.Entity<ApplicationUser>(entity =>
+        builder.Entity<ApplicationUser>( entity =>
         {
             // Ignore computed property
-            entity.Ignore(u => u.Age);
+            entity.Ignore( u => u.Age );
 
             // Store DateOfBirth as DATE column
-            entity.Property(u => u.DateOfBirth)
+            entity.Property( u => u.DateOfBirth )
                   .HasConversion(
-                      d => d.HasValue ? d.Value.ToDateTime(TimeOnly.MinValue) : (DateTime?)null,
-                      d => d.HasValue ? DateOnly.FromDateTime(d.Value) : null)
-                  .HasColumnType("date");
+                      d => d.HasValue ? d.Value.ToDateTime( TimeOnly.MinValue ) : ( DateTime? ) null ,
+                      d => d.HasValue ? DateOnly.FromDateTime( d.Value ) : null )
+                  .HasColumnType( "date" );
 
             // Store Status as int
-            entity.Property(u => u.Status)
+            entity.Property( u => u.Status )
                   .HasConversion<int>();
 
-            entity.Property(u => u.FirstName).HasMaxLength(100);
-            entity.Property(u => u.LastName).HasMaxLength(100);
-        });
+            entity.Property( u => u.FirstName ).HasMaxLength( 100 );
+            entity.Property( u => u.LastName ).HasMaxLength( 100 );
+        } );
     }
 }

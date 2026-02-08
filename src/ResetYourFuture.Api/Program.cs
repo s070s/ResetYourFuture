@@ -1,28 +1,27 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Api.Data;
-using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Api.Logging;
 using ResetYourFuture.Api.Services;
+using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder( args );
 var config = builder.Configuration;
-var clientOrigin = config["AllowedClientOrigin"] ?? "https://localhost:7083";
+var clientOrigin = config [ "AllowedClientOrigin" ] ?? "https://localhost:7083";
 
 // --- Logging ---
-builder.Logging.AddFileLogger("Logs");
+builder.Logging.AddFileLogger( "Logs" );
 
-// --- Database (SQLite for local dev, no server required) ---
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(config.GetConnectionString("DefaultConnection")));
+// --- Database (SQL Server for dev & Azure) ---
+builder.Services.AddDbContext<ApplicationDbContext>( options =>
+    options.UseSqlServer( config.GetConnectionString( "DefaultConnection" ) ) );
 
 // --- Identity ---
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser , IdentityRole>( options =>
 {
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
@@ -30,135 +29,144 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = false; // Relaxed for usability; tighten in prod
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedEmail = true; // Email confirmation required
-})
+} )
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 // --- JWT Authentication ---
-var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-var jwtIssuer = config["Jwt:Issuer"];
-var jwtAudience = config["Jwt:Audience"];
+var jwtKey = config [ "Jwt:Key" ] ?? throw new InvalidOperationException( "JWT Key not configured" );
+var jwtIssuer = config [ "Jwt:Issuer" ];
+var jwtAudience = config [ "Jwt:Audience" ];
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication( options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
+} )
+.AddJwtBearer( options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateIssuer = true ,
+        ValidateAudience = true ,
+        ValidateLifetime = true ,
+        ValidateIssuerSigningKey = true ,
+        ValidIssuer = jwtIssuer ,
+        ValidAudience = jwtAudience ,
+        IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( jwtKey ) ) ,
         ClockSkew = TimeSpan.Zero // No tolerance for token expiry
     };
-});
+} );
 
 // --- Authorization Policies ---
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
-    .AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
+    .AddPolicy( "AdminOnly" , policy => policy.RequireRole( "Admin" ) )
+    .AddPolicy( "StudentOnly" , policy => policy.RequireRole( "Student" ) );
 
 // --- Services ---
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
-builder.Services.AddScoped<IEmailService, StubEmailService>();
+builder.Services.AddScoped<ITokenService , TokenService>();
+builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
+builder.Services.AddScoped<IEmailService , StubEmailService>();
 
 // --- Localization ---
 builder.Services.AddLocalization();
-builder.Services.Configure<RequestLocalizationOptions>(options =>
+builder.Services.Configure<RequestLocalizationOptions>( options =>
 {
-    var supportedCultures = new[] { "en", "el" };
-    options.SetDefaultCulture("en")
-        .AddSupportedCultures(supportedCultures)
-        .AddSupportedUICultures(supportedCultures);
-});
+    var supportedCultures = new [] { "en" , "el" };
+    options.SetDefaultCulture( "en" )
+        .AddSupportedCultures( supportedCultures )
+        .AddSupportedUICultures( supportedCultures );
+} );
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 // --- CORS ---
-builder.Services.AddCors(options =>
+builder.Services.AddCors( options =>
 {
-    options.AddPolicy("BlazorClient", p => p
-        .WithOrigins(clientOrigin)
+    options.AddPolicy( "BlazorClient" , p => p
+        .WithOrigins( clientOrigin )
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials()); // Required for auth headers
-});
+        .AllowCredentials() ); // Required for auth headers
+} );
 
 var app = builder.Build();
 
-// --- Auto-create database in development ---
-using (var scope = app.Services.CreateScope())
+// --- Apply migrations and seed (runs at startup) ---
+using ( var scope = app.Services.CreateScope() )
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    if (app.Environment.IsDevelopment())
+    var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    try
     {
-        // Creates database and schema automatically (no migrations needed for dev)
-        db.Database.EnsureCreated();
+        // Apply EF Core migrations (creates database if it doesn't exist)
+        db.Database.Migrate();
+        startupLogger.LogInformation( "Applied EF Core migrations successfully." );
+    }
+    catch ( Exception ex )
+    {
+        // Fail fast so deployment surfaces migration issues
+        startupLogger.LogCritical( ex , "Applying EF Core migrations failed." );
+        throw;
     }
 
     // --- Seed Roles ---
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roles = ["Admin", "Student"];
-    foreach (var role in roles)
+    string [] roles = new [] { "Admin" , "Student" };
+    foreach ( var role in roles )
     {
-        if (!await roleManager.RoleExistsAsync(role))
+        if ( !await roleManager.RoleExistsAsync( role ) )
         {
-            await roleManager.CreateAsync(new IdentityRole(role));
+            await roleManager.CreateAsync( new IdentityRole( role ) );
         }
     }
 
     // --- Seed Admin User (Development only) ---
-    if (app.Environment.IsDevelopment())
+    if ( app.Environment.IsDevelopment() )
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var adminEmail = config["AdminUser:Email"] ?? "admin@resetyourfuture.local";
-        var adminPassword = config["AdminUser:Password"] ?? "Admin123!";
+        var adminEmail = config [ "AdminUser:Email" ] ?? "admin@resetyourfuture.local";
+        var adminPassword = config [ "AdminUser:Password" ] ?? "Admin123!";
 
-        if (await userManager.FindByEmailAsync(adminEmail) is null)
+        if ( await userManager.FindByEmailAsync( adminEmail ) is null )
         {
             var admin = new ApplicationUser
             {
-                UserName = adminEmail,
-                Email = adminEmail,
-                FirstName = "System",
-                LastName = "Administrator",
-                EmailConfirmed = true, // Pre-confirmed for dev
-                GdprConsentGiven = true,
-                GdprConsentDate = DateTime.UtcNow,
+                UserName = adminEmail ,
+                Email = adminEmail ,
+                FirstName = "System" ,
+                LastName = "Administrator" ,
+                EmailConfirmed = true , // Pre-confirmed for dev
+                GdprConsentGiven = true ,
+                GdprConsentDate = DateTime.UtcNow ,
                 CreatedAt = DateTime.UtcNow
             };
 
-            var result = await userManager.CreateAsync(admin, adminPassword);
-            if (result.Succeeded)
+            var result = await userManager.CreateAsync( admin , adminPassword );
+            if ( result.Succeeded )
             {
-                await userManager.AddToRoleAsync(admin, "Admin");
+                await userManager.AddToRoleAsync( admin , "Admin" );
             }
         }
 
         // --- Seed Sample Courses from JSON (Development only) ---
         var seedLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        var jsonSeedPath = config["SeedData:JsonPath"] 
-            ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "ResetYourFuture.Shared", "JSON");
-        await CourseSeeder.SeedFromJsonAsync(db, jsonSeedPath, seedLogger);
+        var jsonSeedPath = config [ "SeedData:JsonPath" ]
+            ?? Path.Combine( AppContext.BaseDirectory , ".." , ".." , ".." , ".." , "ResetYourFuture.Shared" , "JSON" );
+        await CourseSeeder.SeedFromJsonAsync( db , jsonSeedPath , seedLogger );
     }
 }
 
 // --- Pipeline ---
-if (app.Environment.IsDevelopment())
+if ( app.Environment.IsDevelopment() )
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
-app.UseCors("BlazorClient");
+app.UseCors( "BlazorClient" );
 app.UseRequestLocalization();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -166,7 +174,7 @@ app.MapControllers();
 
 // --- Logger ---
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("Application started. Logs: {LogsPath}", Path.GetFullPath("Logs"));
+logger.LogInformation( "Application started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );
 
 app.Run();
 
