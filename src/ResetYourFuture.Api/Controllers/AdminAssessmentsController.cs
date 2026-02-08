@@ -56,6 +56,33 @@ public class AdminAssessmentsController : ControllerBase
     }
 
     /// <summary>
+    /// Get a single assessment definition by id.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessmentById(Guid id)
+    {
+        var assessment = await _db.AssessmentDefinitions.FindAsync(id);
+        if (assessment == null)
+        {
+            return NotFound();
+        }
+
+        var dto = new AssessmentDefinitionDto(
+            assessment.Id,
+            assessment.Key,
+            assessment.Title,
+            assessment.Description,
+            assessment.SchemaJson,
+            assessment.IsPublished,
+            assessment.CreatedAt,
+            assessment.UpdatedAt,
+            assessment.PublishedAt
+        );
+
+        return Ok(dto);
+    }
+
+    /// <summary>
     /// Create a new assessment definition.
     /// </summary>
     [HttpPost]
@@ -173,6 +200,52 @@ public class AdminAssessmentsController : ControllerBase
     }
 
     /// <summary>
+    /// Unpublish an assessment (hide it from students).
+    /// </summary>
+    [HttpPost("{id:guid}/unpublish")]
+    public async Task<IActionResult> UnpublishAssessment(Guid id)
+    {
+        var assessment = await _db.AssessmentDefinitions.FindAsync(id);
+        if (assessment == null)
+        {
+            return NotFound();
+        }
+
+        if (assessment.IsPublished)
+        {
+            assessment.IsPublished = false;
+            assessment.PublishedAt = null;
+            assessment.UpdatedAt = DateTimeOffset.UtcNow;
+            assessment.UpdatedByUserId = UserId;
+            await _db.SaveChangesAsync();
+        }
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Delete an assessment definition and all its submissions.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAssessment(Guid id)
+    {
+        var assessment = await _db.AssessmentDefinitions
+            .Include(a => a.Submissions)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (assessment == null)
+        {
+            return NotFound();
+        }
+
+        _db.AssessmentSubmissions.RemoveRange(assessment.Submissions);
+        _db.AssessmentDefinitions.Remove(assessment);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Get all submissions for a specific assessment.
     /// </summary>
     [HttpGet("{id:guid}/submissions")]
@@ -195,6 +268,8 @@ public class AdminAssessmentsController : ControllerBase
                 s.UserId,
                 s.User.Email ?? "N/A",
                 s.User.DisplayName ?? $"{s.User.FirstName} {s.User.LastName}",
+                s.AnswersJson,
+                s.SummaryJson,
                 s.SubmittedAt
             ))
             .ToListAsync();

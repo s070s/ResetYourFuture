@@ -583,3 +583,330 @@ Invoke-RestMethod -Uri "https://localhost:7003/api/students" -Method Get
   ]
 }
 ```
+
+---
+
+## Assessment Authoring Guide
+
+Assessments are seeded from JSON files at startup. Each file describes one assessment and lives in:
+
+```
+src/ResetYourFuture.Shared/JSON/Assessments/
+```
+
+> The seeder runs **only when the database has no assessments**. To re-seed, delete existing assessments from the DB (or drop and re-create) and restart the API.
+
+### 1. Create the seed file
+
+Add a new `.json` file in the folder above. Name it after the `Key` (e.g. `stress_check_v1.json`).
+
+```json
+{
+  "Key": "stress_check_v1",
+  "Title": "Stress Check",
+  "Description": "A quick check-in to reflect on your current stress levels.",
+  "IsPublished": true,
+  "CreatedAt": "2025-07-01T08:00:00Z",
+  "PublishedAt": "2025-07-01T08:00:00Z",
+  "SchemaJson": "<escaped JSON string — see step 2>"
+}
+```
+
+| Field | Required | Notes |
+|---|---|---|
+| `Key` | ✅ | Unique identifier (`snake_case` recommended). |
+| `Title` | ✅ | Display name shown to students and admins. |
+| `Description` | ❌ | Shown on the assessment card before starting. |
+| `SchemaJson` | ✅ | **Escaped** JSON string containing the questions (see below). |
+| `IsPublished` | ❌ | `true` = visible to students immediately. Default `false`. |
+| `CreatedAt` | ❌ | ISO 8601. Defaults to current UTC time. |
+| `PublishedAt` | ❌ | ISO 8601. Auto-set when `IsPublished` is `true`. |
+
+### 2. Write the schema
+
+`SchemaJson` is a JSON **string** (escaped inside the seed file). Its inner structure:
+
+```json
+{
+  "id": "stress_check_v1",
+  "title": "Stress Check",
+  "version": "1.0",
+  "questions": [ ]
+}
+```
+
+### 3. Supported question types
+
+#### `text` — Free-text input
+
+```json
+{ "id": "q1", "type": "text", "label": "What is your biggest challenge right now?", "required": true }
+```
+
+#### `choice` — Single-select dropdown
+
+```json
+{
+  "id": "q2",
+  "type": "choice",
+  "label": "Where are you in your career journey?",
+  "options": ["Exploring options", "Starting out", "Growing skills", "Changing direction", "Established"],
+  "required": true
+}
+```
+
+#### `rating` — Numeric scale (button group, configurable range)
+
+```json
+{ "id": "q3", "type": "rating", "label": "How clear are your career goals?", "min": 1, "max": 5, "required": true }
+```
+
+#### `multi-select` — Multiple-choice checkboxes
+
+```json
+{
+  "id": "q4",
+  "type": "multi-select",
+  "label": "Which skills are you developing?",
+  "options": ["Communication", "Leadership", "Technical", "Creative"],
+  "required": false
+}
+```
+
+#### `likert` — 1–5 scale (alias of `rating`, defaults to min=1 max=5)
+
+```json
+{ "id": "q5", "type": "likert", "label": "I feel confident about my next career step.", "required": true }
+```
+
+#### `date` — Date picker
+
+```json
+{ "id": "q6", "type": "date", "label": "When did you start your current role?", "required": false }
+```
+
+### 4. Question field reference
+
+| Field | Required | Type | Notes |
+|---|---|---|---|
+| `id` | ✅ | `string` | Unique within the assessment (e.g. `q1`, `q2`). |
+| `type` | ✅ | `string` | `text` · `choice` · `rating` · `multi-select` · `likert` · `date` |
+| `label` | ✅ | `string` | The question text shown to the student. |
+| `options` | ⚠️ | `string[]` | **Required** for `choice` and `multi-select`. |
+| `min` | ❌ | `int` | Lower bound for `rating`. Default `1`. |
+| `max` | ❌ | `int` | Upper bound for `rating`. Default `5`. |
+| `required` | ❌ | `bool` | Shows a `*` indicator on the form. Default `false`. |
+
+### 5. Full working example
+
+**File:** `src/ResetYourFuture.Shared/JSON/Assessments/stress_check_v1.json`
+
+```json
+{
+  "Key": "stress_check_v1",
+  "Title": "Stress Check",
+  "Description": "A quick check-in to reflect on your current stress levels.",
+  "IsPublished": true,
+  "CreatedAt": "2025-07-01T08:00:00Z",
+  "PublishedAt": "2025-07-01T08:00:00Z",
+  "SchemaJson": "{\"id\":\"stress_check_v1\",\"title\":\"Stress Check\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How stressed have you felt this week?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"What is your main source of stress?\",\"options\":[\"Work\",\"Finances\",\"Relationships\",\"Health\",\"Other\"],\"required\":true},{\"id\":\"q3\",\"type\":\"multi-select\",\"label\":\"What helps you manage stress?\",\"options\":[\"Exercise\",\"Meditation\",\"Talking to someone\",\"Hobbies\",\"Sleep\"],\"required\":false},{\"id\":\"q4\",\"type\":\"text\",\"label\":\"Anything else you would like to share?\",\"required\":false}]}"
+}
+```
+
+> **Tip:** Write the schema as pretty-printed JSON first, then escape it into a single-line string for `SchemaJson`. Most editors or online tools can do this.
+
+### 6. Verify
+
+1. Place the `.json` file in `src/ResetYourFuture.Shared/JSON/Assessments/`.
+2. Clear existing assessments (drop DB or delete rows) and restart the API.
+3. Check the API logs — the seeder logs each loaded assessment.
+4. **Admin** → `/admin/assessments` — confirm it appears and can be published/unpublished.
+5. **Student** → `/assessments` — take the assessment and view results in `/assessments/mine`.
+
+---
+
+## Course Authoring Guide
+
+Courses are seeded from JSON files at startup. Each file describes one course (with modules and lessons) and lives in:
+
+```
+src/ResetYourFuture.Shared/JSON/Courses/
+```
+
+> The seeder runs **only when the database has no courses**. To re-seed, delete existing courses from the DB (or drop and re-create) and restart the API.
+
+### 1. Create the seed file
+
+Add a new `.json` file in the folder above. Use a kebab-case name (e.g. `interview-skills.json`).
+
+```json
+{
+  "title": "Interview Skills",
+  "description": "Master the art of job interviews.",
+  "isPublished": true,
+  "modules": [ ]
+}
+```
+
+| Field | Required | Notes |
+|---|---|---|
+| `title` | ✅ | Display name shown to students and admins. |
+| `description` | ❌ | Shown on the course card in the catalog. |
+| `isPublished` | ❌ | `true` = visible to students immediately. Default `false`. |
+| `modules` | ✅ | Array of module objects (see below). |
+
+### 2. Add modules
+
+Each module groups related lessons within the course.
+
+```json
+{
+  "title": "Preparation",
+  "description": "Everything you need before the interview.",
+  "sortOrder": 1,
+  "lessons": [ ]
+}
+```
+
+| Field | Required | Notes |
+|---|---|---|
+| `title` | ✅ | Module heading displayed in the course outline. |
+| `description` | ❌ | Short summary of the module. |
+| `sortOrder` | ✅ | Display order within the course (1, 2, 3 …). |
+| `lessons` | ✅ | Array of lesson objects (see below). |
+
+### 3. Add lessons
+
+Each lesson is a single learning unit. A lesson can have **text/markdown content**, a **video**, a **PDF**, or any combination.
+
+#### Text / Markdown lesson
+
+```json
+{
+  "title": "Research the Company",
+  "content": "# Research the Company\n\nBefore any interview, you should:\n\n- Visit the company website\n- Read recent news articles\n- Understand their products and values",
+  "durationMinutes": 10,
+  "sortOrder": 1
+}
+```
+
+#### Video lesson
+
+```json
+{
+  "title": "Body Language Tips",
+  "videoPath": "https://www.youtube.com/embed/VIDEO_ID",
+  "durationMinutes": 8,
+  "sortOrder": 2
+}
+```
+
+#### PDF lesson
+
+```json
+{
+  "title": "Interview Checklist",
+  "pdfPath": "/assets/lessons/interview-checklist.pdf",
+  "durationMinutes": 5,
+  "sortOrder": 3
+}
+```
+
+#### Combined lesson (video + text)
+
+```json
+{
+  "title": "Common Questions",
+  "videoPath": "https://www.youtube.com/embed/VIDEO_ID",
+  "content": "## Key Takeaways\n\n- Always prepare examples using the STAR method\n- Keep answers concise (1–2 minutes)",
+  "durationMinutes": 15,
+  "sortOrder": 4
+}
+```
+
+### 4. Lesson field reference
+
+| Field | Required | Type | Notes |
+|---|---|---|---|
+| `title` | ✅ | `string` | Lesson heading. |
+| `content` | ❌ | `string` | Text or Markdown content. Use `\n` for newlines. |
+| `videoPath` | ❌ | `string` | Embeddable video URL (YouTube embed format recommended). |
+| `pdfPath` | ❌ | `string` | Path to a PDF file served from the API. |
+| `durationMinutes` | ❌ | `int` | Estimated reading/watching time. Used for progress display. |
+| `sortOrder` | ✅ | `int` | Display order within the module (1, 2, 3 …). |
+
+> At least one of `content`, `videoPath`, or `pdfPath` should be provided so the lesson has something to display.
+
+### 5. Full working example
+
+**File:** `src/ResetYourFuture.Shared/JSON/Courses/interview-skills.json`
+
+```json
+{
+  "title": "Interview Skills",
+  "description": "Master the art of job interviews — from preparation to follow-up.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Before the Interview",
+      "description": "Preparation is everything.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Research the Company",
+          "content": "# Research the Company\n\nBefore any interview:\n\n- Visit the company website and read the About page\n- Check recent news and press releases\n- Understand their products, services, and competitors\n- Look up the interviewer on LinkedIn",
+          "durationMinutes": 10,
+          "sortOrder": 1
+        },
+        {
+          "title": "Prepare Your Answers",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "content": "## The STAR Method\n\n- **S**ituation — set the scene\n- **T**ask — describe the challenge\n- **A**ction — explain what you did\n- **R**esult — share the outcome",
+          "durationMinutes": 12,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "During the Interview",
+      "description": "Making a great impression.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Body Language",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 1
+        },
+        {
+          "title": "Asking Good Questions",
+          "content": "# Questions to Ask the Interviewer\n\n1. What does a typical day look like in this role?\n2. How do you measure success for this position?\n3. What are the biggest challenges the team faces?\n4. What opportunities are there for growth?",
+          "durationMinutes": 5,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 6. Markdown tips for `content`
+
+Since JSON doesn't support multi-line strings, use `\n` for line breaks:
+
+| Markdown | JSON string |
+|---|---|
+| Heading | `"# My Heading"` |
+| Subheading | `"## Subheading"` |
+| Bullet list | `"- Item one\n- Item two"` |
+| Bold | `"**bold text**"` |
+| Numbered list | `"1. First\n2. Second"` |
+| Paragraph break | `"\n\n"` (double newline) |
+
+### 7. Verify
+
+1. Place the `.json` file in `src/ResetYourFuture.Shared/JSON/Courses/`.
+2. Clear existing courses (drop DB or delete rows) and restart the API.
+3. Check the API logs — the seeder logs each loaded course.
+4. **Admin** → `/admin/courses` — confirm it appears and can be published/unpublished.
+5. **Student** → `/courses` — enroll and view lessons.

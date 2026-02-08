@@ -65,5 +65,7 @@ public record AssessmentSubmissionListItemDto(
     string UserId,
     string UserEmail,
     string UserDisplayName,
+    string AnswersJson,
+    string? SummaryJson,
     DateTimeOffset SubmittedAt
 );

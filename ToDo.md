@@ -129,8 +129,7 @@ profile
 "The FirstName field is required."
 "The LastName field is required."
 • https://localhost:7083/profile add an avatar photo and the Display Name
-• https://localhost:7083/admin/assessments Edit,Unpublish,Submissions,Delete in Admin Assessments do not Work
-
+• As an Admin /admin/assessments/10a4b9b6-1727-4718-bbce-5e875b656107/submissions does not show anything
 
 
  

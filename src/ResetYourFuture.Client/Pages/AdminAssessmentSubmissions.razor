@@ -1,0 +1,189 @@
+@page "/admin/assessments/{AssessmentId:guid}/submissions"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Assessments
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Assessment Submissions</PageTitle>
+
+<div class="mb-3">
+    <button class="btn btn-outline-secondary" @onclick="GoBack">← Back to Assessments</button>
+</div>
+
+<h2>Submissions@(assessmentTitle != null ? $" — {assessmentTitle}" : "")</h2>
+
+@if (submissions == null)
+{
+    <p>Loading...</p>
+}
+else if (submissions.Count == 0)
+{
+    <div class="alert alert-info">No submissions yet for this assessment.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Submitted At</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sub in submissions)
+                {
+                    <tr @key="sub.Id">
+                        <td>@sub.UserDisplayName</td>
+                        <td>@sub.UserEmail</td>
+                        <td>@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    @onclick="() => ToggleAnswers(sub.Id)">
+                                @(expandedSubmissionId == sub.Id ? "Hide Answers" : "View Answers")
+                            </button>
+                        </td>
+                    </tr>
+                    @if (expandedSubmissionId == sub.Id)
+                    {
+                        <tr>
+                            <td colspan="4">
+                                <div class="card card-body bg-light">
+                                    @{ var parsed = ParseAnswers(sub.AnswersJson); }
+                                    @if (parsed.Count > 0)
+                                    {
+                                        <dl class="row mb-0">
+                                            @foreach (var kv in parsed)
+                                            {
+                                                <dt class="col-sm-4">@ResolveLabel(kv.Key)</dt>
+                                                <dd class="col-sm-8">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
+                                            }
+                                        </dl>
+                                    }
+                                    else
+                                    {
+                                        <pre class="mb-0">@sub.AnswersJson</pre>
+                                    }
+                                    @if (!string.IsNullOrEmpty(sub.SummaryJson))
+                                    {
+                                        <hr />
+                                        <h6>Summary</h6>
+                                        <pre class="mb-0">@sub.SummaryJson</pre>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}
+
+@code {
+    [Parameter]
+    public Guid AssessmentId { get; set; }
+
+    private List<AssessmentSubmissionListItemDto>? submissions;
+    private string errorMessage = string.Empty;
+    private Guid? expandedSubmissionId;
+    private string? assessmentTitle;
+
+    /// <summary>Maps question id → label from the assessment schema.</summary>
+    private Dictionary<string, string> questionLabels = new();
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load the assessment definition to get schema + title
+            var definition = await Http.GetFromJsonAsync<AssessmentDefinitionDto>(
+                $"api/admin/assessments/{AssessmentId}");
+
+            if (definition != null)
+            {
+                assessmentTitle = definition.Title;
+                BuildQuestionLabels(definition.SchemaJson);
+            }
+
+            submissions = await Http.GetFromJsonAsync<List<AssessmentSubmissionListItemDto>>(
+                $"api/admin/assessments/{AssessmentId}/submissions");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading submissions: {ex.Message}";
+            submissions = [];
+        }
+    }
+
+    private void BuildQuestionLabels(string schemaJson)
+    {
+        try
+        {
+            var schema = JsonSerializer.Deserialize<SchemaRoot>(schemaJson, JsonOptions);
+            if (schema?.Questions != null)
+            {
+                foreach (var q in schema.Questions)
+                {
+                    questionLabels[q.Id] = q.Label ?? q.Text ?? q.Id;
+                }
+            }
+        }
+        catch
+        {
+            // Schema could not be parsed; labels will fall back to question IDs
+        }
+    }
+
+    private string ResolveLabel(string questionId)
+        => questionLabels.TryGetValue(questionId, out var label) ? label : questionId;
+
+    private static Dictionary<string, string> ParseAnswers(string answersJson)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(answersJson, JsonOptions)
+                   ?? new();
+        }
+        catch
+        {
+            return new();
+        }
+    }
+
+    private void ToggleAnswers(Guid submissionId)
+    {
+        expandedSubmissionId = expandedSubmissionId == submissionId ? null : submissionId;
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/admin/assessments");
+    }
+
+    private class SchemaRoot
+    {
+        public List<SchemaQuestion> Questions { get; set; } = new();
+    }
+
+    private class SchemaQuestion
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? Text { get; set; }
+        public string? Label { get; set; }
+    }
+}

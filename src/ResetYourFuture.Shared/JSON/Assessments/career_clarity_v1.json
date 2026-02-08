@@ -1,0 +1,9 @@
+{
+  "Key": "career_clarity_v1",
+  "Title": "Career Clarity",
+  "Description": "A short assessment to help learners reflect on career goals, strengths, and next steps toward clarity.",
+  "SchemaJson": "{\"id\":\"career_clarity_v1\",\"title\":\"Career Clarity\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"Where are you right now in your career journey?\",\"options\":[\"Exploring options\",\"Starting out\",\"Growing skills\",\"Changing direction\",\"Established\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How clear are your career goals?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"text\",\"label\":\"What is one concrete next step you could take in the next month?\",\"required\":true},{\"id\":\"q4\",\"type\":\"text\",\"label\":\"Any other notes about your career priorities?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

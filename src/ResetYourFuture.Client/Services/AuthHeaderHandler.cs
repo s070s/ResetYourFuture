@@ -17,10 +17,19 @@ public class AuthHeaderHandler : DelegatingHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        var token = await _localStorage.GetItemAsStringAsync("authToken");
-        if (!string.IsNullOrEmpty(token))
+        // JS interop for localStorage can fail during early WASM lifecycle;
+        // proceed without token rather than crashing the request pipeline.
+        try
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            var token = await _localStorage.GetItemAsStringAsync("authToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // JS interop not available yet (pre-render / early init)
         }
 
         return await base.SendAsync(request, cancellationToken);

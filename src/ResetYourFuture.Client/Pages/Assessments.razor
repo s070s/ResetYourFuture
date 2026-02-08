@@ -5,7 +5,10 @@
 @inject NavigationManager Nav
 @attribute [Authorize(Roles = "Student")]
 
-<h3>Available Assessments</h3>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Available Assessments</h3>
+    <a href="/assessments/mine" class="btn btn-outline-primary">📋 My Submissions</a>
+</div>
 
 <div class="row">
     @if (assessments == null)

@@ -153,9 +153,19 @@ using ( var scope = app.Services.CreateScope() )
 
         // --- Seed Sample Courses from JSON (Development only) ---
         var seedLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        var jsonSeedPath = config [ "SeedData:JsonPath" ]
-            ?? Path.Combine( AppContext.BaseDirectory , ".." , ".." , ".." , ".." , "ResetYourFuture.Shared" , "JSON" );
+
+        // Read path from configuration; fall back to a sensible relative path when missing.
+        // Use app.Environment.ContentRootPath so relative paths are resolved from the application's content root.
+        var jsonSeedPath = config.GetValue<string>( "SeedData:JsonPaths:Courses" )
+                           ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Courses" );
+
         await CourseSeeder.SeedFromJsonAsync( db , jsonSeedPath , seedLogger );
+
+        // --- Seed Assessments from JSON (Development only) ---
+        var assessmentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Assessments" )
+                                 ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Assessments" );
+
+        await AssessmentSeeder.SeedFromJsonAsync( db , assessmentJsonPath , seedLogger );
     }
 }
 
@@ -177,6 +187,8 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation( "Application started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );
 
 app.Run();
+
+
 
 
 
