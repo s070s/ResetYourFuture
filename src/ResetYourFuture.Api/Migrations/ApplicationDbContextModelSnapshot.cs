@@ -635,6 +635,9 @@ namespace ResetYourFuture.Api.Migrations
                     b.Property<bool>("GdprConsentGiven")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)

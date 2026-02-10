@@ -36,6 +36,7 @@ namespace ResetYourFuture.Api.Migrations
                     AvatarPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "date", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    IsEnabled = table.Column<bool>(type: "bit", nullable: false),
                     GdprConsentGiven = table.Column<bool>(type: "bit", nullable: false),
                     GdprConsentDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ParentalConsentGiven = table.Column<bool>(type: "bit", nullable: false),

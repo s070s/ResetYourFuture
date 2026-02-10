@@ -12,7 +12,7 @@ using ResetYourFuture.Api.Data;
 namespace ResetYourFuture.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260208192707_InitialCreate")]
+    [Migration("20260210191833_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -636,6 +636,9 @@ namespace ResetYourFuture.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("GdprConsentGiven")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsEnabled")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")

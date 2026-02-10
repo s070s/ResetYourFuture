@@ -40,7 +40,8 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new("firstName", user.FirstName),
             new("lastName", user.LastName),
-            new("status", ((int)user.Status).ToString())
+            new("status", ((int)user.Status).ToString()),
+            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant())
         };
 
         // Add role claims

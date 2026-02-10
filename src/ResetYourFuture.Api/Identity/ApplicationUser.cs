@@ -41,6 +41,12 @@ public class ApplicationUser : IdentityUser
     /// </summary>
     public UserStatus Status { get; set; } = UserStatus.Unknown;
 
+    /// <summary>
+    /// When false the user is locked out of the platform.
+    /// Admin can toggle via /admin/users.
+    /// </summary>
+    public bool IsEnabled { get; set; } = true;
+
     // --- GDPR / Compliance ---
     /// <summary>
     /// Explicit consent to data processing. Must be true for registration to complete.

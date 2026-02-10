@@ -7,6 +7,7 @@ using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Api.Logging;
 using ResetYourFuture.Api.Services;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder( args );
@@ -56,6 +57,33 @@ builder.Services.AddAuthentication( options =>
         IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( jwtKey ) ) ,
         ClockSkew = TimeSpan.Zero // No tolerance for token expiry
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnTokenValidated = async context =>
+        {
+            var userManager = context.HttpContext.RequestServices
+                .GetRequiredService<UserManager<ApplicationUser>>();
+            var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
+            if ( userId is not null )
+            {
+                var user = await userManager.FindByIdAsync( userId );
+                if ( user is null || !user.IsEnabled )
+                {
+                    context.Fail( "Account is disabled." );
+                    context.HttpContext.Items["UserDisabled"] = true;
+                }
+            }
+        } ,
+        OnChallenge = context =>
+        {
+            if ( context.HttpContext.Items.ContainsKey( "UserDisabled" ) )
+            {
+                context.Response.Headers["X-User-Disabled"] = "true";
+            }
+            return Task.CompletedTask;
+        }
+    };
 } );
 
 // --- Authorization Policies ---
@@ -88,7 +116,8 @@ builder.Services.AddCors( options =>
         .WithOrigins( clientOrigin )
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials() ); // Required for auth headers
+        .AllowCredentials() // Required for auth headers
+        .WithExposedHeaders( "X-User-Disabled" ) );
 } );
 
 var app = builder.Build();
@@ -139,6 +168,7 @@ using ( var scope = app.Services.CreateScope() )
                 FirstName = "System" ,
                 LastName = "Administrator" ,
                 EmailConfirmed = true , // Pre-confirmed for dev
+                IsEnabled = true ,
                 GdprConsentGiven = true ,
                 GdprConsentDate = DateTime.UtcNow ,
                 CreatedAt = DateTime.UtcNow

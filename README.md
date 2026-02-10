@@ -141,7 +141,7 @@ dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --conte
 # Apply migrations
 dotnet ef database update
 
-# Remove last migration (if needed)
+# Remove last migration (multiple times to remove older ones)
  dotnet ef migrations remove --project src/ResetYourFuture.Api
 
 # Generate SQL script

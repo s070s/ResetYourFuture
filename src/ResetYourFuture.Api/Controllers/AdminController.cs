@@ -57,6 +57,7 @@ public class AdminController : ControllerBase
                 user.Age,
                 Status = user.Status.ToString(),
                 user.EmailConfirmed,
+                user.IsEnabled,
                 user.CreatedAt,
                 Roles = roles
             });
@@ -87,6 +88,7 @@ public class AdminController : ControllerBase
             user.Age,
             Status = user.Status.ToString(),
             user.EmailConfirmed,
+            user.IsEnabled,
             user.GdprConsentGiven,
             user.GdprConsentDate,
             user.ParentalConsentGiven,
@@ -176,6 +178,24 @@ public class AdminController : ControllerBase
         // Log creation and return success.
         _logger.LogInformation("Admin created role {Role}", roleName);
         return Ok($"Role '{roleName}' created.");
+    }
+
+    /// <summary>
+    /// Toggle IsEnabled for a user.
+    /// </summary>
+    [HttpPost("users/{userId}/toggle-enable")]
+    public async Task<ActionResult> ToggleEnable(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound("User not found.");
+
+        user.IsEnabled = !user.IsEnabled;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors.Select(e => e.Description));
+
+        _logger.LogInformation("Admin toggled IsEnabled to {IsEnabled} for user {UserId}", user.IsEnabled, userId);
+        return Ok(new { user.IsEnabled });
     }
 
     /// <summary>
