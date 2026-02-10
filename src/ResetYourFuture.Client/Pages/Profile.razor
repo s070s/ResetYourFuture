@@ -1,5 +1,6 @@
 @page "/profile"
 @attribute [Authorize]
+@using ResetYourFuture.Shared.Models.Profile
 @inject HttpClient Http
 @inject IAuthService AuthService
 @inject NavigationManager Navigation
@@ -11,7 +12,7 @@
 
     <AuthorizeView>
         <Authorized>
-            @if (userInfo == null)
+            @if (profile == null)
             {
                 <p>Loading...</p>
             }
@@ -23,9 +24,9 @@
                         <div class="mb-3">
                             <label class="form-label">Avatar</label>
                             <div>
-                                @if (!string.IsNullOrEmpty(avatarUrl))
+                                @if (!string.IsNullOrEmpty(profile.AvatarPath))
                                 {
-                                    <img src="@avatarUrl" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
+                                    <img src="api/profile/avatar" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
                                 }
                                 <InputFile OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" />
                             </div>
@@ -33,14 +34,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">Display Name</label>
-                            <input type="text" class="form-control" @bind="displayName" placeholder="@userInfo.Email"/>
+                            <input type="text" class="form-control" @bind="displayName" placeholder="@profile.Email" />
                         </div>
 
-                        <p><strong>Email:</strong> @userInfo.Email</p>
-                        <p><strong>Name:</strong> @userInfo.FirstName @userInfo.LastName</p>
-                        <p><strong>Age:</strong> @(userInfo.Age?.ToString() ?? "Not specified")</p>
-                        <p><strong>Status:</strong> @userInfo.Status</p>
-                        <p><strong>Roles:</strong> @string.Join(", ", userInfo.Roles)</p>
+                        <p><strong>Email:</strong> @profile.Email</p>
+                        <p><strong>Name:</strong> @profile.FirstName @profile.LastName</p>
+                        <p><strong>Date of Birth:</strong> @(profile.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Not specified")</p>
 
                         <button class="btn btn-primary" @onclick="UpdateProfile" disabled="@isSaving">Save Profile</button>
                     </div>
@@ -80,9 +79,8 @@
 </div>
 
 @code {
-    private UserInfo? userInfo;
+    private ProfileDto? profile;
     private string displayName = string.Empty;
-    private string? avatarUrl;
     private string currentPassword = string.Empty;
     private string newPassword = string.Empty;
     private string confirmPassword = string.Empty;
@@ -94,18 +92,11 @@
     {
         try
         {
-            userInfo = await Http.GetFromJsonAsync<UserInfo>("api/auth/me");
-            // Load profile data if endpoint exists
-            try
+            profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");
+            if (profile is not null)
             {
-                var profile = await Http.GetFromJsonAsync<ProfileData>("api/profile");
-                if (profile != null)
-                {
-                    displayName = profile.DisplayName ?? string.Empty;
-                    avatarUrl = profile.AvatarPath;
-                }
+                displayName = profile.DisplayName ?? string.Empty;
             }
-            catch { }
         }
         catch
         {
@@ -122,15 +113,14 @@
             {
                 var buffer = new byte[file.Size];
                 await file.OpenReadStream(5 * 1024 * 1024).ReadAsync(buffer);
-                
+
                 var content = new MultipartFormDataContent();
                 content.Add(new ByteArrayContent(buffer), "file", file.Name);
 
                 var response = await Http.PostAsync("api/profile/avatar", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<AvatarUploadResult>();
-                    avatarUrl = result?.Url;
+                    profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");
                     message = "Avatar uploaded successfully";
                 }
             }
@@ -147,15 +137,24 @@
 
     private async Task UpdateProfile()
     {
+        if (profile is null) return;
+
         isSaving = true;
         message = string.Empty;
         try
         {
-            var updateRequest = new { DisplayName = displayName };
+            var updateRequest = new UpdateProfileRequest(
+                profile.FirstName,
+                profile.LastName,
+                string.IsNullOrWhiteSpace(displayName) ? null : displayName,
+                profile.DateOfBirth
+            );
+
             var response = await Http.PutAsJsonAsync("api/profile", updateRequest);
-            
+
             if (response.IsSuccessStatusCode)
             {
+                profile = await response.Content.ReadFromJsonAsync<ProfileDto>();
                 message = "Profile updated successfully";
             }
             else
@@ -191,14 +190,10 @@
         message = string.Empty;
         try
         {
-            var changeRequest = new
-            {
-                CurrentPassword = currentPassword,
-                NewPassword = newPassword
-            };
+            var changeRequest = new ChangePasswordRequest(currentPassword, newPassword);
 
             var response = await Http.PostAsJsonAsync("api/profile/change-password", changeRequest);
-            
+
             if (response.IsSuccessStatusCode)
             {
                 message = "Password changed successfully";
@@ -225,28 +220,6 @@
     {
         await AuthService.LogoutAsync();
         Navigation.NavigateTo("/login");
-    }
-
-    private class UserInfo
-    {
-        public string Id { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string FirstName { get; set; } = "";
-        public string LastName { get; set; } = "";
-        public int? Age { get; set; }
-        public string Status { get; set; } = "";
-        public List<string> Roles { get; set; } = new();
-    }
-
-    private class ProfileData
-    {
-        public string? DisplayName { get; set; }
-        public string? AvatarPath { get; set; }
-    }
-
-    private class AvatarUploadResult
-    {
-        public string Url { get; set; } = string.Empty;
     }
 }
 
