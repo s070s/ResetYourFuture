@@ -136,8 +136,6 @@ profile
 • Profile Avatar with image,when clicked a small drop down is shown with User Profile that routes to Profile page and Log Out that Logs the User Out
 • Move Log out Button from Profile to a User Menu(Profile Pic avatar)
 • Different Password and Confirm Password pass through Registration (Password is passed in)
-• Display Name field in Profile is the Admins Display email,i want to display the logged user's email instead for starters,then substitute with a display name field
-
  
 
 LOCALIZED FULLY
