@@ -33,7 +33,7 @@
 
                         <div class="mb-3">
                             <label class="form-label">Display Name</label>
-                            <input type="text" class="form-control" @bind="displayName" placeholder="Optional display name" />
+                            <input type="text" class="form-control" @bind="displayName" placeholder="@userInfo.Email" />
                         </div>
 
                         <p><strong>Email:</strong> @userInfo.Email</p>
@@ -102,7 +102,7 @@
                 if (profile != null)
                 {
                     displayName = profile.DisplayName ?? string.Empty;
-                    avatarUrl = profile.AvatarUrl;
+                    avatarUrl = profile.AvatarPath;
                 }
             }
             catch { }
@@ -241,7 +241,7 @@
     private class ProfileData
     {
         public string? DisplayName { get; set; }
-        public string? AvatarUrl { get; set; }
+        public string? AvatarPath { get; set; }
     }
 
     private class AvatarUploadResult
