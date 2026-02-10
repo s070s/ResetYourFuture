@@ -125,12 +125,6 @@ one line per comment
 subscribed users,completion analytics of users
 
 
-• https://localhost:7083/admin/users implement Disabling and removing users
-• On Registration Users even the admin become Enabled by Default
-• Disabled Users cannot use the app (Separate Page that says you have been disabled,blocked or the best relevant term)
-• https://localhost:7083/admin/users Enable Button Switches/Toggles to Disable or include a separate Button
-
-
 • https://localhost:7083/admin/courses Edit,Publish do not Work
 • Courses should be updated on each startup from the json files
 • WYSIWYG Editor for Admin Course Creator feature that lets you add Modules Lessons and Courses with or without Videos Text and PDF formatted(markup) or not
