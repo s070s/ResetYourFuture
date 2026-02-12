@@ -26,4 +26,8 @@
     <ProjectReference Include="..\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 </Project>
