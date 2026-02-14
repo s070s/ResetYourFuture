@@ -12,7 +12,7 @@
 <h2>Assessment Management</h2>
 
 <div class="mb-3">
-    <button class="btn btn-primary" @onclick="() => showCreateModal = true">Create New Assessment</button>
+    <button class="btn btn-primary" @onclick="CreateAssessment">Create New Assessment</button>
 </div>
 
 @if (assessments == null)
@@ -45,7 +45,7 @@ else
                         </td>
                         <td>@assessment.SubmissionCount</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment)">Edit</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">Edit</button>
                             @if (assessment.IsPublished)
                             {
                                 <button class="btn btn-sm btn-warning" @onclick="() => UnpublishAssessment(assessment.Id)">Unpublish</button>
@@ -64,57 +64,16 @@ else
     </div>
 }
 
-@if (showCreateModal || editingAssessment != null)
-{
-    <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@(editingAssessment == null ? "Create Assessment" : "Edit Assessment")</h5>
-                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                </div>
-                <div class="modal-body">
-                    <EditForm Model="@assessmentModel" OnValidSubmit="@HandleSave">
-                        <div class="mb-3">
-                            <label class="form-label">Key</label>
-                            <InputText class="form-control" @bind-Value="assessmentModel.Key" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Title</label>
-                            <InputText class="form-control" @bind-Value="assessmentModel.Title" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <InputTextArea class="form-control" @bind-Value="assessmentModel.Description" rows="3" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Schema JSON</label>
-                            <textarea class="form-control" @bind="assessmentModel.SchemaJson" rows="10" style="font-family: monospace;"></textarea>
-                            <small class="text-muted">Example: {"Questions":[{"Id":"q1","Text":"Your name?","Type":"text"}]}</small>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
-                    </EditForm>
-                </div>
-            </div>
-        </div>
-    </div>
-}
-
 @if (!string.IsNullOrEmpty(message))
 {
-    <div class="alert alert-info mt-3">@message</div>
+    <div class="alert alert-info alert-dismissible mt-3">
+        @message
+        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
+    </div>
 }
 
 @code {
     private List<AssessmentDefinitionListItemDto>? assessments;
-    private bool showCreateModal = false;
-    private AssessmentDefinitionListItemDto? editingAssessment;
-    private AssessmentModel assessmentModel = new();
     private string message = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -134,68 +93,14 @@ else
         }
     }
 
-    private async Task EditAssessment(AssessmentDefinitionListItemDto assessment)
+    private void CreateAssessment()
     {
-        try
-        {
-            var fullAssessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>($"api/admin/assessments/{assessment.Id}");
-            if (fullAssessment != null)
-            {
-                editingAssessment = assessment;
-                assessmentModel = new AssessmentModel
-                {
-                    Key = fullAssessment.Key,
-                    Title = fullAssessment.Title,
-                    Description = fullAssessment.Description,
-                    SchemaJson = fullAssessment.SchemaJson
-                };
-            }
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
+        Nav.NavigateTo("/admin/assessments/new");
     }
 
-    private async Task HandleSave()
+    private void EditAssessment(Guid id)
     {
-        try
-        {
-            var request = new SaveAssessmentDefinitionRequest(
-                assessmentModel.Key,
-                assessmentModel.Title,
-                assessmentModel.Description,
-                assessmentModel.SchemaJson
-            );
-
-            HttpResponseMessage response;
-            if (editingAssessment == null)
-            {
-                response = await Http.PostAsJsonAsync("api/admin/assessments", request);
-            }
-            else
-            {
-                response = await Http.PutAsJsonAsync($"api/admin/assessments/{editingAssessment.Id}", request);
-            }
-
-            if (response.IsSuccessStatusCode)
-            {
-                await LoadAssessments();
-                CloseModal();
-                message = "Assessment saved successfully";
-            }
-        }
-        catch (Exception ex)
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-    private void CloseModal()
-    {
-        showCreateModal = false;
-        editingAssessment = null;
-        assessmentModel = new();
+        Nav.NavigateTo($"/admin/assessments/{id}/edit");
     }
 
     private async Task PublishAssessment(Guid id)
@@ -255,13 +160,5 @@ else
         {
             message = $"Error: {ex.Message}";
         }
-    }
-
-    private class AssessmentModel
-    {
-        public string Key { get; set; } = string.Empty;
-        public string Title { get; set; } = string.Empty;
-        public string? Description { get; set; }
-        public string SchemaJson { get; set; } = "{}";
     }
 }

@@ -79,6 +79,7 @@ public record AdminLessonDto(
 public record SaveLessonRequest(
     string Title,
     string? Content,
+    string? VideoUrl,
     int? DurationMinutes,
     int SortOrder,
     Guid ModuleId

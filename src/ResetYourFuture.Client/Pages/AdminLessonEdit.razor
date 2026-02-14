@@ -1,0 +1,346 @@
+@page "/admin/lessons/{ModuleId:guid}"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Admin
+@using ResetYourFuture.Client.Shared
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Manage Lessons</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Manage Lessons</h2>
+    <button class="btn btn-secondary" @onclick="GoBack">← Back to Course</button>
+</div>
+
+<div class="mb-3">
+    <button class="btn btn-success" @onclick="ShowAddLesson">+ Add Lesson</button>
+</div>
+
+@if (lessons == null)
+{
+    <p>Loading...</p>
+}
+else if (lessons.Count == 0)
+{
+    <p class="text-muted">No lessons in this module yet.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var lesson in lessons.OrderBy(l => l.SortOrder))
+        {
+            <div class="list-group-item" @key="lesson.Id">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">@lesson.Title</h6>
+                        <small class="text-muted">
+                            Order: @lesson.SortOrder
+                            @if (lesson.DurationMinutes.HasValue)
+                            {
+                                <text> · @lesson.DurationMinutes min</text>
+                            }
+                            @if (lesson.IsPublished)
+                            {
+                                <span class="badge bg-success ms-1">Published</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary ms-1">Draft</span>
+                            }
+                        </small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-primary" @onclick="() => ShowEditLesson(lesson)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLesson(lesson.Id)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@* Lesson Create/Edit Modal *@
+@if (showLessonModal)
+{
+    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(editingLessonId == null ? "Add Lesson" : "Edit Lesson")</h5>
+                    <button type="button" class="btn-close" @onclick="CloseLessonModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Title</label>
+                            <input class="form-control" @bind="lessonTitle" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Sort Order</label>
+                            <input type="number" class="form-control" @bind="lessonSortOrder" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" @bind="lessonDuration" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Content</label>
+                        <QuillEditor @ref="lessonContentEditor" Content="@lessonContent" MinHeight="300px" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Video URL (YouTube embed or direct link)</label>
+                        <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
+                        <small class="text-muted">Paste a YouTube embed URL or direct video link. This takes priority over uploaded files.</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Upload PDF</label>
+                            <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
+                            @if (!string.IsNullOrEmpty(lessonPdfPath))
+                            {
+                                <small class="text-success">Current: @lessonPdfPath</small>
+                            }
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Upload Video File</label>
+                            <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
+                            @if (!string.IsNullOrEmpty(lessonVideoPath))
+                            {
+                                <small class="text-success">Current: @lessonVideoPath</small>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" @onclick="SaveLesson" disabled="@isSaving">
+                        @(isSaving ? "Saving..." : "Save Lesson")
+                    </button>
+                    <button class="btn btn-secondary" @onclick="CloseLessonModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info alert-dismissible mt-3">
+        @message
+        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid ModuleId { get; set; }
+
+    private List<AdminLessonDto>? lessons;
+    private Guid? parentCourseId;
+    private bool isSaving;
+    private string message = string.Empty;
+
+    // Lesson modal fields
+    private bool showLessonModal;
+    private Guid? editingLessonId;
+    private string lessonTitle = string.Empty;
+    private string? lessonContent;
+    private int lessonSortOrder;
+    private int? lessonDuration;
+    private string? lessonPdfPath;
+    private string? lessonVideoPath;
+    private string? lessonVideoUrl;
+    private QuillEditor? lessonContentEditor;
+    private IBrowserFile? pendingPdf;
+    private IBrowserFile? pendingVideo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLessons();
+        await LoadParentCourseId();
+    }
+
+    private async Task LoadParentCourseId()
+    {
+        try
+        {
+            var module = await Http.GetFromJsonAsync<AdminModuleDto>($"api/admin/modules/{ModuleId}");
+            parentCourseId = module?.CourseId;
+        }
+        catch { /* parentCourseId remains null, back goes to courses list */ }
+    }
+
+    private async Task LoadLessons()
+    {
+        try
+        {
+            lessons = await Http.GetFromJsonAsync<List<AdminLessonDto>>($"api/admin/lessons/module/{ModuleId}");
+        }
+        catch (Exception ex)
+        {
+            message = $"Error loading lessons: {ex.Message}";
+        }
+    }
+
+    private void ShowAddLesson()
+    {
+        editingLessonId = null;
+        lessonTitle = string.Empty;
+        lessonContent = null;
+        lessonVideoUrl = null;
+        lessonSortOrder = (lessons?.Count ?? 0) + 1;
+        lessonDuration = null;
+        lessonPdfPath = null;
+        lessonVideoPath = null;
+        pendingPdf = null;
+        pendingVideo = null;
+        showLessonModal = true;
+    }
+
+    private void ShowEditLesson(AdminLessonDto lesson)
+    {
+        editingLessonId = lesson.Id;
+        lessonTitle = lesson.Title;
+        lessonContent = lesson.Content;
+        lessonVideoUrl = lesson.VideoPath;
+        lessonSortOrder = lesson.SortOrder;
+        lessonDuration = lesson.DurationMinutes;
+        lessonPdfPath = lesson.PdfPath;
+        lessonVideoPath = lesson.VideoPath;
+        pendingPdf = null;
+        pendingVideo = null;
+        showLessonModal = true;
+    }
+
+    private void CloseLessonModal()
+    {
+        showLessonModal = false;
+    }
+
+    private void OnPdfSelected(InputFileChangeEventArgs e)
+    {
+        pendingPdf = e.File;
+    }
+
+    private void OnVideoSelected(InputFileChangeEventArgs e)
+    {
+        pendingVideo = e.File;
+    }
+
+    private async Task SaveLesson()
+    {
+        isSaving = true;
+        message = string.Empty;
+        try
+        {
+            var content = lessonContentEditor != null
+                ? await lessonContentEditor.GetContentAsync()
+                : lessonContent;
+
+            var request = new SaveLessonRequest(lessonTitle, content, lessonVideoUrl, lessonDuration, lessonSortOrder, ModuleId);
+
+            HttpResponseMessage response;
+            Guid lessonId;
+
+            if (editingLessonId == null)
+            {
+                response = await Http.PostAsJsonAsync("api/admin/lessons", request);
+                if (response.IsSuccessStatusCode)
+                {
+                    var created = await response.Content.ReadFromJsonAsync<AdminLessonDto>();
+                    lessonId = created!.Id;
+                }
+                else
+                {
+                    message = $"Error creating lesson: {response.ReasonPhrase}";
+                    return;
+                }
+            }
+            else
+            {
+                lessonId = editingLessonId.Value;
+                response = await Http.PutAsJsonAsync($"api/admin/lessons/{lessonId}", request);
+                if (!response.IsSuccessStatusCode)
+                {
+                    message = $"Error updating lesson: {response.ReasonPhrase}";
+                    return;
+                }
+            }
+
+            // Upload files if selected
+            if (pendingPdf != null)
+            {
+                await UploadFileAsync(lessonId, pendingPdf, "pdf");
+            }
+            if (pendingVideo != null)
+            {
+                await UploadFileAsync(lessonId, pendingVideo, "video");
+            }
+
+            await LoadLessons();
+            CloseLessonModal();
+            message = "Lesson saved";
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task UploadFileAsync(Guid lessonId, IBrowserFile file, string type)
+    {
+        const long maxFileSize = 200 * 1024 * 1024; // 200 MB
+        using var content = new MultipartFormDataContent();
+        using var stream = file.OpenReadStream(maxFileSize);
+        var streamContent = new StreamContent(stream);
+        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+        content.Add(streamContent, "file", file.Name);
+
+        await Http.PostAsync($"api/admin/lessons/{lessonId}/upload/{type}", content);
+    }
+
+    private async Task DeleteLesson(Guid lessonId)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "Delete this lesson?"))
+            return;
+
+        try
+        {
+            var response = await Http.DeleteAsync($"api/admin/lessons/{lessonId}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadLessons();
+                message = "Lesson deleted";
+            }
+            else
+            {
+                message = "Error deleting lesson";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+    }
+
+    private void GoBack()
+    {
+        if (parentCourseId.HasValue)
+        {
+            Nav.NavigateTo($"/admin/courses/{parentCourseId.Value}");
+        }
+        else
+        {
+            Nav.NavigateTo("/admin/courses");
+        }
+    }
+}

@@ -1,0 +1,55 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+<div id="@_editorId" style="min-height: @MinHeight;"></div>
+
+@code {
+    /// <summary>
+    /// HTML content bound to this editor.
+    /// </summary>
+    [Parameter]
+    public string? Content { get; set; }
+
+    /// <summary>
+    /// Callback invoked when the parent should update its bound content value.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string?> ContentChanged { get; set; }
+
+    /// <summary>
+    /// Minimum height for the editor area (CSS value).
+    /// </summary>
+    [Parameter]
+    public string MinHeight { get; set; } = "200px";
+
+    private readonly string _editorId = $"quill-{Guid.NewGuid():N}";
+    private bool _initialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("quillInterop.init", _editorId, Content);
+            _initialized = true;
+        }
+    }
+
+    /// <summary>
+    /// Reads the current HTML content from the Quill editor instance.
+    /// Call this before saving to get the latest content.
+    /// </summary>
+    public async Task<string?> GetContentAsync()
+    {
+        if (!_initialized) return Content;
+        var html = await JS.InvokeAsync<string>("quillInterop.getContent", _editorId);
+        return string.IsNullOrEmpty(html) ? null : html;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_initialized)
+        {
+            await JS.InvokeVoidAsync("quillInterop.dispose", _editorId);
+        }
+    }
+}

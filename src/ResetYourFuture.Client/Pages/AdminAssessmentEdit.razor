@@ -1,0 +1,372 @@
+@page "/admin/assessments/new"
+@page "/admin/assessments/{AssessmentId:guid}/edit"
+@using Microsoft.AspNetCore.Authorization
+@using ResetYourFuture.Shared.Models.Assessments
+@using ResetYourFuture.Client.Shared
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject IJSRuntime JSRuntime
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(IsNew ? "Create Assessment" : "Edit Assessment")</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@(IsNew ? "Create Assessment" : "Edit Assessment")</h2>
+    <button class="btn btn-secondary" @onclick="GoBack">← Back to Assessments</button>
+</div>
+
+@if (!IsNew && loading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header">Assessment Details</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Key <small class="text-muted">(unique identifier, e.g. career_clarity_v1)</small></label>
+                    <input class="form-control" @bind="assessmentKey" placeholder="my_assessment_v1" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Title</label>
+                    <input class="form-control" @bind="assessmentTitle" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <QuillEditor @ref="descriptionEditor" Content="@assessmentDescription" MinHeight="120px" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Questions</span>
+            <button class="btn btn-sm btn-success" @onclick="AddQuestion">+ Add Question</button>
+        </div>
+        <div class="card-body">
+            @if (questions.Count == 0)
+            {
+                <p class="text-muted">No questions yet. Click "Add Question" to start building your assessment.</p>
+            }
+            else
+            {
+                @for (var i = 0; i < questions.Count; i++)
+                {
+                    var q = questions[i];
+                    var index = i;
+                    <div class="card mb-3 border-start border-primary border-3" @key="q.TempId">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>Question @(index + 1)</strong>
+                                <div>
+                                    @if (index > 0)
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, -1)" title="Move up">↑</button>
+                                    }
+                                    @if (index < questions.Count - 1)
+                                    {
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, 1)" title="Move down">↓</button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveQuestion(index)" title="Remove">✕</button>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label">Question ID</label>
+                                    <input class="form-control form-control-sm" @bind="q.Id" placeholder="q1" />
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select form-select-sm" @bind="q.Type">
+                                        <option value="text">Text (free input)</option>
+                                        <option value="rating">Rating (scale)</option>
+                                        <option value="choice">Choice (select one)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <label class="form-label">Required</label>
+                                    <select class="form-select form-select-sm" @bind="q.Required">
+                                        <option value="true">Yes</option>
+                                        <option value="false">No</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label">Label / Question Text</label>
+                                <input class="form-control form-control-sm" @bind="q.Label" placeholder="Enter the question text..." />
+                            </div>
+
+                            @if (q.Type == "rating")
+                            {
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Min</label>
+                                        <input type="number" class="form-control form-control-sm" @bind="q.Min" />
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">Max</label>
+                                        <input type="number" class="form-control form-control-sm" @bind="q.Max" />
+                                    </div>
+                                </div>
+                            }
+
+                            @if (q.Type == "choice")
+                            {
+                                <div class="mb-2">
+                                    <label class="form-label">Options <small class="text-muted">(one per line)</small></label>
+                                    <textarea class="form-control form-control-sm" rows="4"
+                                              @bind="q.OptionsText"
+                                              placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">Schema Preview</div>
+        <div class="card-body">
+            <pre class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto; font-size: 0.85rem;">@GenerateSchemaJson()</pre>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <button class="btn btn-primary" @onclick="SaveAssessment" disabled="@isSaving">
+            @(isSaving ? "Saving..." : "Save Assessment")
+        </button>
+        <button class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info alert-dismissible mt-3">
+        @message
+        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid AssessmentId { get; set; }
+
+    private bool IsNew => AssessmentId == Guid.Empty;
+    private bool loading = true;
+    private bool isSaving;
+    private string message = string.Empty;
+
+    private string assessmentKey = string.Empty;
+    private string assessmentTitle = string.Empty;
+    private string? assessmentDescription;
+    private QuillEditor? descriptionEditor;
+    private List<QuestionModel> questions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsNew)
+        {
+            await LoadAssessment();
+        }
+        loading = false;
+    }
+
+    private async Task LoadAssessment()
+    {
+        try
+        {
+            var assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>(
+                $"api/admin/assessments/{AssessmentId}");
+            if (assessment != null)
+            {
+                assessmentKey = assessment.Key;
+                assessmentTitle = assessment.Title;
+                assessmentDescription = assessment.Description;
+                ParseSchemaToQuestions(assessment.SchemaJson);
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error loading assessment: {ex.Message}";
+        }
+    }
+
+    private void ParseSchemaToQuestions(string schemaJson)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(schemaJson);
+            var root = doc.RootElement;
+
+            if (root.TryGetProperty("questions", out var questionsElement))
+            {
+                foreach (var qEl in questionsElement.EnumerateArray())
+                {
+                    var q = new QuestionModel
+                    {
+                        Id = qEl.TryGetProperty("id", out var idEl) ? idEl.GetString() ?? "" : "",
+                        Type = qEl.TryGetProperty("type", out var typeEl) ? typeEl.GetString() ?? "text" : "text",
+                        Label = qEl.TryGetProperty("label", out var labelEl) ? labelEl.GetString() ?? "" : "",
+                        Required = qEl.TryGetProperty("required", out var reqEl) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
+                    };
+
+                    if (q.Type == "rating")
+                    {
+                        q.Min = qEl.TryGetProperty("min", out var minEl) ? minEl.GetInt32() : 1;
+                        q.Max = qEl.TryGetProperty("max", out var maxEl) ? maxEl.GetInt32() : 5;
+                    }
+
+                    if (q.Type == "choice" && qEl.TryGetProperty("options", out var optEl))
+                    {
+                        var options = new List<string>();
+                        foreach (var opt in optEl.EnumerateArray())
+                        {
+                            options.Add(opt.GetString() ?? "");
+                        }
+                        q.OptionsText = string.Join("\n", options);
+                    }
+
+                    questions.Add(q);
+                }
+            }
+        }
+        catch
+        {
+            // If parsing fails, start with empty questions
+            questions = new List<QuestionModel>();
+        }
+    }
+
+    private string GenerateSchemaJson()
+    {
+        var schema = new
+        {
+            id = assessmentKey,
+            title = assessmentTitle,
+            version = "1.0",
+            questions = questions.Select(q =>
+            {
+                var dict = new Dictionary<string, object>
+                {
+                    ["id"] = q.Id,
+                    ["type"] = q.Type,
+                    ["label"] = q.Label,
+                    ["required"] = q.Required == "true"
+                };
+
+                if (q.Type == "rating")
+                {
+                    dict["min"] = q.Min;
+                    dict["max"] = q.Max;
+                }
+
+                if (q.Type == "choice")
+                {
+                    dict["options"] = q.GetOptions();
+                }
+
+                return dict;
+            }).ToList()
+        };
+
+        return JsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
+    }
+
+    private void AddQuestion()
+    {
+        var nextNum = questions.Count + 1;
+        questions.Add(new QuestionModel { Id = $"q{nextNum}" });
+    }
+
+    private void RemoveQuestion(int index)
+    {
+        if (index >= 0 && index < questions.Count)
+        {
+            questions.RemoveAt(index);
+        }
+    }
+
+    private void MoveQuestion(int index, int direction)
+    {
+        var newIndex = index + direction;
+        if (newIndex < 0 || newIndex >= questions.Count) return;
+        (questions[index], questions[newIndex]) = (questions[newIndex], questions[index]);
+    }
+
+    private async Task SaveAssessment()
+    {
+        isSaving = true;
+        message = string.Empty;
+        try
+        {
+            var desc = descriptionEditor != null
+                ? await descriptionEditor.GetContentAsync()
+                : assessmentDescription;
+
+            var schemaJson = GenerateSchemaJson();
+
+            var request = new SaveAssessmentDefinitionRequest(
+                assessmentKey,
+                assessmentTitle,
+                desc,
+                schemaJson
+            );
+
+            HttpResponseMessage response;
+            if (IsNew)
+            {
+                response = await Http.PostAsJsonAsync("api/admin/assessments", request);
+            }
+            else
+            {
+                response = await Http.PutAsJsonAsync($"api/admin/assessments/{AssessmentId}", request);
+            }
+
+            if (response.IsSuccessStatusCode)
+            {
+                Nav.NavigateTo("/admin/assessments");
+            }
+            else
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                message = $"Error saving: {body}";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        Nav.NavigateTo("/admin/assessments");
+    }
+
+    private class QuestionModel
+    {
+        public string TempId { get; } = Guid.NewGuid().ToString("N");
+        public string Id { get; set; } = string.Empty;
+        public string Type { get; set; } = "text";
+        public string Label { get; set; } = string.Empty;
+        public string Required { get; set; } = "false";
+        public int Min { get; set; } = 1;
+        public int Max { get; set; } = 5;
+        public string OptionsText { get; set; } = string.Empty;
+
+        public List<string> GetOptions() =>
+            OptionsText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+    }
+}

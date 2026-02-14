@@ -206,11 +206,15 @@ public class CoursesController : ControllerBase
         var previousLessonId = currentIndex > 0 ? allLessons[currentIndex - 1] : (Guid?)null;
         var nextLessonId = currentIndex < allLessons.Count - 1 ? allLessons[currentIndex + 1] : (Guid?)null;
 
+        // For video lessons, use VideoPath as the content for the viewer iframe.
+        var contentType = GetContentType(lesson);
+        var displayContent = contentType == 2 ? lesson.VideoPath : lesson.Content;
+
         var dto = new LessonDetailDto(
             lesson.Id,
             lesson.Title,
-            GetContentType(lesson),
-            lesson.Content,
+            contentType,
+            displayContent,
             lesson.DurationMinutes,
             isCompleted,
             lesson.ModuleId,

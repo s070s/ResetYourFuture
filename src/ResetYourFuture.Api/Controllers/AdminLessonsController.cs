@@ -67,6 +67,7 @@ public class AdminLessonsController : ControllerBase
             Id = Guid.NewGuid(),
             Title = request.Title,
             Content = request.Content,
+            VideoPath = request.VideoUrl,
             DurationMinutes = request.DurationMinutes,
             SortOrder = request.SortOrder,
             ModuleId = request.ModuleId,
@@ -106,6 +107,7 @@ public class AdminLessonsController : ControllerBase
         // Apply updates to the entity and set audit metadata.
         lesson.Title = request.Title;
         lesson.Content = request.Content;
+        lesson.VideoPath = request.VideoUrl ?? lesson.VideoPath;
         lesson.DurationMinutes = request.DurationMinutes;
         lesson.SortOrder = request.SortOrder;
         lesson.UpdatedAt = DateTimeOffset.UtcNow;
@@ -131,7 +133,7 @@ public class AdminLessonsController : ControllerBase
         return Ok(dto);
     }
 
-    // Delete a lesson and any associated files.
+    // Delete a lesson, its completion records, and any associated files.
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteLesson(Guid id)
     {
@@ -139,13 +141,19 @@ public class AdminLessonsController : ControllerBase
         var lesson = await _db.Lessons.FindAsync(id);
         if (lesson == null) return NotFound();
 
-        // Delete associated PDF if present.
+        // Remove lesson completion records first (FK constraint).
+        var completions = await _db.LessonCompletions
+            .Where(lc => lc.LessonId == id)
+            .ToListAsync();
+        _db.LessonCompletions.RemoveRange(completions);
+
+        // Delete associated PDF file if present.
         if (!string.IsNullOrEmpty(lesson.PdfPath))
         {
             await _fileStorage.DeleteFileAsync(lesson.PdfPath);
         }
-        // Delete associated video if present.
-        if (!string.IsNullOrEmpty(lesson.VideoPath))
+        // Delete associated video file if present (skip URLs — only delete uploaded files).
+        if (!string.IsNullOrEmpty(lesson.VideoPath) && !lesson.VideoPath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
         {
             await _fileStorage.DeleteFileAsync(lesson.VideoPath);
         }

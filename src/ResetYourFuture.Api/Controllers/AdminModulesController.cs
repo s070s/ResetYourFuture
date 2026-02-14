@@ -45,6 +45,25 @@ public class AdminModulesController : ControllerBase
         return Ok(modules);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminModuleDto>> GetModuleById(Guid id)
+    {
+        var module = await _db.Modules
+            .Include(m => m.Lessons)
+            .FirstOrDefaultAsync(m => m.Id == id);
+
+        if (module == null) return NotFound();
+
+        return Ok(new AdminModuleDto(
+            module.Id,
+            module.Title,
+            module.Description,
+            module.SortOrder,
+            module.CourseId,
+            module.Lessons.Count
+        ));
+    }
+
     [HttpPost]
     public async Task<ActionResult<AdminModuleDto>> CreateModule([FromBody] SaveModuleRequest request)
     {
@@ -111,11 +130,17 @@ public class AdminModulesController : ControllerBase
 
         if (module == null) return NotFound();
 
+        // Remove lesson completions for all lessons in this module before deleting.
         if (module.Lessons.Any())
         {
-            return BadRequest("Cannot delete module with existing lessons");
+            var lessonIds = module.Lessons.Select(l => l.Id).ToList();
+            var completions = await _db.LessonCompletions
+                .Where(lc => lessonIds.Contains(lc.LessonId))
+                .ToListAsync();
+            _db.LessonCompletions.RemoveRange(completions);
         }
 
+        // Remove the module (cascade will remove its lessons).
         _db.Modules.Remove(module);
         await _db.SaveChangesAsync();
 

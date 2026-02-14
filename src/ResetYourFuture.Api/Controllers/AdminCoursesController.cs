@@ -33,6 +33,38 @@ public class AdminCoursesController : ControllerBase
         ?? throw new UnauthorizedAccessException("User ID not found");
 
     /// <summary>
+    /// Get a single course by id (published or unpublished) with modules, lessons and enrollments.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminCourseDto>> GetCourseById(Guid id)
+    {
+        var course = await _db.Courses
+            .Include(c => c.Modules)
+            .ThenInclude(m => m.Lessons)
+            .Include(c => c.Enrollments)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        var dto = new AdminCourseDto(
+            course.Id,
+            course.Title,
+            course.Description,
+            course.IsPublished,
+            course.CreatedAt,
+            course.UpdatedAt,
+            course.Modules.Count,
+            course.Modules.SelectMany(m => m.Lessons).Count(),
+            course.Enrollments.Count
+        );
+
+        return Ok(dto);
+    }
+
+    /// <summary>
     /// Get all courses (published and unpublished).
     /// </summary>
     [HttpGet]
@@ -147,9 +179,11 @@ public class AdminCoursesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCourse(Guid id)
     {
-        // Load the course including enrollments so we can check for existing enrollments.
+        // Load the course including all related data for cascade deletion.
         var course = await _db.Courses
             .Include(c => c.Enrollments)
+            .Include(c => c.Modules)
+                .ThenInclude(m => m.Lessons)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         // Return 404 when the course cannot be found.
@@ -158,15 +192,28 @@ public class AdminCoursesController : ControllerBase
             return NotFound();
         }
 
-        // Prevent deletion if there are existing enrollments associated with this course.
-        if (course.Enrollments.Any())
+        // Remove lesson completions for all lessons in this course.
+        var lessonIds = course.Modules.SelectMany(m => m.Lessons).Select(l => l.Id).ToList();
+        if (lessonIds.Count > 0)
         {
-            return BadRequest("Cannot delete course with existing enrollments");
+            var completions = await _db.LessonCompletions
+                .Where(lc => lessonIds.Contains(lc.LessonId))
+                .ToListAsync();
+            _db.LessonCompletions.RemoveRange(completions);
         }
 
-        // Remove the course entity and persist the deletion.
+        // Remove enrollments for this course.
+        if (course.Enrollments.Any())
+        {
+            _db.Enrollments.RemoveRange(course.Enrollments);
+        }
+
+        // Remove the course entity (cascade will remove modules and lessons).
         _db.Courses.Remove(course);
         await _db.SaveChangesAsync();
+
+        _logger.LogInformation("Admin {UserId} deleted course {CourseId} with {Enrollments} enrollment(s)",
+            UserId, id, course.Enrollments.Count);
 
         // Return 204 No Content to indicate successful deletion.
         return NoContent();
@@ -195,6 +242,29 @@ public class AdminCoursesController : ControllerBase
         }
 
         // Return 204 No Content to indicate success.
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Unpublish a course (hide it from students).
+    /// </summary>
+    [HttpPost("{id:guid}/unpublish")]
+    public async Task<IActionResult> UnpublishCourse(Guid id)
+    {
+        var course = await _db.Courses.FindAsync(id);
+        if (course == null)
+        {
+            return NotFound();
+        }
+
+        if (course.IsPublished)
+        {
+            course.IsPublished = false;
+            course.UpdatedAt = DateTimeOffset.UtcNow;
+            course.UpdatedByUserId = UserId;
+            await _db.SaveChangesAsync();
+        }
+
         return NoContent();
     }
 }

@@ -117,7 +117,9 @@ profile
 • Profile Avatar with image,when clicked a small drop down is shown with User Profile that routes to Profile page and Log Out that Logs the User Out
 • Move Log out Button from Profile to a User Menu(Profile Pic avatar)
 • Different Password and Confirm Password pass through Registration (Password is passed in)
- 
+• Keep only Disable in Content and Users of Admin Pages and have Delete inside the detailed view of each item
+• Feature in Admin Users screen to Login as specific Students in a separate browser window
+
 
 LOCALIZED FULLY
 Register.razor

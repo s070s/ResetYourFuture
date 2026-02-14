@@ -43,7 +43,7 @@ else
                 @* Video lesson *@
                 <div class="video-container">
                     <iframe 
-                        src="@_lesson.Content" 
+                        src="@ToEmbedUrl(_lesson.Content)" 
                         title="@_lesson.Title"
                         frameborder="0" 
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -53,9 +53,9 @@ else
             }
             else
             {
-                @* Text lesson - render as HTML (assumes safe content) *@
+                @* Text lesson - render HTML from WYSIWYG or markdown from seed data *@
                 <div class="text-content">
-                    @((MarkupString)RenderMarkdown(_lesson.Content ?? ""))
+                    @((MarkupString)RenderContent(_lesson.Content ?? ""))
                 </div>
             }
         </div>
@@ -352,6 +352,68 @@ else
     private void GoBack()
     {
         Navigation.NavigateTo("/courses");
+    }
+
+    /// <summary>
+    /// Detects whether content is already HTML (from WYSIWYG editor) or markdown
+    /// (from seed data / plain text input) and renders accordingly.
+    /// </summary>
+    private static string RenderContent(string content)
+    {
+        if (string.IsNullOrEmpty(content))
+            return "";
+
+        var trimmed = content.TrimStart();
+        // If content starts with an HTML tag, treat as pre-rendered HTML from the WYSIWYG editor.
+        if (trimmed.StartsWith('<'))
+            return content;
+
+        // Otherwise fall back to the simple markdown converter for seed/legacy content.
+        return RenderMarkdown(content);
+    }
+
+    /// <summary>
+    /// Converts YouTube watch/short/youtu.be URLs into embed-friendly URLs.
+    /// Returns the original URL unchanged if it's already an embed URL or non-YouTube.
+    /// </summary>
+    private static string? ToEmbedUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return url;
+
+        // Already an embed URL
+        if (url.Contains("/embed/", StringComparison.OrdinalIgnoreCase))
+            return url;
+
+        // https://www.youtube.com/watch?v=VIDEO_ID or https://youtube.com/watch?v=VIDEO_ID
+        if (url.Contains("youtube.com/watch", StringComparison.OrdinalIgnoreCase))
+        {
+            var uri = new Uri(url);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var videoId = query["v"];
+            if (!string.IsNullOrEmpty(videoId))
+                return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        // https://youtu.be/VIDEO_ID
+        if (url.Contains("youtu.be/", StringComparison.OrdinalIgnoreCase))
+        {
+            var uri = new Uri(url);
+            var videoId = uri.AbsolutePath.TrimStart('/');
+            if (!string.IsNullOrEmpty(videoId))
+                return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        // https://www.youtube.com/shorts/VIDEO_ID
+        if (url.Contains("/shorts/", StringComparison.OrdinalIgnoreCase))
+        {
+            var idx = url.IndexOf("/shorts/", StringComparison.OrdinalIgnoreCase);
+            var videoId = url[(idx + 8)..].Split('?')[0].Split('/')[0];
+            if (!string.IsNullOrEmpty(videoId))
+                return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        return url;
     }
 
     /// <summary>
