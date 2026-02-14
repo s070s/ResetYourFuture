@@ -113,7 +113,7 @@ subscribed users,completion analytics of users
 profile
 "The FirstName field is required."
 "The LastName field is required."
-• https://localhost:7083/profile add an avatar photo and the Display Name
+• https://localhost:7083/profile add an avatar photo
 • Profile Avatar with image,when clicked a small drop down is shown with User Profile that routes to Profile page and Log Out that Logs the User Out
 • Move Log out Button from Profile to a User Menu(Profile Pic avatar)
 • Different Password and Confirm Password pass through Registration (Password is passed in)
