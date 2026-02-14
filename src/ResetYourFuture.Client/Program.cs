@@ -12,6 +12,10 @@ using System.Text.RegularExpressions;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7003";
 
+// Suppress noisy info-level authorization logs that fire for every
+// AuthorizeView evaluation on anonymous users (expected behaviour).
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization", LogLevel.Warning);
+
 builder.RootComponents.Add<App>(selector: "#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
