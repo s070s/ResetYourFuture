@@ -103,6 +103,12 @@ public class ProfileController : ControllerBase
             return BadRequest("No file provided");
         }
 
+        const long maxAvatarSize = 5 * 1024 * 1024; // 5 MB
+        if (file.Length > maxAvatarSize)
+        {
+            return BadRequest("File too large (max 5 MB)");
+        }
+
         var user = await _userManager.FindByIdAsync(UserId);
         if (user == null)
         {
@@ -129,12 +135,9 @@ public class ProfileController : ControllerBase
     /// Get avatar image for current or specified user.
     /// </summary>
     [HttpGet("avatar")]
-    [AllowAnonymous]
-    public async Task<IActionResult> GetAvatar([FromQuery] string? userId = null)
+    public async Task<IActionResult> GetAvatar()
     {
-        userId ??= UserId;
-
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(UserId);
         if (user == null || string.IsNullOrEmpty(user.AvatarPath))
         {
             return NotFound();

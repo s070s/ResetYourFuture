@@ -9,14 +9,7 @@
             <ul class="navbar-nav me-auto">
 
                 <AuthorizeView>
-                    <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="profile">
-                                <span class="bi bi-person" aria-hidden="true"></span> @NavMenuRes.Profile
-                            </NavLink>
-                        </li>
-                    </Authorized>
-                    <NotAuthorized>
+                        <NotAuthorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                                 <span class="bi bi-house" aria-hidden="true"></span> @NavMenuRes.Home

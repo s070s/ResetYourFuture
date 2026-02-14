@@ -24,9 +24,9 @@
                         <div class="mb-3">
                             <label class="form-label">Avatar</label>
                             <div>
-                                @if (!string.IsNullOrEmpty(profile.AvatarPath))
+                                @if (!string.IsNullOrEmpty(avatarDataUrl))
                                 {
-                                    <img src="api/profile/avatar" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
+                                    <img src="@avatarDataUrl" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
                                 }
                                 <InputFile OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" />
                             </div>
@@ -87,6 +87,7 @@
     private bool isSaving = false;
     private bool isChangingPassword = false;
     private string message = string.Empty;
+    private string? avatarDataUrl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,6 +97,7 @@
             if (profile is not null)
             {
                 displayName = profile.DisplayName ?? string.Empty;
+                await LoadAvatarAsync();
             }
         }
         catch
@@ -104,34 +106,64 @@
         }
     }
 
+    private async Task LoadAvatarAsync()
+    {
+        if (profile is null || string.IsNullOrEmpty(profile.AvatarPath))
+        {
+            avatarDataUrl = null;
+            return;
+        }
+
+        try
+        {
+            var response = await Http.GetAsync("api/profile/avatar");
+            if (response.IsSuccessStatusCode)
+            {
+                var bytes = await response.Content.ReadAsByteArrayAsync();
+                var contentType = response.Content.Headers.ContentType?.MediaType ?? "image/png";
+                avatarDataUrl = $"data:{contentType};base64,{Convert.ToBase64String(bytes)}";
+            }
+        }
+        catch
+        {
+            avatarDataUrl = null;
+        }
+    }
+
     private async Task HandleAvatarUpload(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if (file != null && file.Size < 5 * 1024 * 1024) // 5MB limit
-        {
-            try
-            {
-                var buffer = new byte[file.Size];
-                await file.OpenReadStream(5 * 1024 * 1024).ReadAsync(buffer);
-
-                var content = new MultipartFormDataContent();
-                content.Add(new ByteArrayContent(buffer), "file", file.Name);
-
-                var response = await Http.PostAsync("api/profile/avatar", content);
-                if (response.IsSuccessStatusCode)
-                {
-                    profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");
-                    message = "Avatar uploaded successfully";
-                }
-            }
-            catch (Exception ex)
-            {
-                message = $"Error uploading avatar: {ex.Message}";
-            }
-        }
-        else
+        if (file == null || file.Size >= 5 * 1024 * 1024)
         {
             message = "File too large (max 5MB)";
+            return;
+        }
+
+        try
+        {
+            const long maxFileSize = 5 * 1024 * 1024;
+            using var content = new MultipartFormDataContent();
+            using var stream = file.OpenReadStream(maxFileSize);
+            var streamContent = new StreamContent(stream);
+            streamContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.Name);
+
+            var response = await Http.PostAsync("api/profile/avatar", content);
+            if (response.IsSuccessStatusCode)
+            {
+                profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");
+                await LoadAvatarAsync();
+                message = "Avatar uploaded successfully";
+            }
+            else
+            {
+                message = "Error uploading avatar";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Error uploading avatar: {ex.Message}";
         }
     }
 

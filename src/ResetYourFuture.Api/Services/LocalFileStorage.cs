@@ -150,8 +150,13 @@ public class LocalFileStorage : IFileStorage
     
     private void ValidateFileSize(Stream fileStream, string folder)
     {
+        // Network streams (e.g. from IFormFile) may not be seekable;
+        // skip stream-level validation — callers should pre-check IFormFile.Length.
+        if (!fileStream.CanSeek)
+            return;
+
         var fileSize = fileStream.Length;
-        
+
         long maxSize = folder.ToLowerInvariant() switch
         {
             var f when f.Contains("avatar") => MaxAvatarSize,

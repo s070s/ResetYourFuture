@@ -202,6 +202,7 @@ using ( var scope = app.Services.CreateScope() )
 // --- Pipeline ---
 if ( app.Environment.IsDevelopment() )
 {
+    app.UseDeveloperExceptionPage();
     app.MapOpenApi();
 }
 

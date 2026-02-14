@@ -1,29 +1,3 @@
-PHASE 3 — VALUE DIFFERENTIATOR (Week 5–6)
-
-
-6. Admin Content Management
-
-Rule of thumb: avoid hard-coding content.
-
-Implement:
-• Admin dashboard:
-
-Create courses
-
-Add lessons
-
-Publish/unpublish
-
-No WYSIWYG yet:
-• Plain text + video URL
-
-Deliverable:
-• You can manage content without redeploying
-
-
-
-
-
 PHASE 4 — MONETIZATION SKELETON (Week 7)
 
 Goal: show business viability, not revenue optimization.
@@ -104,18 +78,10 @@ one line per comment
 • When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
 • Admins have a Course Analytics route in the nav menu that shows Admin analytics for logged in users,
 subscribed users,completion analytics of users
-
-
-• https://localhost:7083/admin/courses Edit,Publish do not Work
-• Courses should be updated on each startup from the json files
-• WYSIWYG Editor for Admin Course Creator feature that lets you add Modules Lessons and Courses with or without Videos Text and PDF formatted(markup) or not
 • https://localhost:7083/profile
 profile
 "The FirstName field is required."
 "The LastName field is required."
-• https://localhost:7083/profile add an avatar photo
-• Profile Avatar with image,when clicked a small drop down is shown with User Profile that routes to Profile page and Log Out that Logs the User Out
-• Move Log out Button from Profile to a User Menu(Profile Pic avatar)
 • Different Password and Confirm Password pass through Registration (Password is passed in)
 • Keep only Disable in Content and Users of Admin Pages and have Delete inside the detailed view of each item
 • Feature in Admin Users screen to Login as specific Students in a separate browser window

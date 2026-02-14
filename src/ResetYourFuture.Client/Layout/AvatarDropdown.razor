@@ -1,0 +1,87 @@
+@using ResetYourFuture.Shared.Models.Profile
+@inject HttpClient Http
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <div class="avatar-dropdown" @onfocusout="HandleFocusOut" tabindex="-1">
+            <button class="avatar-button" @onclick="ToggleDropdown" @onclick:stopPropagation="true" title="User menu">
+                @if (!string.IsNullOrEmpty(avatarDataUrl))
+                {
+                    <img src="@avatarDataUrl" alt="Avatar" class="avatar-img" />
+                }
+                else
+                {
+                    <span class="bi bi-person-circle avatar-icon"></span>
+                }
+            </button>
+
+            @if (isOpen)
+            {
+                <div class="dropdown-menu-custom">
+                    <a class="dropdown-item-custom" href="profile" @onclick="Close">
+                        <span class="bi bi-person" aria-hidden="true"></span> User Profile
+                    </a>
+                    <button class="dropdown-item-custom" @onclick="HandleLogout">
+                        <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Log Out
+                    </button>
+                </div>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private bool isOpen;
+    private string? avatarDataUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");
+            if (profile is not null && !string.IsNullOrEmpty(profile.AvatarPath))
+            {
+                var response = await Http.GetAsync("api/profile/avatar");
+                if (response.IsSuccessStatusCode)
+                {
+                    var bytes = await response.Content.ReadAsByteArrayAsync();
+                    var contentType = response.Content.Headers.ContentType?.MediaType ?? "image/png";
+                    avatarDataUrl = $"data:{contentType};base64,{Convert.ToBase64String(bytes)}";
+                }
+            }
+        }
+        catch
+        {
+            // Not authenticated or profile unavailable — show default icon
+        }
+    }
+
+    private void ToggleDropdown()
+    {
+        isOpen = !isOpen;
+    }
+
+    private void Close()
+    {
+        isOpen = false;
+    }
+
+    private void HandleFocusOut()
+    {
+        // Delay closing to allow click events on dropdown items to fire
+        _ = Task.Delay(200).ContinueWith(_ =>
+        {
+            isOpen = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task HandleLogout()
+    {
+        isOpen = false;
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login");
+    }
+}
