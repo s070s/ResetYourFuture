@@ -1,3 +1,5 @@
+using ResetYourFuture.Shared.Subscriptions;
+
 namespace ResetYourFuture.Shared.Courses;
 
 /// <summary>
@@ -8,5 +10,6 @@ public record CourseListItemDto(
     string Title,
     string? Description,
     bool IsEnrolled,
-    int TotalLessons
+    int TotalLessons,
+    SubscriptionTier RequiredTier = SubscriptionTier.Free
 );

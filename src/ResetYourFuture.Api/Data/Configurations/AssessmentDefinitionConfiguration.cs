@@ -29,6 +29,10 @@ public class AssessmentDefinitionConfiguration : IEntityTypeConfiguration<Assess
         builder.Property(a => a.SchemaJson)
             .IsRequired();
 
+        // RequiredTier stored as int
+        builder.Property(a => a.RequiredTier)
+            .HasConversion<int>();
+
         builder.HasMany(a => a.Submissions)
             .WithOne(s => s.AssessmentDefinition)
             .HasForeignKey(s => s.AssessmentDefinitionId)

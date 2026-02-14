@@ -1,0 +1,107 @@
+@page "/subscription/success"
+@attribute [Authorize]
+@inject ISubscriptionService SubscriptionService
+@inject NavigationManager Navigation
+
+<PageTitle>Subscription Updated - Reset Your Future</PageTitle>
+
+<div class="success-page">
+    @if (_loading)
+    {
+        <p>Loading your subscription...</p>
+    }
+    else if (_status is not null)
+    {
+        <div class="success-card">
+            <div class="success-icon">🎉</div>
+            <h1>You're on the @_status.PlanName plan!</h1>
+            <p>Your subscription is now active. Enjoy your new features.</p>
+
+            <div class="plan-details">
+                <p><strong>Plan:</strong> @_status.PlanName</p>
+                <p><strong>Started:</strong> @_status.StartedAt.ToString("dd MMM yyyy")</p>
+                @if (_status.ExpiresAt.HasValue)
+                {
+                    <p><strong>Renews:</strong> @_status.ExpiresAt.Value.ToString("dd MMM yyyy")</p>
+                }
+            </div>
+
+            <div class="success-actions">
+                <button class="btn btn-primary" @onclick="GoToCourses">Browse Courses</button>
+                <button class="btn btn-secondary" @onclick="GoToPricing">View Plans</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Unable to load subscription details.</p>
+        <button class="btn btn-secondary" @onclick="GoToPricing">Back to Pricing</button>
+    }
+</div>
+
+<style>
+    .success-page {
+        max-width: 600px;
+        margin: 3rem auto;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .success-card {
+        border: 1px solid #28a745;
+        border-radius: 12px;
+        padding: 2.5rem 2rem;
+        background: #f8fff8;
+    }
+
+    .success-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .success-card h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-details {
+        margin: 1.5rem 0;
+        text-align: left;
+        display: inline-block;
+    }
+
+    .plan-details p {
+        margin: 0.25rem 0;
+    }
+
+    .success-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+</style>
+
+@code {
+    private UserSubscriptionStatusDto? _status;
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _status = await SubscriptionService.GetStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void GoToCourses() => Navigation.NavigateTo("/courses");
+    private void GoToPricing() => Navigation.NavigateTo("/pricing");
+}

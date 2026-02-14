@@ -1,3 +1,5 @@
+using ResetYourFuture.Shared.Subscriptions;
+
 namespace ResetYourFuture.Api.Domain.Entities;
 
 /// <summary>
@@ -17,6 +19,12 @@ public class Course : AuditableEntity
     /// Optional description for catalog/marketing.
     /// </summary>
     public string? Description { get; set; }
+
+    /// <summary>
+    /// Minimum subscription tier required to access this course.
+    /// Default is Free (all users can access).
+    /// </summary>
+    public SubscriptionTier RequiredTier { get; set; } = SubscriptionTier.Free;
 
     // Navigation: one Course has many Modules
     public ICollection<Module> Modules { get; set; } = [];

@@ -18,6 +18,7 @@ public class AuthController : ControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly ITokenService _tokenService;
+    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<AuthController> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
@@ -26,6 +27,7 @@ public class AuthController : ControllerBase
         UserManager<ApplicationUser> userManager ,
         SignInManager<ApplicationUser> signInManager ,
         ITokenService tokenService ,
+        ISubscriptionService subscriptionService ,
         ILogger<AuthController> logger ,
         ApplicationDbContext context ,
         IWebHostEnvironment env )
@@ -33,6 +35,7 @@ public class AuthController : ControllerBase
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
+        _subscriptionService = subscriptionService;
         _logger = logger;
         _context = context;
         _env = env;
@@ -83,6 +86,9 @@ public class AuthController : ControllerBase
 
         // Assign default role
         await _userManager.AddToRoleAsync( user , "Student" );
+
+        // Assign Free subscription plan
+        await _subscriptionService.AssignFreePlanAsync( user.Id );
 
         // Generate email confirmation token
         var confirmToken = await _userManager.GenerateEmailConfirmationTokenAsync( user );

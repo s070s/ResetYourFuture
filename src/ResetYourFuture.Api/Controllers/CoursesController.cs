@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Domain.Enums;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.Courses;
+using ResetYourFuture.Shared.Subscriptions;
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -19,11 +21,16 @@ namespace ResetYourFuture.Api.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
+    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<CoursesController> _logger;
 
-    public CoursesController(ApplicationDbContext db, ILogger<CoursesController> logger)
+    public CoursesController(
+        ApplicationDbContext db,
+        ISubscriptionService subscriptionService,
+        ILogger<CoursesController> logger)
     {
         _db = db;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
@@ -54,7 +61,8 @@ public class CoursesController : ControllerBase
                 c.Title,
                 c.Description,
                 c.Enrollments.Any(e => e.UserId == userId),
-                c.Modules.SelectMany(m => m.Lessons).Count()
+                c.Modules.SelectMany(m => m.Lessons).Count(),
+                c.RequiredTier
             ))
             .ToListAsync();
 
@@ -135,6 +143,16 @@ public class CoursesController : ControllerBase
         var course = await _db.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished);
         if (course is null)
             return NotFound(new EnrollmentResultDto(false, "Course not found", null));
+
+        // Check subscription tier
+        var userTier = await _subscriptionService.GetUserTierAsync(userId);
+        if (userTier < course.RequiredTier)
+        {
+            return StatusCode(403, new EnrollmentResultDto(
+                false,
+                $"This course requires a {course.RequiredTier} subscription or higher. Please upgrade your plan.",
+                null));
+        }
 
         var existing = await _db.Enrollments
             .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);

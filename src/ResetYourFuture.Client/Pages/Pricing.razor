@@ -1,0 +1,425 @@
+@page "/pricing"
+@inject ISubscriptionService SubscriptionService
+@inject NavigationManager Navigation
+
+<PageTitle>Pricing - Reset Your Future</PageTitle>
+
+<div class="pricing-page">
+    <div class="pricing-header">
+        <h1>Choose Your Plan</h1>
+        <p class="pricing-subtitle">Unlock your full potential with the right plan for you.</p>
+    </div>
+
+    <AuthorizeView>
+        <Authorized>
+            @if (_currentStatus is not null)
+            {
+                <div class="current-plan-banner">
+                    <span>Your current plan: <strong>@_currentStatus.PlanName</strong></span>
+                </div>
+            }
+        </Authorized>
+    </AuthorizeView>
+
+    @if (_loading)
+    {
+        <p>Loading plans...</p>
+    }
+    else if (_error is not null)
+    {
+        <p class="text-danger">@_error</p>
+    }
+    else
+    {
+        <div class="pricing-grid">
+            @foreach (var plan in _plans)
+            {
+                var isCurrent = _currentStatus?.PlanName == plan.Name;
+                var isUpgrade = _currentStatus is not null && plan.Tier > _currentStatus.Tier;
+
+                <div class="plan-card @(plan.Tier == SubscriptionTier.Pro ? "plan-featured" : "") @(isCurrent ? "plan-current" : "")">
+                    @if (plan.Tier == SubscriptionTier.Pro)
+                    {
+                        <div class="plan-badge">Most Popular</div>
+                    }
+                    <h2 class="plan-name">@plan.Name</h2>
+                    <div class="plan-price">
+                        @if (plan.Price == 0)
+                        {
+                            <span class="price-amount">Free</span>
+                        }
+                        else
+                        {
+                            <span class="price-currency">€</span>
+                            <span class="price-amount">@plan.Price.ToString("F2")</span>
+                            <span class="price-period">/@plan.BillingPeriod.ToLowerInvariant()</span>
+                        }
+                    </div>
+                    <p class="plan-description">@plan.Description</p>
+
+                    <ul class="plan-features">
+                        @if (plan.Features is not null)
+                        {
+                            <li class="feature-item">
+                                <span class="feature-icon">✓</span>
+                                @(plan.Features.MaxCourses >= 1000 ? "Unlimited courses" : $"Up to {plan.Features.MaxCourses} course(s)")
+                            </li>
+                            <li class="feature-item @(plan.Features.AssessmentAccess ? "" : "feature-disabled")">
+                                <span class="feature-icon">@(plan.Features.AssessmentAccess ? "✓" : "✗")</span>
+                                Assessment access
+                            </li>
+                            <li class="feature-item @(plan.Features.CertificateAccess ? "" : "feature-disabled")">
+                                <span class="feature-icon">@(plan.Features.CertificateAccess ? "✓" : "✗")</span>
+                                Certificates
+                            </li>
+                            <li class="feature-item @(plan.Features.PrioritySupport ? "" : "feature-disabled")">
+                                <span class="feature-icon">@(plan.Features.PrioritySupport ? "✓" : "✗")</span>
+                                Priority support
+                            </li>
+                        }
+                    </ul>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            @if (isCurrent)
+                            {
+                                <button class="btn-plan btn-current" disabled>Current Plan</button>
+                            }
+                            else if (isUpgrade)
+                            {
+                                <button class="btn-plan btn-upgrade" @onclick="() => Checkout(plan.Id)" disabled="@_processing">
+                                    @(_processing ? "Processing..." : "Upgrade")
+                                </button>
+                            }
+                            else if (plan.Tier == SubscriptionTier.Free && _currentStatus is not null && _currentStatus.Tier > SubscriptionTier.Free)
+                            {
+                                <button class="btn-plan btn-downgrade" @onclick="CancelSubscription" disabled="@_processing">
+                                    @(_processing ? "Processing..." : "Downgrade to Free")
+                                </button>
+                            }
+                            else if (plan.Price == 0)
+                            {
+                                <button class="btn-plan btn-free" disabled>Included</button>
+                            }
+                            else
+                            {
+                                <button class="btn-plan btn-select" @onclick="() => Checkout(plan.Id)" disabled="@_processing">
+                                    @(_processing ? "Processing..." : "Select Plan")
+                                </button>
+                            }
+                        </Authorized>
+                        <NotAuthorized>
+                            <button class="btn-plan btn-select" @onclick="NavigateToRegister">
+                                Get Started
+                            </button>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            }
+        </div>
+
+        @if (_cancelMessage is not null)
+        {
+            <div class="cancel-message @(_cancelSuccess ? "cancel-success" : "cancel-error")">
+                @_cancelMessage
+            </div>
+        }
+    }
+</div>
+
+<style>
+    .pricing-page {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .pricing-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .pricing-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .pricing-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    .current-plan-banner {
+        text-align: center;
+        padding: 0.75rem 1.5rem;
+        background: #e8f4fd;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        color: #0c5460;
+    }
+
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    .plan-card {
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        position: relative;
+        transition: box-shadow 0.2s, transform 0.2s;
+        background: #fff;
+    }
+
+    .plan-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .plan-featured {
+        border-color: #007bff;
+        border-width: 2px;
+    }
+
+    .plan-current {
+        border-color: #28a745;
+        background: #f8fff8;
+    }
+
+    .plan-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #007bff;
+        color: #fff;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .plan-price {
+        margin-bottom: 1rem;
+    }
+
+    .price-currency {
+        font-size: 1.2rem;
+        vertical-align: top;
+    }
+
+    .price-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .price-period {
+        color: #888;
+        font-size: 0.9rem;
+    }
+
+    .plan-description {
+        color: #666;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        min-height: 2.5rem;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1.5rem 0;
+        text-align: left;
+    }
+
+    .feature-item {
+        padding: 0.4rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .feature-icon {
+        font-weight: bold;
+        color: #28a745;
+        flex-shrink: 0;
+    }
+
+    .feature-disabled {
+        color: #aaa;
+    }
+
+    .feature-disabled .feature-icon {
+        color: #ccc;
+    }
+
+    .btn-plan {
+        display: block;
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-upgrade {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .btn-upgrade:hover:not(:disabled) {
+        background: #0056b3;
+    }
+
+    .btn-select {
+        background: #007bff;
+        color: #fff;
+    }
+
+    .btn-select:hover:not(:disabled) {
+        background: #0056b3;
+    }
+
+    .btn-current {
+        background: #e9ecef;
+        color: #6c757d;
+        cursor: default;
+    }
+
+    .btn-free {
+        background: #e9ecef;
+        color: #6c757d;
+        cursor: default;
+    }
+
+    .btn-downgrade {
+        background: #ffc107;
+        color: #333;
+    }
+
+    .btn-downgrade:hover:not(:disabled) {
+        background: #e0a800;
+    }
+
+    .cancel-message {
+        text-align: center;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .cancel-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .cancel-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+
+@code {
+    private List<SubscriptionPlanDto> _plans = [];
+    private UserSubscriptionStatusDto? _currentStatus;
+    private bool _loading = true;
+    private bool _processing;
+    private string? _error;
+    private string? _cancelMessage;
+    private bool _cancelSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _plans = await SubscriptionService.GetPlansAsync();
+            _currentStatus = await SubscriptionService.GetStatusAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = "Failed to load plans. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task Checkout(Guid planId)
+    {
+        _processing = true;
+        _cancelMessage = null;
+        try
+        {
+            var session = await SubscriptionService.CheckoutAsync(planId);
+            if (session is not null && !string.IsNullOrEmpty(session.CheckoutUrl))
+            {
+                Navigation.NavigateTo(session.CheckoutUrl, forceLoad: false);
+            }
+            else
+            {
+                // Reload status after successful mock checkout
+                _currentStatus = await SubscriptionService.GetStatusAsync();
+                _error = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = "Checkout failed. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    private async Task CancelSubscription()
+    {
+        _processing = true;
+        _cancelMessage = null;
+        try
+        {
+            var result = await SubscriptionService.CancelAsync();
+            if (result is not null)
+            {
+                _cancelSuccess = result.Success;
+                _cancelMessage = result.Message;
+
+                if (result.Success)
+                {
+                    _currentStatus = await SubscriptionService.GetStatusAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _cancelSuccess = false;
+            _cancelMessage = "Failed to cancel. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _processing = false;
+        }
+    }
+
+    private void NavigateToRegister()
+    {
+        Navigation.NavigateTo("/register");
+    }
+}

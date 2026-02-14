@@ -17,11 +17,16 @@ public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ISubscriptionService _subscriptionService;
 
-    public TokenService(IConfiguration config, UserManager<ApplicationUser> userManager)
+    public TokenService(
+        IConfiguration config,
+        UserManager<ApplicationUser> userManager,
+        ISubscriptionService subscriptionService)
     {
         _config = config;
         _userManager = userManager;
+        _subscriptionService = subscriptionService;
     }
 
     public async Task<(string AccessToken, DateTime Expiration)> GenerateAccessTokenAsync(ApplicationUser user)
@@ -32,6 +37,7 @@ public class TokenService : ITokenService
         var expiration = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["AccessTokenExpirationMinutes"] ?? "60"));
 
         var roles = await _userManager.GetRolesAsync(user);
+        var tier = await _subscriptionService.GetUserTierAsync(user.Id);
 
         var claims = new List<Claim>
         {
@@ -41,7 +47,8 @@ public class TokenService : ITokenService
             new("firstName", user.FirstName),
             new("lastName", user.LastName),
             new("status", ((int)user.Status).ToString()),
-            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant())
+            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
+            new("subscriptionTier", ((int)tier).ToString())
         };
 
         // Add role claims

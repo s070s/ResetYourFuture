@@ -1,4 +1,5 @@
 using ResetYourFuture.Api.Domain.Enums;
+using ResetYourFuture.Shared.Subscriptions;
 
 namespace ResetYourFuture.Api.Domain.Entities;
 
@@ -30,6 +31,11 @@ public class SubscriptionPlan
     /// Billing interval for the plan.
     /// </summary>
     public BillingPeriod BillingPeriod { get; set; }
+
+    /// <summary>
+    /// The subscription tier this plan belongs to.
+    /// </summary>
+    public SubscriptionTier Tier { get; set; } = SubscriptionTier.Free;
 
     /// <summary>
     /// JSON for flexible feature flags/limits (e.g. max courses, downloads, etc.).

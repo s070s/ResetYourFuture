@@ -28,6 +28,10 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
         builder.Property(sp => sp.BillingPeriod)
             .HasConversion<int>();
 
+        // Tier stored as int
+        builder.Property(sp => sp.Tier)
+            .HasConversion<int>();
+
         // Features stored as JSON (flexible schema for limits/flags)
         // Leave provider-specific column type unspecified so EF maps to the
         // appropriate database type (TEXT for SQLite, nvarchar(max) for SQL Server).

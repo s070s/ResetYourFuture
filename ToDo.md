@@ -1,28 +1,3 @@
-PHASE 4 — MONETIZATION SKELETON (Week 7)
-
-Goal: show business viability, not revenue optimization.
-
-7. Subscription Plans (Stub)
-
-Rule of thumb: UI + data first, real payments later.
-
-Implement:
-• Plans:
-
-Free
-
-Plus
-
-Pro
-• Feature flags per plan
-• Mock Stripe integration OR test mode only
-
-Deliverable:
-• App behaves as paid platform
-
-
-
-
 PHASE 5 — COMMUNITY & ENGAGEMENT (Week 8)
 
 Goal: support without building social media.

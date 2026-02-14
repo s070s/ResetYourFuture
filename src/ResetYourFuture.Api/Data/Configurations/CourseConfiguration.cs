@@ -20,6 +20,10 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(c => c.Description)
             .HasMaxLength(2000);
 
+        // RequiredTier stored as int
+        builder.Property(c => c.RequiredTier)
+            .HasConversion<int>();
+
         // Index on IsPublished for catalog queries
         builder.HasIndex(c => c.IsPublished);
 

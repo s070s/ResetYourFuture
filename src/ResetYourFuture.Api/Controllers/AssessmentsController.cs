@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.Models.Assessments;
 
 namespace ResetYourFuture.Api.Controllers;
@@ -16,11 +17,16 @@ namespace ResetYourFuture.Api.Controllers;
 public class AssessmentsController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
+    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<AssessmentsController> _logger;
 
-    public AssessmentsController(ApplicationDbContext db, ILogger<AssessmentsController> logger)
+    public AssessmentsController(
+        ApplicationDbContext db,
+        ISubscriptionService subscriptionService,
+        ILogger<AssessmentsController> logger)
     {
         _db = db;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
@@ -94,6 +100,13 @@ public class AssessmentsController : ControllerBase
         if (assessment == null)
         {
             return NotFound("Assessment not found or not published");
+        }
+
+        // Check subscription tier
+        var userTier = await _subscriptionService.GetUserTierAsync(UserId);
+        if (userTier < assessment.RequiredTier)
+        {
+            return StatusCode(403, $"This assessment requires a {assessment.RequiredTier} subscription or higher.");
         }
 
         var submission = new Domain.Entities.AssessmentSubmission

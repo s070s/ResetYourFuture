@@ -1,6 +1,7 @@
 @page "/courses"
 @attribute [Authorize]
 @inject ICourseService CourseService
+@inject ISubscriptionService SubscriptionService
 @inject NavigationManager Navigation
 
 <PageTitle>Courses - Reset Your Future</PageTitle>
@@ -24,8 +25,18 @@ else
     <div class="courses-list">
         @foreach (var course in _courses)
         {
-            <div class="course-card" @onclick="() => ViewCourse(course.Id)">
-                <h3>@course.Title</h3>
+            var isLocked = _userTier < course.RequiredTier;
+
+            <div class="course-card @(isLocked ? "course-locked" : "")" @onclick="() => ViewCourse(course)">
+                <div class="course-card-header">
+                    <h3>@course.Title</h3>
+                    @if (course.RequiredTier != SubscriptionTier.Free)
+                    {
+                        <span class="tier-badge tier-@course.RequiredTier.ToString().ToLowerInvariant()">
+                            @course.RequiredTier
+                        </span>
+                    }
+                </div>
                 @if (!string.IsNullOrEmpty(course.Description))
                 {
                     <p class="description">@course.Description</p>
@@ -35,6 +46,12 @@ else
                     @if (course.IsEnrolled)
                     {
                         <span class="enrolled-badge">✓ Enrolled</span>
+                    }
+                    @if (isLocked)
+                    {
+                        <span class="locked-badge" @onclick:stopPropagation="true" @onclick="GoToPricing">
+                            🔒 Upgrade to @course.RequiredTier
+                        </span>
                     }
                 </div>
             </div>
@@ -84,10 +101,53 @@ else
         color: #28a745;
         font-weight: bold;
     }
+
+    .course-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .tier-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .tier-badge.tier-plus {
+        background: #e8f4fd;
+        color: #0c5460;
+    }
+
+    .tier-badge.tier-pro {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .course-locked {
+        opacity: 0.7;
+        border-style: dashed;
+    }
+
+    .locked-badge {
+        color: #dc3545;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .locked-badge:hover {
+        text-decoration: underline;
+    }
 </style>
 
 @code {
     private List<CourseListItemDto> _courses = [];
+    private SubscriptionTier _userTier = SubscriptionTier.Free;
     private bool _loading = true;
     private string? _error;
 
@@ -95,7 +155,16 @@ else
     {
         try
         {
-            _courses = await CourseService.GetCoursesAsync();
+            var coursesTask = CourseService.GetCoursesAsync();
+            var statusTask = SubscriptionService.GetStatusAsync();
+            await Task.WhenAll(coursesTask, statusTask);
+
+            _courses = coursesTask.Result;
+            var status = statusTask.Result;
+            if (status is not null)
+            {
+                _userTier = status.Tier;
+            }
         }
         catch (Exception ex)
         {
@@ -108,8 +177,18 @@ else
         }
     }
 
-    private void ViewCourse(Guid courseId)
+    private void ViewCourse(CourseListItemDto course)
     {
-        Navigation.NavigateTo($"/courses/{courseId}");
+        if (_userTier < course.RequiredTier)
+        {
+            Navigation.NavigateTo("/pricing");
+            return;
+        }
+        Navigation.NavigateTo($"/courses/{course.Id}");
+    }
+
+    private void GoToPricing()
+    {
+        Navigation.NavigateTo("/pricing");
     }
 }

@@ -95,6 +95,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
 builder.Services.AddScoped<IEmailService , StubEmailService>();
+builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
 
 // --- Localization ---
 builder.Services.AddLocalization();
@@ -151,6 +152,9 @@ using ( var scope = app.Services.CreateScope() )
             await roleManager.CreateAsync( new IdentityRole( role ) );
         }
     }
+
+    // --- Seed Subscription Plans ---
+    await SubscriptionPlanSeeder.SeedAsync( db , startupLogger );
 
     // --- Seed Admin User (Development only) ---
     if ( app.Environment.IsDevelopment() )

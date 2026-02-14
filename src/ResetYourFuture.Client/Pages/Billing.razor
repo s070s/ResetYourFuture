@@ -1,0 +1,395 @@
+@page "/billing"
+@attribute [Authorize]
+@inject ISubscriptionService SubscriptionService
+@inject NavigationManager Navigation
+
+<PageTitle>Billing & Transactions - Reset Your Future</PageTitle>
+
+<div class="billing-page">
+    <h1>Billing & Transactions</h1>
+
+    @if (_loading)
+    {
+        <p>Loading billing information...</p>
+    }
+    else if (_error is not null)
+    {
+        <p class="text-danger">@_error</p>
+    }
+    else if (_overview is not null)
+    {
+        @* ── Current Plan Card ── *@
+        <div class="billing-section">
+            <h2>Current Plan</h2>
+            <div class="current-plan-card">
+                <div class="plan-info">
+                    <div class="plan-name-row">
+                        <span class="plan-name">@_overview.CurrentSubscription?.PlanName</span>
+                        <span class="tier-badge tier-@_overview.CurrentSubscription?.Tier.ToString().ToLowerInvariant()">
+                            @_overview.CurrentSubscription?.Tier
+                        </span>
+                    </div>
+
+                    <div class="plan-dates">
+                        <p><strong>Active since:</strong> @_overview.CurrentSubscription?.StartedAt.ToString("dd MMM yyyy")</p>
+                        @if (_overview.CurrentSubscription?.ExpiresAt is not null)
+                        {
+                            <p><strong>Next renewal:</strong> @_overview.CurrentSubscription.ExpiresAt.Value.ToString("dd MMM yyyy")</p>
+                        }
+                        else
+                        {
+                            <p><strong>Renewal:</strong> No expiry (lifetime)</p>
+                        }
+                    </div>
+
+                    @if (_overview.CurrentSubscription?.Features is not null)
+                    {
+                        <div class="plan-features-summary">
+                            <span class="feature-tag">
+                                @(_overview.CurrentSubscription.Features.MaxCourses >= 1000 ? "Unlimited courses" : $"{_overview.CurrentSubscription.Features.MaxCourses} course(s)")
+                            </span>
+                            @if (_overview.CurrentSubscription.Features.AssessmentAccess)
+                            {
+                                <span class="feature-tag">Assessments</span>
+                            }
+                            @if (_overview.CurrentSubscription.Features.CertificateAccess)
+                            {
+                                <span class="feature-tag">Certificates</span>
+                            }
+                            @if (_overview.CurrentSubscription.Features.PrioritySupport)
+                            {
+                                <span class="feature-tag">Priority support</span>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <div class="plan-actions">
+                    <button class="btn btn-primary" @onclick="GoToPricing">Change Plan</button>
+                    @if (_overview.CurrentSubscription?.Tier > SubscriptionTier.Free)
+                    {
+                        <button class="btn btn-outline-warning" @onclick="CancelSubscription" disabled="@_cancelling">
+                            @(_cancelling ? "Cancelling..." : "Cancel Subscription")
+                        </button>
+                    }
+                </div>
+
+                @if (_cancelMessage is not null)
+                {
+                    <div class="cancel-msg @(_cancelSuccess ? "msg-success" : "msg-error")">
+                        @_cancelMessage
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ── Transaction History ── *@
+        <div class="billing-section">
+            <h2>Transaction History</h2>
+
+            @if (_overview.Transactions.Count == 0)
+            {
+                <p class="text-muted">No transactions yet.</p>
+            }
+            else
+            {
+                <div class="transactions-table-wrapper">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tx in _overview.Transactions)
+                            {
+                                <tr>
+                                    <td>@tx.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td>
+                                        <span class="tx-type tx-type-@tx.Type.ToLowerInvariant()">@tx.Type</span>
+                                        <span>@tx.Description</span>
+                                    </td>
+                                    <td>@tx.PlanName</td>
+                                    <td class="@(tx.Amount > 0 ? "amount-charge" : "amount-zero")">
+                                        @if (tx.Amount == 0)
+                                        {
+                                            <span>—</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@tx.Currency @tx.Amount.ToString("F2")</span>
+                                        }
+                                    </td>
+                                    <td class="tx-ref">
+                                        @if (!string.IsNullOrEmpty(tx.StripeSessionId))
+                                        {
+                                            <code>@tx.StripeSessionId[..Math.Min(20, tx.StripeSessionId.Length)]…</code>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .billing-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .billing-page h1 {
+        margin-bottom: 2rem;
+    }
+
+    .billing-section {
+        margin-bottom: 2.5rem;
+    }
+
+    .billing-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    /* ── Current Plan Card ── */
+    .current-plan-card {
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        padding: 1.5rem;
+        background: #fafafa;
+    }
+
+    .plan-name-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .tier-badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+    }
+
+    .tier-badge.tier-free {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .tier-badge.tier-plus {
+        background: #e8f4fd;
+        color: #0c5460;
+    }
+
+    .tier-badge.tier-pro {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .plan-dates p {
+        margin: 0.25rem 0;
+        font-size: 0.95rem;
+    }
+
+    .plan-features-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .feature-tag {
+        background: #e8f4fd;
+        color: #0c5460;
+        padding: 0.25rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+    }
+
+    .plan-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .cancel-msg {
+        margin-top: 1rem;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .msg-success {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .msg-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    /* ── Transactions Table ── */
+    .transactions-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .transactions-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.9rem;
+    }
+
+    .transactions-table th,
+    .transactions-table td {
+        padding: 0.75rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .transactions-table th {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .transactions-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .tx-type {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        margin-right: 0.4rem;
+        text-transform: uppercase;
+    }
+
+    .tx-type-purchase {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .tx-type-upgrade {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .tx-type-downgrade {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .tx-type-freeplanassignment {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .tx-type-renewal {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .tx-type-refund {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .amount-charge {
+        font-weight: 600;
+    }
+
+    .amount-zero {
+        color: #aaa;
+    }
+
+    .tx-ref code {
+        font-size: 0.75rem;
+        color: #888;
+    }
+</style>
+
+@code {
+    private BillingOverviewDto? _overview;
+    private bool _loading = true;
+    private bool _cancelling;
+    private string? _error;
+    private string? _cancelMessage;
+    private bool _cancelSuccess;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _overview = await SubscriptionService.GetBillingOverviewAsync();
+        }
+        catch (Exception ex)
+        {
+            _error = "Failed to load billing information. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task CancelSubscription()
+    {
+        _cancelling = true;
+        _cancelMessage = null;
+        try
+        {
+            var result = await SubscriptionService.CancelAsync();
+            if (result is not null)
+            {
+                _cancelSuccess = result.Success;
+                _cancelMessage = result.Message;
+
+                if (result.Success)
+                {
+                    // Reload billing overview to reflect the change
+                    _overview = await SubscriptionService.GetBillingOverviewAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _cancelSuccess = false;
+            _cancelMessage = "Failed to cancel. Please try again.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            _cancelling = false;
+        }
+    }
+
+    private void GoToPricing() => Navigation.NavigateTo("/pricing");
+}

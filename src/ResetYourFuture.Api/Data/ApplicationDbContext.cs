@@ -28,6 +28,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
     public DbSet<LessonCompletion> LessonCompletions => Set<LessonCompletion>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<BillingTransaction> BillingTransactions => Set<BillingTransaction>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
 
     /// <summary>
