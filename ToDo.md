@@ -1,24 +1,5 @@
 PHASE 3 — VALUE DIFFERENTIATOR (Week 5–6)
 
-Goal: show why this is not just another course site.
-
-5. Psychosocial Assessments (MVP)
-
-Rule of thumb: collect data now, analyze later.
-
-Implement:
-• 1 assessment only:
-
-Career clarity / emotional state
-• Store answers as JSON
-• Show basic summary
-
-Important:
-• No complex scoring yet
-• This keeps scientific credibility without complexity
-
-Deliverable:
-• Assessment → stored → visible to user
 
 6. Admin Content Management
 
