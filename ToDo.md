@@ -1,23 +1,3 @@
-PHASE 5 — COMMUNITY & ENGAGEMENT (Week 8)
-
-Goal: support without building social media.
-
-8. Community Integration
-
-Rule of thumb: integrate, do not rebuild.
-
-Implement:
-• Discord invite link per plan
-• Visible inside dashboard
-• Community rules page
-
-Deliverable:
-• Community exists without code debt
-
-PHASE 6 — POLISH & DEPLOY (Week 9)
-
-Goal: prototype that judges, users, or partners can use.
-
 9. UX Pass
 
 Rule of thumb: clarity beats beauty.
