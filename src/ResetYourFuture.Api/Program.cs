@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Api.Data;
+using ResetYourFuture.Api.Hubs;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Api.Logging;
@@ -60,6 +61,17 @@ builder.Services.AddAuthentication( options =>
 
     options.Events = new JwtBearerEvents
     {
+        // Allow SignalR to receive JWT from query string (WebSocket cannot send headers).
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if ( !string.IsNullOrEmpty( accessToken ) && path.StartsWithSegments( "/hubs/chat" ) )
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        } ,
         OnTokenValidated = async context =>
         {
             var userManager = context.HttpContext.RequestServices
@@ -107,6 +119,7 @@ builder.Services.Configure<RequestLocalizationOptions>( options =>
         .AddSupportedUICultures( supportedCultures );
 } );
 
+builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
@@ -216,6 +229,7 @@ app.UseRequestLocalization();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>( "/hubs/chat" );
 
 // --- Logger ---
 var logger = app.Services.GetRequiredService<ILogger<Program>>();

@@ -53,6 +53,10 @@ builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress
 builder.Services.AddHttpClient<ISubscriptionService, SubscriptionService>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
+// --- Chat Service ---
+builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 

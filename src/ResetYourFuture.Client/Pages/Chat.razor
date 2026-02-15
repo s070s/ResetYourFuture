@@ -1,0 +1,155 @@
+@page "/chat"
+@attribute [Authorize]
+@implements IAsyncDisposable
+
+<PageTitle>Chat</PageTitle>
+
+<div class="chat-container">
+    @* --- Conversation List Sidebar --- *@
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h5>Conversations</h5>
+            <button class="btn btn-sm btn-primary" @onclick="OpenUserPicker"
+                    disabled="@_isStarting">
+                <span class="bi bi-plus-circle"></span> New
+            </button>
+        </div>
+
+        @if ( _conversations is null )
+        {
+            <div class="text-center p-3">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+            </div>
+        }
+        else if ( _conversations.Count == 0 )
+        {
+            <div class="text-muted p-3 small">No conversations yet.</div>
+        }
+        else
+        {
+            <div class="conversation-list">
+                @foreach ( var convo in _conversations )
+                {
+                    var isActive = _selectedConversation?.Id == convo.Id;
+                    <div class="conversation-item @(isActive ? "active" : "")"
+                         @onclick="() => SelectConversation( convo )"
+                         @key="convo.Id">
+                        <div class="convo-name">
+                            @convo.OtherUserName
+                            <span class="convo-role">@convo.OtherUserRole</span>
+                        </div>
+                        <div class="convo-preview">@( convo.LastMessageContent ?? "No messages" )</div>
+                        @if ( convo.UnreadCount > 0 )
+                        {
+                            <span class="badge bg-danger">@convo.UnreadCount</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    @* --- Message Area --- *@
+    <div class="chat-main">
+        @if ( _selectedConversation is null )
+        {
+            <div class="chat-placeholder">
+                <span class="bi bi-chat-dots" style="font-size: 3rem;"></span>
+                <p>Select a conversation or start a new one</p>
+            </div>
+        }
+        else
+        {
+            <div class="chat-header">
+                <h6>
+                    <span class="bi bi-person"></span> @_selectedConversation.OtherUserName
+                    <span class="chat-header-role">(@_selectedConversation.OtherUserRole)</span>
+                </h6>
+            </div>
+
+            <div class="chat-messages" @ref="_messageContainer">
+                @if ( _isLoadingMessages )
+                {
+                    <div class="text-center p-3">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                    </div>
+                }
+                else
+                {
+                    @foreach ( var msg in _messages )
+                    {
+                        var isMine = msg.SenderId == _currentUserId;
+                        <div class="message-bubble @(isMine ? "mine" : "theirs")" @key="msg.Id">
+                            <div class="message-sender">
+                                @msg.SenderName
+                                <span class="message-role">(@msg.SenderRole)</span>
+                            </div>
+                            <div class="message-content">@msg.Content</div>
+                            <div class="message-time">@msg.SentAt.ToString( "HH:mm" )</div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="chat-input">
+                <input type="text" class="form-control" placeholder="Type a message..."
+                       @bind="_newMessage" @bind:event="oninput"
+                       @onkeydown="HandleKeyDown" disabled="@(!ChatService.IsConnected)" />
+                <button class="btn btn-primary" @onclick="SendMessage"
+                        disabled="@(string.IsNullOrWhiteSpace( _newMessage ) || !ChatService.IsConnected)">
+                    <span class="bi bi-send"></span>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@* --- User Picker Modal --- *@
+@if ( _showUserPicker )
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show d-block" tabindex="-1" @onclick="CloseUserPicker">
+        <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation="true">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Start a conversation</h5>
+                    <button type="button" class="btn-close" @onclick="CloseUserPicker"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-3" placeholder="Search users..."
+                           @bind="_userSearchTerm" @bind:event="oninput"
+                           @onkeydown="HandleSearchKeyDown" />
+
+                    @if ( _isSearching )
+                    {
+                        <div class="text-center p-3">
+                            <div class="spinner-border spinner-border-sm" role="status"></div>
+                        </div>
+                    }
+                    else if ( _availableUsers.Count == 0 )
+                    {
+                        <div class="text-muted p-2 small">
+                            @( string.IsNullOrWhiteSpace( _userSearchTerm )
+                                ? "Type to search for users."
+                                : "No users found." )
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="user-picker-list">
+                            @foreach ( var user in _availableUsers )
+                            {
+                                <div class="user-picker-item" @onclick="() => PickUser( user )"
+                                     @key="user.Id">
+                                    <span class="bi bi-person-circle me-2"></span>
+                                    <span class="user-picker-name">@user.FullName</span>
+                                    <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

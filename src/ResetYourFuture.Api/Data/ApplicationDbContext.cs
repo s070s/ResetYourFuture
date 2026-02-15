@@ -31,6 +31,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BillingTransaction> BillingTransactions => Set<BillingTransaction>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
 
+    // --- Chat ---
+    public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
