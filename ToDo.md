@@ -22,6 +22,30 @@ Deliverable:
 
 
 
+FEATURE 1
+Community - Facebook Timeline like component
+Separate From Chat Component
+
+FEATURE 2
+F.A.Q Page
+
+FEATURE 3
+Courses-Transcript PDF Scrolling Along the Video
+
+FIX
+Assesments are not a seperate Feature on a separate Tab
+They can be attached to a course at the end of a Course
+
+FEATURE
+Integration
+Calendly/Google Calendar
+Mailchimp
+Paypal
+Stripe
+Provider for Emails
+
+
+
 OtherTODO
 • Using this prompt add comments throughout the solution...
 You are a principal .NET Engineer and the author of this solution
