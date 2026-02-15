@@ -33,6 +33,10 @@ FEATURE 3
 Courses-Transcript PDF Scrolling Along the Video
 
 FIX
+change the Courses Section to include Course Items as Cards
+use the Cards.md as reference
+
+FIX
 Assesments are not a seperate Feature on a separate Tab
 They can be attached to a course at the end of a Course
 
