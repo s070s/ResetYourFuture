@@ -149,6 +149,16 @@ dotnet ef migrations script --output migration.sql
 
 # Rollback to Migration 0
 dotnet ef database update 0
+
+
+
+
+Example
+dotnet ef database update 0 --project src/ResetYourFuture.Api
+dotnet ef migrations remove --project src/ResetYourFuture.Api
+dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --context ApplicationDbContext
+dotnet ef database update --project src/ResetYourFuture.Api
+
 ```
 
 ---

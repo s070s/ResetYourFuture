@@ -56,6 +56,12 @@ You are a principal .NET Engineer and the author of this solution
 You are free to search the solution for context
 add comments for a junior .NET to understand this file
 one line per comment
+• https://localhost:7083/admin/users Delete User->Confirm Delete throws an error
+• https://localhost:7083/register upon checking for wrong validation in the password after i put the correct matching ones the red wont go away
+• https://localhost:7083/register Το Email επαληθεύτηκε should leave after inputing new credentials for a new user
+• https://localhost:7083/admin/users Remove Status Column (Enabled and Role show their respective information)
+• https://localhost:7083/chat multiline chat
+• Seed Student Users
 • Localization of all Razor Pages and Client API Messages,Error Messages
 • If credentials are invalid in the login page do not pop up browser dialog for saving the credentials
 • When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
@@ -77,6 +83,8 @@ Navmenu.razor
 
 
 
+
+Edge case Tests to be done
 
 
 
