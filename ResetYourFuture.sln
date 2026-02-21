@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-	ProjectSection(SolutionItems) = preProject
-		ToDo.md = ToDo.md
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResetYourFuture.Api", "src\ResetYourFuture.Api\ResetYourFuture.Api.csproj", "{7DE350D3-04F2-4BBD-AD6F-59EA9CDDC615}"
 EndProject
