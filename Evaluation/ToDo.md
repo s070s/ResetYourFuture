@@ -63,11 +63,7 @@ one line per comment
 subscribed users,completion analytics of users
 • https://localhost:7083/profile
 profile
-"The FirstName field is required."
-"The LastName field is required."
 • Keep only Disable in Content and Users of Admin Pages and have Delete inside the detailed view of each item
-• Feature in Admin Users screen to Login as specific Students in a separate browser window
-
 
 LOCALIZED FULLY
 Register.razor
@@ -87,7 +83,6 @@ WHAT IS INTENTIONALLY NOT BUILT (YET)
 
 Explicitly postponed to protect April deadline:
 
-• In-app chat
 • Automated psychometric scoring
 • B2B portals
 • Advanced analytics
