@@ -1,7 +1,5 @@
 @page "/subscription/success"
 @attribute [Authorize]
-@inject ISubscriptionService SubscriptionService
-@inject NavigationManager Navigation
 
 <PageTitle>Subscription Updated - Reset Your Future</PageTitle>
 
@@ -82,26 +80,3 @@
     }
 </style>
 
-@code {
-    private UserSubscriptionStatusDto? _status;
-    private bool _loading = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _status = await SubscriptionService.GetStatusAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
-        finally
-        {
-            _loading = false;
-        }
-    }
-
-    private void GoToCourses() => Navigation.NavigateTo("/courses");
-    private void GoToPricing() => Navigation.NavigateTo("/pricing");
-}

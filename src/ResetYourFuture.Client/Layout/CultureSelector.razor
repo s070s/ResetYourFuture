@@ -1,18 +1,5 @@
-@inject NavigationManager Nav
-
 <div class="culture-selector">
     <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("en")'>EN</button>
     <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("el")'>EL</button>
 </div>
 
-@code {
-    private void SetCulture(string culture)
-    {
-        //Refactor this to use a dedicated endpoint
-        // Always route to home page after language change.
-        // Navigate to the client root with ?culture=... and force a full reload so Program.cs reads the query on startup.
-        var redirectUri = "/";
-        var target = $"{redirectUri}?culture={culture}";
-        Nav.NavigateTo(target, forceLoad: true);
-    }
-}
