@@ -1,0 +1,189 @@
+﻿
+.billing-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+    .billing-page h1 {
+        margin-bottom: 2rem;
+    }
+
+.billing-section {
+    margin-bottom: 2.5rem;
+}
+
+    .billing-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+/* ── Current Plan Card ── */
+.current-plan-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: #fafafa;
+}
+
+.plan-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.tier-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+}
+
+    .tier-badge.tier-free {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .tier-badge.tier-plus {
+        background: #e8f4fd;
+        color: #0c5460;
+    }
+
+    .tier-badge.tier-pro {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+.plan-dates p {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+.plan-features-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.feature-tag {
+    background: #e8f4fd;
+    color: #0c5460;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.plan-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.cancel-msg {
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.msg-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.msg-error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* ── Transactions Table ── */
+.transactions-table-wrapper {
+    overflow-x: auto;
+}
+
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+    .transactions-table th,
+    .transactions-table td {
+        padding: 0.75rem 0.5rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .transactions-table th {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .transactions-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+.tx-type {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    margin-right: 0.4rem;
+    text-transform: uppercase;
+}
+
+.tx-type-purchase {
+    background: #d4edda;
+    color: #155724;
+}
+
+.tx-type-upgrade {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.tx-type-downgrade {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.tx-type-freeplanassignment {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.tx-type-renewal {
+    background: #d4edda;
+    color: #155724;
+}
+
+.tx-type-refund {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.amount-charge {
+    font-weight: 600;
+}
+
+.amount-zero {
+    color: #aaa;
+}
+
+.tx-ref code {
+    font-size: 0.75rem;
+    color: #888;
+}
