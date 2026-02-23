@@ -8,14 +8,14 @@
     }
 
     .course-header .description {
-        color: #666;
+        color: var(--text-strong-normal);
         font-size: 1.1rem;
     }
 
 .btn-link {
     background: none;
     border: none;
-    color: #007bff;
+    color: var(--text-accent);
     cursor: pointer;
     padding: 0;
     font-size: 0.9rem;
@@ -36,24 +36,24 @@
     width: 100%;
     max-width: 400px;
     height: 8px;
-    background: #e0e0e0;
+    background: var(--bg-neutral-subtle);
     border-radius: 4px;
     overflow: hidden;
 }
 
 .progress-bar-fill {
     height: 100%;
-    background: #28a745;
+    background: var(--color-success);
     transition: width 0.3s;
 }
 
 .progress-text {
     font-size: 0.9rem;
-    color: #666;
+    color: var(--text-strong-normal);
 }
 
 .completed-badge {
-    color: #28a745;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .module-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 1.5rem;
 }
@@ -74,7 +74,7 @@
     }
 
 .module-description {
-    color: #666;
+    color: var(--text-strong-normal);
     margin-bottom: 1rem;
 }
 
@@ -95,11 +95,11 @@
 }
 
     .lesson-item:hover {
-        background: #f5f5f5;
+        background: var(--bg-table-header-hover);
     }
 
     .lesson-item.completed {
-        color: #28a745;
+        color: var(--color-success);
     }
 
 .lesson-icon {
@@ -112,13 +112,13 @@
 }
 
 .lesson-duration {
-    color: #888;
+    color: var(--text-light-muted);
     font-size: 0.85rem;
 }
 
 .btn-primary {
-    background: #007bff;
-    color: white;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -127,10 +127,10 @@
 }
 
     .btn-primary:hover {
-        background: #0056b3;
+        background: var(--button-regular);
     }
 
     .btn-primary:disabled {
-        background: #ccc;
+        background: var(--bg-neutral-subtle);
         cursor: not-allowed;
     }

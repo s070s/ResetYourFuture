@@ -19,11 +19,11 @@
 }
 
     .avatar-button:hover {
-        box-shadow: 0 0 0 2px var(--text-accent, #6366f1);
+        box-shadow: 0 0 0 2px var(--text-accent);
     }
 
     .avatar-button:focus-visible {
-        outline: 2px solid var(--text-accent, #6366f1);
+        outline: 2px solid var(--text-accent);
         outline-offset: 2px;
     }
 
@@ -36,7 +36,7 @@
 
 .avatar-icon {
     font-size: 1.6rem;
-    color: var(--text-light-normal, #ccc);
+    color: var(--text-light-normal);
     width: auto;
     height: auto;
     margin: 0;
@@ -50,8 +50,8 @@
     top: 100%;
     margin-top: 0.4rem;
     min-width: 180px;
-    background-color: var(--bg-surface, #1e1e2e);
-    border: 1px solid var(--border-subtle, #333);
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     border-radius: 6px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     z-index: 1050;
@@ -65,7 +65,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    color: var(--text-light-normal, #ccc);
+    color: var(--text-light-normal);
     text-decoration: none;
     border: none;
     background: none;
@@ -76,8 +76,8 @@
 }
 
     .dropdown-item-custom:hover {
-        background-color: var(--bg-table-header-hover, #2a2a3e);
-        color: var(--text-accent, #6366f1);
+        background-color: var(--bg-table-header-hover);
+        color: var(--text-accent);
     }
 
     .dropdown-item-custom .bi {

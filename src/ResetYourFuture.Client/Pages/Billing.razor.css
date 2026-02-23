@@ -17,15 +17,15 @@
         font-size: 1.25rem;
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-subtle);
     }
 
 /* ── Current Plan Card ── */
 .current-plan-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 1.5rem;
-    background: #fafafa;
+    background: var(--bg-surface);
 }
 
 .plan-name-row {
@@ -48,18 +48,18 @@
 }
 
     .tier-badge.tier-free {
-        background: #e9ecef;
-        color: #495057;
+        background: var(--bg-neutral-subtle);
+        color: var(--text-light-normal);
     }
 
     .tier-badge.tier-plus {
-        background: #e8f4fd;
-        color: #0c5460;
+        background: var(--bg-info-subtle);
+        color: var(--text-accent);
     }
 
     .tier-badge.tier-pro {
-        background: #fff3cd;
-        color: #856404;
+        background: var(--bg-warning-subtle);
+        color: var(--color-warning);
     }
 
 .plan-dates p {
@@ -75,8 +75,8 @@
 }
 
 .feature-tag {
-    background: #e8f4fd;
-    color: #0c5460;
+    background: var(--bg-info-subtle);
+    color: var(--text-accent);
     padding: 0.25rem 0.6rem;
     border-radius: 4px;
     font-size: 0.8rem;
@@ -96,13 +96,13 @@
 }
 
 .msg-success {
-    background: #d4edda;
-    color: #155724;
+    background: var(--bg-success-subtle);
+    color: var(--color-success);
 }
 
 .msg-error {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--bg-error-subtle);
+    color: var(--color-error);
 }
 
 /* ── Transactions Table ── */
@@ -120,19 +120,19 @@
     .transactions-table td {
         padding: 0.75rem 0.5rem;
         text-align: left;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid var(--border-subtle);
     }
 
     .transactions-table th {
         font-weight: 600;
-        color: #555;
+        color: var(--text-strong-normal);
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.03em;
     }
 
     .transactions-table tbody tr:hover {
-        background: #f8f9fa;
+        background: var(--bg-table-row-hover);
     }
 
 .tx-type {
@@ -146,33 +146,33 @@
 }
 
 .tx-type-purchase {
-    background: #d4edda;
-    color: #155724;
+    background: var(--bg-success-subtle);
+    color: var(--color-success);
 }
 
 .tx-type-upgrade {
-    background: #cce5ff;
-    color: #004085;
+    background: var(--bg-info-subtle);
+    color: var(--text-accent);
 }
 
 .tx-type-downgrade {
-    background: #fff3cd;
-    color: #856404;
+    background: var(--bg-warning-subtle);
+    color: var(--color-warning);
 }
 
 .tx-type-freeplanassignment {
-    background: #e9ecef;
-    color: #495057;
+    background: var(--bg-neutral-subtle);
+    color: var(--text-light-normal);
 }
 
 .tx-type-renewal {
-    background: #d4edda;
-    color: #155724;
+    background: var(--bg-success-subtle);
+    color: var(--color-success);
 }
 
 .tx-type-refund {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--bg-error-subtle);
+    color: var(--color-error);
 }
 
 .amount-charge {
@@ -180,10 +180,10 @@
 }
 
 .amount-zero {
-    color: #aaa;
+    color: var(--text-light-muted);
 }
 
 .tx-ref code {
     font-size: 0.75rem;
-    color: #888;
+    color: var(--text-light-muted);
 }

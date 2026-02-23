@@ -55,13 +55,13 @@
 
 /* Alerts */
 .alert-danger {
-    background-color: rgba(197, 57, 35, 0.2);
+    background-color: var(--bg-error-subtle);
     border-color: var(--color-error);
     color: var(--color-error);
 }
 
 .alert-success {
-    background-color: rgba(23, 196, 15, 0.2);
+    background-color: var(--bg-success-subtle);
     border-color: var(--color-success);
     color: var(--color-success);
 }

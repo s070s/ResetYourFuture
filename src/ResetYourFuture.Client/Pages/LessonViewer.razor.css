@@ -14,7 +14,7 @@
 .btn-link {
     background: none;
     border: none;
-    color: #007bff;
+    color: var(--text-accent);
     cursor: pointer;
     padding: 0;
 }
@@ -24,11 +24,11 @@
     }
 
 .breadcrumb-separator {
-    color: #888;
+    color: var(--text-light-muted);
 }
 
 .module-name {
-    color: #666;
+    color: var(--text-strong-normal);
 }
 
 h1 {
@@ -36,7 +36,7 @@ h1 {
 }
 
 .duration {
-    color: #666;
+    color: var(--text-strong-normal);
     margin-bottom: 1.5rem;
 }
 
@@ -48,7 +48,7 @@ h1 {
     position: relative;
     width: 100%;
     padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    background: #000;
+    background: var(--bg-primary);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -88,13 +88,13 @@ h1 {
     gap: 1rem;
     margin-bottom: 2rem;
     padding: 1rem;
-    background: #f8f9fa;
+    background: var(--bg-surface);
     border-radius: 8px;
 }
 
 .btn-success {
-    background: #28a745;
-    color: white;
+    background: var(--color-success);
+    color: var(--bg-primary);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -103,26 +103,26 @@ h1 {
 }
 
     .btn-success:hover {
-        background: #218838;
+        filter: brightness(0.85);
     }
 
     .btn-success:disabled {
-        background: #ccc;
+        background: var(--bg-neutral-subtle);
         cursor: not-allowed;
     }
 
 .completed-indicator {
-    color: #28a745;
+    color: var(--color-success);
     font-weight: bold;
     font-size: 1.1rem;
 }
 
 .progress-update {
-    color: #666;
+    color: var(--text-strong-normal);
 }
 
 .course-completed {
-    color: #28a745;
+    color: var(--color-success);
     font-weight: bold;
     margin-left: 0.5rem;
 }
@@ -131,12 +131,12 @@ h1 {
     display: flex;
     justify-content: space-between;
     padding-top: 1rem;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border-subtle);
 }
 
 .btn-primary {
-    background: #007bff;
-    color: white;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -144,12 +144,12 @@ h1 {
 }
 
     .btn-primary:hover {
-        background: #0056b3;
+        background: var(--button-regular);
     }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: var(--bg-table-odd);
+    color: var(--text-light-normal);
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -157,5 +157,5 @@ h1 {
 }
 
     .btn-secondary:hover {
-        background: #5a6268;
+        background: var(--bg-table-header-hover);
     }

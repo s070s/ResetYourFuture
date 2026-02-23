@@ -7,7 +7,7 @@
 }
 
 .course-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 1.5rem;
     cursor: pointer;
@@ -16,16 +16,16 @@
 
     .course-card:hover {
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-color: #007bff;
+        border-color: var(--text-accent);
     }
 
     .course-card h3 {
         margin: 0 0 0.5rem 0;
-        color: #333;
+        color: var(--text-light-normal);
     }
 
     .course-card .description {
-        color: #666;
+        color: var(--text-strong-normal);
         margin-bottom: 1rem;
     }
 
@@ -33,11 +33,11 @@
         display: flex;
         gap: 1rem;
         font-size: 0.9rem;
-        color: #888;
+        color: var(--text-light-muted);
     }
 
 .enrolled-badge {
-    color: #28a745;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -58,13 +58,13 @@
 }
 
     .tier-badge.tier-plus {
-        background: #e8f4fd;
-        color: #0c5460;
+        background: var(--bg-info-subtle);
+        color: var(--text-accent);
     }
 
     .tier-badge.tier-pro {
-        background: #fff3cd;
-        color: #856404;
+        background: var(--bg-warning-subtle);
+        color: var(--color-warning);
     }
 
 .course-locked {
@@ -73,7 +73,7 @@
 }
 
 .locked-badge {
-    color: #dc3545;
+    color: var(--color-error);
     font-weight: bold;
     cursor: pointer;
     font-size: 0.85rem;

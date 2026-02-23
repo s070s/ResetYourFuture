@@ -7,10 +7,10 @@
 }
 
 .success-card {
-    border: 1px solid #28a745;
+    border: 1px solid var(--color-success);
     border-radius: 12px;
     padding: 2.5rem 2rem;
-    background: #f8fff8;
+    background: var(--bg-success-subtle);
 }
 
 .success-icon {

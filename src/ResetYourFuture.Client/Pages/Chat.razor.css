@@ -5,17 +5,17 @@
 .chat-container {
     display: flex;
     height: calc(100vh - 120px);
-    border: 1px solid var(--bs-border-color, #dee2e6);
+    border: 1px solid var(--border-subtle);
     border-radius: 0.5rem;
     overflow: hidden;
-    background: var(--bs-body-bg, #fff);
+    background: var(--bg-surface);
 }
 
 /* --- Sidebar --- */
 .chat-sidebar {
     width: 280px;
     min-width: 240px;
-    border-right: 1px solid var(--bs-border-color, #dee2e6);
+    border-right: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
 }
@@ -25,7 +25,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
     .sidebar-header h5 {
@@ -41,17 +41,17 @@
 .conversation-item {
     padding: 0.65rem 1rem;
     cursor: pointer;
-    border-bottom: 1px solid var(--bs-border-color-translucent, #dee2e620);
+    border-bottom: 1px solid var(--border-subtle);
     position: relative;
     transition: background-color 0.15s;
 }
 
     .conversation-item:hover {
-        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        background-color: var(--bg-table-header-hover);
     }
 
     .conversation-item.active {
-        background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+        background-color: var(--bg-table-row-hover);
     }
 
 .convo-name {
@@ -65,13 +65,13 @@
 .convo-role {
     font-weight: 400;
     font-size: 0.7rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
     margin-left: 0.25rem;
 }
 
 .convo-preview {
     font-size: 0.78rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -99,13 +99,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
     gap: 0.5rem;
 }
 
 .chat-header {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
     .chat-header h6 {
@@ -115,7 +115,7 @@
 .chat-header-role {
     font-weight: 400;
     font-size: 0.78rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
 }
 
 /* --- Messages --- */
@@ -137,12 +137,12 @@
 
     .message-bubble.mine {
         align-self: flex-end;
-        background-color: var(--bs-primary-bg-subtle, #cfe2ff);
+        background-color: var(--bg-table-row-hover);
     }
 
     .message-bubble.theirs {
         align-self: flex-start;
-        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        background-color: var(--bg-table-header-hover);
     }
 
 .message-sender {
@@ -153,7 +153,7 @@
 
 .message-role {
     font-weight: 400;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
 }
 
 .message-content {
@@ -164,7 +164,7 @@
 
 .message-time {
     font-size: 0.65rem;
-    color: var(--bs-secondary-color, #6c757d);
+    color: var(--text-strong-normal);
     text-align: right;
     margin-top: 2px;
 }
@@ -174,7 +174,7 @@
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-top: 1px solid var(--bs-border-color, #dee2e6);
+    border-top: 1px solid var(--border-subtle);
 }
 
     .chat-input .textarea-wrapper {
@@ -187,13 +187,13 @@
         height: 6px;
         cursor: n-resize;
         background: transparent;
-        border-top: 3px solid var(--bs-border-color, #dee2e6);
+        border-top: 3px solid var(--border-subtle);
         border-radius: 2px 2px 0 0;
         transition: border-color 0.15s;
     }
 
     .chat-input .resize-handle-top:hover {
-        border-color: var(--bs-primary, #0d6efd);
+        border-color: var(--text-accent);
     }
 
     .chat-input .form-control {
@@ -232,7 +232,7 @@
 }
 
     .user-picker-item:hover {
-        background-color: var(--bs-tertiary-bg, #f8f9fa);
+        background-color: var(--bg-table-header-hover);
     }
 
 .user-picker-name {

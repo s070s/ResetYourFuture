@@ -16,17 +16,17 @@
     }
 
 .pricing-subtitle {
-    color: #666;
+    color: var(--text-strong-normal);
     font-size: 1.1rem;
 }
 
 .current-plan-banner {
     text-align: center;
     padding: 0.75rem 1.5rem;
-    background: #e8f4fd;
+    background: var(--bg-info-subtle);
     border-radius: 8px;
     margin-bottom: 2rem;
-    color: #0c5460;
+    color: var(--text-accent);
 }
 
 .pricing-grid {
@@ -37,13 +37,13 @@
 }
 
 .plan-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-subtle);
     border-radius: 12px;
     padding: 2rem 1.5rem;
     text-align: center;
     position: relative;
     transition: box-shadow 0.2s, transform 0.2s;
-    background: #fff;
+    background: var(--bg-surface);
 }
 
     .plan-card:hover {
@@ -52,13 +52,13 @@
     }
 
 .plan-featured {
-    border-color: #007bff;
+    border-color: var(--text-accent);
     border-width: 2px;
 }
 
 .plan-current {
-    border-color: #28a745;
-    background: #f8fff8;
+    border-color: var(--color-success);
+    background: var(--bg-success-subtle);
 }
 
 .plan-badge {
@@ -66,8 +66,8 @@
     top: -12px;
     left: 50%;
     transform: translateX(-50%);
-    background: #007bff;
-    color: #fff;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
     padding: 0.25rem 1rem;
     border-radius: 20px;
     font-size: 0.8rem;
@@ -94,12 +94,12 @@
 }
 
 .price-period {
-    color: #888;
+    color: var(--text-light-muted);
     font-size: 0.9rem;
 }
 
 .plan-description {
-    color: #666;
+    color: var(--text-strong-normal);
     font-size: 0.95rem;
     margin-bottom: 1.5rem;
     min-height: 2.5rem;
@@ -122,16 +122,16 @@
 
 .feature-icon {
     font-weight: bold;
-    color: #28a745;
+    color: var(--color-success);
     flex-shrink: 0;
 }
 
 .feature-disabled {
-    color: #aaa;
+    color: var(--text-light-muted);
 }
 
     .feature-disabled .feature-icon {
-        color: #ccc;
+        color: var(--text-light-muted);
     }
 
 .btn-plan {
@@ -147,42 +147,42 @@
 }
 
 .btn-upgrade {
-    background: #007bff;
-    color: #fff;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
 }
 
     .btn-upgrade:hover:not(:disabled) {
-        background: #0056b3;
+        background: var(--button-regular);
     }
 
 .btn-select {
-    background: #007bff;
-    color: #fff;
+    background: var(--text-strong-accent);
+    color: var(--bg-primary);
 }
 
     .btn-select:hover:not(:disabled) {
-        background: #0056b3;
+        background: var(--button-regular);
     }
 
 .btn-current {
-    background: #e9ecef;
-    color: #6c757d;
+    background: var(--bg-neutral-subtle);
+    color: var(--text-strong-normal);
     cursor: default;
 }
 
 .btn-free {
-    background: #e9ecef;
-    color: #6c757d;
+    background: var(--bg-neutral-subtle);
+    color: var(--text-strong-normal);
     cursor: default;
 }
 
 .btn-downgrade {
-    background: #ffc107;
-    color: #333;
+    background: var(--color-warning);
+    color: var(--bg-primary);
 }
 
     .btn-downgrade:hover:not(:disabled) {
-        background: #e0a800;
+        filter: brightness(0.85);
     }
 
 .cancel-message {
@@ -193,11 +193,11 @@
 }
 
 .cancel-success {
-    background: #d4edda;
-    color: #155724;
+    background: var(--bg-success-subtle);
+    color: var(--color-success);
 }
 
 .cancel-error {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--bg-error-subtle);
+    color: var(--color-error);
 }

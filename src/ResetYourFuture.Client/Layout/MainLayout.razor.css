@@ -5,10 +5,10 @@
 }
 
 .impersonation-banner {
-    background-color: #ff9800;
-    color: #000;
+    background-color: var(--color-attention);
+    color: var(--bg-primary);
     font-size: 0.9rem;
-    border-bottom: 2px solid #e65100;
+    border-bottom: 2px solid var(--color-attention-border);
     z-index: 1000;
 }
 
