@@ -1,0 +1,12 @@
+[
+  { "firstName": "Alice",   "lastName": "Johnson"  },
+  { "firstName": "Bob",     "lastName": "Smith"    },
+  { "firstName": "Charlie", "lastName": "Williams" },
+  { "firstName": "Diana",   "lastName": "Brown"    },
+  { "firstName": "Edward",  "lastName": "Jones"    },
+  { "firstName": "Fiona",   "lastName": "Garcia"   },
+  { "firstName": "George",  "lastName": "Miller"   },
+  { "firstName": "Hannah",  "lastName": "Davis"    },
+  { "firstName": "Ivan",    "lastName": "Martinez" },
+  { "firstName": "Julia",   "lastName": "Wilson"   }
+]

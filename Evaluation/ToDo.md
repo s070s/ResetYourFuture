@@ -56,7 +56,6 @@ You are a principal .NET Engineer and the author of this solution
 You are free to search the solution for context
 add comments for a junior .NET to understand this file
 one line per comment
-• Seed Student Users
 • Localization of all Razor Pages and Client API Messages,Error Messages
 • If credentials are invalid in the login page do not pop up browser dialog for saving the credentials
 • When completing courses remove the 🎉 Course Completed! from the top and make a beautiful animation in the bottom with a big card
@@ -66,7 +65,6 @@ subscribed users,completion analytics of users
 profile
 "The FirstName field is required."
 "The LastName field is required."
-• Different Password and Confirm Password pass through Registration (Password is passed in)
 • Keep only Disable in Content and Users of Admin Pages and have Delete inside the detailed view of each item
 • Feature in Admin Users screen to Login as specific Students in a separate browser window
 

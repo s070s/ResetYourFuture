@@ -169,50 +169,54 @@ using ( var scope = app.Services.CreateScope() )
     // --- Seed Subscription Plans ---
     await SubscriptionPlanSeeder.SeedAsync( db , startupLogger );
 
-    // --- Seed Admin User (Development only) ---
-    if ( app.Environment.IsDevelopment() )
+    // --- Seed Admin User (all environments) ---
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var adminEmail = config [ "AdminUser:Email" ] ?? "admin@resetyourfuture.local";
+    var adminPassword = config [ "AdminUser:Password" ] ?? "Admin123!";
+
+    if ( await userManager.FindByEmailAsync( adminEmail ) is null )
     {
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var adminEmail = config [ "AdminUser:Email" ] ?? "admin@resetyourfuture.local";
-        var adminPassword = config [ "AdminUser:Password" ] ?? "Admin123!";
-
-        if ( await userManager.FindByEmailAsync( adminEmail ) is null )
+        var admin = new ApplicationUser
         {
-            var admin = new ApplicationUser
-            {
-                UserName = adminEmail ,
-                Email = adminEmail ,
-                FirstName = "System" ,
-                LastName = "Administrator" ,
-                EmailConfirmed = true , // Pre-confirmed for dev
-                IsEnabled = true ,
-                GdprConsentGiven = true ,
-                GdprConsentDate = DateTime.UtcNow ,
-                CreatedAt = DateTime.UtcNow
-            };
+            UserName = adminEmail ,
+            Email = adminEmail ,
+            FirstName = "System" ,
+            LastName = "Administrator" ,
+            EmailConfirmed = true ,
+            IsEnabled = true ,
+            GdprConsentGiven = true ,
+            GdprConsentDate = DateTime.UtcNow ,
+            CreatedAt = DateTime.UtcNow
+        };
 
-            var result = await userManager.CreateAsync( admin , adminPassword );
-            if ( result.Succeeded )
-            {
-                await userManager.AddToRoleAsync( admin , "Admin" );
-            }
+        var result = await userManager.CreateAsync( admin , adminPassword );
+        if ( result.Succeeded )
+        {
+            await userManager.AddToRoleAsync( admin , "Admin" );
+            startupLogger.LogInformation( "Seeded admin user '{Email}'." , adminEmail );
         }
+    }
 
-        // --- Seed Sample Courses from JSON (Development only) ---
-        var seedLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-        // Read path from configuration; fall back to a sensible relative path when missing.
-        // Use app.Environment.ContentRootPath so relative paths are resolved from the application's content root.
+    // --- Development-only seed data (Courses, Assessments, Students) ---
+    if ( app.Environment.IsDevelopment() && config.GetValue<bool>( "SeedData:Enabled" ) )
+    {
+        // --- Seed Sample Courses from JSON ---
         var jsonSeedPath = config.GetValue<string>( "SeedData:JsonPaths:Courses" )
                            ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Courses" );
 
-        await CourseSeeder.SeedFromJsonAsync( db , jsonSeedPath , seedLogger );
+        await CourseSeeder.SeedFromJsonAsync( db , jsonSeedPath , startupLogger );
 
-        // --- Seed Assessments from JSON (Development only) ---
+        // --- Seed Assessments from JSON ---
         var assessmentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Assessments" )
                                  ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Assessments" );
 
-        await AssessmentSeeder.SeedFromJsonAsync( db , assessmentJsonPath , seedLogger );
+        await AssessmentSeeder.SeedFromJsonAsync( db , assessmentJsonPath , startupLogger );
+
+        // --- Seed Student Users from JSON ---
+        var studentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Students" )
+                              ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Students" );
+        var studentPassword = config [ "SeedData:StudentPassword" ] ?? "Student123!";
+        await StudentSeeder.SeedFromJsonAsync( userManager , studentJsonPath , studentPassword , startupLogger );
     }
 }
 
