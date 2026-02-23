@@ -139,7 +139,7 @@ dotnet tool restore
 dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --context ApplicationDbContext
 
 # Apply migrations
-dotnet ef database update
+dotnet ef database update --project src/ResetYourFuture.Api
 
 # Remove last migration (multiple times to remove older ones)
  dotnet ef migrations remove --project src/ResetYourFuture.Api
