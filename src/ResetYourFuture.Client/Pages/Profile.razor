@@ -69,7 +69,10 @@
                     <div class="alert alert-info">@message</div>
                 }
 
-                <button class="btn btn-secondary mt-3" @onclick="Logout">Logout</button>
+                @if (!_isImpersonating)
+                {
+                    <button class="btn btn-secondary mt-3" @onclick="Logout">Logout</button>
+                }
             }
         </Authorized>
         <NotAuthorized>
@@ -80,6 +83,7 @@
 
 @code {
     private ProfileDto? profile;
+    private bool _isImpersonating;
     private string displayName = string.Empty;
     private string currentPassword = string.Empty;
     private string newPassword = string.Empty;
@@ -91,6 +95,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _isImpersonating = await AuthService.IsImpersonatingAsync();
         try
         {
             profile = await Http.GetFromJsonAsync<ProfileDto>("api/profile");

@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Identity;
+using ResetYourFuture.Api.Interfaces;
+using ResetYourFuture.Shared.Auth;
+using System.Security.Claims;
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -17,19 +20,19 @@ public class AdminController : ControllerBase
 {
     // Identity UserManager used to manage and query application users.
     private readonly UserManager<ApplicationUser> _userManager;
-    // Identity RoleManager used to manage roles in the system.
     private readonly RoleManager<IdentityRole> _roleManager;
-    // Logger for recording admin operations and errors.
+    private readonly ITokenService _tokenService;
     private readonly ILogger<AdminController> _logger;
 
-    // Constructor receives dependencies via dependency injection.
     public AdminController(
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
+        ITokenService tokenService,
         ILogger<AdminController> logger)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _tokenService = tokenService;
         _logger = logger;
     }
 
@@ -321,5 +324,33 @@ public class AdminController : ControllerBase
         // Log and return NoContent.
         _logger.LogInformation("Admin enabled user {UserId}", userId);
         return NoContent();
+    }
+
+    /// <summary>
+    /// Generates a short-lived JWT so an admin can view the platform as a specific student.
+    /// Returns no refresh token — the session is temporary and cannot be silently extended.
+    /// </summary>
+    [HttpPost("users/{userId}/impersonate")]
+    public async Task<ActionResult<AuthResponse>> ImpersonateUser(string userId)
+    {
+        var target = await _userManager.FindByIdAsync(userId);
+        if (target is null) return NotFound("User not found.");
+
+        var targetRoles = await _userManager.GetRolesAsync(target);
+        if (!targetRoles.Contains("Student"))
+            return BadRequest("Only Student accounts can be impersonated.");
+
+        var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+        var (token, expiration) = await _tokenService.GenerateImpersonationTokenAsync(target, adminId);
+
+        _logger.LogInformation("Admin {AdminId} started impersonating user {UserId}", adminId, userId);
+
+        return Ok(new AuthResponse
+        {
+            Success = true,
+            Token = token,
+            Expiration = expiration
+        });
     }
 }

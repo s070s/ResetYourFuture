@@ -75,4 +75,39 @@ public class TokenService : ITokenService
         rng.GetBytes(randomBytes);
         return Convert.ToBase64String(randomBytes);
     }
+
+    public async Task<(string AccessToken, DateTime Expiration)> GenerateImpersonationTokenAsync(ApplicationUser user, string adminId)
+    {
+        var jwtSettings = _config.GetSection("Jwt");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var expiration = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["AccessTokenExpirationMinutes"] ?? "60"));
+
+        var roles = await _userManager.GetRolesAsync(user);
+        var tier = await _subscriptionService.GetUserTierAsync(user.Id);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("firstName", user.FirstName),
+            new("lastName", user.LastName),
+            new("status", ((int)user.Status).ToString()),
+            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
+            new("subscriptionTier", ((int)tier).ToString()),
+            new("impersonatedBy", adminId)
+        };
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"],
+            audience: jwtSettings["Audience"],
+            claims: claims,
+            expires: expiration,
+            signingCredentials: creds);
+
+        return (new JwtSecurityTokenHandler().WriteToken(token), expiration);
+    }
 }

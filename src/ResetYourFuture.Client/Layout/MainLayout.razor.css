@@ -4,6 +4,14 @@
     flex-direction: column;
 }
 
+.impersonation-banner {
+    background-color: #ff9800;
+    color: #000;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #e65100;
+    z-index: 1000;
+}
+
 main {
     flex: 1;
 }

@@ -12,4 +12,7 @@ public interface IAuthService
     Task LogoutAsync();
     Task<bool> IsAuthenticatedAsync();
     Task<string?> GetTokenAsync();
+    Task<AuthResponse> ImpersonateAsync(string userId);
+    Task ExitImpersonationAsync();
+    Task<bool> IsImpersonatingAsync();
 }

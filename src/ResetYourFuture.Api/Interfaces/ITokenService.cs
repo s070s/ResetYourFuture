@@ -13,10 +13,15 @@ public interface ITokenService
     /// <param name="user">The application user</param>
     /// <returns>Access token and expiration timestamp</returns>
     Task<(string AccessToken, DateTime Expiration)> GenerateAccessTokenAsync(ApplicationUser user);
-    
+
     /// <summary>
     /// Generates a cryptographically secure opaque refresh token.
     /// </summary>
-    /// <returns>Base64-encoded refresh token</returns>
     string GenerateRefreshToken();
+
+    /// <summary>
+    /// Generates a short-lived JWT access token for impersonation.
+    /// The token carries an extra <c>impersonatedBy</c> claim with the admin's user ID.
+    /// </summary>
+    Task<(string AccessToken, DateTime Expiration)> GenerateImpersonationTokenAsync(ApplicationUser user, string adminId);
 }

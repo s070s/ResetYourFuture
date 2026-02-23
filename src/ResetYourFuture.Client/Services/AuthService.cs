@@ -24,6 +24,8 @@ public class AuthService : IAuthService
 
     private const string TokenKey = "authToken";
     private const string RefreshTokenKey = "refreshToken";
+    private const string AdminTokenKey = "adminToken";
+    private const string AdminRefreshTokenKey = "adminRefreshToken";
 
     public AuthService(
         HttpClient httpClient ,
@@ -90,6 +92,58 @@ public class AuthService : IAuthService
         await _localStorage.RemoveItemAsync( TokenKey );
         await _localStorage.RemoveItemAsync( RefreshTokenKey );
         ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserLogout();
+    }
+
+    public async Task<AuthResponse> ImpersonateAsync( string userId )
+    {
+        var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( $"api/admin/users/{userId}/impersonate" , new { } ) );
+        var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+
+        if ( result?.Success == true && !string.IsNullOrEmpty( result.Token ) )
+        {
+            var currentToken = await _localStorage.GetItemAsStringAsync( TokenKey );
+            if ( !string.IsNullOrEmpty( currentToken ) )
+                await _localStorage.SetItemAsStringAsync( AdminTokenKey , currentToken );
+
+            var currentRefreshToken = await _localStorage.GetItemAsStringAsync( RefreshTokenKey );
+            if ( !string.IsNullOrEmpty( currentRefreshToken ) )
+                await _localStorage.SetItemAsStringAsync( AdminRefreshTokenKey , currentRefreshToken );
+
+            await _localStorage.SetItemAsStringAsync( TokenKey , result.Token );
+            await _localStorage.RemoveItemAsync( RefreshTokenKey );
+
+            ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserAuthentication( result.Token );
+        }
+
+        return result ?? new AuthResponse { Success = false , Message = "Unknown error" };
+    }
+
+    public async Task ExitImpersonationAsync()
+    {
+        var adminToken = await _localStorage.GetItemAsStringAsync( AdminTokenKey );
+        if ( string.IsNullOrEmpty( adminToken ) ) return;
+
+        await _localStorage.SetItemAsStringAsync( TokenKey , adminToken );
+        await _localStorage.RemoveItemAsync( AdminTokenKey );
+
+        var adminRefreshToken = await _localStorage.GetItemAsStringAsync( AdminRefreshTokenKey );
+        if ( !string.IsNullOrEmpty( adminRefreshToken ) )
+        {
+            await _localStorage.SetItemAsStringAsync( RefreshTokenKey , adminRefreshToken );
+            await _localStorage.RemoveItemAsync( AdminRefreshTokenKey );
+        }
+        else
+        {
+            await _localStorage.RemoveItemAsync( RefreshTokenKey );
+        }
+
+        ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserAuthentication( adminToken );
+    }
+
+    public async Task<bool> IsImpersonatingAsync()
+    {
+        var adminToken = await _localStorage.GetItemAsStringAsync( AdminTokenKey );
+        return !string.IsNullOrEmpty( adminToken );
     }
 
     public async Task<bool> IsAuthenticatedAsync()
