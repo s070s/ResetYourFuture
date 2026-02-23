@@ -3,6 +3,7 @@
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @inject IWebAssemblyHostEnvironment Env
+@implements IDisposable
 
 <PageTitle>@GlobalRes.Label_Register</PageTitle>
 
@@ -46,7 +47,7 @@
         </div>
     }
 
-    <EditForm Model="registerRequest" OnValidSubmit="HandleRegister">
+    <EditForm EditContext="editContext" OnValidSubmit="HandleRegister">
         <DataAnnotationsValidator />
 
         <div class="row">
@@ -116,6 +117,7 @@
 @code {
     // RegisterRequest.DateOfBirth is now DateTime? default to 2000-01-01 as requested
     private RegisterRequest registerRequest = new() { DateOfBirth = new DateTime(2000, 1, 1) };
+    private EditContext editContext = default!;
     private string? successMessage;
     private string? errorMessage;
     private List<string> errors = new();
@@ -128,6 +130,29 @@
     private string passwordIconClass => showPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
     private string confirmPasswordInputType => showConfirmPassword ? "text" : "password";
     private string confirmPasswordIconClass => showConfirmPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(registerRequest);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        successMessage = null;
+        errorMessage = null;
+        errors.Clear();
+
+        if (e.FieldIdentifier.FieldName == nameof(RegisterRequest.Password))
+        {
+            editContext.NotifyFieldChanged(editContext.Field(nameof(RegisterRequest.ConfirmPassword)));
+        }
+    }
+
+    public void Dispose()
+    {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
 
     private void TogglePasswordVisibility()
     {
@@ -159,7 +184,10 @@
         if (result.Success)
         {
             successMessage = result.Message ?? SuccessMessagesRes.RegistrationSuccess;
-            registerRequest = new() { DateOfBirth = new DateTime(2000,1,1) }; // Reset, keep default DOB
+            registerRequest = new() { DateOfBirth = new DateTime(2000, 1, 1) }; // Reset, keep default DOB
+            editContext.OnFieldChanged -= HandleFieldChanged;
+            editContext = new EditContext(registerRequest);
+            editContext.OnFieldChanged += HandleFieldChanged;
         }
         else
         {

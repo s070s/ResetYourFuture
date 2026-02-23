@@ -29,10 +29,8 @@
                             <tr>
                                 <th>Email</th>
                                 <th>Name</th>
-                                <th>Status</th>
                                 <th>Enabled</th>
                                 <th>Roles</th>
-                                <th>Confirmed</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -42,10 +40,8 @@
                                 <tr>
                                     <td>@user.Email</td>
                                     <td>@user.FirstName @user.LastName</td>
-                                    <td>@user.Status</td>
                                     <td>@(user.IsEnabled ? "✓" : "✗")</td>
                                     <td>@string.Join(", ", user.Roles)</td>
-                                    <td>@(user.EmailConfirmed ? "✓" : "✗")</td>
                                     <td>
                                         <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">Reset Password</button>
                                         @if (user.IsEnabled)

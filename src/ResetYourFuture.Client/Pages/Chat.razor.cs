@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.Chat;
 using System.Security.Claims;
@@ -11,6 +12,7 @@ public partial class Chat : IAsyncDisposable
 {
     [Inject] private IChatService ChatService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private List<ChatConversationDto>? _conversations;
     private List<ChatMessageDto> _messages = [];
@@ -20,6 +22,9 @@ public partial class Chat : IAsyncDisposable
     private bool _isLoadingMessages;
     private bool _isStarting;
     private ElementReference _messageContainer;
+    private ElementReference _textareaRef;
+    private ElementReference _resizeHandleRef;
+    private bool _resizeInitialized;
 
     // --- User Picker ---
     private bool _showUserPicker;
@@ -39,6 +44,15 @@ public partial class Chat : IAsyncDisposable
 
         await ChatService.StartAsync();
         _conversations = await ChatService.GetConversationsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync( bool firstRender )
+    {
+        if ( _selectedConversation is not null && !_resizeInitialized )
+        {
+            await JS.InvokeVoidAsync( "chatInterop.initTopResize" , _resizeHandleRef , _textareaRef );
+            _resizeInitialized = true;
+        }
     }
 
     private async Task SelectConversation( ChatConversationDto conversation )
@@ -142,7 +156,7 @@ public partial class Chat : IAsyncDisposable
 
     private async Task HandleKeyDown( KeyboardEventArgs e )
     {
-        if ( e.Key == "Enter" && !string.IsNullOrWhiteSpace( _newMessage ) )
+        if ( e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace( _newMessage ) )
         {
             await SendMessage();
         }
