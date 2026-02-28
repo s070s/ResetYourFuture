@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 using ResetYourFuture.Client.Shared;
-using ResetYourFuture.Shared.Models.Admin;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;

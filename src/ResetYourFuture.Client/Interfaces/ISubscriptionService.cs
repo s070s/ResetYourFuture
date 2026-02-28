@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Interfaces;
 
@@ -9,7 +9,7 @@ public interface ISubscriptionService
 {
     Task<List<SubscriptionPlanDto>> GetPlansAsync();
     Task<UserSubscriptionStatusDto?> GetStatusAsync();
-    Task<CheckoutSessionDto?> CheckoutAsync(Guid planId);
+    Task<CheckoutSessionDto?> CheckoutAsync( Guid planId );
     Task<CancelSubscriptionResultDto?> CancelAsync();
     Task<BillingOverviewDto?> GetBillingOverviewAsync();
 }

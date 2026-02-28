@@ -35,8 +35,8 @@
                 var isCurrent = _currentStatus?.PlanName == plan.Name;
                 var isUpgrade = _currentStatus is not null && plan.Tier > _currentStatus.Tier;
 
-                <div class="plan-card @(plan.Tier == SubscriptionTier.Pro ? "plan-featured" : "") @(isCurrent ? "plan-current" : "")">
-                    @if (plan.Tier == SubscriptionTier.Pro)
+                <div class="plan-card @(plan.Tier == SubscriptionTierEnum.Pro ? "plan-featured" : "") @(isCurrent ? "plan-current" : "")">
+                    @if (plan.Tier == SubscriptionTierEnum.Pro)
                     {
                         <div class="plan-badge">Most Popular</div>
                     }
@@ -89,7 +89,7 @@
                                     @(_processing ? "Processing..." : "Upgrade")
                                 </button>
                             }
-                            else if (plan.Tier == SubscriptionTier.Free && _currentStatus is not null && _currentStatus.Tier > SubscriptionTier.Free)
+                            else if (plan.Tier == SubscriptionTierEnum.Free && _currentStatus is not null && _currentStatus.Tier > SubscriptionTierEnum.Free)
                             {
                                 <button class="btn-plan btn-downgrade" @onclick="CancelSubscription" disabled="@_processing">
                                     @(_processing ? "Processing..." : "Downgrade to Free")

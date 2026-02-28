@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using ResetYourFuture.Api.Identity;
-using ResetYourFuture.Shared.Seed;
+using ResetYourFuture.Shared.DTOs;
+using System.Text.Json;
 
 namespace ResetYourFuture.Api.Services;
 
@@ -19,88 +19,88 @@ public static class StudentSeeder
     /// Seeds student users from all JSON files in the specified folder.
     /// </summary>
     public static async Task SeedFromJsonAsync(
-        UserManager<ApplicationUser> userManager,
-        string jsonFolderPath,
-        string password,
-        ILogger logger,
-        CancellationToken cancellationToken = default)
+        UserManager<ApplicationUser> userManager ,
+        string jsonFolderPath ,
+        string password ,
+        ILogger logger ,
+        CancellationToken cancellationToken = default )
     {
-        var resolvedPath = Path.GetFullPath(jsonFolderPath);
+        var resolvedPath = Path.GetFullPath( jsonFolderPath );
 
-        if (!Directory.Exists(resolvedPath))
+        if ( !Directory.Exists( resolvedPath ) )
         {
-            logger.LogWarning("Student JSON seed folder not found: {Path}", resolvedPath);
+            logger.LogWarning( "Student JSON seed folder not found: {Path}" , resolvedPath );
             return;
         }
 
-        var jsonFiles = Directory.GetFiles(resolvedPath, "*.json");
+        var jsonFiles = Directory.GetFiles( resolvedPath , "*.json" );
 
-        if (jsonFiles.Length == 0)
+        if ( jsonFiles.Length == 0 )
         {
-            logger.LogWarning("No student JSON seed files found in: {Path}", jsonFolderPath);
+            logger.LogWarning( "No student JSON seed files found in: {Path}" , jsonFolderPath );
             return;
         }
 
         var seededCount = 0;
 
-        foreach (var filePath in jsonFiles)
+        foreach ( var filePath in jsonFiles )
         {
             try
             {
-                var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-                var students = JsonSerializer.Deserialize<List<StudentSeedDto>>(json, JsonOptions);
+                var json = await File.ReadAllTextAsync( filePath , cancellationToken );
+                var students = JsonSerializer.Deserialize<List<StudentSeedDto>>( json , JsonOptions );
 
-                if (students is null || students.Count == 0)
+                if ( students is null || students.Count == 0 )
                 {
-                    logger.LogWarning("No students found in: {FilePath}", filePath);
+                    logger.LogWarning( "No students found in: {FilePath}" , filePath );
                     continue;
                 }
 
-                foreach (var dto in students)
+                foreach ( var dto in students )
                 {
                     var email = dto.Email
                                 ?? $"{dto.FirstName.ToLowerInvariant()}.{dto.LastName.ToLowerInvariant()}@resetyourfuture.local";
 
-                    if (await userManager.FindByEmailAsync(email) is not null)
+                    if ( await userManager.FindByEmailAsync( email ) is not null )
                         continue;
 
                     var student = new ApplicationUser
                     {
-                        UserName = email,
-                        Email = email,
-                        FirstName = dto.FirstName,
-                        LastName = dto.LastName,
-                        EmailConfirmed = true,
-                        IsEnabled = true,
-                        GdprConsentGiven = true,
-                        GdprConsentDate = DateTime.UtcNow,
+                        UserName = email ,
+                        Email = email ,
+                        FirstName = dto.FirstName ,
+                        LastName = dto.LastName ,
+                        EmailConfirmed = true ,
+                        IsEnabled = true ,
+                        GdprConsentGiven = true ,
+                        GdprConsentDate = DateTime.UtcNow ,
                         CreatedAt = DateTime.UtcNow
                     };
 
-                    var result = await userManager.CreateAsync(student, password);
-                    if (result.Succeeded)
+                    var result = await userManager.CreateAsync( student , password );
+                    if ( result.Succeeded )
                     {
-                        await userManager.AddToRoleAsync(student, "Student");
+                        await userManager.AddToRoleAsync( student , "Student" );
                         seededCount++;
                     }
                     else
                     {
                         logger.LogWarning(
-                            "Failed to seed student '{Email}': {Errors}",
-                            email,
-                            string.Join(", ", result.Errors.Select(e => e.Description)));
+                            "Failed to seed student '{Email}': {Errors}" ,
+                            email ,
+                            string.Join( ", " , result.Errors.Select( e => e.Description ) ) );
                     }
                 }
             }
-            catch (Exception ex)
+            catch ( Exception ex )
             {
-                logger.LogError(ex, "Failed to seed students from file: {FilePath}", filePath);
+                logger.LogError( ex , "Failed to seed students from file: {FilePath}" , filePath );
             }
         }
 
-        if (seededCount > 0)
+        if ( seededCount > 0 )
         {
-            logger.LogInformation("Seeded {Count} student user(s) from JSON files.", seededCount);
+            logger.LogInformation( "Seeded {Count} student user(s) from JSON files." , seededCount );
         }
     }
 }

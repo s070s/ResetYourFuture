@@ -1,8 +1,9 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Api.Interfaces;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
+using System.Security.Claims;
+
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -11,113 +12,116 @@ namespace ResetYourFuture.Api.Controllers;
 /// Plans listing is public; status and checkout require authentication.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route( "api/[controller]" )]
 public class SubscriptionController : ControllerBase
 {
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<SubscriptionController> _logger;
 
     public SubscriptionController(
-        ISubscriptionService subscriptionService,
-        ILogger<SubscriptionController> logger)
+        ISubscriptionService subscriptionService ,
+        ILogger<SubscriptionController> logger )
     {
         _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? throw new UnauthorizedAccessException("User ID not found in claims");
+    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
+        ?? throw new UnauthorizedAccessException( "User ID not found in claims" );
 
     /// <summary>
     /// Get all active subscription plans with features.
     /// Public endpoint for pricing page.
     /// </summary>
-    [HttpGet("plans")]
+    [HttpGet( "plans" )]
     [AllowAnonymous]
-    public async Task<ActionResult<List<SubscriptionPlanDto>>> GetPlans(CancellationToken cancellationToken)
+    public async Task<ActionResult<List<SubscriptionPlanDto>>> GetPlans( CancellationToken cancellationToken )
     {
-        var plans = await _subscriptionService.GetPlansAsync(cancellationToken);
-        return Ok(plans);
+        var plans = await _subscriptionService.GetPlansAsync( cancellationToken );
+        return Ok( plans );
     }
 
     /// <summary>
     /// Get current user's subscription status.
     /// </summary>
-    [HttpGet("status")]
+    [HttpGet( "status" )]
     [Authorize]
-    public async Task<ActionResult<UserSubscriptionStatusDto>> GetStatus(CancellationToken cancellationToken)
+    public async Task<ActionResult<UserSubscriptionStatusDto>> GetStatus( CancellationToken cancellationToken )
     {
-        var status = await _subscriptionService.GetUserStatusAsync(UserId, cancellationToken);
-        return Ok(status);
+        var status = await _subscriptionService.GetUserStatusAsync( UserId , cancellationToken );
+        return Ok( status );
     }
 
     /// <summary>
     /// Create a checkout session for a plan (test mode stub).
     /// In production, this would redirect to Stripe Checkout.
     /// </summary>
-    [HttpPost("checkout")]
+    [HttpPost( "checkout" )]
     [Authorize]
     public async Task<ActionResult<CheckoutSessionDto>> CreateCheckout(
-        [FromBody] CreateCheckoutRequest request,
-        CancellationToken cancellationToken)
+        [FromBody] CreateCheckoutRequest request ,
+        CancellationToken cancellationToken )
     {
         var session = await _subscriptionService.CreateCheckoutSessionAsync(
-            UserId, request.PlanId, cancellationToken);
+            UserId , request.PlanId , cancellationToken );
 
-        if (string.IsNullOrEmpty(session.SessionId))
+        if ( string.IsNullOrEmpty( session.SessionId ) )
         {
-            return BadRequest(session);
+            return BadRequest( session );
         }
 
         _logger.LogInformation(
-            "Checkout session {SessionId} created for user {UserId}",
-            session.SessionId, UserId);
+            "Checkout session {SessionId} created for user {UserId}" ,
+            session.SessionId , UserId );
 
-        return Ok(session);
+        return Ok( session );
     }
 
     /// <summary>
     /// Stripe webhook handler (stubbed).
     /// In production, this would verify Stripe signatures and process events.
     /// </summary>
-    [HttpPost("webhook")]
+    [HttpPost( "webhook" )]
     [AllowAnonymous]
-    public async Task<IActionResult> HandleWebhook(CancellationToken cancellationToken)
+    public async Task<IActionResult> HandleWebhook( CancellationToken cancellationToken )
     {
         // --- STUB: In production, read the request body, verify Stripe signature,
         // and process events like checkout.session.completed, customer.subscription.updated, etc.
-        _logger.LogInformation("Stub webhook endpoint called. No processing in test mode.");
+        _logger.LogInformation( "Stub webhook endpoint called. No processing in test mode." );
 
         await Task.CompletedTask;
-        return Ok(new { received = true });
+        return Ok( new
+        {
+            received = true
+        } );
     }
 
     /// <summary>
     /// Cancel the current paid subscription and revert to the Free plan.
     /// </summary>
-    [HttpPost("cancel")]
+    [HttpPost( "cancel" )]
     [Authorize]
-    public async Task<ActionResult<CancelSubscriptionResultDto>> CancelSubscription(CancellationToken cancellationToken)
+    public async Task<ActionResult<CancelSubscriptionResultDto>> CancelSubscription( CancellationToken cancellationToken )
     {
-        var result = await _subscriptionService.CancelSubscriptionAsync(UserId, cancellationToken);
+        var result = await _subscriptionService.CancelSubscriptionAsync( UserId , cancellationToken );
 
-        if (!result.Success)
+        if ( !result.Success )
         {
-            return BadRequest(result);
+            return BadRequest( result );
         }
 
-        _logger.LogInformation("User {UserId} cancelled their subscription.", UserId);
-        return Ok(result);
+        _logger.LogInformation( "User {UserId} cancelled their subscription." , UserId );
+        return Ok( result );
     }
 
     /// <summary>
     /// Get billing overview: current plan + transaction history.
     /// </summary>
-    [HttpGet("billing")]
+    [HttpGet( "billing" )]
     [Authorize]
-    public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview(CancellationToken cancellationToken)
+    public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview( CancellationToken cancellationToken )
     {
-        var overview = await _subscriptionService.GetBillingOverviewAsync(UserId, cancellationToken);
-        return Ok(overview);
+        var overview = await _subscriptionService.GetBillingOverviewAsync( UserId , cancellationToken );
+        return Ok( overview );
     }
 }

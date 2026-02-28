@@ -5,7 +5,7 @@ using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
-using ResetYourFuture.Shared.Auth;
+using ResetYourFuture.Shared.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -46,10 +46,10 @@ public class AuthController : ControllerBase
     /// Email confirmation is required before login.
     /// </summary>
     [HttpPost( "register" )]
-    public async Task<ActionResult<AuthResponse>> Register( [FromBody] RegisterRequest request )
+    public async Task<ActionResult<AuthResponseDto>> Register( [FromBody] RegisterRequestDto request )
     {
         if ( !ModelState.IsValid )
-            return BadRequest( new AuthResponse { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
 
         // Map incoming DateTime? to DateOnly? used by ApplicationUser
         DateOnly? dob = null;
@@ -81,7 +81,7 @@ public class AuthController : ControllerBase
         if ( !result.Succeeded )
         {
             _logger.LogWarning( "Registration failed for {Email}: {Errors}" , request.Email , string.Join( ", " , result.Errors.Select( e => e.Description ) ) );
-            return BadRequest( new AuthResponse { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
         }
 
         // Assign default role
@@ -101,7 +101,7 @@ public class AuthController : ControllerBase
         // TODO: Send email with confirmUrl. For now, return in response (dev only).
         _logger.LogInformation( "User {Email} registered. Confirmation URL: {Url}" , request.Email , confirmUrl );
 
-        return Ok( new AuthResponse
+        return Ok( new AuthResponseDto
         {
             Success = true ,
             Message = $"Registration successful. Please confirm your email. (Dev: {confirmUrl})"
@@ -112,51 +112,51 @@ public class AuthController : ControllerBase
     /// Confirm user email address.
     /// </summary>
     [HttpGet( "confirm-email" )]
-    public async Task<ActionResult<AuthResponse>> ConfirmEmail( [FromQuery] string userId , [FromQuery] string token )
+    public async Task<ActionResult<AuthResponseDto>> ConfirmEmail( [FromQuery] string userId , [FromQuery] string token )
     {
         if ( string.IsNullOrEmpty( userId ) || string.IsNullOrEmpty( token ) )
-            return BadRequest( new AuthResponse { Success = false , Message = "Invalid confirmation link." } );
+            return BadRequest( new AuthResponseDto { Success = false , Message = "Invalid confirmation link." } );
 
         var user = await _userManager.FindByIdAsync( userId );
         if ( user == null )
-            return NotFound( new AuthResponse { Success = false , Message = "User not found." } );
+            return NotFound( new AuthResponseDto { Success = false , Message = "User not found." } );
 
         var result = await _userManager.ConfirmEmailAsync( user , token );
         if ( !result.Succeeded )
         {
             _logger.LogWarning( "Email confirmation failed for {UserId}: {Errors}" , userId , string.Join( ", " , result.Errors.Select( e => e.Description ) ) );
-            return BadRequest( new AuthResponse { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
         }
 
         _logger.LogInformation( "Email confirmed for user {Email}" , user.Email );
-        return Ok( new AuthResponse { Success = true , Message = "Email confirmed successfully." } );
+        return Ok( new AuthResponseDto { Success = true , Message = "Email confirmed successfully." } );
     }
 
     /// <summary>
     /// Login with email and password. Returns JWT access token.
     /// </summary>
     [HttpPost( "login" )]
-    public async Task<ActionResult<AuthResponse>> Login( [FromBody] LoginRequest request )
+    public async Task<ActionResult<AuthResponseDto>> Login( [FromBody] LoginRequestDto request )
     {
         if ( !ModelState.IsValid )
-            return BadRequest( new AuthResponse { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
 
         var user = await _userManager.FindByEmailAsync( request.Email );
         if ( user == null )
         {
             _logger.LogWarning( "Login attempt for non-existent user: {Email}" , request.Email );
-            return Unauthorized( new AuthResponse { Success = false , Message = "Invalid credentials." } );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Invalid credentials." } );
         }
 
         if ( !await _userManager.IsEmailConfirmedAsync( user ) )
         {
-            return Unauthorized( new AuthResponse { Success = false , Message = "Email not confirmed." } );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Email not confirmed." } );
         }
 
         if ( !user.IsEnabled )
         {
             _logger.LogWarning( "Login blocked for disabled user: {Email}" , request.Email );
-            return Unauthorized( new AuthResponse { Success = false , Message = "Your account has been disabled. Please contact support." } );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Your account has been disabled. Please contact support." } );
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync( user , request.Password , lockoutOnFailure: true );
@@ -165,13 +165,13 @@ public class AuthController : ControllerBase
             if ( result.IsLockedOut )
             {
                 _logger.LogWarning( "User {Email} is locked out." , request.Email );
-                return Unauthorized( new AuthResponse { Success = false , Message = "Account locked. Try again later." } );
+                return Unauthorized( new AuthResponseDto { Success = false , Message = "Account locked. Try again later." } );
             }
             _logger.LogWarning( "Invalid password for {Email}" , request.Email );
-            return Unauthorized( new AuthResponse { Success = false , Message = "Invalid credentials." } );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Invalid credentials." } );
         }
 
-        var (token, expiration) = await _tokenService.GenerateAccessTokenAsync( user );
+        var (token , expiration) = await _tokenService.GenerateAccessTokenAsync( user );
         var refreshToken = _tokenService.GenerateRefreshToken();
 
         // Store refresh token in database
@@ -192,7 +192,7 @@ public class AuthController : ControllerBase
 
         _logger.LogInformation( "User {Email} logged in." , request.Email );
 
-        return Ok( new AuthResponse
+        return Ok( new AuthResponseDto
         {
             Success = true ,
             Token = token ,
@@ -212,13 +212,13 @@ public class AuthController : ControllerBase
     /// Request password reset. Returns token (dev mode). In production, send via email.
     /// </summary>
     [HttpPost( "forgot-password" )]
-    public async Task<ActionResult<AuthResponse>> ForgotPassword( [FromBody] ForgotPasswordRequest request )
+    public async Task<ActionResult<AuthResponseDto>> ForgotPassword( [FromBody] ForgotPasswordRequestDto request )
     {
         var user = await _userManager.FindByEmailAsync( request.Email );
         if ( user == null || !await _userManager.IsEmailConfirmedAsync( user ) )
         {
             // Don't reveal if user exists
-            return Ok( new AuthResponse { Success = true , Message = "If the email exists, a reset link has been sent." } );
+            return Ok( new AuthResponseDto { Success = true , Message = "If the email exists, a reset link has been sent." } );
         }
 
         var token = await _userManager.GeneratePasswordResetTokenAsync( user );
@@ -227,7 +227,7 @@ public class AuthController : ControllerBase
         // TODO: Send email with resetUrl
         _logger.LogInformation( "Password reset requested for {Email}. Reset URL: {Url}" , request.Email , resetUrl );
 
-        return Ok( new AuthResponse
+        return Ok( new AuthResponseDto
         {
             Success = true ,
             Message = $"If the email exists, a reset link has been sent. (Dev: {resetUrl})"
@@ -238,26 +238,26 @@ public class AuthController : ControllerBase
     /// Reset password using token from forgot-password flow.
     /// </summary>
     [HttpPost( "reset-password" )]
-    public async Task<ActionResult<AuthResponse>> ResetPassword( [FromBody] ResetPasswordRequest request )
+    public async Task<ActionResult<AuthResponseDto>> ResetPassword( [FromBody] ResetPasswordRequestDto request )
     {
         if ( !ModelState.IsValid )
-            return BadRequest( new AuthResponse { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = ModelState.Values.SelectMany( v => v.Errors ).Select( e => e.ErrorMessage ) } );
 
         var user = await _userManager.FindByEmailAsync( request.Email );
         if ( user == null )
         {
             // Don't reveal if user exists
-            return BadRequest( new AuthResponse { Success = false , Message = "Invalid request." } );
+            return BadRequest( new AuthResponseDto { Success = false , Message = "Invalid request." } );
         }
 
         var result = await _userManager.ResetPasswordAsync( user , request.Token , request.NewPassword );
         if ( !result.Succeeded )
         {
-            return BadRequest( new AuthResponse { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
         }
 
         _logger.LogInformation( "Password reset for {Email}" , request.Email );
-        return Ok( new AuthResponse { Success = true , Message = "Password reset successfully." } );
+        return Ok( new AuthResponseDto { Success = true , Message = "Password reset successfully." } );
     }
 
     /// <summary>
@@ -294,43 +294,43 @@ public class AuthController : ControllerBase
     /// Dev-only: Confirm email without token (development mode only).
     /// </summary>
     [HttpPost( "dev/confirm-email" )]
-    public async Task<ActionResult<AuthResponse>> DevConfirmEmail( [FromBody] string email )
+    public async Task<ActionResult<AuthResponseDto>> DevConfirmEmail( [FromBody] string email )
     {
         if ( !_env.IsDevelopment() )
             return NotFound();
 
         var user = await _userManager.FindByEmailAsync( email );
         if ( user == null )
-            return NotFound( new AuthResponse { Success = false , Message = "User not found." } );
+            return NotFound( new AuthResponseDto { Success = false , Message = "User not found." } );
 
         user.EmailConfirmed = true;
         await _userManager.UpdateAsync( user );
 
         _logger.LogInformation( "Email confirmed for {Email} (dev mode)" , email );
-        return Ok( new AuthResponse { Success = true , Message = "Email confirmed (dev mode)" } );
+        return Ok( new AuthResponseDto { Success = true , Message = "Email confirmed (dev mode)" } );
     }
 
     /// <summary>
     /// Dev-only: Reset password without token (development mode only).
     /// </summary>
     [HttpPost( "dev/reset-password" )]
-    public async Task<ActionResult<AuthResponse>> DevResetPassword( [FromBody] DevResetPasswordRequest request )
+    public async Task<ActionResult<AuthResponseDto>> DevResetPassword( [FromBody] DevResetPasswordRequestDto request )
     {
         if ( !_env.IsDevelopment() )
             return NotFound();
 
         var user = await _userManager.FindByEmailAsync( request.Email );
         if ( user == null )
-            return NotFound( new AuthResponse { Success = false , Message = "User not found." } );
+            return NotFound( new AuthResponseDto { Success = false , Message = "User not found." } );
 
         var resetToken = await _userManager.GeneratePasswordResetTokenAsync( user );
         var result = await _userManager.ResetPasswordAsync( user , resetToken , request.NewPassword );
 
         if ( !result.Succeeded )
-            return BadRequest( new AuthResponse { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
 
         _logger.LogInformation( "Password reset for {Email} (dev mode)" , request.Email );
-        return Ok( new AuthResponse { Success = true , Message = "Password reset (dev mode)" } );
+        return Ok( new AuthResponseDto { Success = true , Message = "Password reset (dev mode)" } );
     }
 #endif
 }

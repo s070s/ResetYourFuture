@@ -1,5 +1,4 @@
-namespace ResetYourFuture.Shared.Models.Profile;
-
+namespace ResetYourFuture.Shared.DTOs;
 /// <summary>
 /// User profile information.
 /// </summary>

@@ -1,8 +1,8 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
-using ResetYourFuture.Shared.Seed;
+using ResetYourFuture.Shared.DTOs;
+using System.Text.Json;
 
 namespace ResetYourFuture.Api.Services;
 
@@ -21,106 +21,106 @@ public static class CourseSeeder
     /// Only seeds if no courses exist in the database.
     /// </summary>
     public static async Task SeedFromJsonAsync(
-        ApplicationDbContext db,
-        string jsonFolderPath,
-        ILogger logger,
-        CancellationToken cancellationToken = default)
+        ApplicationDbContext db ,
+        string jsonFolderPath ,
+        ILogger logger ,
+        CancellationToken cancellationToken = default )
     {
-        if (await db.Courses.AnyAsync(cancellationToken))
+        if ( await db.Courses.AnyAsync( cancellationToken ) )
         {
-            logger.LogInformation("Courses already exist; skipping seed.");
+            logger.LogInformation( "Courses already exist; skipping seed." );
             return;
         }
 
         // Resolve relative paths from the current directory
-        var resolvedPath = Path.GetFullPath(jsonFolderPath);
+        var resolvedPath = Path.GetFullPath( jsonFolderPath );
 
-        if (!Directory.Exists(resolvedPath))
+        if ( !Directory.Exists( resolvedPath ) )
         {
-            logger.LogWarning("JSON seed folder not found: {Path}", resolvedPath);
+            logger.LogWarning( "JSON seed folder not found: {Path}" , resolvedPath );
             return;
         }
 
-        var jsonFiles = Directory.GetFiles(resolvedPath, "*.json");
+        var jsonFiles = Directory.GetFiles( resolvedPath , "*.json" );
 
-        if (jsonFiles.Length == 0)
+        if ( jsonFiles.Length == 0 )
         {
-            logger.LogWarning("No JSON seed files found in: {Path}", jsonFolderPath);
+            logger.LogWarning( "No JSON seed files found in: {Path}" , jsonFolderPath );
             return;
         }
 
-        foreach (var filePath in jsonFiles)
+        foreach ( var filePath in jsonFiles )
         {
             try
             {
-                await SeedCourseFromFileAsync(db, filePath, logger, cancellationToken);
+                await SeedCourseFromFileAsync( db , filePath , logger , cancellationToken );
             }
-            catch (Exception ex)
+            catch ( Exception ex )
             {
-                logger.LogError(ex, "Failed to seed course from file: {FilePath}", filePath);
+                logger.LogError( ex , "Failed to seed course from file: {FilePath}" , filePath );
             }
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-        logger.LogInformation("Seeded {Count} course(s) from JSON files.", jsonFiles.Length);
+        await db.SaveChangesAsync( cancellationToken );
+        logger.LogInformation( "Seeded {Count} course(s) from JSON files." , jsonFiles.Length );
     }
 
     private static async Task SeedCourseFromFileAsync(
-        ApplicationDbContext db,
-        string filePath,
-        ILogger logger,
-        CancellationToken cancellationToken)
+        ApplicationDbContext db ,
+        string filePath ,
+        ILogger logger ,
+        CancellationToken cancellationToken )
     {
-        var json = await File.ReadAllTextAsync(filePath, cancellationToken);
-        var dto = JsonSerializer.Deserialize<CourseSeedDto>(json, JsonOptions);
+        var json = await File.ReadAllTextAsync( filePath , cancellationToken );
+        var dto = JsonSerializer.Deserialize<CourseSeedDto>( json , JsonOptions );
 
-        if (dto is null)
+        if ( dto is null )
         {
-            logger.LogWarning("Failed to deserialize course from: {FilePath}", filePath);
+            logger.LogWarning( "Failed to deserialize course from: {FilePath}" , filePath );
             return;
         }
 
-        var course = MapToCourse(dto);
-        db.Courses.Add(course);
+        var course = MapToCourse( dto );
+        db.Courses.Add( course );
 
-        logger.LogInformation("Loaded course '{Title}' from {FileName}",
-            course.Title, Path.GetFileName(filePath));
+        logger.LogInformation( "Loaded course '{Title}' from {FileName}" ,
+            course.Title , Path.GetFileName( filePath ) );
     }
 
-    private static Course MapToCourse(CourseSeedDto dto)
+    private static Course MapToCourse( CourseSeedDto dto )
     {
         return new Course
         {
-            Id = Guid.NewGuid(),
-            Title = dto.Title,
-            Description = dto.Description,
-            IsPublished = dto.IsPublished,
-            Modules = dto.Modules.Select(MapToModule).ToList()
+            Id = Guid.NewGuid() ,
+            Title = dto.Title ,
+            Description = dto.Description ,
+            IsPublished = dto.IsPublished ,
+            Modules = dto.Modules.Select( MapToModule ).ToList()
         };
     }
 
-    private static Module MapToModule(ModuleSeedDto dto)
+    private static Module MapToModule( ModuleSeedDto dto )
     {
         return new Module
         {
-            Id = Guid.NewGuid(),
-            Title = dto.Title,
-            Description = dto.Description,
-            SortOrder = dto.SortOrder,
-            Lessons = dto.Lessons.Select(MapToLesson).ToList()
+            Id = Guid.NewGuid() ,
+            Title = dto.Title ,
+            Description = dto.Description ,
+            SortOrder = dto.SortOrder ,
+            Lessons = dto.Lessons.Select( MapToLesson ).ToList()
         };
     }
 
-    private static Lesson MapToLesson(LessonSeedDto dto)
+    private static Lesson MapToLesson( LessonSeedDto dto )
     {
         return new Lesson
         {
-            Id = Guid.NewGuid(),
-            Title = dto.Title,
-            Content = dto.Content,
-            PdfPath = dto.PdfPath,
-            VideoPath = dto.VideoPath,
-            DurationMinutes = dto.DurationMinutes,
+            Id = Guid.NewGuid() ,
+            Title = dto.Title ,
+            Content = dto.Content ,
+            PdfPath = dto.PdfPath ,
+            VideoPath = dto.VideoPath ,
+            DurationMinutes = dto.DurationMinutes ,
             SortOrder = dto.SortOrder
         };
     }

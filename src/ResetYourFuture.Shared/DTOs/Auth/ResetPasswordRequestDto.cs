@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ResetYourFuture.Shared.Auth;
+namespace ResetYourFuture.Shared.DTOs;
 
-public class ResetPasswordRequest
+public class ResetPasswordRequestDto
 {
     [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;

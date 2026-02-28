@@ -5,8 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
-using ResetYourFuture.Shared.Chat;
-using System.Security.Claims;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Api.Hubs;
 
@@ -75,7 +74,8 @@ public class ChatHub : Hub
             return;
 
         var sender = await _userManager.FindByIdAsync( userId );
-        if ( sender is null ) return;
+        if ( sender is null )
+            return;
 
         var roles = await _userManager.GetRolesAsync( sender );
         var senderRole = roles.FirstOrDefault() ?? "User";
@@ -92,7 +92,7 @@ public class ChatHub : Hub
 
         // Update conversation's last-message cache.
         conversation.LastMessageContent = message.Content.Length > 500
-            ? message.Content[..497] + "..."
+            ? message.Content [ ..497 ] + "..."
             : message.Content;
         conversation.LastMessageAt = message.SentAt;
 
@@ -120,7 +120,7 @@ public class ChatHub : Hub
         var notification = new ChatNotificationDto(
             conversationId ,
             $"{sender.FirstName} {sender.LastName}" ,
-            message.Content.Length > 80 ? message.Content[..77] + "..." : message.Content ,
+            message.Content.Length > 80 ? message.Content [ ..77 ] + "..." : message.Content ,
             message.SentAt );
 
         await Clients.Group( $"user_{recipientId}" ).SendAsync( "ChatNotification" , notification );
@@ -132,7 +132,8 @@ public class ChatHub : Hub
     public async Task MarkAsRead( Guid conversationId )
     {
         var userId = Context.UserIdentifier;
-        if ( string.IsNullOrEmpty( userId ) ) return;
+        if ( string.IsNullOrEmpty( userId ) )
+            return;
 
         var unread = await _db.ChatMessages
             .Where( m => m.ConversationId == conversationId

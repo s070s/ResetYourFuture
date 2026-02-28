@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Auth;
+using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources.Messages;
 using System.Net.Http.Json;
 
@@ -14,7 +14,7 @@ public partial class Login
     [Inject] private IWebAssemblyHostEnvironment Env { get; set; } = default!;
     [Inject] private HttpClient Http { get; set; } = default!;
 
-    private LoginRequest loginRequest = new();
+    private LoginRequestDto loginRequest = new();
     private string? errorMessage;
     private string? devSuccessMessage;
     private bool isLoading;
@@ -89,7 +89,7 @@ public partial class Login
             else
             {
                 // Try to read returned error message if available
-                var apiResp = await response.Content.ReadFromJsonAsync<AuthResponse>();
+                var apiResp = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
                 errorMessage = apiResp?.Message ?? ErrorMessagesRes.EmailConfirmationError;
             }
         }

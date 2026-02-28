@@ -64,7 +64,7 @@
 
                 <div class="plan-actions">
                     <button class="btn btn-primary" @onclick="GoToPricing">Change Plan</button>
-                    @if (_overview.CurrentSubscription?.Tier > SubscriptionTier.Free)
+                    @if (_overview.CurrentSubscription?.Tier > SubscriptionTierEnum.Free)
                     {
                         <button class="btn btn-outline-warning" @onclick="CancelSubscription" disabled="@_cancelling">
                             @(_cancelling ? "Cancelling..." : "Cancel Subscription")

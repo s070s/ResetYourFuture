@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.Courses;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Interfaces;
 
@@ -8,8 +8,8 @@ namespace ResetYourFuture.Client.Interfaces;
 public interface ICourseService
 {
     Task<List<CourseListItemDto>> GetCoursesAsync();
-    Task<CourseDetailDto?> GetCourseAsync(Guid courseId);
-    Task<EnrollmentResultDto?> EnrollAsync(Guid courseId);
-    Task<LessonDetailDto?> GetLessonAsync(Guid lessonId);
-    Task<LessonCompletionResultDto?> CompleteLessonAsync(Guid lessonId);
+    Task<CourseDetailDto?> GetCourseAsync( Guid courseId );
+    Task<EnrollmentResultDto?> EnrollAsync( Guid courseId );
+    Task<LessonDetailDto?> GetLessonAsync( Guid lessonId );
+    Task<LessonCompletionResultDto?> CompleteLessonAsync( Guid lessonId );
 }

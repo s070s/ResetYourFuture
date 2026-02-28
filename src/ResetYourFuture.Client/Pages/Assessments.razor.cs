@@ -1,6 +1,6 @@
-using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Shared.Models.Assessments;
+using ResetYourFuture.Shared.DTOs;
+using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -15,17 +15,17 @@ public partial class Assessments
     {
         try
         {
-            assessments = await Http.GetFromJsonAsync<List<AssessmentDefinitionDto>>("api/assessments");
+            assessments = await Http.GetFromJsonAsync<List<AssessmentDefinitionDto>>( "api/assessments" );
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
-            Console.WriteLine($"Error loading assessments: {ex.Message}");
+            Console.WriteLine( $"Error loading assessments: {ex.Message}" );
             assessments = new List<AssessmentDefinitionDto>();
         }
     }
 
-    private void StartAssessment(Guid id)
+    private void StartAssessment( Guid id )
     {
-        Nav.NavigateTo($"/assessments/{id}");
+        Nav.NavigateTo( $"/assessments/{id}" );
     }
 }

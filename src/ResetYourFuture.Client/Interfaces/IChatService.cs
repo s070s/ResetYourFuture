@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.Chat;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Interfaces;
 
@@ -20,7 +20,10 @@ public interface IChatService : IAsyncDisposable
     /// <summary>
     /// True when the SignalR connection is active.
     /// </summary>
-    bool IsConnected { get; }
+    bool IsConnected
+    {
+        get;
+    }
 
     Task StartAsync();
     Task StopAsync();

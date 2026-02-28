@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
-using ResetYourFuture.Shared.Chat;
+using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Api.Controllers;
@@ -145,7 +145,7 @@ public class ChatController : ControllerBase
             return NotFound( "User not found." );
 
         // Normalize the pair so (A,B) and (B,A) always map to the same row.
-        var (user1Id, user2Id) = NormalizePair( callerId , request.TargetUserId );
+        var (user1Id , user2Id) = NormalizePair( callerId , request.TargetUserId );
 
         // Check for existing conversation between these two users.
         var existing = await _db.ChatConversations
@@ -262,8 +262,8 @@ public class ChatController : ControllerBase
     /// Normalizes a user pair so the lexicographically smaller ID is always first.
     /// This ensures the unique index works regardless of who initiates.
     /// </summary>
-    private static (string User1Id, string User2Id) NormalizePair( string a , string b ) =>
-        string.CompareOrdinal( a , b ) < 0 ? ( a , b ) : ( b , a );
+    private static (string User1Id , string User2Id) NormalizePair( string a , string b ) =>
+        string.CompareOrdinal( a , b ) < 0 ? (a , b) : (b , a);
 
     private async Task AddInitialMessage( ChatConversation conversation , string senderId , string content )
     {
@@ -278,7 +278,7 @@ public class ChatController : ControllerBase
         _db.ChatMessages.Add( message );
 
         conversation.LastMessageContent = message.Content.Length > 500
-            ? message.Content[..497] + "..."
+            ? message.Content [ ..497 ] + "..."
             : message.Content;
         conversation.LastMessageAt = message.SentAt;
 

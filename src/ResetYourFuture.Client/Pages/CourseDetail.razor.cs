@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Courses;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class CourseDetail
 {
     [Parameter]
-    public Guid CourseId { get; set; }
+    public Guid CourseId
+    {
+        get; set;
+    }
 
     [Inject] private ICourseService CourseService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
@@ -29,16 +32,16 @@ public partial class CourseDetail
 
         try
         {
-            _course = await CourseService.GetCourseAsync(CourseId);
-            if (_course is null)
+            _course = await CourseService.GetCourseAsync( CourseId );
+            if ( _course is null )
             {
                 _error = "Course not found.";
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Failed to load course. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -51,8 +54,8 @@ public partial class CourseDetail
         _enrolling = true;
         try
         {
-            var result = await CourseService.EnrollAsync(CourseId);
-            if (result?.Success == true)
+            var result = await CourseService.EnrollAsync( CourseId );
+            if ( result?.Success == true )
             {
                 await LoadCourse();
             }
@@ -61,10 +64,10 @@ public partial class CourseDetail
                 _error = result?.Message ?? "Failed to enroll.";
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Failed to enroll. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -72,16 +75,16 @@ public partial class CourseDetail
         }
     }
 
-    private void ViewLesson(Guid lessonId)
+    private void ViewLesson( Guid lessonId )
     {
-        if (_course?.IsEnrolled == true)
+        if ( _course?.IsEnrolled == true )
         {
-            Navigation.NavigateTo($"/lessons/{lessonId}");
+            Navigation.NavigateTo( $"/lessons/{lessonId}" );
         }
     }
 
     private void GoBack()
     {
-        Navigation.NavigateTo("/courses");
+        Navigation.NavigateTo( "/courses" );
     }
 }

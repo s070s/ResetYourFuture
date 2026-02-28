@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Courses;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Full course detail including modules and progress.

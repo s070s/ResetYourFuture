@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Auth;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Services;
@@ -40,17 +40,17 @@ public class AuthService : IAuthService
     private const int MaxRetries = 2;
     private const int BaseDelayMs = 500;
 
-    public async Task<AuthResponse> RegisterAsync( RegisterRequest request )
+    public async Task<AuthResponseDto> RegisterAsync( RegisterRequestDto request )
     {
         var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( "api/auth/register" , request ) );
-        var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
-        return result ?? new AuthResponse { Success = false , Message = "Unknown error" };
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        return result ?? new AuthResponseDto { Success = false , Message = "Unknown error" };
     }
 
-    public async Task<AuthResponse> LoginAsync( LoginRequest request )
+    public async Task<AuthResponseDto> LoginAsync( LoginRequestDto request )
     {
         var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( "api/auth/login" , request ) );
-        var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
 
         if ( result?.Success == true && !string.IsNullOrEmpty( result.Token ) )
         {
@@ -64,7 +64,7 @@ public class AuthService : IAuthService
             ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserAuthentication( result.Token );
         }
 
-        return result ?? new AuthResponse { Success = false , Message = "Unknown error" };
+        return result ?? new AuthResponseDto { Success = false , Message = "Unknown error" };
     }
 
     /// <summary>
@@ -94,10 +94,10 @@ public class AuthService : IAuthService
         ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserLogout();
     }
 
-    public async Task<AuthResponse> ImpersonateAsync( string userId )
+    public async Task<AuthResponseDto> ImpersonateAsync( string userId )
     {
         var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( $"api/admin/users/{userId}/impersonate" , new { } ) );
-        var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
 
         if ( result?.Success == true && !string.IsNullOrEmpty( result.Token ) )
         {
@@ -115,13 +115,14 @@ public class AuthService : IAuthService
             ( ( JwtAuthStateProvider ) _authStateProvider ).NotifyUserAuthentication( result.Token );
         }
 
-        return result ?? new AuthResponse { Success = false , Message = "Unknown error" };
+        return result ?? new AuthResponseDto { Success = false , Message = "Unknown error" };
     }
 
     public async Task ExitImpersonationAsync()
     {
         var adminToken = await _localStorage.GetItemAsStringAsync( AdminTokenKey );
-        if ( string.IsNullOrEmpty( adminToken ) ) return;
+        if ( string.IsNullOrEmpty( adminToken ) )
+            return;
 
         await _localStorage.SetItemAsStringAsync( TokenKey , adminToken );
         await _localStorage.RemoveItemAsync( AdminTokenKey );

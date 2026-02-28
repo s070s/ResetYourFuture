@@ -1,9 +1,9 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Domain.Enums;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
+using System.Text.Json;
 
 namespace ResetYourFuture.Api.Services;
 
@@ -13,11 +13,11 @@ namespace ResetYourFuture.Api.Services;
 /// </summary>
 public static class SubscriptionPlanSeeder
 {
-    public static async Task SeedAsync(ApplicationDbContext db, ILogger logger)
+    public static async Task SeedAsync( ApplicationDbContext db , ILogger logger )
     {
-        if (await db.SubscriptionPlans.AnyAsync())
+        if ( await db.SubscriptionPlans.AnyAsync() )
         {
-            logger.LogInformation("Subscription plans already seeded. Skipping.");
+            logger.LogInformation( "Subscription plans already seeded. Skipping." );
             return;
         }
 
@@ -30,7 +30,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Get started with basic access to free courses.",
                 Price = 0m,
                 BillingPeriod = BillingPeriod.Lifetime,
-                Tier = SubscriptionTier.Free,
+                Tier = SubscriptionTierEnum.Free,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = 1,
@@ -48,7 +48,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Unlock all courses and assessments.",
                 Price = 9.99m,
                 BillingPeriod = BillingPeriod.Monthly,
-                Tier = SubscriptionTier.Plus,
+                Tier = SubscriptionTierEnum.Plus,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = 10,
@@ -66,7 +66,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Full access with certificates and priority support.",
                 Price = 19.99m,
                 BillingPeriod = BillingPeriod.Monthly,
-                Tier = SubscriptionTier.Pro,
+                Tier = SubscriptionTierEnum.Pro,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = int.MaxValue,
@@ -79,9 +79,9 @@ public static class SubscriptionPlanSeeder
             }
         };
 
-        db.SubscriptionPlans.AddRange(plans);
+        db.SubscriptionPlans.AddRange( plans );
         await db.SaveChangesAsync();
 
-        logger.LogInformation("Seeded {Count} subscription plans (Free, Plus, Pro).", plans.Count);
+        logger.LogInformation( "Seeded {Count} subscription plans (Free, Plus, Pro)." , plans.Count );
     }
 }

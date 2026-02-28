@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Courses;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -12,7 +11,7 @@ public partial class Courses
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private List<CourseListItemDto> _courses = [];
-    private SubscriptionTier _userTier = SubscriptionTier.Free;
+    private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
     private bool _loading = true;
     private string? _error;
 
@@ -22,19 +21,19 @@ public partial class Courses
         {
             var coursesTask = CourseService.GetCoursesAsync();
             var statusTask = SubscriptionService.GetStatusAsync();
-            await Task.WhenAll(coursesTask, statusTask);
+            await Task.WhenAll( coursesTask , statusTask );
 
             _courses = coursesTask.Result;
             var status = statusTask.Result;
-            if (status is not null)
+            if ( status is not null )
             {
                 _userTier = status.Tier;
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Failed to load courses. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -42,18 +41,18 @@ public partial class Courses
         }
     }
 
-    private void ViewCourse(CourseListItemDto course)
+    private void ViewCourse( CourseListItemDto course )
     {
-        if (_userTier < course.RequiredTier)
+        if ( _userTier < course.RequiredTier )
         {
-            Navigation.NavigateTo("/pricing");
+            Navigation.NavigateTo( "/pricing" );
             return;
         }
-        Navigation.NavigateTo($"/courses/{course.Id}");
+        Navigation.NavigateTo( $"/courses/{course.Id}" );
     }
 
     private void GoToPricing()
     {
-        Navigation.NavigateTo("/pricing");
+        Navigation.NavigateTo( "/pricing" );
     }
 }

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -22,10 +22,10 @@ public partial class Billing
         {
             _overview = await SubscriptionService.GetBillingOverviewAsync();
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Failed to load billing information. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -40,23 +40,23 @@ public partial class Billing
         try
         {
             var result = await SubscriptionService.CancelAsync();
-            if (result is not null)
+            if ( result is not null )
             {
                 _cancelSuccess = result.Success;
                 _cancelMessage = result.Message;
 
-                if (result.Success)
+                if ( result.Success )
                 {
                     // Reload billing overview to reflect the change
                     _overview = await SubscriptionService.GetBillingOverviewAsync();
                 }
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _cancelSuccess = false;
             _cancelMessage = "Failed to cancel. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -64,5 +64,5 @@ public partial class Billing
         }
     }
 
-    private void GoToPricing() => Navigation.NavigateTo("/pricing");
+    private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
 }

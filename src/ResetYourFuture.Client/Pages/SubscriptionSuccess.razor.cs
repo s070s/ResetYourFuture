@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -18,9 +18,9 @@ public partial class SubscriptionSuccess
         {
             _status = await SubscriptionService.GetStatusAsync();
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -28,6 +28,6 @@ public partial class SubscriptionSuccess
         }
     }
 
-    private void GoToCourses() => Navigation.NavigateTo("/courses");
-    private void GoToPricing() => Navigation.NavigateTo("/pricing");
+    private void GoToCourses() => Navigation.NavigateTo( "/courses" );
+    private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
 }

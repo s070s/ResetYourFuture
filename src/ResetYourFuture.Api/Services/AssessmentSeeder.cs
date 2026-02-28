@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
-using ResetYourFuture.Shared.Seed;
+using ResetYourFuture.Shared.DTOs;
 using System.Text.Json;
 
 namespace ResetYourFuture.Api.Services;

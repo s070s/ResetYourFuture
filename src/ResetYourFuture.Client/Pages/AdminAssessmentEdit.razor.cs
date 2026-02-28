@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ResetYourFuture.Client.Shared;
-using ResetYourFuture.Shared.Models.Assessments;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 using System.Text.Json;
 

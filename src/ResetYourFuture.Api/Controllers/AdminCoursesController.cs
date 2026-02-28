@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
-using ResetYourFuture.Shared.Models.Admin;
+using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Api.Controllers;
@@ -12,8 +12,8 @@ namespace ResetYourFuture.Api.Controllers;
 /// Admin endpoints for managing courses.
 /// </summary>
 [ApiController]
-[Route("api/admin/courses")]
-[Authorize(Policy = "AdminOnly")]
+[Route( "api/admin/courses" )]
+[Authorize( Policy = "AdminOnly" )]
 public class AdminCoursesController : ControllerBase
 {
     // EF Core DB context used to query and persist course-related data.
@@ -22,46 +22,46 @@ public class AdminCoursesController : ControllerBase
     private readonly ILogger<AdminCoursesController> _logger;
 
     // Constructor receives dependencies (DB context and logger) via DI.
-    public AdminCoursesController(ApplicationDbContext db, ILogger<AdminCoursesController> logger)
+    public AdminCoursesController( ApplicationDbContext db , ILogger<AdminCoursesController> logger )
     {
         _db = db;
         _logger = logger;
     }
 
     // Helper property to get the current authenticated user's ID or throw if missing.
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? throw new UnauthorizedAccessException("User ID not found");
+    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
+        ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
     /// Get a single course by id (published or unpublished) with modules, lessons and enrollments.
     /// </summary>
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<AdminCourseDto>> GetCourseById(Guid id)
+    [HttpGet( "{id:guid}" )]
+    public async Task<ActionResult<AdminCourseDto>> GetCourseById( Guid id )
     {
         var course = await _db.Courses
-            .Include(c => c.Modules)
-            .ThenInclude(m => m.Lessons)
-            .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Include( c => c.Modules )
+            .ThenInclude( m => m.Lessons )
+            .Include( c => c.Enrollments )
+            .FirstOrDefaultAsync( c => c.Id == id );
 
-        if (course == null)
+        if ( course == null )
         {
             return NotFound();
         }
 
         var dto = new AdminCourseDto(
-            course.Id,
-            course.Title,
-            course.Description,
-            course.IsPublished,
-            course.CreatedAt,
-            course.UpdatedAt,
-            course.Modules.Count,
-            course.Modules.SelectMany(m => m.Lessons).Count(),
+            course.Id ,
+            course.Title ,
+            course.Description ,
+            course.IsPublished ,
+            course.CreatedAt ,
+            course.UpdatedAt ,
+            course.Modules.Count ,
+            course.Modules.SelectMany( m => m.Lessons ).Count() ,
             course.Enrollments.Count
         );
 
-        return Ok(dto);
+        return Ok( dto );
     }
 
     /// <summary>
@@ -73,76 +73,79 @@ public class AdminCoursesController : ControllerBase
         // Query courses including related modules, lessons and enrollments and project to DTOs.
         // Note: SQLite doesn't support DateTimeOffset in ORDER BY, so we order client-side.
         var courses = await _db.Courses
-            .Include(c => c.Modules)
-            .ThenInclude(m => m.Lessons)
-            .Include(c => c.Enrollments)
-            .Select(c => new AdminCourseDto(
-                c.Id,
-                c.Title,
-                c.Description,
-                c.IsPublished,
-                c.CreatedAt,
-                c.UpdatedAt,
-                c.Modules.Count,
-                c.Modules.SelectMany(m => m.Lessons).Count(),
+            .Include( c => c.Modules )
+            .ThenInclude( m => m.Lessons )
+            .Include( c => c.Enrollments )
+            .Select( c => new AdminCourseDto(
+                c.Id ,
+                c.Title ,
+                c.Description ,
+                c.IsPublished ,
+                c.CreatedAt ,
+                c.UpdatedAt ,
+                c.Modules.Count ,
+                c.Modules.SelectMany( m => m.Lessons ).Count() ,
                 c.Enrollments.Count
-            ))
+            ) )
             .ToListAsync();
 
         // Return 200 OK with the list of courses for the admin UI (ordered by newest first).
-        return Ok(courses.OrderByDescending(c => c.CreatedAt).ToList());
+        return Ok( courses.OrderByDescending( c => c.CreatedAt ).ToList() );
     }
 
     /// <summary>
     /// Create a new course.
     /// </summary>
     [HttpPost]
-    public async Task<ActionResult<AdminCourseDto>> CreateCourse([FromBody] SaveCourseRequest request)
+    public async Task<ActionResult<AdminCourseDto>> CreateCourse( [FromBody] SaveCourseRequest request )
     {
         // Build a new Course entity with provided values and initial metadata.
         var course = new Course
         {
-            Id = Guid.NewGuid(),
-            Title = request.Title,
-            Description = request.Description,
-            IsPublished = false,
+            Id = Guid.NewGuid() ,
+            Title = request.Title ,
+            Description = request.Description ,
+            IsPublished = false ,
             UpdatedByUserId = UserId
         };
 
         // Add the new course to the DbContext and persist changes.
-        _db.Courses.Add(course);
+        _db.Courses.Add( course );
         await _db.SaveChangesAsync();
 
         // Map the persisted entity to the AdminCourseDto for the response.
         var dto = new AdminCourseDto(
-            course.Id,
-            course.Title,
-            course.Description,
-            course.IsPublished,
-            course.CreatedAt,
-            course.UpdatedAt,
-            0, 0, 0
+            course.Id ,
+            course.Title ,
+            course.Description ,
+            course.IsPublished ,
+            course.CreatedAt ,
+            course.UpdatedAt ,
+            0 , 0 , 0
         );
 
         // Return 201 Created with a location header pointing to the courses endpoint.
-        return CreatedAtAction(nameof(GetCourses), new { id = course.Id }, dto);
+        return CreatedAtAction( nameof( GetCourses ) , new
+        {
+            id = course.Id
+        } , dto );
     }
 
     /// <summary>
     /// Update an existing course.
     /// </summary>
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<AdminCourseDto>> UpdateCourse(Guid id, [FromBody] SaveCourseRequest request)
+    [HttpPut( "{id:guid}" )]
+    public async Task<ActionResult<AdminCourseDto>> UpdateCourse( Guid id , [FromBody] SaveCourseRequest request )
     {
         // Load the course with related modules/lessons and enrollments for DTO values.
         var course = await _db.Courses
-            .Include(c => c.Modules)
-            .ThenInclude(m => m.Lessons)
-            .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Include( c => c.Modules )
+            .ThenInclude( m => m.Lessons )
+            .Include( c => c.Enrollments )
+            .FirstOrDefaultAsync( c => c.Id == id );
 
         // Return 404 if the course does not exist.
-        if (course == null)
+        if ( course == null )
         {
             return NotFound();
         }
@@ -158,62 +161,62 @@ public class AdminCoursesController : ControllerBase
 
         // Map the updated entity to DTO and return it to the caller.
         var dto = new AdminCourseDto(
-            course.Id,
-            course.Title,
-            course.Description,
-            course.IsPublished,
-            course.CreatedAt,
-            course.UpdatedAt,
-            course.Modules.Count,
-            course.Modules.SelectMany(m => m.Lessons).Count(),
+            course.Id ,
+            course.Title ,
+            course.Description ,
+            course.IsPublished ,
+            course.CreatedAt ,
+            course.UpdatedAt ,
+            course.Modules.Count ,
+            course.Modules.SelectMany( m => m.Lessons ).Count() ,
             course.Enrollments.Count
         );
 
         // Return 200 OK with the updated course DTO.
-        return Ok(dto);
+        return Ok( dto );
     }
 
     /// <summary>
     /// Delete a course (only if no enrollments).
     /// </summary>
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCourse(Guid id)
+    [HttpDelete( "{id:guid}" )]
+    public async Task<IActionResult> DeleteCourse( Guid id )
     {
         // Load the course including all related data for cascade deletion.
         var course = await _db.Courses
-            .Include(c => c.Enrollments)
-            .Include(c => c.Modules)
-                .ThenInclude(m => m.Lessons)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .Include( c => c.Enrollments )
+            .Include( c => c.Modules )
+                .ThenInclude( m => m.Lessons )
+            .FirstOrDefaultAsync( c => c.Id == id );
 
         // Return 404 when the course cannot be found.
-        if (course == null)
+        if ( course == null )
         {
             return NotFound();
         }
 
         // Remove lesson completions for all lessons in this course.
-        var lessonIds = course.Modules.SelectMany(m => m.Lessons).Select(l => l.Id).ToList();
-        if (lessonIds.Count > 0)
+        var lessonIds = course.Modules.SelectMany( m => m.Lessons ).Select( l => l.Id ).ToList();
+        if ( lessonIds.Count > 0 )
         {
             var completions = await _db.LessonCompletions
-                .Where(lc => lessonIds.Contains(lc.LessonId))
+                .Where( lc => lessonIds.Contains( lc.LessonId ) )
                 .ToListAsync();
-            _db.LessonCompletions.RemoveRange(completions);
+            _db.LessonCompletions.RemoveRange( completions );
         }
 
         // Remove enrollments for this course.
-        if (course.Enrollments.Any())
+        if ( course.Enrollments.Any() )
         {
-            _db.Enrollments.RemoveRange(course.Enrollments);
+            _db.Enrollments.RemoveRange( course.Enrollments );
         }
 
         // Remove the course entity (cascade will remove modules and lessons).
-        _db.Courses.Remove(course);
+        _db.Courses.Remove( course );
         await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Admin {UserId} deleted course {CourseId} with {Enrollments} enrollment(s)",
-            UserId, id, course.Enrollments.Count);
+        _logger.LogInformation( "Admin {UserId} deleted course {CourseId} with {Enrollments} enrollment(s)" ,
+            UserId , id , course.Enrollments.Count );
 
         // Return 204 No Content to indicate successful deletion.
         return NoContent();
@@ -222,18 +225,18 @@ public class AdminCoursesController : ControllerBase
     /// <summary>
     /// Publish a course (make it available to students).
     /// </summary>
-    [HttpPost("{id:guid}/publish")]
-    public async Task<IActionResult> PublishCourse(Guid id)
+    [HttpPost( "{id:guid}/publish" )]
+    public async Task<IActionResult> PublishCourse( Guid id )
     {
         // Find the course by ID to update its published state.
-        var course = await _db.Courses.FindAsync(id);
-        if (course == null)
+        var course = await _db.Courses.FindAsync( id );
+        if ( course == null )
         {
             return NotFound();
         }
 
         // If not already published, mark published, set timestamps and user, then save.
-        if (!course.IsPublished)
+        if ( !course.IsPublished )
         {
             course.IsPublished = true;
             course.PublishedAt = DateTimeOffset.UtcNow;
@@ -248,16 +251,16 @@ public class AdminCoursesController : ControllerBase
     /// <summary>
     /// Unpublish a course (hide it from students).
     /// </summary>
-    [HttpPost("{id:guid}/unpublish")]
-    public async Task<IActionResult> UnpublishCourse(Guid id)
+    [HttpPost( "{id:guid}/unpublish" )]
+    public async Task<IActionResult> UnpublishCourse( Guid id )
     {
-        var course = await _db.Courses.FindAsync(id);
-        if (course == null)
+        var course = await _db.Courses.FindAsync( id );
+        if ( course == null )
         {
             return NotFound();
         }
 
-        if (course.IsPublished)
+        if ( course.IsPublished )
         {
             course.IsPublished = false;
             course.UpdatedAt = DateTimeOffset.UtcNow;

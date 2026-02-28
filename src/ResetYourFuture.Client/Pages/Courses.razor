@@ -27,7 +27,7 @@ else
             <div class="course-card @(isLocked ? "course-locked" : "")" @onclick="() => ViewCourse(course)">
                 <div class="course-card-header">
                     <h3>@course.Title</h3>
-                    @if (course.RequiredTier != SubscriptionTier.Free)
+                    @if (course.RequiredTier != SubscriptionTierEnum.Free)
                     {
                         <span class="tier-badge tier-@course.RequiredTier.ToString().ToLowerInvariant()">
                             @course.RequiredTier

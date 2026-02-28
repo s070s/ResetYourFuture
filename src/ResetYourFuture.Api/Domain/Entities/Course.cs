@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Api.Domain.Entities;
 
@@ -8,23 +8,32 @@ namespace ResetYourFuture.Api.Domain.Entities;
 /// </summary>
 public class Course : AuditableEntity
 {
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Display title of the course.
     /// </summary>
-    public required string Title { get; set; }
+    public required string Title
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional description for catalog/marketing.
     /// </summary>
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Minimum subscription tier required to access this course.
     /// Default is Free (all users can access).
     /// </summary>
-    public SubscriptionTier RequiredTier { get; set; } = SubscriptionTier.Free;
+    public SubscriptionTierEnum RequiredTier { get; set; } = SubscriptionTierEnum.Free;
 
     // Navigation: one Course has many Modules
     public ICollection<Module> Modules { get; set; } = [];

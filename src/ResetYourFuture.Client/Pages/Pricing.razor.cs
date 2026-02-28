@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -24,10 +24,10 @@ public partial class Pricing
             _plans = await SubscriptionService.GetPlansAsync();
             _currentStatus = await SubscriptionService.GetStatusAsync();
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Failed to load plans. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -35,16 +35,16 @@ public partial class Pricing
         }
     }
 
-    private async Task Checkout(Guid planId)
+    private async Task Checkout( Guid planId )
     {
         _processing = true;
         _cancelMessage = null;
         try
         {
-            var session = await SubscriptionService.CheckoutAsync(planId);
-            if (session is not null && !string.IsNullOrEmpty(session.CheckoutUrl))
+            var session = await SubscriptionService.CheckoutAsync( planId );
+            if ( session is not null && !string.IsNullOrEmpty( session.CheckoutUrl ) )
             {
-                Navigation.NavigateTo(session.CheckoutUrl, forceLoad: false);
+                Navigation.NavigateTo( session.CheckoutUrl , forceLoad: false );
             }
             else
             {
@@ -53,10 +53,10 @@ public partial class Pricing
                 _error = null;
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _error = "Checkout failed. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -71,22 +71,22 @@ public partial class Pricing
         try
         {
             var result = await SubscriptionService.CancelAsync();
-            if (result is not null)
+            if ( result is not null )
             {
                 _cancelSuccess = result.Success;
                 _cancelMessage = result.Message;
 
-                if (result.Success)
+                if ( result.Success )
                 {
                     _currentStatus = await SubscriptionService.GetStatusAsync();
                 }
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             _cancelSuccess = false;
             _cancelMessage = "Failed to cancel. Please try again.";
-            Console.WriteLine(ex.Message);
+            Console.WriteLine( ex.Message );
         }
         finally
         {
@@ -96,6 +96,6 @@ public partial class Pricing
 
     private void NavigateToRegister()
     {
-        Navigation.NavigateTo("/register");
+        Navigation.NavigateTo( "/register" );
     }
 }

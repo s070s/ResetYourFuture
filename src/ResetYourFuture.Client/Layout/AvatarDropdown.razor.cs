@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Models.Profile;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Layout;

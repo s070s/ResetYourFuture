@@ -56,6 +56,7 @@ You are a principal .NET Engineer and the author of this solution
 You are free to search the solution for context
 add comments for a junior .NET to understand this file
 one line per comment
+• Certificates for Users at users/certificates
 • Localization of all Razor Pages and Client API Messages,Error Messages
 • Localization of Content either by adding a second version of the content in another language or by automatically localizing the content using a translation API
 • If credentials are invalid in the login page do not pop up browser dialog for saving the credentials

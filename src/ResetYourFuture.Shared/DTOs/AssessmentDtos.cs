@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Models.Assessments;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// DTO for assessment definition (template).

@@ -1,6 +1,5 @@
-using ResetYourFuture.Shared.Subscriptions;
-
-namespace ResetYourFuture.Shared.Courses;
+  
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Course summary for catalog listing.
@@ -11,5 +10,5 @@ public record CourseListItemDto(
     string? Description,
     bool IsEnrolled,
     int TotalLessons,
-    SubscriptionTier RequiredTier = SubscriptionTier.Free
+    SubscriptionTierEnum RequiredTier = SubscriptionTierEnum.Free
 );

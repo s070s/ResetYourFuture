@@ -1,5 +1,4 @@
-namespace ResetYourFuture.Shared.Seed;
-
+namespace ResetYourFuture.Shared.DTOs;
 /// <summary>
 /// DTO for seeding courses from JSON files.
 /// </summary>

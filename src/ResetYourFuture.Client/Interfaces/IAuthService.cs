@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.Auth;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Interfaces;
 
@@ -7,12 +7,12 @@ namespace ResetYourFuture.Client.Interfaces;
 /// </summary>
 public interface IAuthService
 {
-    Task<AuthResponse> RegisterAsync(RegisterRequest request);
-    Task<AuthResponse> LoginAsync(LoginRequest request);
+    Task<AuthResponseDto> RegisterAsync( RegisterRequestDto request );
+    Task<AuthResponseDto> LoginAsync( LoginRequestDto request );
     Task LogoutAsync();
     Task<bool> IsAuthenticatedAsync();
     Task<string?> GetTokenAsync();
-    Task<AuthResponse> ImpersonateAsync(string userId);
+    Task<AuthResponseDto> ImpersonateAsync( string userId );
     Task ExitImpersonationAsync();
     Task<bool> IsImpersonatingAsync();
 }

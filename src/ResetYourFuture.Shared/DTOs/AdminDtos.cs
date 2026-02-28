@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Models.Admin;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Analytics summary for admin dashboard.

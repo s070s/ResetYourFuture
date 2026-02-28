@@ -1,5 +1,5 @@
 using ResetYourFuture.Api.Domain.Enums;
-using ResetYourFuture.Shared.Subscriptions;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Api.Domain.Entities;
 
@@ -9,38 +9,56 @@ namespace ResetYourFuture.Api.Domain.Entities;
 /// </summary>
 public class SubscriptionPlan
 {
-    public Guid Id { get; set; }
+    public Guid Id
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Display name (e.g. "Free", "Plus", "Pro").
     /// </summary>
-    public required string Name { get; set; }
+    public required string Name
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Optional marketing description.
     /// </summary>
-    public string? Description { get; set; }
+    public string? Description
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Price in base currency units (e.g. EUR cents or smallest unit).
     /// Zero for free tier.
     /// </summary>
-    public decimal Price { get; set; }
+    public decimal Price
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Billing interval for the plan.
     /// </summary>
-    public BillingPeriod BillingPeriod { get; set; }
+    public BillingPeriod BillingPeriod
+    {
+        get; set;
+    }
 
     /// <summary>
     /// The subscription tier this plan belongs to.
     /// </summary>
-    public SubscriptionTier Tier { get; set; } = SubscriptionTier.Free;
+    public SubscriptionTierEnum Tier { get; set; } = SubscriptionTierEnum.Free;
 
     /// <summary>
     /// JSON for flexible feature flags/limits (e.g. max courses, downloads, etc.).
     /// </summary>
-    public string? FeaturesJson { get; set; }
+    public string? FeaturesJson
+    {
+        get; set;
+    }
 
     /// <summary>
     /// Whether this plan is currently available for new subscribers.
@@ -49,7 +67,10 @@ public class SubscriptionPlan
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt
+    {
+        get; set;
+    }
 
     // Navigation: users subscribed to this plan
     public ICollection<UserSubscription> UserSubscriptions { get; set; } = [];

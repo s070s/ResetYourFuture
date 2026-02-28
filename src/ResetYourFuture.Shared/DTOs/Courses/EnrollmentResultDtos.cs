@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Courses;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Response for enrollment and completion operations.

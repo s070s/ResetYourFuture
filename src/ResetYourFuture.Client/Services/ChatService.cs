@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.SignalR.Client;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Chat;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Services;
@@ -25,13 +25,14 @@ public class ChatService : IChatService
     {
         _http = http;
         _localStorage = localStorage;
-        var apiBase = config["ApiBaseUrl"] ?? "https://localhost:7003";
+        var apiBase = config [ "ApiBaseUrl" ] ?? "https://localhost:7003";
         _hubUrl = $"{apiBase}/hubs/chat";
     }
 
     public async Task StartAsync()
     {
-        if ( _hub is not null ) return;
+        if ( _hub is not null )
+            return;
 
         var token = await _localStorage.GetItemAsStringAsync( "authToken" );
 

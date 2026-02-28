@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Chat;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Represents a chat conversation between two users.

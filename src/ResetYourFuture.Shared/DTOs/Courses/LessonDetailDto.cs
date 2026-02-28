@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Courses;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// Full lesson detail for the lesson viewer.

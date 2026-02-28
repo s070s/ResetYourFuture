@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Auth;
+using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources.Messages;
 using System.Net.Http.Json;
 
@@ -16,7 +16,7 @@ public partial class Register : IDisposable
     [Inject] private HttpClient Http { get; set; } = default!;
 
     // RegisterRequest.DateOfBirth is now DateTime? default to 2000-01-01 as requested
-    private RegisterRequest registerRequest = new() { DateOfBirth = new DateTime( 2000 , 1 , 1 ) };
+    private RegisterRequestDto registerRequest = new() { DateOfBirth = new DateTime( 2000 , 1 , 1 ) };
     private EditContext editContext = default!;
     private string? successMessage;
     private string? errorMessage;
@@ -43,9 +43,9 @@ public partial class Register : IDisposable
         errorMessage = null;
         errors.Clear();
 
-        if ( e.FieldIdentifier.FieldName == nameof( RegisterRequest.Password ) )
+        if ( e.FieldIdentifier.FieldName == nameof( RegisterRequestDto.Password ) )
         {
-            editContext.NotifyFieldChanged( editContext.Field( nameof( RegisterRequest.ConfirmPassword ) ) );
+            editContext.NotifyFieldChanged( editContext.Field( nameof( RegisterRequestDto.ConfirmPassword ) ) );
         }
     }
 

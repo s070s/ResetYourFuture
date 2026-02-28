@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.Subscriptions;
+namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
 /// A single billing transaction record for display.

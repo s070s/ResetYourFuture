@@ -1,10 +1,10 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Interfaces;
-using ResetYourFuture.Shared.Models.Assessments;
+using ResetYourFuture.Shared.DTOs;
+using System.Security.Claims;
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -12,7 +12,7 @@ namespace ResetYourFuture.Api.Controllers;
 /// Student-facing assessment endpoints.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route( "api/[controller]" )]
 [Authorize]
 public class AssessmentsController : ControllerBase
 {
@@ -21,17 +21,17 @@ public class AssessmentsController : ControllerBase
     private readonly ILogger<AssessmentsController> _logger;
 
     public AssessmentsController(
-        ApplicationDbContext db,
-        ISubscriptionService subscriptionService,
-        ILogger<AssessmentsController> logger)
+        ApplicationDbContext db ,
+        ISubscriptionService subscriptionService ,
+        ILogger<AssessmentsController> logger )
     {
         _db = db;
         _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? throw new UnauthorizedAccessException("User ID not found");
+    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
+        ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
     /// Get all published assessments.
@@ -40,120 +40,120 @@ public class AssessmentsController : ControllerBase
     public async Task<ActionResult<List<AssessmentDefinitionDto>>> GetPublishedAssessments()
     {
         var assessments = await _db.AssessmentDefinitions
-            .Where(a => a.IsPublished)
-            .OrderBy(a => a.Title)
-            .Select(a => new AssessmentDefinitionDto(
-                a.Id,
-                a.Key,
-                a.Title,
-                a.Description,
-                a.SchemaJson,
-                a.IsPublished,
-                a.CreatedAt,
-                a.UpdatedAt,
+            .Where( a => a.IsPublished )
+            .OrderBy( a => a.Title )
+            .Select( a => new AssessmentDefinitionDto(
+                a.Id ,
+                a.Key ,
+                a.Title ,
+                a.Description ,
+                a.SchemaJson ,
+                a.IsPublished ,
+                a.CreatedAt ,
+                a.UpdatedAt ,
                 a.PublishedAt
-            ))
+            ) )
             .ToListAsync();
 
-        return Ok(assessments);
+        return Ok( assessments );
     }
 
     /// <summary>
     /// Get a specific published assessment by ID.
     /// </summary>
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment(Guid id)
+    [HttpGet( "{id:guid}" )]
+    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment( Guid id )
     {
         var assessment = await _db.AssessmentDefinitions
-            .Where(a => a.Id == id && a.IsPublished)
-            .Select(a => new AssessmentDefinitionDto(
-                a.Id,
-                a.Key,
-                a.Title,
-                a.Description,
-                a.SchemaJson,
-                a.IsPublished,
-                a.CreatedAt,
-                a.UpdatedAt,
+            .Where( a => a.Id == id && a.IsPublished )
+            .Select( a => new AssessmentDefinitionDto(
+                a.Id ,
+                a.Key ,
+                a.Title ,
+                a.Description ,
+                a.SchemaJson ,
+                a.IsPublished ,
+                a.CreatedAt ,
+                a.UpdatedAt ,
                 a.PublishedAt
-            ))
+            ) )
             .FirstOrDefaultAsync();
 
-        if (assessment == null)
+        if ( assessment == null )
         {
             return NotFound();
         }
 
-        return Ok(assessment);
+        return Ok( assessment );
     }
 
     /// <summary>
     /// Submit answers for an assessment.
     /// </summary>
-    [HttpPost("{id:guid}/submit")]
-    public async Task<ActionResult<AssessmentSubmissionDto>> SubmitAssessment(Guid id, [FromBody] SubmitAssessmentRequest request)
+    [HttpPost( "{id:guid}/submit" )]
+    public async Task<ActionResult<AssessmentSubmissionDto>> SubmitAssessment( Guid id , [FromBody] SubmitAssessmentRequest request )
     {
         var assessment = await _db.AssessmentDefinitions
-            .Where(a => a.Id == id && a.IsPublished)
+            .Where( a => a.Id == id && a.IsPublished )
             .FirstOrDefaultAsync();
 
-        if (assessment == null)
+        if ( assessment == null )
         {
-            return NotFound("Assessment not found or not published");
+            return NotFound( "Assessment not found or not published" );
         }
 
         // Check subscription tier
-        var userTier = await _subscriptionService.GetUserTierAsync(UserId);
-        if (userTier < assessment.RequiredTier)
+        var userTier = await _subscriptionService.GetUserTierAsync( UserId );
+        if ( userTier < assessment.RequiredTier )
         {
-            return StatusCode(403, $"This assessment requires a {assessment.RequiredTier} subscription or higher.");
+            return StatusCode( 403 , $"This assessment requires a {assessment.RequiredTier} subscription or higher." );
         }
 
         var submission = new Domain.Entities.AssessmentSubmission
         {
-            Id = Guid.NewGuid(),
-            AssessmentDefinitionId = id,
-            UserId = UserId,
-            AnswersJson = request.AnswersJson,
-            SummaryJson = request.SummaryJson,
+            Id = Guid.NewGuid() ,
+            AssessmentDefinitionId = id ,
+            UserId = UserId ,
+            AnswersJson = request.AnswersJson ,
+            SummaryJson = request.SummaryJson ,
             SubmittedAt = DateTimeOffset.UtcNow
         };
 
-        _db.AssessmentSubmissions.Add(submission);
+        _db.AssessmentSubmissions.Add( submission );
         await _db.SaveChangesAsync();
 
         var dto = new AssessmentSubmissionDto(
-            submission.Id,
-            submission.AssessmentDefinitionId,
-            assessment.Title,
-            submission.AnswersJson,
-            submission.SummaryJson,
+            submission.Id ,
+            submission.AssessmentDefinitionId ,
+            assessment.Title ,
+            submission.AnswersJson ,
+            submission.SummaryJson ,
             submission.SubmittedAt
         );
 
-        return Ok(dto);
+        return Ok( dto );
     }
 
     /// <summary>
     /// Get current user's assessment submissions (history).
     /// </summary>
-    [HttpGet("mine")]
+    [HttpGet( "mine" )]
     public async Task<ActionResult<List<AssessmentSubmissionDto>>> GetMySubmissions()
     {
         var submissions = await _db.AssessmentSubmissions
-            .Where(s => s.UserId == UserId)
-            .Include(s => s.AssessmentDefinition)
-            .OrderByDescending(s => s.SubmittedAt)
-            .Select(s => new AssessmentSubmissionDto(
-                s.Id,
-                s.AssessmentDefinitionId,
-                s.AssessmentDefinition.Title,
-                s.AnswersJson,
-                s.SummaryJson,
+            .Where( s => s.UserId == UserId )
+            .Include( s => s.AssessmentDefinition )
+            .OrderByDescending( s => s.SubmittedAt )
+            .Select( s => new AssessmentSubmissionDto(
+                s.Id ,
+                s.AssessmentDefinitionId ,
+                s.AssessmentDefinition.Title ,
+                s.AnswersJson ,
+                s.SummaryJson ,
                 s.SubmittedAt
-            ))
+            ) )
             .ToListAsync();
 
-        return Ok(submissions);
+        return Ok( submissions );
     }
 }

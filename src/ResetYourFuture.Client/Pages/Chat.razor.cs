@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.Chat;
+using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Client.Pages;
@@ -188,8 +188,8 @@ public partial class Chat : IAsyncDisposable
                 var idx = _conversations.FindIndex( c => c.Id == message.ConversationId );
                 if ( idx >= 0 )
                 {
-                    var old = _conversations[idx];
-                    _conversations[idx] = old with
+                    var old = _conversations [ idx ];
+                    _conversations [ idx ] = old with
                     {
                         LastMessageContent = message.Content ,
                         LastMessageAt = message.SentAt
@@ -198,7 +198,7 @@ public partial class Chat : IAsyncDisposable
                     // Move to top.
                     if ( idx > 0 )
                     {
-                        var item = _conversations[idx];
+                        var item = _conversations [ idx ];
                         _conversations.RemoveAt( idx );
                         _conversations.Insert( 0 , item );
                     }
@@ -217,14 +217,19 @@ public partial class Chat : IAsyncDisposable
 
     private void UpdateConversationUnread( Guid conversationId , int? explicitCount )
     {
-        if ( _conversations is null ) return;
+        if ( _conversations is null )
+            return;
 
         var idx = _conversations.FindIndex( c => c.Id == conversationId );
-        if ( idx < 0 ) return;
+        if ( idx < 0 )
+            return;
 
-        var old = _conversations[idx];
+        var old = _conversations [ idx ];
         var newCount = explicitCount ?? ( old.UnreadCount + 1 );
-        _conversations[idx] = old with { UnreadCount = newCount };
+        _conversations [ idx ] = old with
+        {
+            UnreadCount = newCount
+        };
     }
 
     public async ValueTask DisposeAsync()
