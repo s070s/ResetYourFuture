@@ -71,8 +71,15 @@ LOCALIZED FULLY
 Register.razor
 Login.razor
 Navmenu.razor
-
-
+AdminAnalytics.razor
+AdminAssessmentEdit.razor
+AdminAssessments.razor
+AdminAssessmentSubmissions.razor
+AdminCourseEdit.razor
+AdminCourses.razor
+AdminLessonEdit.razor
+AdminUsers.razor
+AssessmentForm.razor
 
 
 WHAT IS INTENTIONALLY NOT BUILT (YET)

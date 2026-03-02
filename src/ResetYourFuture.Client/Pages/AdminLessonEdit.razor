@@ -2,24 +2,24 @@
 @using ResetYourFuture.Client.Shared
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Manage Lessons</PageTitle>
+<PageTitle>@AdminRes.ManageLessons</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Manage Lessons</h2>
-    <button class="btn btn-secondary" @onclick="GoBack">← Back to Course</button>
+    <h2>@AdminRes.ManageLessons</h2>
+    <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToCourse</button>
 </div>
 
 <div class="mb-3">
-    <button class="btn btn-success" @onclick="ShowAddLesson">+ Add Lesson</button>
+    <button class="btn btn-success" @onclick="ShowAddLesson">@AdminRes.AddLesson</button>
 </div>
 
 @if (lessons == null)
 {
-    <p>Loading...</p>
+    <p>@AdminRes.Loading</p>
 }
 else if (lessons.Count == 0)
 {
-    <p class="text-muted">No lessons in this module yet.</p>
+    <p class="text-muted">@AdminRes.NoLessons</p>
 }
 else
 {
@@ -31,24 +31,24 @@ else
                     <div>
                         <h6 class="mb-1">@lesson.Title</h6>
                         <small class="text-muted">
-                            Order: @lesson.SortOrder
+                            @string.Format(AdminRes.OrderFormat, lesson.SortOrder)
                             @if (lesson.DurationMinutes.HasValue)
                             {
-                                <text> · @lesson.DurationMinutes min</text>
+                                <text>@string.Format(AdminRes.MinutesFormat, lesson.DurationMinutes)</text>
                             }
                             @if (lesson.IsPublished)
                             {
-                                <span class="badge bg-success ms-1">Published</span>
+                                <span class="badge bg-success ms-1">@AdminRes.StatusPublished</span>
                             }
                             else
                             {
-                                <span class="badge bg-secondary ms-1">Draft</span>
+                                <span class="badge bg-secondary ms-1">@AdminRes.StatusDraft</span>
                             }
                         </small>
                     </div>
                     <div>
-                        <button class="btn btn-sm btn-primary" @onclick="() => ShowEditLesson(lesson)">Edit</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLesson(lesson.Id)">Delete</button>
+                        <button class="btn btn-sm btn-primary" @onclick="() => ShowEditLesson(lesson)">@AdminRes.Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteLesson(lesson.Id)">@AdminRes.Delete</button>
                     </div>
                 </div>
             </div>
@@ -63,60 +63,60 @@ else
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@(editingLessonId == null ? "Add Lesson" : "Edit Lesson")</h5>
+                    <h5 class="modal-title">@(editingLessonId == null ? AdminRes.AddLesson : AdminRes.EditLesson)</h5>
                     <button type="button" class="btn-close" @onclick="CloseLessonModal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Title</label>
+                            <label class="form-label">@AdminRes.FieldTitle</label>
                             <input class="form-control" @bind="lessonTitle" />
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Sort Order</label>
+                            <label class="form-label">@AdminRes.SortOrder</label>
                             <input type="number" class="form-control" @bind="lessonSortOrder" />
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Duration (minutes)</label>
+                            <label class="form-label">@AdminRes.DurationMinutes</label>
                             <input type="number" class="form-control" @bind="lessonDuration" />
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Content</label>
+                        <label class="form-label">@AdminRes.FieldContent</label>
                         <QuillEditor @ref="lessonContentEditor" Content="@lessonContent" MinHeight="300px" />
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Video URL (YouTube embed or direct link)</label>
+                        <label class="form-label">@AdminRes.VideoUrlLabel</label>
                         <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
-                        <small class="text-muted">Paste a YouTube embed URL or direct video link. This takes priority over uploaded files.</small>
+                        <small class="text-muted">@AdminRes.VideoUrlHint</small>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Upload PDF</label>
+                            <label class="form-label">@AdminRes.UploadPdf</label>
                             <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
                             @if (!string.IsNullOrEmpty(lessonPdfPath))
                             {
-                                <small class="text-success">Current: @lessonPdfPath</small>
+                                <small class="text-success">@AdminRes.Current @lessonPdfPath</small>
                             }
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Upload Video File</label>
+                            <label class="form-label">@AdminRes.UploadVideo</label>
                             <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
                             @if (!string.IsNullOrEmpty(lessonVideoPath))
                             {
-                                <small class="text-success">Current: @lessonVideoPath</small>
+                                <small class="text-success">@AdminRes.Current @lessonVideoPath</small>
                             }
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" @onclick="SaveLesson" disabled="@isSaving">
-                        @(isSaving ? "Saving..." : "Save Lesson")
+                        @(isSaving ? AdminRes.Saving : AdminRes.SaveLesson)
                     </button>
-                    <button class="btn btn-secondary" @onclick="CloseLessonModal">Cancel</button>
+                    <button class="btn btn-secondary" @onclick="CloseLessonModal">@AdminRes.Cancel</button>
                 </div>
             </div>
         </div>

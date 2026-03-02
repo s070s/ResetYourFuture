@@ -59,5 +59,59 @@ namespace ResetYourFuture.Shared.Resources {
                 resourceCulture = value;
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading...
+        /// </summary>
+        public static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment Submitted Successfully!
+        /// </summary>
+        public static string SubmittedTitle {
+            get {
+                return ResourceManager.GetString("SubmittedTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Thank you for completing the assessment.
+        /// </summary>
+        public static string SubmittedMessage {
+            get {
+                return ResourceManager.GetString("SubmittedMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View My Submissions.
+        /// </summary>
+        public static string ViewSubmissions {
+            get {
+                return ResourceManager.GetString("ViewSubmissions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to -- Select --.
+        /// </summary>
+        public static string SelectPlaceholder {
+            get {
+                return ResourceManager.GetString("SelectPlaceholder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Submit Assessment.
+        /// </summary>
+        public static string SubmitAssessment {
+            get {
+                return ResourceManager.GetString("SubmitAssessment", resourceCulture);
+            }
+        }
     }
 }

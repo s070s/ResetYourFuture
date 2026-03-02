@@ -1,17 +1,17 @@
 @page "/admin/assessments"
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Assessment Management</PageTitle>
+<PageTitle>@AdminRes.AssessmentManagement</PageTitle>
 
-<h2>Assessment Management</h2>
+<h2>@AdminRes.AssessmentManagement</h2>
 
 <div class="mb-3">
-    <button class="btn btn-primary" @onclick="CreateAssessment">Create New Assessment</button>
+    <button class="btn btn-primary" @onclick="CreateAssessment">@AdminRes.CreateNewAssessment</button>
 </div>
 
 @if (assessments == null)
 {
-    <p>Loading...</p>
+    <p>@AdminRes.Loading</p>
 }
 else
 {
@@ -19,11 +19,11 @@ else
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Key</th>
-                    <th>Status</th>
-                    <th>Submissions</th>
-                    <th>Actions</th>
+                    <th>@AdminRes.FieldTitle</th>
+                    <th>@AdminRes.FieldKey</th>
+                    <th>@AdminRes.ColStatus</th>
+                    <th>@AdminRes.ColSubmissions</th>
+                    <th>@AdminRes.ColActions</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,22 +34,22 @@ else
                         <td>@assessment.Key</td>
                         <td>
                             <span class="badge @(assessment.IsPublished ? "bg-success" : "bg-secondary")">
-                                @(assessment.IsPublished ? "Published" : "Draft")
+                                @(assessment.IsPublished ? AdminRes.StatusPublished : AdminRes.StatusDraft)
                             </span>
                         </td>
                         <td>@assessment.SubmissionCount</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">Edit</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">@AdminRes.Edit</button>
                             @if (assessment.IsPublished)
                             {
-                                <button class="btn btn-sm btn-warning" @onclick="() => UnpublishAssessment(assessment.Id)">Unpublish</button>
+                                <button class="btn btn-sm btn-warning" @onclick="() => UnpublishAssessment(assessment.Id)">@AdminRes.Unpublish</button>
                             }
                             else
                             {
-                                <button class="btn btn-sm btn-success" @onclick="() => PublishAssessment(assessment.Id)">Publish</button>
+                                <button class="btn btn-sm btn-success" @onclick="() => PublishAssessment(assessment.Id)">@AdminRes.Publish</button>
                             }
-                            <button class="btn btn-sm btn-info" @onclick="() => ViewSubmissions(assessment.Id)">Submissions</button>
-                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAssessment(assessment.Id)">Delete</button>
+                            <button class="btn btn-sm btn-info" @onclick="() => ViewSubmissions(assessment.Id)">@AdminRes.ColSubmissions</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteAssessment(assessment.Id)">@AdminRes.Delete</button>
                         </td>
                     </tr>
                 }

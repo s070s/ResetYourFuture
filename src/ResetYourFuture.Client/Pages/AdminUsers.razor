@@ -1,24 +1,24 @@
 @page "/admin/users"
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>User Management</PageTitle>
+<PageTitle>@AdminRes.UserManagement</PageTitle>
 
 <div class="admin-container">
-    <h2>User Management</h2>
+    <h2>@AdminRes.UserManagement</h2>
 
     <div class="mb-3">
-        <input type="text" class="form-control" placeholder="Search by email or name..." @bind="searchTerm" @bind:event="oninput" />
+        <input type="text" class="form-control" placeholder="@AdminRes.SearchByEmailOrName" @bind="searchTerm" @bind:event="oninput" />
     </div>
 
     <AuthorizeView Roles="Admin">
         <Authorized>
             @if (users == null)
             {
-                <p>Loading users...</p>
+                <p>@AdminRes.LoadingUsers</p>
             }
             else if (!filteredUsers.Any())
             {
-                <p>No users found.</p>
+                <p>@AdminRes.NoUsersFound</p>
             }
             else
             {
@@ -26,11 +26,11 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Email</th>
-                                <th>Name</th>
-                                <th>Enabled</th>
-                                <th>Roles</th>
-                                <th>Actions</th>
+                                <th>@AdminRes.ColEmail</th>
+                                <th>@AdminRes.ColName</th>
+                                <th>@AdminRes.ColEnabled</th>
+                                <th>@AdminRes.ColRoles</th>
+                                <th>@AdminRes.ColActions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -44,25 +44,25 @@
                                     <td>
                                         @if (user.Roles.Contains("Student"))
                                         {
-                                            <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">Login As</button>
+                                            <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
                                         }
-                                        <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">Reset Password</button>
+                                        <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">@AdminRes.ResetPassword</button>
                                         @if (user.IsEnabled)
                                         {
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">Disable</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
                                         }
                                         else
                                         {
-                                            <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">Enable</button>
+                                            <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
                                         }
                                         @if (confirmDeleteId == user.Id)
                                         {
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">Confirm Delete</button>
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">Cancel</button>
+                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
+                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
                                         }
                                         else
                                         {
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">Delete</button>
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
                                         }
                                     </td>
                                 </tr>
@@ -79,7 +79,7 @@
         </Authorized>
         <NotAuthorized>
             <div class="alert alert-danger">
-                Access denied. Admin role required.
+                @AdminRes.AccessDenied
             </div>
         </NotAuthorized>
     </AuthorizeView>

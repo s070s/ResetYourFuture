@@ -5,14 +5,14 @@
 
 @if (assessment == null)
 {
-    <p>Loading...</p>
+    <p>@AssessmentRes.Loading</p>
 }
 else if (submitted)
 {
     <div class="alert alert-success">
-        <h4>Assessment Submitted Successfully!</h4>
-        <p>Thank you for completing the assessment.</p>
-        <button class="btn btn-primary" @onclick="ViewHistory">View My Submissions</button>
+        <h4>@AssessmentRes.SubmittedTitle</h4>
+        <p>@AssessmentRes.SubmittedMessage</p>
+        <button class="btn btn-primary" @onclick="ViewHistory">@AssessmentRes.ViewSubmissions</button>
     </div>
 }
 else
@@ -39,7 +39,7 @@ else
                     else if (question.Type is "choice" or "single-select")
                     {
                         <select class="form-select" @bind="answers[question.Id]">
-                            <option value="">-- Select --</option>
+                            <option value="">@AssessmentRes.SelectPlaceholder</option>
                             @foreach (var option in question.Options ?? new List<string>())
                             {
                                 <option value="@option">@option</option>
@@ -79,7 +79,7 @@ else
             }
         }
 
-        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">Submit Assessment</button>
+        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">@AssessmentRes.SubmitAssessment</button>
     </EditForm>
 }
 

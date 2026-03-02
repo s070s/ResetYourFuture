@@ -3,34 +3,34 @@
 @using ResetYourFuture.Client.Shared
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>@(IsNew ? "Create Assessment" : "Edit Assessment")</PageTitle>
+<PageTitle>@(IsNew ? AdminRes.CreateAssessment : AdminRes.EditAssessment)</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>@(IsNew ? "Create Assessment" : "Edit Assessment")</h2>
-    <button class="btn btn-secondary" @onclick="GoBack">← Back to Assessments</button>
+    <h2>@(IsNew ? AdminRes.CreateAssessment : AdminRes.EditAssessment)</h2>
+    <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToAssessments</button>
 </div>
 
 @if (!IsNew && loading)
 {
-    <p>Loading...</p>
+    <p>@AdminRes.Loading</p>
 }
 else
 {
     <div class="card mb-4">
-        <div class="card-header">Assessment Details</div>
+        <div class="card-header">@AdminRes.AssessmentDetails</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Key <small class="text-muted">(unique identifier, e.g. career_clarity_v1)</small></label>
+                    <label class="form-label">@AdminRes.FieldKey <small class="text-muted">(@AdminRes.FieldKeyHint)</small></label>
                     <input class="form-control" @bind="assessmentKey" placeholder="my_assessment_v1" />
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Title</label>
+                    <label class="form-label">@AdminRes.FieldTitle</label>
                     <input class="form-control" @bind="assessmentTitle" />
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label">Description</label>
+                <label class="form-label">@AdminRes.FieldDescription</label>
                 <QuillEditor @ref="descriptionEditor" Content="@assessmentDescription" MinHeight="120px" />
             </div>
         </div>
@@ -38,13 +38,13 @@ else
 
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Questions</span>
-            <button class="btn btn-sm btn-success" @onclick="AddQuestion">+ Add Question</button>
+            <span>@AdminRes.Questions</span>
+            <button class="btn btn-sm btn-success" @onclick="AddQuestion">@AdminRes.AddQuestion</button>
         </div>
         <div class="card-body">
             @if (questions.Count == 0)
             {
-                <p class="text-muted">No questions yet. Click "Add Question" to start building your assessment.</p>
+                <p class="text-muted">@AdminRes.NoQuestions</p>
             }
             else
             {
@@ -55,56 +55,56 @@ else
                     <div class="card mb-3 border-start border-primary border-3" @key="q.TempId">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <strong>Question @(index + 1)</strong>
+                                <strong>@string.Format(AdminRes.QuestionNumber, index + 1)</strong>
                                 <div>
                                     @if (index > 0)
                                     {
-                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, -1)" title="Move up">↑</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, -1)" title="@AdminRes.MoveUp">↑</button>
                                     }
                                     @if (index < questions.Count - 1)
                                     {
-                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, 1)" title="Move down">↓</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, 1)" title="@AdminRes.MoveDown">↓</button>
                                     }
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveQuestion(index)" title="Remove">✕</button>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveQuestion(index)" title="@AdminRes.Remove">✕</button>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6 mb-2">
-                                    <label class="form-label">Question ID</label>
+                                    <label class="form-label">@AdminRes.QuestionId</label>
                                     <input class="form-control form-control-sm" @bind="q.Id" placeholder="q1" />
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <label class="form-label">Type</label>
+                                    <label class="form-label">@AdminRes.FieldType</label>
                                     <select class="form-select form-select-sm" @bind="q.Type">
-                                        <option value="text">Text (free input)</option>
-                                        <option value="rating">Rating (scale)</option>
-                                        <option value="choice">Choice (select one)</option>
+                                        <option value="text">@AdminRes.TypeText</option>
+                                        <option value="rating">@AdminRes.TypeRating</option>
+                                        <option value="choice">@AdminRes.TypeChoice</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-2">
-                                    <label class="form-label">Required</label>
+                                    <label class="form-label">@AdminRes.FieldRequired</label>
                                     <select class="form-select form-select-sm" @bind="q.Required">
-                                        <option value="true">Yes</option>
-                                        <option value="false">No</option>
+                                        <option value="true">@AdminRes.Yes</option>
+                                        <option value="false">@AdminRes.No</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="mb-2">
-                                <label class="form-label">Label / Question Text</label>
-                                <input class="form-control form-control-sm" @bind="q.Label" placeholder="Enter the question text..." />
+                                <label class="form-label">@AdminRes.QuestionLabel</label>
+                                <input class="form-control form-control-sm" @bind="q.Label" placeholder="@AdminRes.QuestionLabelPlaceholder" />
                             </div>
 
                             @if (q.Type == "rating")
                             {
                                 <div class="row">
                                     <div class="col-md-6 mb-2">
-                                        <label class="form-label">Min</label>
+                                        <label class="form-label">@AdminRes.FieldMin</label>
                                         <input type="number" class="form-control form-control-sm" @bind="q.Min" />
                                     </div>
                                     <div class="col-md-6 mb-2">
-                                        <label class="form-label">Max</label>
+                                        <label class="form-label">@AdminRes.FieldMax</label>
                                         <input type="number" class="form-control form-control-sm" @bind="q.Max" />
                                     </div>
                                 </div>
@@ -113,7 +113,7 @@ else
                             @if (q.Type == "choice")
                             {
                                 <div class="mb-2">
-                                    <label class="form-label">Options <small class="text-muted">(one per line)</small></label>
+                                    <label class="form-label">@AdminRes.FieldOptions <small class="text-muted">(@AdminRes.FieldOptionsHint)</small></label>
                                     <textarea class="form-control form-control-sm" rows="4"
                                               @bind="q.OptionsText"
                                               placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
@@ -127,7 +127,7 @@ else
     </div>
 
     <div class="card mb-4">
-        <div class="card-header">Schema Preview</div>
+        <div class="card-header">@AdminRes.SchemaPreview</div>
         <div class="card-body">
             <pre class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto; font-size: 0.85rem;">@GenerateSchemaJson()</pre>
         </div>
@@ -135,9 +135,9 @@ else
 
     <div class="mb-4">
         <button class="btn btn-primary" @onclick="SaveAssessment" disabled="@isSaving">
-            @(isSaving ? "Saving..." : "Save Assessment")
+            @(isSaving ? AdminRes.Saving : AdminRes.SaveAssessment)
         </button>
-        <button class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+        <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.Cancel</button>
     </div>
 }
 

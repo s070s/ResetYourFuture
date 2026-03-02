@@ -1,13 +1,13 @@
 @page "/admin/analytics"
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Analytics</PageTitle>
+<PageTitle>@AdminRes.PageTitle</PageTitle>
 
-<h2>Analytics Dashboard</h2>
+<h2>@AdminRes.PageTitle</h2>
 
 @if (stats == null)
 {
-    <p>Loading...</p>
+    <p>@AdminRes.Loading</p>
 }
 else
 {
@@ -16,7 +16,7 @@ else
             <div class="card">
                 <div class="card-body text-center">
                     <h3>@stats.TotalUsers</h3>
-                    <p>Total Users</p>
+                    <p>@AdminRes.TotalUsers</p>
                 </div>
             </div>
         </div>
@@ -24,7 +24,7 @@ else
             <div class="card">
                 <div class="card-body text-center">
                     <h3>@stats.ActiveUsers</h3>
-                    <p>Active Users</p>
+                    <p>@AdminRes.ActiveUsers</p>
                 </div>
             </div>
         </div>
@@ -32,7 +32,7 @@ else
             <div class="card">
                 <div class="card-body text-center">
                     <h3>@stats.TotalEnrollments</h3>
-                    <p>Total Enrollments</p>
+                    <p>@AdminRes.TotalEnrollments</p>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@ else
             <div class="card">
                 <div class="card-body text-center">
                     <h3>@stats.CompletedCourses</h3>
-                    <p>Completed Courses</p>
+                    <p>@AdminRes.CompletedCourses</p>
                 </div>
             </div>
         </div>
@@ -50,7 +50,7 @@ else
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Course Enrollment Stats</h5>
+                    <h5>@AdminRes.CourseEnrollmentStats</h5>
                 </div>
                 <div class="card-body">
                     @if (stats.CourseStats != null && stats.CourseStats.Any())
@@ -58,9 +58,9 @@ else
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Course</th>
-                                    <th>Enrollments</th>
-                                    <th>Completions</th>
+                                    <th>@AdminRes.ColCourse</th>
+                                    <th>@AdminRes.ColEnrollments</th>
+                                    <th>@AdminRes.ColCompletions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,7 +77,7 @@ else
                     }
                     else
                     {
-                        <p>No course data available</p>
+                        <p>@AdminRes.NoCourseData</p>
                     }
                 </div>
             </div>
@@ -86,7 +86,7 @@ else
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Assessment Stats</h5>
+                    <h5>@AdminRes.AssessmentStats</h5>
                 </div>
                 <div class="card-body">
                     @if (stats.AssessmentStats != null && stats.AssessmentStats.Any())
@@ -94,8 +94,8 @@ else
                         <table class="table table-sm">
                             <thead>
                                 <tr>
-                                    <th>Assessment</th>
-                                    <th>Submissions</th>
+                                    <th>@AdminRes.ColAssessment</th>
+                                    <th>@AdminRes.ColSubmissions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -111,11 +111,10 @@ else
                     }
                     else
                     {
-                        <p>No assessment data available</p>
+                        <p>@AdminRes.NoAssessmentData</p>
                     }
                 </div>
             </div>
         </div>
     </div>
 }
-

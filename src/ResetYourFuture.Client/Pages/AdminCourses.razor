@@ -1,21 +1,21 @@
 @page "/admin/courses"
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Course Management</PageTitle>
+<PageTitle>@AdminRes.CourseManagement</PageTitle>
 
-<h2>Course Management</h2>
+<h2>@AdminRes.CourseManagement</h2>
 
 <div class="mb-3">
-    <button class="btn btn-primary" @onclick="CreateCourse">Create New Course</button>
+    <button class="btn btn-primary" @onclick="CreateCourse">@AdminRes.CreateNewCourse</button>
 </div>
 
 @if (courses == null)
 {
-    <p>Loading...</p>
+    <p>@AdminRes.Loading</p>
 }
 else if (courses.Count == 0)
 {
-    <p>No courses found.</p>
+    <p>@AdminRes.NoCourses</p>
 }
 else
 {
@@ -23,10 +23,10 @@ else
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Enrollments</th>
-                    <th>Actions</th>
+                    <th>@AdminRes.FieldTitle</th>
+                    <th>@AdminRes.ColStatus</th>
+                    <th>@AdminRes.ColEnrollments</th>
+                    <th>@AdminRes.ColActions</th>
                 </tr>
             </thead>
             <tbody>
@@ -36,21 +36,21 @@ else
                         <td>@course.Title</td>
                         <td>
                             <span class="badge @(course.IsPublished ? "bg-success" : "bg-secondary")">
-                                @(course.IsPublished ? "Published" : "Draft")
+                                @(course.IsPublished ? AdminRes.StatusPublished : AdminRes.StatusDraft)
                             </span>
                         </td>
                         <td>@course.EnrollmentCount</td>
                         <td>
-                            <button class="btn btn-sm btn-primary" @onclick="() => EditCourse(course.Id)">Edit</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditCourse(course.Id)">@AdminRes.Edit</button>
                             @if (course.IsPublished)
                             {
-                                <button class="btn btn-sm btn-warning" @onclick="() => UnpublishCourse(course.Id)">Unpublish</button>
+                                <button class="btn btn-sm btn-warning" @onclick="() => UnpublishCourse(course.Id)">@AdminRes.Unpublish</button>
                             }
                             else
                             {
-                                <button class="btn btn-sm btn-success" @onclick="() => PublishCourse(course.Id)">Publish</button>
+                                <button class="btn btn-sm btn-success" @onclick="() => PublishCourse(course.Id)">@AdminRes.Publish</button>
                             }
-                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.Id)">Delete</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.Id)">@AdminRes.Delete</button>
                         </td>
                     </tr>
                 }
