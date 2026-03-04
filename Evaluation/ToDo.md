@@ -80,6 +80,16 @@ AdminCourses.razor
 AdminLessonEdit.razor
 AdminUsers.razor
 AssessmentForm.razor
+AssessmentHistory.razor
+Assessments.razor
+Billing.razor
+Chat.razor
+CourseDetail.razor
+Courses.razor
+Disabled.razor
+ForgotPassword.razor
+Home.razor
+AvatarDropdown.razor
 
 
 WHAT IS INTENTIONALLY NOT BUILT (YET)
