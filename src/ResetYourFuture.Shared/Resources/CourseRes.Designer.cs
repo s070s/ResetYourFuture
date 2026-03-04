@@ -59,5 +59,149 @@ namespace ResetYourFuture.Shared.Resources {
                 resourceCulture = value;
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Course.
+        /// </summary>
+        public static string CourseDefault {
+            get {
+                return ResourceManager.GetString("CourseDefault", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading course...
+        /// </summary>
+        public static string LoadingCourse {
+            get {
+                return ResourceManager.GetString("LoadingCourse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ← Back to Courses.
+        /// </summary>
+        public static string BackToCourses {
+            get {
+                return ResourceManager.GetString("BackToCourses", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Course not found.
+        /// </summary>
+        public static string CourseNotFound {
+            get {
+                return ResourceManager.GetString("CourseNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} / {1} lessons completed ({2}%).
+        /// </summary>
+        public static string ProgressFormat {
+            get {
+                return ResourceManager.GetString("ProgressFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 🎉 Course Completed!
+        /// </summary>
+        public static string CourseCompleted {
+            get {
+                return ResourceManager.GetString("CourseCompleted", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enrolling...
+        /// </summary>
+        public static string Enrolling {
+            get {
+                return ResourceManager.GetString("Enrolling", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enroll in This Course.
+        /// </summary>
+        public static string EnrollInThisCourse {
+            get {
+                return ResourceManager.GetString("EnrollInThisCourse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to min.
+        /// </summary>
+        public static string MinutesShort {
+            get {
+                return ResourceManager.GetString("MinutesShort", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Courses - Reset Your Future.
+        /// </summary>
+        public static string CoursesPageTitle {
+            get {
+                return ResourceManager.GetString("CoursesPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Available Courses.
+        /// </summary>
+        public static string AvailableCourses {
+            get {
+                return ResourceManager.GetString("AvailableCourses", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading courses...
+        /// </summary>
+        public static string LoadingCourses {
+            get {
+                return ResourceManager.GetString("LoadingCourses", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No courses available at the moment.
+        /// </summary>
+        public static string NoCoursesAvailable {
+            get {
+                return ResourceManager.GetString("NoCoursesAvailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} lessons.
+        /// </summary>
+        public static string LessonsCountFormat {
+            get {
+                return ResourceManager.GetString("LessonsCountFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✓ Enrolled.
+        /// </summary>
+        public static string Enrolled {
+            get {
+                return ResourceManager.GetString("Enrolled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 🔒 Upgrade to {0}.
+        /// </summary>
+        public static string UpgradeToFormat {
+            get {
+                return ResourceManager.GetString("UpgradeToFormat", resourceCulture);
+            }
+        }
     }
 }

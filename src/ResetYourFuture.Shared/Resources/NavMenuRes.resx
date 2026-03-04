@@ -141,4 +141,19 @@
   <data name="Users" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="UserMenuTitle" xml:space="preserve">
+    <value>User menu</value>
+  </data>
+  <data name="AvatarAlt" xml:space="preserve">
+    <value>Avatar</value>
+  </data>
+  <data name="UserProfile" xml:space="preserve">
+    <value>User Profile</value>
+  </data>
+  <data name="ImpersonatingHint" xml:space="preserve">
+    <value>Use 'Exit Impersonation' to stop</value>
+  </data>
+  <data name="LogOut" xml:space="preserve">
+    <value>Log Out</value>
+  </data>
 </root>

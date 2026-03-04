@@ -116,4 +116,46 @@
 	<data name="SubmitAssessment" xml:space="preserve">
 		<value>Υποβολή Αξιολόγησης</value>
 	</data>
+	<data name="HistoryTitle" xml:space="preserve">
+		<value>Οι Υποβολές Αξιολόγησης μου</value>
+	</data>
+	<data name="NoSubmissionsMessage" xml:space="preserve">
+		<value>Δεν έχετε υποβάλει αξιολογήσεις ακόμα.</value>
+	</data>
+	<data name="TakeAssessment" xml:space="preserve">
+		<value>Κάντε μια Αξιολόγηση</value>
+	</data>
+	<data name="LatestSubmission" xml:space="preserve">
+		<value>Τελευταία Υποβολή</value>
+	</data>
+	<data name="SubmittedLabel" xml:space="preserve">
+		<value>Υποβλήθηκε:</value>
+	</data>
+	<data name="ViewDetails" xml:space="preserve">
+		<value>Προβολή Λεπτομερειών</value>
+	</data>
+	<data name="AllSubmissions" xml:space="preserve">
+		<value>Όλες οι Υποβολές</value>
+	</data>
+	<data name="AssessmentHeader" xml:space="preserve">
+		<value>Αξιολόγηση</value>
+	</data>
+	<data name="SubmittedHeader" xml:space="preserve">
+		<value>Υποβολή</value>
+	</data>
+	<data name="Actions" xml:space="preserve">
+		<value>Ενέργειες</value>
+	</data>
+	<data name="ViewButton" xml:space="preserve">
+		<value>Προβολή</value>
+	</data>
+	<data name="YourAnswers" xml:space="preserve">
+		<value>Οι Απαντήσεις σας:</value>
+	</data>
+	<data name="SummaryLabel" xml:space="preserve">
+		<value>Σύνοψη:</value>
+	</data>
+	<data name="Close" xml:space="preserve">
+		<value>Κλείσιμο</value>
+	</data>
 </root>

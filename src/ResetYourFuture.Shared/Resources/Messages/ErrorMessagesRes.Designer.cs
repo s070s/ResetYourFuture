@@ -95,5 +95,41 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("LoginError", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account Disabled.
+        /// </summary>
+        public static string AccountDisabled {
+            get {
+                return ResourceManager.GetString("AccountDisabled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been disabled by an administrator.
+        /// </summary>
+        public static string AccountDisabledMessage {
+            get {
+                return ResourceManager.GetString("AccountDisabledMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to If you believe this is a mistake, please contact support for assistance.
+        /// </summary>
+        public static string AccountDisabledContact {
+            get {
+                return ResourceManager.GetString("AccountDisabledContact", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Back to Login.
+        /// </summary>
+        public static string BackToLogin {
+            get {
+                return ResourceManager.GetString("BackToLogin", resourceCulture);
+            }
+        }
     }
 }

@@ -129,4 +129,16 @@
   <data name="LoginError" xml:space="preserve">
     <value>Login Error</value>
   </data>
+  <data name="AccountDisabled" xml:space="preserve">
+    <value>Account Disabled</value>
+  </data>
+  <data name="AccountDisabledMessage" xml:space="preserve">
+    <value>Your account has been disabled by an administrator.</value>
+  </data>
+  <data name="AccountDisabledContact" xml:space="preserve">
+    <value>If you believe this is a mistake, please contact support for assistance.</value>
+  </data>
+  <data name="BackToLogin" xml:space="preserve">
+    <value>Back to Login</value>
+  </data>
 </root>

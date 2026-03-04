@@ -113,5 +113,131 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("SubmitAssessment", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to My Assessment Submissions.
+        /// </summary>
+        public static string HistoryTitle {
+            get {
+                return ResourceManager.GetString("HistoryTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You haven't submitted any assessments yet.
+        /// </summary>
+        public static string NoSubmissionsMessage {
+            get {
+                return ResourceManager.GetString("NoSubmissionsMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Take an Assessment.
+        /// </summary>
+        public static string TakeAssessment {
+            get {
+                return ResourceManager.GetString("TakeAssessment", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Latest Submission.
+        /// </summary>
+        public static string LatestSubmission {
+            get {
+                return ResourceManager.GetString("LatestSubmission", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Submitted:.
+        /// </summary>
+        public static string SubmittedLabel {
+            get {
+                return ResourceManager.GetString("SubmittedLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View Details.
+        /// </summary>
+        public static string ViewDetails {
+            get {
+                return ResourceManager.GetString("ViewDetails", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to All Submissions.
+        /// </summary>
+        public static string AllSubmissions {
+            get {
+                return ResourceManager.GetString("AllSubmissions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment.
+        /// </summary>
+        public static string AssessmentHeader {
+            get {
+                return ResourceManager.GetString("AssessmentHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Submitted.
+        /// </summary>
+        public static string SubmittedHeader {
+            get {
+                return ResourceManager.GetString("SubmittedHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Actions.
+        /// </summary>
+        public static string Actions {
+            get {
+                return ResourceManager.GetString("Actions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to View.
+        /// </summary>
+        public static string ViewButton {
+            get {
+                return ResourceManager.GetString("ViewButton", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your Answers:.
+        /// </summary>
+        public static string YourAnswers {
+            get {
+                return ResourceManager.GetString("YourAnswers", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Summary:.
+        /// </summary>
+        public static string SummaryLabel {
+            get {
+                return ResourceManager.GetString("SummaryLabel", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
     }
 }

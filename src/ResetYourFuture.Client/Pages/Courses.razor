@@ -1,13 +1,13 @@
 @page "/courses"
 @attribute [Authorize]
 
-<PageTitle>Courses - Reset Your Future</PageTitle>
+<PageTitle>@CourseRes.CoursesPageTitle</PageTitle>
 
-<h1>Available Courses</h1>
+<h1>@CourseRes.AvailableCourses</h1>
 
 @if (_loading)
 {
-    <p>Loading courses...</p>
+    <p>@CourseRes.LoadingCourses</p>
 }
 else if (_error is not null)
 {
@@ -15,7 +15,7 @@ else if (_error is not null)
 }
 else if (_courses.Count == 0)
 {
-    <p>No courses available at the moment.</p>
+    <p>@CourseRes.NoCoursesAvailable</p>
 }
 else
 {
@@ -39,15 +39,15 @@ else
                     <p class="description">@course.Description</p>
                 }
                 <div class="meta">
-                    <span class="lessons">@course.TotalLessons lessons</span>
+                    <span class="lessons">@string.Format(CourseRes.LessonsCountFormat, course.TotalLessons)</span>
                     @if (course.IsEnrolled)
                     {
-                        <span class="enrolled-badge">✓ Enrolled</span>
+                        <span class="enrolled-badge">@CourseRes.Enrolled</span>
                     }
                     @if (isLocked)
                     {
                         <span class="locked-badge" @onclick:stopPropagation="true" @onclick="GoToPricing">
-                            🔒 Upgrade to @course.RequiredTier
+                            @string.Format(CourseRes.UpgradeToFormat, course.RequiredTier)
                         </span>
                     }
                 </div>

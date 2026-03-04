@@ -27,6 +27,20 @@
       <DependentUpon>AdminRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Billing -->
+    <EmbeddedResource Update="Resources\BillingRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>BillingRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\BillingRes.el.resx">
+      <DependentUpon>BillingRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\BillingRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BillingRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Assessment -->
     <EmbeddedResource Update="Resources\AssessmentRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -39,6 +53,20 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>AssessmentRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Chat -->
+    <EmbeddedResource Update="Resources\ChatRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ChatRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\ChatRes.el.resx">
+      <DependentUpon>ChatRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\ChatRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChatRes.resx</DependentUpon>
     </Compile>
 
     <!-- Course -->

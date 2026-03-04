@@ -1,17 +1,17 @@
 @page "/assessments/mine"
 @attribute [Authorize(Roles = "Student")]
 
-<h3>My Assessment Submissions</h3>
+<h3>@AssessmentRes.HistoryTitle</h3>
 
 @if (submissions == null)
 {
-    <p>Loading...</p>
+    <p>@AssessmentRes.Loading</p>
 }
 else if (submissions.Count == 0)
 {
     <div class="alert alert-info">
-        <p>You haven't submitted any assessments yet.</p>
-        <a href="/assessments" class="btn btn-primary">Take an Assessment</a>
+        <p>@AssessmentRes.NoSubmissionsMessage</p>
+        <a href="/assessments" class="btn btn-primary">@AssessmentRes.TakeAssessment</a>
     </div>
 }
 else
@@ -20,24 +20,24 @@ else
     {
         <div class="card mb-4 border-primary">
             <div class="card-header bg-primary text-white">
-                <h5>Latest Submission</h5>
+                <h5>@AssessmentRes.LatestSubmission</h5>
             </div>
             <div class="card-body">
                 <h6 class="card-title">@latestSubmission.AssessmentTitle</h6>
-                <p class="text-muted">Submitted: @latestSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
-                <button class="btn btn-primary" @onclick="() => ViewSubmission(latestSubmission.Id)">View Details</button>
+                <p class="text-muted">@AssessmentRes.SubmittedLabel @latestSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+                <button class="btn btn-primary" @onclick="() => ViewSubmission(latestSubmission.Id)">@AssessmentRes.ViewDetails</button>
             </div>
         </div>
     }
 
-    <h4>All Submissions</h4>
+    <h4>@AssessmentRes.AllSubmissions</h4>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Assessment</th>
-                    <th>Submitted</th>
-                    <th>Actions</th>
+                    <th>@AssessmentRes.AssessmentHeader</th>
+                    <th>@AssessmentRes.SubmittedHeader</th>
+                    <th>@AssessmentRes.Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,7 +47,7 @@ else
                         <td>@submission.AssessmentTitle</td>
                         <td>@submission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">View</button>
+                            <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
                         </td>
                     </tr>
                 }
@@ -66,8 +66,8 @@ else
                     <button type="button" class="btn-close" @onclick="CloseModal"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Submitted:</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
-                    <h6>Your Answers:</h6>
+                    <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+                    <h6>@AssessmentRes.YourAnswers</h6>
                     @{ var parsed = ParseAnswers(selectedSubmission.AnswersJson); }
                     @if (parsed.Count > 0)
                     {
@@ -86,12 +86,12 @@ else
                     @if (!string.IsNullOrEmpty(selectedSubmission.SummaryJson))
                     {
                         <hr />
-                        <h6>Summary:</h6>
+                        <h6>@AssessmentRes.SummaryLabel</h6>
                         <pre class="mb-0">@selectedSubmission.SummaryJson</pre>
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">@AssessmentRes.Close</button>
                 </div>
             </div>
         </div>

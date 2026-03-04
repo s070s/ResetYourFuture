@@ -141,4 +141,19 @@
   <data name="Users" xml:space="preserve">
     <value>Χρήστες</value>
   </data>
+  <data name="UserMenuTitle" xml:space="preserve">
+    <value>Μενού χρήστη</value>
+  </data>
+  <data name="AvatarAlt" xml:space="preserve">
+    <value>Εικόνα προφίλ</value>
+  </data>
+  <data name="UserProfile" xml:space="preserve">
+    <value>Προφίλ Χρήστη</value>
+  </data>
+  <data name="ImpersonatingHint" xml:space="preserve">
+    <value>Χρησιμοποιήστε 'Έξοδος Υποκατάστασης' για να σταματήσετε</value>
+  </data>
+  <data name="LogOut" xml:space="preserve">
+    <value>Αποσύνδεση</value>
+  </data>
 </root>

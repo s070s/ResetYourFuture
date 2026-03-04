@@ -98,4 +98,52 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+	<data name="CourseDefault" xml:space="preserve">
+		<value>Course</value>
+	</data>
+	<data name="LoadingCourse" xml:space="preserve">
+		<value>Loading course...</value>
+	</data>
+	<data name="BackToCourses" xml:space="preserve">
+		<value>← Back to Courses</value>
+	</data>
+	<data name="CourseNotFound" xml:space="preserve">
+		<value>Course not found.</value>
+	</data>
+	<data name="ProgressFormat" xml:space="preserve">
+		<value>{0} / {1} lessons completed ({2}%)</value>
+	</data>
+	<data name="CourseCompleted" xml:space="preserve">
+		<value>🎉 Course Completed!</value>
+	</data>
+	<data name="Enrolling" xml:space="preserve">
+		<value>Enrolling...</value>
+	</data>
+	<data name="EnrollInThisCourse" xml:space="preserve">
+		<value>Enroll in This Course</value>
+	</data>
+	<data name="MinutesShort" xml:space="preserve">
+		<value>min</value>
+	</data>
+	<data name="CoursesPageTitle" xml:space="preserve">
+		<value>Courses - Reset Your Future</value>
+	</data>
+	<data name="AvailableCourses" xml:space="preserve">
+		<value>Available Courses</value>
+	</data>
+	<data name="LoadingCourses" xml:space="preserve">
+		<value>Loading courses...</value>
+	</data>
+	<data name="NoCoursesAvailable" xml:space="preserve">
+		<value>No courses available at the moment.</value>
+	</data>
+	<data name="LessonsCountFormat" xml:space="preserve">
+		<value>{0} lessons</value>
+	</data>
+	<data name="Enrolled" xml:space="preserve">
+		<value>✓ Enrolled</value>
+	</data>
+	<data name="UpgradeToFormat" xml:space="preserve">
+		<value>🔒 Upgrade to {0}</value>
+	</data>
 </root>

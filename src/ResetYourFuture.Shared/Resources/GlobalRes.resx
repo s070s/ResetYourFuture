@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Label_Info_Age" xml:space="preserve">
-    <value>Age</value>
-  </data>
-  <data name="Label_Analytics" xml:space="preserve">
-    <value>Analytics</value>
-  </data>
   <data name="Label_ConfirmEmail" xml:space="preserve">
     <value>Confirm Email</value>
   </data>
@@ -162,7 +156,25 @@
   <data name="Label_RememberMe" xml:space="preserve">
     <value>Remember Me</value>
   </data>
-  <data name="Label_Users" xml:space="preserve">
-    <value>Users</value>
+  <data name="ForgotPasswordTitle" xml:space="preserve">
+    <value>Forgot Password</value>
+  </data>
+  <data name="ForgotPasswordInstructions" xml:space="preserve">
+    <value>Enter your email address and we'll send you a password reset link.</value>
+  </data>
+  <data name="Label_DevMode" xml:space="preserve">
+    <value>Dev Mode:</value>
+  </data>
+  <data name="Label_NewPassword" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="Label_DevResetPassword" xml:space="preserve">
+    <value>Dev: Reset Password</value>
+  </data>
+  <data name="Label_Sending" xml:space="preserve">
+    <value>Sending...</value>
+  </data>
+  <data name="Label_SendResetLink" xml:space="preserve">
+    <value>Send Reset Link</value>
   </data>
 </root>

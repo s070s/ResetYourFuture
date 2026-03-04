@@ -61,15 +61,6 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Analytics.
-        /// </summary>
-        public static string Label_Analytics {
-            get {
-                return ResourceManager.GetString("Label_Analytics", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Confirm Email.
         /// </summary>
         public static string Label_ConfirmEmail {
@@ -93,15 +84,6 @@ namespace ResetYourFuture.Shared.Resources {
         public static string Label_ForgotPassword {
             get {
                 return ResourceManager.GetString("Label_ForgotPassword", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Age.
-        /// </summary>
-        public static string Label_Info_Age {
-            get {
-                return ResourceManager.GetString("Label_Info_Age", resourceCulture);
             }
         }
         
@@ -196,11 +178,65 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Users.
+        ///   Looks up a localized string similar to Forgot Password.
         /// </summary>
-        public static string Label_Users {
+        public static string ForgotPasswordTitle {
             get {
-                return ResourceManager.GetString("Label_Users", resourceCulture);
+                return ResourceManager.GetString("ForgotPasswordTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter your email address and we'll send you a password reset link.
+        /// </summary>
+        public static string ForgotPasswordInstructions {
+            get {
+                return ResourceManager.GetString("ForgotPasswordInstructions", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Dev Mode:.
+        /// </summary>
+        public static string Label_DevMode {
+            get {
+                return ResourceManager.GetString("Label_DevMode", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New password.
+        /// </summary>
+        public static string Label_NewPassword {
+            get {
+                return ResourceManager.GetString("Label_NewPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Dev: Reset Password.
+        /// </summary>
+        public static string Label_DevResetPassword {
+            get {
+                return ResourceManager.GetString("Label_DevResetPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sending...
+        /// </summary>
+        public static string Label_Sending {
+            get {
+                return ResourceManager.GetString("Label_Sending", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Send Reset Link.
+        /// </summary>
+        public static string Label_SendResetLink {
+            get {
+                return ResourceManager.GetString("Label_SendResetLink", resourceCulture);
             }
         }
     }

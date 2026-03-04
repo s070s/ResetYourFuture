@@ -117,12 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Label_Info_Age" xml:space="preserve">
-    <value>Ηλικία</value>
-  </data>
-  <data name="Label_Analytics" xml:space="preserve">
-    <value>Στατιστικά</value>
-  </data>
   <data name="Label_ConfirmEmail" xml:space="preserve">
     <value>Επαλήθευση Email</value>
   </data>
@@ -162,7 +156,25 @@
   <data name="Label_RememberMe" xml:space="preserve">
     <value>Να με θυμάσαι</value>
   </data>
-  <data name="Label_Users" xml:space="preserve">
-    <value>Χρήστες</value>
+  <data name="ForgotPasswordTitle" xml:space="preserve">
+    <value>Ξέχασα τον Κωδικό</value>
+  </data>
+  <data name="ForgotPasswordInstructions" xml:space="preserve">
+    <value>Εισάγετε τη διεύθυνση email σας και θα σας στείλουμε έναν σύνδεσμο επαναφοράς κωδικού.</value>
+  </data>
+  <data name="Label_DevMode" xml:space="preserve">
+    <value>Λειτουργία Dev:</value>
+  </data>
+  <data name="Label_NewPassword" xml:space="preserve">
+    <value>Νέος κωδικός</value>
+  </data>
+  <data name="Label_DevResetPassword" xml:space="preserve">
+    <value>Dev: Επαναφορά Κωδικού</value>
+  </data>
+  <data name="Label_Sending" xml:space="preserve">
+    <value>Αποστολή...</value>
+  </data>
+  <data name="Label_SendResetLink" xml:space="preserve">
+    <value>Αποστολή Συνδέσμου Επαναφοράς</value>
   </data>
 </root>

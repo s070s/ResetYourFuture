@@ -98,4 +98,52 @@
 	<resheader name="writer">
 		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
 	</resheader>
+	<data name="CourseDefault" xml:space="preserve">
+		<value>Μάθημα</value>
+	</data>
+	<data name="LoadingCourse" xml:space="preserve">
+		<value>Φόρτωση μαθήματος...</value>
+	</data>
+	<data name="BackToCourses" xml:space="preserve">
+		<value>← Πίσω στα Μαθήματα</value>
+	</data>
+	<data name="CourseNotFound" xml:space="preserve">
+		<value>Το μάθημα δεν βρέθηκε.</value>
+	</data>
+	<data name="ProgressFormat" xml:space="preserve">
+		<value>{0} / {1} μαθήματα ολοκληρώθηκαν ({2}%)</value>
+	</data>
+	<data name="CourseCompleted" xml:space="preserve">
+		<value>🎉 Μάθημα Ολοκληρώθηκε!</value>
+	</data>
+	<data name="Enrolling" xml:space="preserve">
+		<value>Εγγραφή...</value>
+	</data>
+	<data name="EnrollInThisCourse" xml:space="preserve">
+		<value>Εγγραφή σε αυτό το Μάθημα</value>
+	</data>
+	<data name="MinutesShort" xml:space="preserve">
+		<value>λεπ</value>
+	</data>
+	<data name="CoursesPageTitle" xml:space="preserve">
+		<value>Μαθήματα - Reset Your Future</value>
+	</data>
+	<data name="AvailableCourses" xml:space="preserve">
+		<value>Διαθέσιμα Μαθήματα</value>
+	</data>
+	<data name="LoadingCourses" xml:space="preserve">
+		<value>Φόρτωση μαθημάτων...</value>
+	</data>
+	<data name="NoCoursesAvailable" xml:space="preserve">
+		<value>Δεν υπάρχουν διαθέσιμα μαθήματα αυτή τη στιγμή.</value>
+	</data>
+	<data name="LessonsCountFormat" xml:space="preserve">
+		<value>{0} μαθήματα</value>
+	</data>
+	<data name="Enrolled" xml:space="preserve">
+		<value>✓ Εγγεγραμμένος</value>
+	</data>
+	<data name="UpgradeToFormat" xml:space="preserve">
+		<value>🔒 Αναβάθμιση σε {0}</value>
+	</data>
 </root>

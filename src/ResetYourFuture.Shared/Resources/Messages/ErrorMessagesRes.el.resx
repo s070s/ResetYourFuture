@@ -129,4 +129,16 @@
   <data name="LoginError" xml:space="preserve">
     <value>Σφάλμα κατα τη σύνδεση!</value>
   </data>
+  <data name="AccountDisabled" xml:space="preserve">
+    <value>Ο Λογαριασμός Απενεργοποιήθηκε</value>
+  </data>
+  <data name="AccountDisabledMessage" xml:space="preserve">
+    <value>Ο λογαριασμός σας έχει απενεργοποιηθεί από διαχειριστή.</value>
+  </data>
+  <data name="AccountDisabledContact" xml:space="preserve">
+    <value>Εάν πιστεύετε ότι πρόκειται για λάθος, επικοινωνήστε με την υποστήριξη.</value>
+  </data>
+  <data name="BackToLogin" xml:space="preserve">
+    <value>Επιστροφή στη Σύνδεση</value>
+  </data>
 </root>

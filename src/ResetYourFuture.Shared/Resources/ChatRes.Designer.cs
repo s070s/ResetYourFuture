@@ -22,14 +22,14 @@ namespace ResetYourFuture.Shared.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class NavMenuRes {
+    public class ChatRes {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal NavMenuRes() {
+        internal ChatRes() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace ResetYourFuture.Shared.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ResetYourFuture.Shared.Resources.NavMenuRes", typeof(NavMenuRes).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ResetYourFuture.Shared.Resources.ChatRes", typeof(ChatRes).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,119 +61,101 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Analytics.
+        ///   Looks up a localized string similar to Conversations.
         /// </summary>
-        public static string Analytics {
+        public static string Conversations {
             get {
-                return ResourceManager.GetString("Analytics", resourceCulture);
+                return ResourceManager.GetString("Conversations", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Assessments.
+        ///   Looks up a localized string similar to New.
         /// </summary>
-        public static string Assessments {
+        public static string NewButton {
             get {
-                return ResourceManager.GetString("Assessments", resourceCulture);
+                return ResourceManager.GetString("NewButton", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Courses.
+        ///   Looks up a localized string similar to No conversations yet..
         /// </summary>
-        public static string Courses {
+        public static string NoConversations {
             get {
-                return ResourceManager.GetString("Courses", resourceCulture);
+                return ResourceManager.GetString("NoConversations", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Home.
+        ///   Looks up a localized string similar to No messages.
         /// </summary>
-        public static string Home {
+        public static string NoMessages {
             get {
-                return ResourceManager.GetString("Home", resourceCulture);
+                return ResourceManager.GetString("NoMessages", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Login.
+        ///   Looks up a localized string similar to No users found..
         /// </summary>
-        public static string Login {
+        public static string NoUsersFound {
             get {
-                return ResourceManager.GetString("Login", resourceCulture);
+                return ResourceManager.GetString("NoUsersFound", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Profile.
+        ///   Looks up a localized string similar to Chat.
         /// </summary>
-        public static string Profile {
+        public static string PageTitle {
             get {
-                return ResourceManager.GetString("Profile", resourceCulture);
+                return ResourceManager.GetString("PageTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Register.
+        ///   Looks up a localized string similar to Search users....
         /// </summary>
-        public static string Register {
+        public static string SearchUsers {
             get {
-                return ResourceManager.GetString("Register", resourceCulture);
+                return ResourceManager.GetString("SearchUsers", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Users.
+        ///   Looks up a localized string similar to Select a conversation or start a new one.
         /// </summary>
-        public static string Users {
+        public static string SelectConversation {
             get {
-                return ResourceManager.GetString("Users", resourceCulture);
+                return ResourceManager.GetString("SelectConversation", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to User menu.
+        ///   Looks up a localized string similar to Start a conversation.
         /// </summary>
-        public static string UserMenuTitle {
+        public static string StartConversation {
             get {
-                return ResourceManager.GetString("UserMenuTitle", resourceCulture);
+                return ResourceManager.GetString("StartConversation", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Avatar.
+        ///   Looks up a localized string similar to Type a message....
         /// </summary>
-        public static string AvatarAlt {
+        public static string TypeMessage {
             get {
-                return ResourceManager.GetString("AvatarAlt", resourceCulture);
+                return ResourceManager.GetString("TypeMessage", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to User Profile.
+        ///   Looks up a localized string similar to Type to search for users..
         /// </summary>
-        public static string UserProfile {
+        public static string TypeToSearch {
             get {
-                return ResourceManager.GetString("UserProfile", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Use 'Exit Impersonation' to stop.
-        /// </summary>
-        public static string ImpersonatingHint {
-            get {
-                return ResourceManager.GetString("ImpersonatingHint", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Log Out.
-        /// </summary>
-        public static string LogOut {
-            get {
-                return ResourceManager.GetString("LogOut", resourceCulture);
+                return ResourceManager.GetString("TypeToSearch", resourceCulture);
             }
         }
     }
