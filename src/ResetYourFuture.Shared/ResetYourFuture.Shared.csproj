@@ -125,6 +125,20 @@
       <DependentUpon>HomeRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Lesson -->
+    <EmbeddedResource Update="Resources\LessonRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LessonRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\LessonRes.el.resx">
+      <DependentUpon>LessonRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\LessonRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LessonRes.resx</DependentUpon>
+    </Compile>
+
     <!-- NavMenu -->
     <EmbeddedResource Update="Resources\NavMenuRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

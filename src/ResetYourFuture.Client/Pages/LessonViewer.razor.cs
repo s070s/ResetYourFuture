@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Shared.Resources;
 using System.Text.RegularExpressions;
 
 namespace ResetYourFuture.Client.Pages;
@@ -38,12 +39,12 @@ public partial class LessonViewer
             _lesson = await CourseService.GetLessonAsync( LessonId );
             if ( _lesson is null )
             {
-                _error = "Lesson not found or you are not enrolled in this course.";
+                _error = LessonRes.LessonNotFoundOrNotEnrolled;
             }
         }
         catch ( Exception ex )
         {
-            _error = "Failed to load lesson. Please try again.";
+            _error = LessonRes.FailedToLoadLesson;
             Console.WriteLine( ex.Message );
         }
         finally
