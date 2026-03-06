@@ -461,4 +461,13 @@
 	<data name="AccessDenied" xml:space="preserve">
 		<value>Access denied. Admin role required.</value>
 	</data>
+	<data name="ImpersonationAdminView" xml:space="preserve">
+		<value>👁 Admin view:</value>
+	</data>
+	<data name="ImpersonationLoggedInAs" xml:space="preserve">
+		<value>logged in as</value>
+	</data>
+	<data name="ImpersonationExit" xml:space="preserve">
+		<value>✕ Exit Impersonation</value>
+	</data>
 </root>

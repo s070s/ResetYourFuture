@@ -1148,5 +1148,32 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("AccessDenied", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 👁 Admin view:
+        /// </summary>
+        public static string ImpersonationAdminView {
+            get {
+                return ResourceManager.GetString("ImpersonationAdminView", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to logged in as.
+        /// </summary>
+        public static string ImpersonationLoggedInAs {
+            get {
+                return ResourceManager.GetString("ImpersonationLoggedInAs", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ✕ Exit Impersonation.
+        /// </summary>
+        public static string ImpersonationExit {
+            get {
+                return ResourceManager.GetString("ImpersonationExit", resourceCulture);
+            }
+        }
     }
 }

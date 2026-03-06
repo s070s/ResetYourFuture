@@ -461,4 +461,13 @@
 	<data name="AccessDenied" xml:space="preserve">
 		<value>Δεν έχετε πρόσβαση. Απαιτείται ρόλος Διαχειριστή.</value>
 	</data>
+	<data name="ImpersonationAdminView" xml:space="preserve">
+		<value>👁 Προβολή Admin:</value>
+	</data>
+	<data name="ImpersonationLoggedInAs" xml:space="preserve">
+		<value>συνδεδεμένος ως</value>
+	</data>
+	<data name="ImpersonationExit" xml:space="preserve">
+		<value>✕ Έξοδος από Impersonation</value>
+	</data>
 </root>
