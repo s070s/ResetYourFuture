@@ -14,5 +14,8 @@
     <EmbeddedResource Update="Resources\HomeRes.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Update="Resources\NavMenuRes.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
