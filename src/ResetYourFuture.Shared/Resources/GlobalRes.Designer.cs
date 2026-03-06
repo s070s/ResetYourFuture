@@ -248,5 +248,41 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Label_NoAccount", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Password.
+        /// </summary>
+        public static string Label_ConfirmPassword {
+            get {
+                return ResourceManager.GetString("Label_ConfirmPassword", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to I consent to the processing of my personal data (required).
+        /// </summary>
+        public static string Label_GdprConsent {
+            get {
+                return ResourceManager.GetString("Label_GdprConsent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Registering...
+        /// </summary>
+        public static string Label_Registering {
+            get {
+                return ResourceManager.GetString("Label_Registering", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already have an account?
+        /// </summary>
+        public static string Label_AlreadyHaveAccount {
+            get {
+                return ResourceManager.GetString("Label_AlreadyHaveAccount", resourceCulture);
+            }
+        }
     }
 }

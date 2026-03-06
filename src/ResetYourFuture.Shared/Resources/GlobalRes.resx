@@ -180,4 +180,16 @@
   <data name="Label_NoAccount" xml:space="preserve">
     <value>Don't have an account?</value>
   </data>
+  <data name="Label_ConfirmPassword" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="Label_GdprConsent" xml:space="preserve">
+    <value>I consent to the processing of my personal data (required).</value>
+  </data>
+  <data name="Label_Registering" xml:space="preserve">
+    <value>Registering...</value>
+  </data>
+  <data name="Label_AlreadyHaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
 </root>

@@ -180,4 +180,16 @@
   <data name="Label_NoAccount" xml:space="preserve">
     <value>Δεν έχετε λογαριασμό;</value>
   </data>
+  <data name="Label_ConfirmPassword" xml:space="preserve">
+    <value>Επιβεβαίωση Κωδικού</value>
+  </data>
+  <data name="Label_GdprConsent" xml:space="preserve">
+    <value>Συγκατατίθεμαι στην επεξεργασία των προσωπικών μου δεδομένων (απαιτείται).</value>
+  </data>
+  <data name="Label_Registering" xml:space="preserve">
+    <value>Εγγραφή...</value>
+  </data>
+  <data name="Label_AlreadyHaveAccount" xml:space="preserve">
+    <value>Έχετε ήδη λογαριασμό;</value>
+  </data>
 </root>
