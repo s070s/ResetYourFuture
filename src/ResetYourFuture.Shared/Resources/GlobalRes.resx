@@ -177,4 +177,7 @@
   <data name="Label_SendResetLink" xml:space="preserve">
     <value>Send Reset Link</value>
   </data>
+  <data name="Label_NoAccount" xml:space="preserve">
+    <value>Don't have an account?</value>
+  </data>
 </root>

@@ -239,5 +239,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Label_SendResetLink", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Don't have an account?
+        /// </summary>
+        public static string Label_NoAccount {
+            get {
+                return ResourceManager.GetString("Label_NoAccount", resourceCulture);
+            }
+        }
     }
 }

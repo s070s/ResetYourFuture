@@ -177,4 +177,7 @@
   <data name="Label_SendResetLink" xml:space="preserve">
     <value>Αποστολή Συνδέσμου Επαναφοράς</value>
   </data>
+  <data name="Label_NoAccount" xml:space="preserve">
+    <value>Δεν έχετε λογαριασμό;</value>
+  </data>
 </root>
