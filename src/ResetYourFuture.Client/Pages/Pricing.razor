@@ -1,11 +1,11 @@
 @page "/pricing"
 
-<PageTitle>Pricing - Reset Your Future</PageTitle>
+<PageTitle>@PricingRes.PageTitle</PageTitle>
 
 <div class="pricing-page">
     <div class="pricing-header">
-        <h1>Choose Your Plan</h1>
-        <p class="pricing-subtitle">Unlock your full potential with the right plan for you.</p>
+        <h1>@PricingRes.Heading</h1>
+        <p class="pricing-subtitle">@PricingRes.Subtitle</p>
     </div>
 
     <AuthorizeView>
@@ -13,7 +13,7 @@
             @if (_currentStatus is not null)
             {
                 <div class="current-plan-banner">
-                    <span>Your current plan: <strong>@_currentStatus.PlanName</strong></span>
+                    <span>@PricingRes.CurrentPlanLabel <strong>@_currentStatus.PlanName</strong></span>
                 </div>
             }
         </Authorized>
@@ -21,7 +21,7 @@
 
     @if (_loading)
     {
-        <p>Loading plans...</p>
+        <p>@PricingRes.LoadingPlans</p>
     }
     else if (_error is not null)
     {
@@ -38,13 +38,13 @@
                 <div class="plan-card @(plan.Tier == SubscriptionTierEnum.Pro ? "plan-featured" : "") @(isCurrent ? "plan-current" : "")">
                     @if (plan.Tier == SubscriptionTierEnum.Pro)
                     {
-                        <div class="plan-badge">Most Popular</div>
+                        <div class="plan-badge">@PricingRes.MostPopular</div>
                     }
                     <h2 class="plan-name">@plan.Name</h2>
                     <div class="plan-price">
                         @if (plan.Price == 0)
                         {
-                            <span class="price-amount">Free</span>
+                            <span class="price-amount">@PricingRes.PriceFree</span>
                         }
                         else
                         {
@@ -60,19 +60,19 @@
                         {
                             <li class="feature-item">
                                 <span class="feature-icon">✓</span>
-                                @(plan.Features.MaxCourses >= 1000 ? "Unlimited courses" : $"Up to {plan.Features.MaxCourses} course(s)")
+                                @(plan.Features.MaxCourses >= 1000 ? PricingRes.UnlimitedCourses : string.Format(PricingRes.UpToCoursesFormat, plan.Features.MaxCourses))
                             </li>
                             <li class="feature-item @(plan.Features.AssessmentAccess ? "" : "feature-disabled")">
                                 <span class="feature-icon">@(plan.Features.AssessmentAccess ? "✓" : "✗")</span>
-                                Assessment access
+                                @PricingRes.FeatureAssessmentAccess
                             </li>
                             <li class="feature-item @(plan.Features.CertificateAccess ? "" : "feature-disabled")">
                                 <span class="feature-icon">@(plan.Features.CertificateAccess ? "✓" : "✗")</span>
-                                Certificates
+                                @PricingRes.FeatureCertificates
                             </li>
                             <li class="feature-item @(plan.Features.PrioritySupport ? "" : "feature-disabled")">
                                 <span class="feature-icon">@(plan.Features.PrioritySupport ? "✓" : "✗")</span>
-                                Priority support
+                                @PricingRes.FeaturePrioritySupport
                             </li>
                         }
                     </ul>
@@ -81,34 +81,34 @@
                         <Authorized>
                             @if (isCurrent)
                             {
-                                <button class="btn-plan btn-current" disabled>Current Plan</button>
+                                <button class="btn-plan btn-current" disabled>@PricingRes.BtnCurrentPlan</button>
                             }
                             else if (isUpgrade)
                             {
                                 <button class="btn-plan btn-upgrade" @onclick="() => Checkout(plan.Id)" disabled="@_processing">
-                                    @(_processing ? "Processing..." : "Upgrade")
+                                    @(_processing ? PricingRes.Processing : PricingRes.BtnUpgrade)
                                 </button>
                             }
                             else if (plan.Tier == SubscriptionTierEnum.Free && _currentStatus is not null && _currentStatus.Tier > SubscriptionTierEnum.Free)
                             {
                                 <button class="btn-plan btn-downgrade" @onclick="CancelSubscription" disabled="@_processing">
-                                    @(_processing ? "Processing..." : "Downgrade to Free")
+                                    @(_processing ? PricingRes.Processing : PricingRes.BtnDowngradeToFree)
                                 </button>
                             }
                             else if (plan.Price == 0)
                             {
-                                <button class="btn-plan btn-free" disabled>Included</button>
+                                <button class="btn-plan btn-free" disabled>@PricingRes.BtnIncluded</button>
                             }
                             else
                             {
                                 <button class="btn-plan btn-select" @onclick="() => Checkout(plan.Id)" disabled="@_processing">
-                                    @(_processing ? "Processing..." : "Select Plan")
+                                    @(_processing ? PricingRes.Processing : PricingRes.BtnSelectPlan)
                                 </button>
                             }
                         </Authorized>
                         <NotAuthorized>
                             <button class="btn-plan btn-select" @onclick="NavigateToRegister">
-                                Get Started
+                                @PricingRes.BtnGetStarted
                             </button>
                         </NotAuthorized>
                     </AuthorizeView>

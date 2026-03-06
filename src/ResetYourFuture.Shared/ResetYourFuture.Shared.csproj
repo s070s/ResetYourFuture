@@ -139,6 +139,20 @@
       <DependentUpon>LessonRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Pricing -->
+    <EmbeddedResource Update="Resources\PricingRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PricingRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\PricingRes.el.resx">
+      <DependentUpon>PricingRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\PricingRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PricingRes.resx</DependentUpon>
+    </Compile>
+
     <!-- NavMenu -->
     <EmbeddedResource Update="Resources\NavMenuRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

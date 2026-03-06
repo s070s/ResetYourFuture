@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -26,7 +27,7 @@ public partial class Pricing
         }
         catch ( Exception ex )
         {
-            _error = "Failed to load plans. Please try again.";
+            _error = PricingRes.FailedToLoadPlans;
             Console.WriteLine( ex.Message );
         }
         finally
@@ -55,7 +56,7 @@ public partial class Pricing
         }
         catch ( Exception ex )
         {
-            _error = "Checkout failed. Please try again.";
+            _error = PricingRes.CheckoutFailed;
             Console.WriteLine( ex.Message );
         }
         finally
@@ -85,7 +86,7 @@ public partial class Pricing
         catch ( Exception ex )
         {
             _cancelSuccess = false;
-            _cancelMessage = "Failed to cancel. Please try again.";
+            _cancelMessage = PricingRes.FailedToCancel;
             Console.WriteLine( ex.Message );
         }
         finally

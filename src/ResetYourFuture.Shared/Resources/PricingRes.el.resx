@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="PageTitle" xml:space="preserve">
+		<value>Τιμολόγηση - Reset Your Future</value>
+	</data>
+	<data name="Heading" xml:space="preserve">
+		<value>Επιλέξτε το Πλάνο σας</value>
+	</data>
+	<data name="Subtitle" xml:space="preserve">
+		<value>Ξεκλειδώστε τις δυνατότητές σας με το κατάλληλο πλάνο.</value>
+	</data>
+	<data name="CurrentPlanLabel" xml:space="preserve">
+		<value>Τρέχον πλάνο σας:</value>
+	</data>
+	<data name="LoadingPlans" xml:space="preserve">
+		<value>Φόρτωση πλάνων...</value>
+	</data>
+	<data name="MostPopular" xml:space="preserve">
+		<value>Πιο Δημοφιλές</value>
+	</data>
+	<data name="PriceFree" xml:space="preserve">
+		<value>Δωρεάν</value>
+	</data>
+	<data name="UnlimitedCourses" xml:space="preserve">
+		<value>Απεριόριστα μαθήματα</value>
+	</data>
+	<data name="UpToCoursesFormat" xml:space="preserve">
+		<value>Έως {0} μάθημα/τα</value>
+	</data>
+	<data name="FeatureAssessmentAccess" xml:space="preserve">
+		<value>Πρόσβαση σε αξιολογήσεις</value>
+	</data>
+	<data name="FeatureCertificates" xml:space="preserve">
+		<value>Πιστοποιητικά</value>
+	</data>
+	<data name="FeaturePrioritySupport" xml:space="preserve">
+		<value>Προτεραιότητα υποστήριξης</value>
+	</data>
+	<data name="BtnCurrentPlan" xml:space="preserve">
+		<value>Τρέχον Πλάνο</value>
+	</data>
+	<data name="Processing" xml:space="preserve">
+		<value>Επεξεργασία...</value>
+	</data>
+	<data name="BtnUpgrade" xml:space="preserve">
+		<value>Αναβάθμιση</value>
+	</data>
+	<data name="BtnDowngradeToFree" xml:space="preserve">
+		<value>Υποβάθμιση σε Δωρεάν</value>
+	</data>
+	<data name="BtnIncluded" xml:space="preserve">
+		<value>Συμπεριλαμβάνεται</value>
+	</data>
+	<data name="BtnSelectPlan" xml:space="preserve">
+		<value>Επιλογή Πλάνου</value>
+	</data>
+	<data name="BtnGetStarted" xml:space="preserve">
+		<value>Ξεκινήστε</value>
+	</data>
+	<data name="FailedToLoadPlans" xml:space="preserve">
+		<value>Αποτυχία φόρτωσης πλάνων. Παρακαλώ δοκιμάστε ξανά.</value>
+	</data>
+	<data name="CheckoutFailed" xml:space="preserve">
+		<value>Αποτυχία ολοκλήρωσης αγοράς. Παρακαλώ δοκιμάστε ξανά.</value>
+	</data>
+	<data name="FailedToCancel" xml:space="preserve">
+		<value>Αποτυχία ακύρωσης. Παρακαλώ δοκιμάστε ξανά.</value>
+	</data>
+</root>
