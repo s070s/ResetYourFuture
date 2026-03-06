@@ -156,4 +156,13 @@
   <data name="LogOut" xml:space="preserve">
     <value>Αποσύνδεση</value>
   </data>
+  <data name="Pricing" xml:space="preserve">
+    <value>Τιμολόγηση</value>
+  </data>
+  <data name="Billing" xml:space="preserve">
+    <value>Χρεώσεις</value>
+  </data>
+  <data name="Chat" xml:space="preserve">
+    <value>Συνομιλία</value>
+  </data>
 </root>

@@ -176,5 +176,32 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("LogOut", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Pricing.
+        /// </summary>
+        public static string Pricing {
+            get {
+                return ResourceManager.GetString("Pricing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Billing.
+        /// </summary>
+        public static string Billing {
+            get {
+                return ResourceManager.GetString("Billing", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chat.
+        /// </summary>
+        public static string Chat {
+            get {
+                return ResourceManager.GetString("Chat", resourceCulture);
+            }
+        }
     }
 }
