@@ -181,6 +181,20 @@
       <DependentUpon>NavMenuRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Subscription Success -->
+    <EmbeddedResource Update="Resources\SubscriptionSuccessRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubscriptionSuccessRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SubscriptionSuccessRes.el.resx">
+      <DependentUpon>SubscriptionSuccessRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\SubscriptionSuccessRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubscriptionSuccessRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Success Messages -->
     <EmbeddedResource Update="Resources\Messages\SuccessMessagesRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
