@@ -153,6 +153,20 @@
       <DependentUpon>PricingRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Profile -->
+    <EmbeddedResource Update="Resources\ProfileRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ProfileRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\ProfileRes.el.resx">
+      <DependentUpon>ProfileRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\ProfileRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ProfileRes.resx</DependentUpon>
+    </Compile>
+
     <!-- NavMenu -->
     <EmbeddedResource Update="Resources\NavMenuRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

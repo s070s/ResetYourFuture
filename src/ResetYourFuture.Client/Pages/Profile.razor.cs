@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Shared.Resources;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
@@ -70,7 +71,7 @@ public partial class Profile
         var file = e.File;
         if ( file == null || file.Size >= 5 * 1024 * 1024 )
         {
-            message = "File too large (max 5MB)";
+            message = ProfileRes.FileTooLarge;
             return;
         }
 
@@ -89,16 +90,16 @@ public partial class Profile
             {
                 profile = await Http.GetFromJsonAsync<ProfileDto>( "api/profile" );
                 await LoadAvatarAsync();
-                message = "Avatar uploaded successfully";
+                message = ProfileRes.AvatarUploadedSuccess;
             }
             else
             {
-                message = "Error uploading avatar";
+                message = ProfileRes.ErrorUploadingAvatar;
             }
         }
         catch ( Exception ex )
         {
-            message = $"Error uploading avatar: {ex.Message}";
+            message = string.Format( ProfileRes.ErrorUploadingAvatarFormat, ex.Message );
         }
     }
 
@@ -123,16 +124,16 @@ public partial class Profile
             if ( response.IsSuccessStatusCode )
             {
                 profile = await response.Content.ReadFromJsonAsync<ProfileDto>();
-                message = "Profile updated successfully";
+                message = ProfileRes.ProfileUpdatedSuccess;
             }
             else
             {
-                message = "Error updating profile";
+                message = ProfileRes.ErrorUpdatingProfile;
             }
         }
         catch ( Exception ex )
         {
-            message = $"Error: {ex.Message}";
+            message = string.Format( ProfileRes.ErrorFormat, ex.Message );
         }
         finally
         {
@@ -144,13 +145,13 @@ public partial class Profile
     {
         if ( string.IsNullOrEmpty( currentPassword ) || string.IsNullOrEmpty( newPassword ) )
         {
-            message = "Please fill all password fields";
+            message = ProfileRes.FillAllPasswordFields;
             return;
         }
 
         if ( newPassword != confirmPassword )
         {
-            message = "New passwords don't match";
+            message = ProfileRes.PasswordsDoNotMatch;
             return;
         }
 
@@ -164,19 +165,19 @@ public partial class Profile
 
             if ( response.IsSuccessStatusCode )
             {
-                message = "Password changed successfully";
+                message = ProfileRes.PasswordChangedSuccess;
                 currentPassword = string.Empty;
                 newPassword = string.Empty;
                 confirmPassword = string.Empty;
             }
             else
             {
-                message = "Error changing password - check current password";
+                message = ProfileRes.ErrorChangingPassword;
             }
         }
         catch ( Exception ex )
         {
-            message = $"Error: {ex.Message}";
+            message = string.Format( ProfileRes.ErrorFormat, ex.Message );
         }
         finally
         {

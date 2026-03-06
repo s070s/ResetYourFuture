@@ -1,24 +1,24 @@
 @page "/profile"
 @attribute [Authorize]
 
-<PageTitle>Profile</PageTitle>
+<PageTitle>@ProfileRes.PageTitle</PageTitle>
 
 <div class="profile-container">
-    <h2>My Profile</h2>
+    <h2>@ProfileRes.Heading</h2>
 
     <AuthorizeView>
         <Authorized>
             @if (profile == null)
             {
-                <p>Loading...</p>
+                <p>@ProfileRes.Loading</p>
             }
             else
             {
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5>Basic Information</h5>
+                        <h5>@ProfileRes.BasicInformation</h5>
                         <div class="mb-3">
-                            <label class="form-label">Avatar</label>
+                            <label class="form-label">@ProfileRes.LabelAvatar</label>
                             <div>
                                 @if (!string.IsNullOrEmpty(avatarDataUrl))
                                 {
@@ -29,34 +29,34 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Display Name</label>
+                            <label class="form-label">@ProfileRes.LabelDisplayName</label>
                             <input type="text" class="form-control" @bind="displayName" placeholder="@profile.Email" />
                         </div>
 
-                        <p><strong>Email:</strong> @profile.Email</p>
-                        <p><strong>Name:</strong> @profile.FirstName @profile.LastName</p>
-                        <p><strong>Date of Birth:</strong> @(profile.DateOfBirth?.ToString("dd/MM/yyyy") ?? "Not specified")</p>
+                        <p><strong>@ProfileRes.LabelEmail</strong> @profile.Email</p>
+                        <p><strong>@ProfileRes.LabelName</strong> @profile.FirstName @profile.LastName</p>
+                        <p><strong>@ProfileRes.LabelDateOfBirth</strong> @(profile.DateOfBirth?.ToString("dd/MM/yyyy") ?? ProfileRes.NotSpecified)</p>
 
-                        <button class="btn btn-primary" @onclick="UpdateProfile" disabled="@isSaving">Save Profile</button>
+                        <button class="btn btn-primary" @onclick="UpdateProfile" disabled="@isSaving">@ProfileRes.BtnSaveProfile</button>
                     </div>
                 </div>
 
                 <div class="card mb-3">
                     <div class="card-body">
-                        <h5>Change Password</h5>
+                        <h5>@ProfileRes.ChangePassword</h5>
                         <div class="mb-3">
-                            <label class="form-label">Current Password</label>
+                            <label class="form-label">@ProfileRes.LabelCurrentPassword</label>
                             <input type="password" class="form-control" @bind="currentPassword" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">New Password</label>
+                            <label class="form-label">@ProfileRes.LabelNewPassword</label>
                             <input type="password" class="form-control" @bind="newPassword" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Confirm New Password</label>
+                            <label class="form-label">@ProfileRes.LabelConfirmNewPassword</label>
                             <input type="password" class="form-control" @bind="confirmPassword" />
                         </div>
-                        <button class="btn btn-warning" @onclick="ChangePassword" disabled="@isChangingPassword">Change Password</button>
+                        <button class="btn btn-warning" @onclick="ChangePassword" disabled="@isChangingPassword">@ProfileRes.ChangePassword</button>
                     </div>
                 </div>
 
@@ -67,12 +67,12 @@
 
                 @if (!_isImpersonating)
                 {
-                    <button class="btn btn-secondary mt-3" @onclick="Logout">Logout</button>
+                    <button class="btn btn-secondary mt-3" @onclick="Logout">@ProfileRes.BtnLogout</button>
                 }
             }
         </Authorized>
         <NotAuthorized>
-            <p>Redirecting to login...</p>
+            <p>@ProfileRes.RedirectingToLogin</p>
         </NotAuthorized>
     </AuthorizeView>
 </div>
