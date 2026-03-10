@@ -11,7 +11,10 @@ public partial class AdminAssessments
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-    private List<AssessmentDefinitionListItemDto>? assessments;
+    private PagedResult<AssessmentDefinitionListItemDto>? _pagedResult;
+    private int _page = 1;
+    private int _pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string message = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -23,12 +26,29 @@ public partial class AdminAssessments
     {
         try
         {
-            assessments = await Http.GetFromJsonAsync<List<AssessmentDefinitionListItemDto>>( "api/admin/assessments" );
+            _pagedResult = await Http.GetFromJsonAsync<PagedResult<AssessmentDefinitionListItemDto>>(
+                $"api/admin/assessments?page={_page}&pageSize={_pageSize}" );
         }
         catch ( Exception ex )
         {
             message = $"Error loading assessments: {ex.Message}";
         }
+    }
+
+    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString(), out var size ) )
+        {
+            _pageSize = size;
+            _page = 1;
+            await LoadAssessments();
+        }
+    }
+
+    private async Task GoToPage( int page )
+    {
+        _page = page;
+        await LoadAssessments();
     }
 
     private void CreateAssessment()

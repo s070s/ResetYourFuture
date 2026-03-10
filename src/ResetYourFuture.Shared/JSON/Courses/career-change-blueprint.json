@@ -1,0 +1,39 @@
+{
+  "title": "Career Change Blueprint",
+  "description": "Navigate a career pivot with clarity and confidence — from identifying the right direction to landing your first role in the new field.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Deciding to Make the Change",
+      "description": "Validate that a career change is the right move and identify your true direction.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Is It the Job or the Career?",
+          "content": "# Is It the Job or the Career?\n\nBefore making a major pivot, it is worth asking: are you unhappy with the role, the industry, the company, or the whole career? The answer changes your plan entirely.\n\n## The Diagnostic Questions\n\n**If you changed companies but kept the same role:**\n- Would you be happier? → It might be the environment, not the career.\n\n**If you stayed at the same company but changed roles:**\n- Would you be happier? → It might be the role, not the industry.\n\n**If neither of the above sounds appealing:**\n→ A genuine career change might be warranted.\n\n## The Grass Is Always Greener Trap\nEvery career looks better from the outside. Before pivoting, speak to at least five people who do the job you are considering. Ask:\n- What is the worst part of this role?\n- What do most people get wrong about this career?\n- If you were starting over, would you choose it again?\n\n## Pivot vs. Adjacent Move\n- **Adjacent move** — same skills, different industry (e.g., finance analyst → operations analyst in healthcare).\n- **Pivot** — different skills, different industry (e.g., teacher → software developer).\nAdjacent moves are faster and lower risk. Full pivots require more time, retraining, and financial runway.",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Mapping Your Transferable Skills to a New Career",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 10,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Making the Transition",
+      "description": "Practical steps to bridge the gap between where you are and where you want to be.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Building a Bridge Portfolio",
+          "content": "# Building a Bridge Portfolio\n\nWhen you lack experience in a new field, you need to create evidence of your capability.\n\n## What a Bridge Portfolio Includes\n- **Projects** — build something relevant. If you want to move into data analysis, analyse a public dataset and publish your findings.\n- **Freelance or volunteer work** — take on small projects in the new field while still employed.\n- **Certifications** — choose recognised, role-relevant credentials (not just completion badges).\n- **Writing and content** — articles, LinkedIn posts, or a newsletter that show your knowledge and thinking.\n\n## The Side-Door Entry\nMany career changers enter a new field through:\n- Adjacent roles in the target industry\n- Internal transfers at their current employer\n- Internships or returnships\n- Apprenticeships\n\nThese often pay less short-term but build credibility far faster than cold applications.\n\n## Timeline Reality Check\nMost successful career changes take 12–24 months when done properly. Rushing increases the risk of ending up in the wrong place again.",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        }
+      ]
+    }
+  ]
+}

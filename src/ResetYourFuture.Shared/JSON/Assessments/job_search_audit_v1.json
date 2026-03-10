@@ -1,0 +1,9 @@
+{
+  "Key": "job_search_audit_v1",
+  "Title": "Job Search Audit",
+  "Description": "Evaluate the effectiveness of your current job search strategy and identify where to focus your energy for better results.",
+  "SchemaJson": "{\"id\":\"job_search_audit_v1\",\"title\":\"Job Search Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"How long have you been actively job searching?\",\"options\":[\"Just starting out\",\"Less than 1 month\",\"1–3 months\",\"3–6 months\",\"More than 6 months\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How organised and systematic is your current job search process?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"How many applications do you typically send per week?\",\"options\":[\"10 or more\",\"5–9\",\"1–4\",\"Less than 1\",\"I am not currently applying\"],\"required\":true},{\"id\":\"q4\",\"type\":\"choice\",\"label\":\"How do you mainly find job opportunities?\",\"options\":[\"Job boards (Indeed, Reed, LinkedIn Jobs)\",\"Recruiter outreach\",\"Company career pages directly\",\"Referrals from my network\",\"A mix of all of the above\"],\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What is the single biggest obstacle in your job search right now?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

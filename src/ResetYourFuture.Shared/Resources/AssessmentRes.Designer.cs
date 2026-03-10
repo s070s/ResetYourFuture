@@ -239,5 +239,86 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Close", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessments - Reset Your Future.
+        /// </summary>
+        public static string AssessmentsPageTitle {
+            get {
+                return ResourceManager.GetString("AssessmentsPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Available Assessments.
+        /// </summary>
+        public static string AvailableAssessments {
+            get {
+                return ResourceManager.GetString("AvailableAssessments", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading assessments...
+        /// </summary>
+        public static string LoadingAssessments {
+            get {
+                return ResourceManager.GetString("LoadingAssessments", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No assessments available at this time.
+        /// </summary>
+        public static string NoAssessmentsAvailable {
+            get {
+                return ResourceManager.GetString("NoAssessmentsAvailable", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} assessments.
+        /// </summary>
+        public static string TotalAssessmentsFormat {
+            get {
+                return ResourceManager.GetString("TotalAssessmentsFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Per page:.
+        /// </summary>
+        public static string PerPage {
+            get {
+                return ResourceManager.GetString("PerPage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Prev.
+        /// </summary>
+        public static string Previous {
+            get {
+                return ResourceManager.GetString("Previous", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        public static string Next {
+            get {
+                return ResourceManager.GetString("Next", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to load assessments. Please try again.
+        /// </summary>
+        public static string FailedToLoad {
+            get {
+                return ResourceManager.GetString("FailedToLoad", resourceCulture);
+            }
+        }
     }
 }

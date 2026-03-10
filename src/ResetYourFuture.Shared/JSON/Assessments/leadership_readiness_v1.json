@@ -1,0 +1,9 @@
+{
+  "Key": "leadership_readiness_v1",
+  "Title": "Leadership Readiness",
+  "Description": "Evaluate your current leadership behaviours and identify the areas to develop as you move into or grow within a leadership role.",
+  "SchemaJson": "{\"id\":\"leadership_readiness_v1\",\"title\":\"Leadership Readiness\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"Which best describes your current leadership experience?\",\"options\":[\"No direct leadership experience yet\",\"I informally lead projects or peers\",\"I manage one or two people\",\"I manage a small team\",\"I lead multiple teams or a department\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How comfortable are you giving direct, constructive feedback to others?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"rating\",\"label\":\"How confident are you in delegating tasks and trusting others to deliver?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q4\",\"type\":\"choice\",\"label\":\"Which leadership skill do you most want to strengthen?\",\"options\":[\"Having difficult conversations\",\"Strategic thinking and vision\",\"Motivating and developing others\",\"Decision-making under uncertainty\",\"Managing upwards and influencing stakeholders\"],\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What do you believe is your biggest leadership development area right now?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

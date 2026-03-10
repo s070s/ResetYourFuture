@@ -1,0 +1,45 @@
+{
+  "title": "Time Management & Productivity",
+  "description": "Reclaim your time, eliminate busy-work, and consistently do your most important work first.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Understanding How You Work",
+      "description": "Audit your time before trying to manage it.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "The Time Audit",
+          "content": "# The Time Audit\n\nYou cannot manage time you do not understand. A time audit reveals where your hours actually go.\n\n## How to Run a Time Audit\n\n1. For one week, record every activity in 30-minute blocks.\n2. Use a spreadsheet, Toggl, or Clockify.\n3. Categorise each block: Deep Work, Shallow Work, Meetings, Admin, Personal.\n4. Calculate the percentage of time in each category.\n\n## What You Will Likely Find\n- Most people spend less than 2 hours per day on deep, high-value work.\n- Meetings and interruptions consume far more time than estimated.\n- Context-switching (email, Slack, browsing) is the hidden time thief.\n\n## The Goal\nDesign a schedule that protects and expands your deep work blocks based on what the audit reveals.",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "Your Peak Energy Hours",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Prioritisation Frameworks",
+      "description": "Decide what to work on and what to drop.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "The Eisenhower Matrix",
+          "content": "# The Eisenhower Matrix\n\nNot all tasks are equal. The Eisenhower Matrix helps you decide what to do, schedule, delegate, or delete.\n\n## The Four Quadrants\n\n| | Urgent | Not Urgent |\n|---|---|---|\n| **Important** | Do now | Schedule |\n| **Not Important** | Delegate | Delete |\n\n### Quadrant 1 — Do Now\nCrises, deadlines, emergencies. Minimise time here.\n\n### Quadrant 2 — Schedule\nStrategic work, learning, relationship building, planning. This is where growth happens.\n\n### Quadrant 3 — Delegate\nInterruptions, some meetings, some emails. Pass these on.\n\n### Quadrant 4 — Delete\nTime-wasting activities. Eliminate ruthlessly.\n\n## The Goal\nMost high performers spend the majority of their time in Quadrant 2.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Time Blocking Your Week",
+          "content": "# Time Blocking Your Week\n\nTime blocking is the practice of scheduling specific tasks into dedicated calendar blocks.\n\n## How to Time Block\n\n1. **Start Sunday night.** Review the week ahead and identify your top 3 priorities.\n2. **Block deep work first.** Schedule your hardest, highest-value tasks during your peak energy hours.\n3. **Group shallow tasks.** Batch email, Slack, and admin into 2–3 short windows per day.\n4. **Add buffer blocks.** Leave 20 % of your calendar unscheduled for the unexpected.\n\n## Rules\n- Treat calendar blocks like meetings you cannot cancel.\n- Turn off notifications during deep work blocks.\n- Review and adjust every Friday for the following week.\n\n## Common Time Blocking Mistakes\n- Blocking too many tasks (overestimating output).\n- Not protecting blocks from meeting requests.\n- Never revisiting and refining the system.",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

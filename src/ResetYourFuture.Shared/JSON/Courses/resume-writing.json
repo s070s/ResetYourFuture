@@ -1,0 +1,64 @@
+{
+  "title": "Resume Writing & CV Optimization",
+  "description": "Craft a compelling resume that gets past applicant tracking systems and impresses hiring managers.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Resume Foundations",
+      "description": "Learn the core principles of an effective resume.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Anatomy of a Winning Resume",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 1
+        },
+        {
+          "title": "Choosing the Right Format",
+          "content": "# Choosing the Right Resume Format\n\nThe format you choose depends on your career stage and goals.\n\n## The Three Main Formats\n\n### Chronological\nLists experience in reverse date order. Best for candidates with a strong, consistent work history.\n\n### Functional\nGroups experience by skill category rather than date. Useful when changing careers or returning after a gap.\n\n### Combination (Hybrid)\nMerges both approaches — leads with a skills summary, then lists chronological experience. Ideal for most mid-career professionals.\n\n## Which Should You Use?\n\n- **Consistent work history** → Chronological\n- **Career changer or gaps** → Functional or Combination\n- **Senior professional** → Combination\n\n## Key Rule\nAlways tailor the format to the job you are applying for, not just the one you last held.",
+          "durationMinutes": 12,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Writing Powerful Bullet Points",
+      "description": "Turn job duties into achievement statements that stand out.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "The CAR Method: Context, Action, Result",
+          "content": "# The CAR Method\n\nStrong resume bullets follow a three-part formula:\n\n1. **Context** — the situation or challenge\n2. **Action** — what you specifically did\n3. **Result** — the measurable outcome\n\n## Example Transformation\n\n**Weak:** Responsible for social media accounts.\n\n**Strong:** Grew company LinkedIn following by 42 % in 6 months by executing a weekly content calendar, increasing inbound leads by 18 %.\n\n## Tips\n\n- Start every bullet with a strong action verb (Led, Built, Reduced, Launched).\n- Quantify wherever possible: percentages, dollar amounts, time saved.\n- Keep each bullet to one or two lines.",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Action Verbs Cheat Sheet",
+          "content": "# Action Verb Cheat Sheet\n\nUse these verbs to open your bullet points:\n\n## Leadership\nLed, Directed, Managed, Coached, Mentored, Oversaw\n\n## Analysis\nAnalyzed, Assessed, Evaluated, Forecasted, Identified, Researched\n\n## Creation\nBuilt, Designed, Developed, Launched, Engineered, Produced\n\n## Communication\nPresented, Negotiated, Authored, Collaborated, Facilitated, Pitched\n\n## Improvement\nReduced, Streamlined, Optimized, Accelerated, Increased, Saved\n\n## Delivery\nDelivered, Executed, Implemented, Completed, Achieved, Exceeded",
+          "durationMinutes": 7,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Beating Applicant Tracking Systems",
+      "description": "Optimize your resume so automated screeners let it through.",
+      "sortOrder": 3,
+      "lessons": [
+        {
+          "title": "How ATS Works",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 10,
+          "sortOrder": 1
+        },
+        {
+          "title": "Keyword Matching Strategy",
+          "content": "# Keyword Matching Strategy\n\nATS systems rank resumes by how closely they match the job description.\n\n## Step-by-Step Process\n\n1. **Copy the job description** into a text document.\n2. **Highlight nouns and skills** — these are your target keywords.\n3. **Compare to your resume** — note missing terms.\n4. **Weave keywords in naturally** — in your summary, skills section, and bullets.\n\n## Do Not Keyword-Stuff\nHidden white text or massive keyword lists are detected and penalised.\n\n## Tools to Help\n- Jobscan.co\n- Resume Worded\n- LinkedIn's resume match feature\n\n## Formatting Rules for ATS\n- Use standard section headings (Experience, Education, Skills).\n- Avoid tables, columns, graphics, and text boxes.\n- Save as .docx or plain .pdf.",
+          "durationMinutes": 15,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

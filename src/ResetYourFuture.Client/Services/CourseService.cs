@@ -16,14 +16,15 @@ public class CourseService : ICourseService
         _http = http;
     }
 
-    public async Task<List<CourseListItemDto>> GetCoursesAsync()
+    public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10 )
     {
-        var response = await _http.GetAsync( "api/courses" );
+        var response = await _http.GetAsync( $"api/courses?page={page}&pageSize={pageSize}" );
         if ( response.IsSuccessStatusCode )
         {
-            return await response.Content.ReadFromJsonAsync<List<CourseListItemDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<PagedResult<CourseListItemDto>>()
+                ?? new PagedResult<CourseListItemDto>( [], 0, page, pageSize );
         }
-        return [];
+        return new PagedResult<CourseListItemDto>( [], 0, page, pageSize );
     }
 
     public async Task<CourseDetailDto?> GetCourseAsync( Guid courseId )

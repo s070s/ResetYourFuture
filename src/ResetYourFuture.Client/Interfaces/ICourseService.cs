@@ -7,7 +7,7 @@ namespace ResetYourFuture.Client.Interfaces;
 /// </summary>
 public interface ICourseService
 {
-    Task<List<CourseListItemDto>> GetCoursesAsync();
+    Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10 );
     Task<CourseDetailDto?> GetCourseAsync( Guid courseId );
     Task<EnrollmentResultDto?> EnrollAsync( Guid courseId );
     Task<LessonDetailDto?> GetLessonAsync( Guid lessonId );

@@ -1,0 +1,45 @@
+{
+  "title": "Essential Digital Skills",
+  "description": "Build the foundational digital literacy every professional needs — from data tools to online collaboration.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Productivity Software Mastery",
+      "description": "Work faster and smarter with the tools everyone uses.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Excel and Google Sheets Essentials",
+          "content": "# Excel and Google Sheets Essentials\n\nSpreadsheet fluency is one of the most universally valued workplace skills.\n\n## The 10 Functions Every Professional Should Know\n\n| Function | What It Does |\n|---|---|\n| `SUM` | Adds a range of numbers |\n| `AVERAGE` | Calculates the mean |\n| `COUNT / COUNTA` | Counts cells with numbers / any content |\n| `IF` | Returns one of two values based on a condition |\n| `VLOOKUP / XLOOKUP` | Finds a value in a table by lookup key |\n| `SUMIF / COUNTIF` | Sum or count based on a condition |\n| `TEXT` | Formats numbers as text |\n| `TRIM` | Removes extra spaces from text |\n| `IFERROR` | Handles errors gracefully |\n| Pivot Table | Summarises and analyses large data sets |\n\n## Keyboard Shortcuts That Save Hours\n- `Ctrl + T` — Convert range to table\n- `Ctrl + Shift + L` — Toggle filters\n- `Alt + =` — AutoSum selected range\n- `Ctrl + ;` — Insert today's date\n- `F4` — Toggle absolute/relative references in a formula",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Microsoft 365 and Google Workspace Collaboration Tools",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 9,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Data Literacy and Online Security",
+      "description": "Understand data and protect yourself online.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Reading Data and Charts",
+          "content": "# Reading Data and Charts\n\nData literacy means being able to read, interpret, and question data — not just produce it.\n\n## Types of Charts and When to Use Them\n\n| Chart Type | Best For |\n|---|---|\n| Bar / Column | Comparing categories |\n| Line | Showing trends over time |\n| Pie / Donut | Showing parts of a whole (use sparingly) |\n| Scatter | Showing relationships between two variables |\n| Heatmap | Showing density or frequency patterns |\n\n## Questions to Ask When Reading Data\n1. What is the source? Is it reliable and current?\n2. What is the sample size? Is it large enough to be meaningful?\n3. What is being measured — correlation or causation?\n4. Are the axes starting at zero? (A truncated axis exaggerates change.)\n5. Who commissioned the research and why?\n\n## Beware of These Tricks\n- Cherry-picked date ranges.\n- Percentages without absolute numbers.\n- \"Up to\" claims (\"save up to 80 %\").",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "Cybersecurity Basics for Professionals",
+          "content": "# Cybersecurity Basics for Professionals\n\nMost data breaches start with human error. These habits protect you and your employer.\n\n## Password Hygiene\n- Use a password manager (Bitwarden, 1Password, LastPass).\n- Every account should have a unique, randomly generated password.\n- Minimum 16 characters for important accounts.\n\n## Multi-Factor Authentication (MFA)\nEnable MFA on every account that supports it. An authenticator app (Google Authenticator, Authy) is more secure than SMS.\n\n## Phishing Awareness\n- Check the sender's actual email address, not just the display name.\n- Hover over links before clicking — does the URL match where it claims to go?\n- Treat urgency as a red flag: \"Your account will be closed in 24 hours.\"\n- When in doubt, go directly to the website rather than clicking a link.\n\n## Safe Habits\n- Lock your screen when stepping away (`Win + L`).\n- Never use public Wi-Fi without a VPN.\n- Keep software and operating system up to date.",
+          "durationMinutes": 11,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

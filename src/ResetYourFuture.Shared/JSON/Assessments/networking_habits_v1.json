@@ -1,0 +1,9 @@
+{
+  "Key": "networking_habits_v1",
+  "Title": "Networking Habits Audit",
+  "Description": "Reflect on your current networking activity and identify the habits and mindsets holding you back from building a stronger professional network.",
+  "SchemaJson": "{\"id\":\"networking_habits_v1\",\"title\":\"Networking Habits Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How comfortable do you feel reaching out to people you do not know professionally?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"How often do you proactively reach out to new professional contacts?\",\"options\":[\"Several times a week\",\"Once a week\",\"A few times a month\",\"Rarely\",\"Never\"],\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Where do you primarily network?\",\"options\":[\"LinkedIn\",\"In-person events and meetups\",\"Industry conferences\",\"Through mutual connections\",\"I do not currently network\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How well do you maintain relationships with existing professional contacts?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What makes professional networking feel difficult or uncomfortable for you?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

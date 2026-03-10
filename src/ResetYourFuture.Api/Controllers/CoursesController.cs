@@ -48,15 +48,27 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Get list of all published courses with enrollment status.
+    /// Get a paged list of all published courses with enrollment status.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<CourseListItemDto>>> GetCourses()
+    public async Task<ActionResult<PagedResult<CourseListItemDto>>> GetCourses(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10 )
     {
+        if ( page < 1 ) page = 1;
+        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+
         var userId = UserId;
 
-        var courses = await _db.Courses
+        var query = _db.Courses
             .Where( c => c.IsPublished )
+            .OrderBy( c => c.Title );
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( c => new CourseListItemDto(
                 c.Id ,
                 c.Title ,
@@ -67,7 +79,7 @@ public class CoursesController : ControllerBase
             ) )
             .ToListAsync();
 
-        return Ok( courses );
+        return Ok( new PagedResult<CourseListItemDto>( items , totalCount , page , pageSize ) );
     }
 
     /// <summary>

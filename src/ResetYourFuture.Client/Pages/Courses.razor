@@ -13,18 +13,35 @@ else if (_error is not null)
 {
     <p class="text-danger">@_error</p>
 }
-else if (_courses.Count == 0)
+else if (_pagedResult is null || _pagedResult.TotalCount == 0)
 {
     <p>@CourseRes.NoCoursesAvailable</p>
 }
 else
 {
+    <div class="pagination-toolbar">
+        <span class="pagination-info">
+            @string.Format(CourseRes.TotalCoursesFormat, _pagedResult.TotalCount)
+        </span>
+        <div class="page-size-selector">
+            <label for="pageSizeSelect">@CourseRes.PerPage</label>
+            <select id="pageSizeSelect" class="form-select form-select-sm"
+                    value="@_pageSize"
+                    @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
+                @foreach (var size in PageSizeOptions)
+                {
+                    <option value="@size" selected="@(_pageSize == size)">@size</option>
+                }
+            </select>
+        </div>
+    </div>
+
     <div class="courses-list">
-        @foreach (var course in _courses)
+        @foreach (var course in _pagedResult.Items)
         {
             var isLocked = _userTier < course.RequiredTier;
 
-            <div class="course-card @(isLocked ? "course-locked" : "")" @onclick="() => ViewCourse(course)">
+            <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id" @onclick="() => ViewCourse(course)">
                 <div class="course-card-header">
                     <h3>@course.Title</h3>
                     @if (course.RequiredTier != SubscriptionTierEnum.Free)
@@ -54,5 +71,33 @@ else
             </div>
         }
     </div>
-} 
+
+    @if (_pagedResult.TotalPages > 1)
+    {
+        <nav class="pagination-nav" aria-label="Course pages">
+            <button class="pagination-btn"
+                    disabled="@(!_pagedResult.HasPreviousPage)"
+                    @onclick="() => GoToPage(_page - 1)">
+                ‹ @CourseRes.Previous
+            </button>
+
+            @for (int p = 1; p <= _pagedResult.TotalPages; p++)
+            {
+                var pageNum = p;
+                <button class="pagination-btn @(_page == pageNum ? "active" : "")"
+                        @onclick="() => GoToPage(pageNum)"
+                        @key="pageNum">
+                    @pageNum
+                </button>
+            }
+
+            <button class="pagination-btn"
+                    disabled="@(!_pagedResult.HasNextPage)"
+                    @onclick="() => GoToPage(_page + 1)">
+                @CourseRes.Next ›
+            </button>
+        </nav>
+    }
+}
+
 

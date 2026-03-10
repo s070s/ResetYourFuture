@@ -1,0 +1,9 @@
+{
+  "Key": "time_management_audit_v1",
+  "Title": "Time Management Audit",
+  "Description": "Assess how effectively you manage your time and energy, and pinpoint the habits or systems to improve first.",
+  "SchemaJson": "{\"id\":\"time_management_audit_v1\",\"title\":\"Time Management Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How satisfied are you with the way you currently manage your time at work?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"Which time management challenge resonates with you most?\",\"options\":[\"Too many meetings\",\"Constant interruptions and notifications\",\"Difficulty prioritising tasks\",\"Procrastination\",\"Saying yes to too many things\"],\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Do you use a formal productivity or task management system?\",\"options\":[\"Yes, consistently\",\"I have tried a few but nothing sticks\",\"I use a basic to-do list\",\"No system — I rely on memory\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How often do you complete your most important task before midday?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"Describe your typical morning at work — how do you decide what to focus on first?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

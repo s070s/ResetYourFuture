@@ -11,7 +11,10 @@ public partial class AdminCourses
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-    private List<AdminCourseDto>? courses;
+    private PagedResult<AdminCourseDto>? pagedResult;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
 
     protected override async Task OnInitializedAsync()
@@ -23,11 +26,40 @@ public partial class AdminCourses
     {
         try
         {
-            courses = await Http.GetFromJsonAsync<List<AdminCourseDto>>( "api/admin/courses" );
+            pagedResult = await Http.GetFromJsonAsync<PagedResult<AdminCourseDto>>(
+                $"api/admin/courses?page={currentPage}&pageSize={pageSize}" );
         }
         catch ( Exception ex )
         {
             message = $"Error loading courses: {ex.Message}";
+        }
+    }
+
+    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        {
+            pageSize = size;
+            currentPage = 1;
+            await LoadCourses();
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if ( currentPage > 1 )
+        {
+            currentPage--;
+            await LoadCourses();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if ( pagedResult is { HasNextPage: true } )
+        {
+            currentPage++;
+            await LoadCourses();
         }
     }
 

@@ -158,4 +158,31 @@
 	<data name="Close" xml:space="preserve">
 		<value>Close</value>
 	</data>
+	<data name="AssessmentsPageTitle" xml:space="preserve">
+		<value>Assessments - Reset Your Future</value>
+	</data>
+	<data name="AvailableAssessments" xml:space="preserve">
+		<value>Available Assessments</value>
+	</data>
+	<data name="LoadingAssessments" xml:space="preserve">
+		<value>Loading assessments...</value>
+	</data>
+	<data name="NoAssessmentsAvailable" xml:space="preserve">
+		<value>No assessments available at this time.</value>
+	</data>
+	<data name="TotalAssessmentsFormat" xml:space="preserve">
+		<value>{0} assessments</value>
+	</data>
+	<data name="PerPage" xml:space="preserve">
+		<value>Per page:</value>
+	</data>
+	<data name="Previous" xml:space="preserve">
+		<value>Prev</value>
+	</data>
+	<data name="Next" xml:space="preserve">
+		<value>Next</value>
+	</data>
+	<data name="FailedToLoad" xml:space="preserve">
+		<value>Failed to load assessments. Please try again.</value>
+	</data>
 </root>

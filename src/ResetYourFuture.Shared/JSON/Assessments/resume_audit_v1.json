@@ -1,0 +1,9 @@
+{
+  "Key": "resume_audit_v1",
+  "Title": "Resume Audit",
+  "Description": "A quick self-audit to identify gaps in your resume and prioritise the changes that will have the most impact.",
+  "SchemaJson": "{\"id\":\"resume_audit_v1\",\"title\":\"Resume Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"How recently did you update your resume?\",\"options\":[\"Within the last month\",\"1–6 months ago\",\"6–12 months ago\",\"Over a year ago\",\"I have never had a resume\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How confident are you that your current resume would pass an ATS scan?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Which section of your resume do you feel is weakest?\",\"options\":[\"Summary or objective\",\"Work experience bullets\",\"Skills section\",\"Education section\",\"Layout and formatting\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How well does your resume reflect your actual achievements and impact?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What is the single biggest challenge you face when writing or updating your resume?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

@@ -34,14 +34,24 @@ public class AdminAssessmentsController : ControllerBase
         ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
-    /// Get all assessment definitions (published and unpublished).
+    /// Get a paged list of assessment definitions (published and unpublished).
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<AssessmentDefinitionListItemDto>>> GetAssessments()
+    public async Task<ActionResult<PagedResult<AssessmentDefinitionListItemDto>>> GetAssessments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10 )
     {
-        // Query DB for assessment definitions and project to lightweight DTOs with submission counts
-        var assessments = await _db.AssessmentDefinitions
-            .OrderByDescending( a => a.CreatedAt )
+        if ( page < 1 ) page = 1;
+        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+
+        var query = _db.AssessmentDefinitions
+            .OrderByDescending( a => a.CreatedAt );
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( a => new AssessmentDefinitionListItemDto(
                 a.Id ,
                 a.Key ,
@@ -52,8 +62,7 @@ public class AdminAssessmentsController : ControllerBase
             ) )
             .ToListAsync();
 
-        // Return 200 OK with the list of assessments
-        return Ok( assessments );
+        return Ok( new PagedResult<AssessmentDefinitionListItemDto>( items , totalCount , page , pageSize ) );
     }
 
     /// <summary>

@@ -1,0 +1,45 @@
+{
+  "title": "Strategic Job Search",
+  "description": "Stop applying randomly and build a focused job search system that delivers consistent results.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Defining Your Target",
+      "description": "Clarify what you are looking for before you start searching.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Building Your Target Company List",
+          "content": "# Building Your Target Company List\n\nApplying to every open role is exhausting and ineffective. A targeted list of 20–30 companies is far more powerful.\n\n## How to Build Your List\n\n### Criteria to Consider\n- Industry and sector alignment with your interests\n- Company size (startup vs. enterprise vs. mid-market)\n- Location or remote-work policy\n- Culture and values fit\n- Growth trajectory (hiring signal)\n\n### Research Sources\n- LinkedIn company pages\n- Glassdoor employer reviews\n- Crunchbase (for startups and funding rounds)\n- Industry trade publications and \"Best Places to Work\" lists\n- Your own professional network\n\n## Working Your List\n- Monitor each company's careers page weekly.\n- Follow them on LinkedIn to catch new postings early.\n- Identify internal contacts through mutual connections.",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "Understanding the Hidden Job Market",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 9,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Application Strategy",
+      "description": "Apply smarter, not harder.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Tailoring Applications Without Starting From Scratch",
+          "content": "# Tailoring Applications Without Starting From Scratch\n\nCustomising every application sounds exhausting — here is a system that makes it fast.\n\n## The Master Resume Method\n1. Create a single master resume with every bullet point, project, and skill you have.\n2. For each application, copy the master and delete or reorder bullets to match the job description.\n3. Adjust your summary to mirror the language in the posting.\n\n## The 80/20 Rule for Cover Letters\n- 80 % of your cover letter template stays the same.\n- 20 % is tailored: company name, role, one specific reason you want *that* job.\n\n## Tools That Speed Up Tailoring\n- Teal (free job tracker with resume tailor)\n- Jobscan for keyword match scoring\n- ChatGPT to draft a tailored first paragraph quickly",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Tracking Your Job Search",
+          "content": "# Tracking Your Job Search\n\nWithout a tracker, you will lose track of where you applied, what stage you are at, and what to follow up on.\n\n## What to Track\n| Column | Purpose |\n|---|---|\n| Company | Name of the employer |\n| Role | Job title |\n| Date Applied | When you submitted |\n| Source | Where you found it |\n| Status | Applied / Phone Screen / Interview / Offer / Rejected |\n| Follow-up Date | When to send a check-in |\n| Notes | Contacts, interview feedback, salary range |\n\n## Tools\n- Simple spreadsheet (Google Sheets / Excel)\n- Teal or Huntr (free job search CRMs)\n- Notion database\n\n## Weekly Review Habit\nSpend 30 minutes every Friday reviewing your tracker, updating statuses, and scheduling follow-ups.",
+          "durationMinutes": 10,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

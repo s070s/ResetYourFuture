@@ -1,0 +1,45 @@
+{
+  "title": "Remote Work Success",
+  "description": "Thrive in a remote or hybrid environment — staying productive, connected, and visible from anywhere.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Designing Your Remote Setup",
+      "description": "Build a workspace and routine that maximises focus and wellbeing.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "The Ideal Home Office Setup",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 9,
+          "sortOrder": 1
+        },
+        {
+          "title": "Creating Boundaries Between Work and Home",
+          "content": "# Creating Boundaries Between Work and Home\n\nThe biggest remote work challenge is not productivity — it is switching off.\n\n## Physical Boundaries\n- Dedicate a specific space to work, even if it is a corner of a room.\n- At the end of the day, close the laptop and physically leave the space.\n- Keep work equipment out of sight when not working if possible.\n\n## Time Boundaries\n- Set a consistent start and finish time and communicate it to your team.\n- Use calendar blocking to make your availability visible.\n- Turn off Slack and email notifications outside your working hours.\n\n## Psychological Boundaries\n- Create a start-of-day ritual (a short walk, coffee, reviewing your plan) to signal your brain that work has begun.\n- Create an end-of-day ritual (a walk, writing tomorrow's to-do list, closing apps) to signal it is over.\n- The commute served a psychological purpose — replace it deliberately.",
+          "durationMinutes": 12,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Communication and Visibility in Remote Teams",
+      "description": "Stay connected, build relationships, and remain visible without being in the office.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Over-Communicating Intentionally",
+          "content": "# Over-Communicating Intentionally\n\nIn an office, people absorb your presence and effort passively. Remote work removes that. You need to make your work visible intentionally.\n\n## What to Communicate\n- Your priorities at the start of the week (in your team channel or 1-on-1 with your manager).\n- Progress updates — do not wait until the end to report.\n- Blockers early — waiting until a deadline to raise an issue damages trust.\n- Wins — share what you completed, not just what you are working on.\n\n## The Friday Update\nSend a brief end-of-week message to your manager:\n- What I completed this week.\n- What I am working on next week.\n- Any blockers or risks.\n\nThis single habit significantly increases your visibility and perceived reliability.\n\n## Choose the Right Channel\n- **Async, non-urgent** → Email or a project management tool.\n- **Async, team-wide** → Slack/Teams channel.\n- **Complex or sensitive** → Video call.\n- **Quick clarification** → Slack DM.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Avoiding Remote Work Isolation",
+          "content": "# Avoiding Remote Work Isolation\n\nLoneliness is the number-one reported challenge for remote workers. Left unaddressed, it affects wellbeing and performance.\n\n## Professional Connection\n- Schedule a weekly 15-minute informal video call with a colleague (no agenda).\n- Participate actively in team channels — respond to messages, celebrate wins.\n- Attend virtual team social events even when optional.\n- Ask your manager for regular 1-on-1s and use them to build the relationship, not just report status.\n\n## Social Connection Outside Work\n- Coworking spaces offer community 1–2 days a week.\n- Professional meetups and networking events provide real-world connection.\n- Online communities in your field (LinkedIn groups, Slack communities, Discord servers) connect you with peers.\n\n## Signals That Isolation Is Becoming a Problem\n- Dreading Monday more than usual.\n- Decreased motivation unrelated to workload.\n- Feeling invisible or undervalued despite good work.\n\nRaise this with your manager or use employee support resources — it is a structural issue, not a personal failure.",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

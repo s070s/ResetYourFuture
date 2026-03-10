@@ -1,0 +1,45 @@
+{
+  "title": "Workplace Communication",
+  "description": "Master written, verbal, and non-verbal communication to build credibility and advance your career.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Written Communication",
+      "description": "Write emails and messages that get read and acted on.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Email Essentials: Clarity and Action",
+          "content": "# Email Essentials: Clarity and Action\n\nPoor emails waste time and damage your professional reputation.\n\n## The BLUF Principle\n**Bottom Line Up Front** — state your point or request in the first sentence.\n\n**Weak:** \"Hi John, I hope you are well. I wanted to touch base about the upcoming project timeline and was wondering if you might have a moment to discuss...\"\n\n**Strong:** \"Hi John, I need your sign-off on the project timeline by Thursday. Details below.\"\n\n## Email Structure\n1. **Subject line** — specific and actionable (\"Approval needed: Q3 budget by Friday\")\n2. **Opening line** — the ask or key point\n3. **Context** — only as much as needed\n4. **Clear next step** — who does what by when\n\n## Rules\n- One topic per email.\n- Reply within 24 hours; even a brief acknowledgement counts.\n- Re-read before sending — would you be comfortable if this were forwarded?",
+          "durationMinutes": 10,
+          "sortOrder": 1
+        },
+        {
+          "title": "Slack and Messaging Etiquette",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 7,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Verbal and Presentation Skills",
+      "description": "Speak with clarity and confidence in meetings, presentations, and one-on-ones.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Speaking Up in Meetings",
+          "content": "# Speaking Up in Meetings\n\nBeing present in a meeting is not the same as contributing. Here is how to make your voice heard.\n\n## Prepare One Contribution\nBefore every meeting, prepare at least one question or comment. This removes the blank-page anxiety.\n\n## The ADD Framework\n- **A**gree or acknowledge what was just said\n- **D**evelop — add a new angle or data point\n- **D**irect — suggest a next step or decision\n\n## Managing Interruptions\n- \"I would like to finish my thought\" — calm, clear, professional.\n- Maintain eye contact and continue speaking at the same volume.\n\n## For Video Calls\n- Use your camera to signal engagement.\n- Mute when not speaking.\n- Use the raise-hand feature to avoid talking over others.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Structuring Presentations That Persuade",
+          "content": "# Structuring Presentations That Persuade\n\n## The Problem–Solution–Benefit Arc\n1. **Problem** — What challenge does the audience face? Make them feel it.\n2. **Solution** — What are you proposing? Keep it simple.\n3. **Benefit** — What changes for them if they act? Be specific.\n\n## Slide Design Principles\n- One idea per slide.\n- Visuals over bullet lists — a chart says more than five bullets.\n- No font smaller than 24pt.\n- Limit colour palette to three colours.\n\n## Opening Strong\nDo not start with who you are. Start with a question, a surprising statistic, or a short story. Then introduce yourself.\n\n## Closing Strong\nEnd with a clear call to action: \"I am asking for your approval to proceed by end of week.\"",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

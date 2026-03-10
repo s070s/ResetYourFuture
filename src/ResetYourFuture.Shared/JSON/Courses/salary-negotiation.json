@@ -1,0 +1,45 @@
+{
+  "title": "Salary Negotiation Skills",
+  "description": "Learn to confidently negotiate your salary and total compensation package at every stage of your career.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Know Your Worth",
+      "description": "Research the market so you negotiate from a position of knowledge.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "How to Research Your Market Value",
+          "content": "# How to Research Your Market Value\n\nNegotiating without data is guessing. Use multiple sources to triangulate a realistic range.\n\n## Data Sources\n\n- **LinkedIn Salary** — shows ranges by title, location, and experience\n- **Glassdoor** — self-reported salaries with company-specific data\n- **Levels.fyi** — especially useful for tech roles\n- **Bureau of Labor Statistics (BLS)** — official government data by occupation\n- **Industry associations** — many publish annual salary surveys\n- **Recruiters** — ask what the market is paying; they share freely\n\n## Building Your Range\n1. Gather 10–15 data points for your target role and location.\n2. Calculate the 25th, 50th, and 75th percentile.\n3. Your target should be the 75th percentile — you can always come down.\n\n## Factor In Total Comp\nBase salary is only part of the picture. Also research:\n- Bonuses and commissions\n- Equity / stock options\n- Benefits value (health, pension, PTO)\n- Remote flexibility",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        },
+        {
+          "title": "Anchoring and the First Number Rule",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "The Negotiation Conversation",
+      "description": "Scripts and tactics for negotiating with confidence.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Responding to the Salary Question",
+          "content": "# Responding to the Salary Question\n\nWhen asked \"What are your salary expectations?\" most candidates panic and either undersell or overshoot.\n\n## Option 1: Deflect Early in the Process\n> \"I would love to learn more about the full scope of the role before discussing compensation. Could you share the budgeted range?\"\n\n## Option 2: Give a Range (When You Must)\n- Set the bottom of your range at your actual target number.\n- Top of range should be 15–20 % above target.\n- This way, any point in the range works for you.\n\n**Example:** If you want $85,000, say: \"Based on my research and experience, I am targeting a range of $85,000 to $100,000, depending on the full package.\"\n\n## Never Say Your Current Salary\nIn many places it is illegal to ask. If pressed:\n> \"I prefer to focus on the value I bring to this role rather than what I earned elsewhere.\"",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "Negotiating the Full Package",
+          "content": "# Negotiating the Full Package\n\nIf they cannot move on base salary, there is almost always room elsewhere.\n\n## What Else to Negotiate\n\n| Element | Example Ask |\n|---|---|\n| Sign-on bonus | \"Could you include a sign-on to bridge the gap?\" |\n| Extra PTO | \"I currently have 25 days — could we match that?\" |\n| Remote days | \"Could we agree on 3 remote days per week?\" |\n| Review timeline | \"Could we schedule a 6-month review with a raise tied to performance?\" |\n| Professional development | \"I would love a $2,000 annual learning budget.\" |\n\n## The Silence Tactic\nAfter making your ask, stop talking. The first person to speak after a number is named tends to concede ground.",
+          "durationMinutes": 11,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

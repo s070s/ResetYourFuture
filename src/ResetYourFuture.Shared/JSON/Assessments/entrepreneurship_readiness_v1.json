@@ -1,0 +1,9 @@
+{
+  "Key": "entrepreneurship_readiness_v1",
+  "Title": "Entrepreneurship Readiness",
+  "Description": "Assess how ready you are to start or scale a business — across idea validation, skills, mindset, and financial runway.",
+  "SchemaJson": "{\"id\":\"entrepreneurship_readiness_v1\",\"title\":\"Entrepreneurship Readiness\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"Where are you in your entrepreneurial journey?\",\"options\":[\"Just exploring the idea of starting a business\",\"I have an idea but have not validated it yet\",\"I am validating my idea with real customers\",\"I have launched and am building revenue\",\"I am growing an existing business\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How well have you validated that a real market exists for your idea?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"What is your biggest barrier to starting or growing your business?\",\"options\":[\"Lack of a clear idea or niche\",\"Fear of failure or risk\",\"Not enough time alongside other commitments\",\"Lack of capital or funding\",\"Missing skills or knowledge\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How confident are you in your ability to sell and acquire customers?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"Describe your business idea in one sentence, or the type of business you want to build.\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

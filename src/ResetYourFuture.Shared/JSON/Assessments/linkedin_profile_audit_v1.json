@@ -1,0 +1,9 @@
+{
+  "Key": "linkedin_profile_audit_v1",
+  "Title": "LinkedIn Profile Audit",
+  "Description": "A structured check of the key LinkedIn sections that influence recruiter visibility and first impressions.",
+  "SchemaJson": "{\"id\":\"linkedin_profile_audit_v1\",\"title\":\"LinkedIn Profile Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"How complete is your LinkedIn profile?\",\"options\":[\"All Star (LinkedIn says it is complete)\",\"Mostly complete\",\"Partially filled in\",\"Very minimal\",\"I do not have a LinkedIn profile\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How strong is your LinkedIn headline — does it go beyond just your job title?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Do you have recommendations on your profile?\",\"options\":[\"Yes, three or more\",\"Yes, one or two\",\"No, but I plan to ask\",\"No\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How consistently do you post or engage with content on LinkedIn?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What is the main thing stopping you from improving your LinkedIn profile?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

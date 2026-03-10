@@ -9,11 +9,11 @@
     <button class="btn btn-primary" @onclick="CreateCourse">@AdminRes.CreateNewCourse</button>
 </div>
 
-@if (courses == null)
+@if (pagedResult == null)
 {
     <p>@AdminRes.Loading</p>
 }
-else if (courses.Count == 0)
+else if (!pagedResult.Items.Any())
 {
     <p>@AdminRes.NoCourses</p>
 }
@@ -30,9 +30,9 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var course in courses)
+                @foreach (var course in pagedResult.Items)
                 {
-                    <tr>
+                    <tr @key="course.Id">
                         <td>@course.Title</td>
                         <td>
                             <span class="badge @(course.IsPublished ? "bg-success" : "bg-secondary")">
@@ -56,6 +56,28 @@ else
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+            Showing @((pagedResult.Page - 1) * pagedResult.PageSize + 1)–@(Math.Min(pagedResult.Page * pagedResult.PageSize, pagedResult.TotalCount)) of @pagedResult.TotalCount courses
+        </small>
+        <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small">Rows:</label>
+            <select class="page-size-select" value="@pageSize" @onchange="OnPageSizeChanged">
+                @foreach (var opt in PageSizeOptions)
+                {
+                    <option value="@opt">@opt</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-outline-secondary"
+                    @onclick="PreviousPage"
+                    disabled="@(!pagedResult.HasPreviousPage)">‹ Prev</button>
+            <span class="small">Page @pagedResult.Page of @pagedResult.TotalPages</span>
+            <button class="btn btn-sm btn-outline-secondary"
+                    @onclick="NextPage"
+                    disabled="@(!pagedResult.HasNextPage)">Next ›</button>
+        </div>
     </div>
 }
 

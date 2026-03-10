@@ -65,17 +65,26 @@ public class AdminCoursesController : ControllerBase
     }
 
     /// <summary>
-    /// Get all courses (published and unpublished).
+    /// Get all courses (published and unpublished) with server-side pagination.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<AdminCourseDto>>> GetCourses()
+    public async Task<ActionResult<PagedResult<AdminCourseDto>>> GetCourses(
+        [FromQuery] int page = 1 ,
+        [FromQuery] int pageSize = 10 ,
+        CancellationToken cancellationToken = default )
     {
-        // Query courses including related modules, lessons and enrollments and project to DTOs.
-        // Note: SQLite doesn't support DateTimeOffset in ORDER BY, so we order client-side.
-        var courses = await _db.Courses
+        page = Math.Max( 1 , page );
+        pageSize = Math.Clamp( pageSize , 1 , 100 );
+
+        var totalCount = await _db.Courses.CountAsync( cancellationToken );
+
+        var items = await _db.Courses
             .Include( c => c.Modules )
             .ThenInclude( m => m.Lessons )
             .Include( c => c.Enrollments )
+            .OrderByDescending( c => c.CreatedAt )
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( c => new AdminCourseDto(
                 c.Id ,
                 c.Title ,
@@ -87,10 +96,9 @@ public class AdminCoursesController : ControllerBase
                 c.Modules.SelectMany( m => m.Lessons ).Count() ,
                 c.Enrollments.Count
             ) )
-            .ToListAsync();
+            .ToListAsync( cancellationToken );
 
-        // Return 200 OK with the list of courses for the admin UI (ordered by newest first).
-        return Ok( courses.OrderByDescending( c => c.CreatedAt ).ToList() );
+        return Ok( new PagedResult<AdminCourseDto>( items , totalCount , page , pageSize ) );
     }
 
     /// <summary>

@@ -34,14 +34,25 @@ public class AssessmentsController : ControllerBase
         ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
-    /// Get all published assessments.
+    /// Get a paged list of published assessments.
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<List<AssessmentDefinitionDto>>> GetPublishedAssessments()
+    public async Task<ActionResult<PagedResult<AssessmentDefinitionDto>>> GetPublishedAssessments(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10 )
     {
-        var assessments = await _db.AssessmentDefinitions
+        if ( page < 1 ) page = 1;
+        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+
+        var query = _db.AssessmentDefinitions
             .Where( a => a.IsPublished )
-            .OrderBy( a => a.Title )
+            .OrderBy( a => a.Title );
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( a => new AssessmentDefinitionDto(
                 a.Id ,
                 a.Key ,
@@ -55,7 +66,7 @@ public class AssessmentsController : ControllerBase
             ) )
             .ToListAsync();
 
-        return Ok( assessments );
+        return Ok( new PagedResult<AssessmentDefinitionDto>( items , totalCount , page , pageSize ) );
     }
 
     /// <summary>

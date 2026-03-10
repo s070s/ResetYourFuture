@@ -1,0 +1,9 @@
+{
+  "Key": "digital_skills_audit_v1",
+  "Title": "Digital Skills Audit",
+  "Description": "Identify the digital skills you already have, the gaps holding back your career, and where to invest your learning time.",
+  "SchemaJson": "{\"id\":\"digital_skills_audit_v1\",\"title\":\"Digital Skills Audit\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How confident are you in your overall digital skills compared to colleagues in your field?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"Which digital skill area do you most want to develop?\",\"options\":[\"Spreadsheets and data analysis\",\"Presentation and document tools\",\"Collaboration platforms (Teams, Slack, Notion)\",\"Data visualisation and reporting\",\"AI tools and automation\"],\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"How often do you use spreadsheets for data analysis or reporting?\",\"options\":[\"Daily\",\"Several times a week\",\"Occasionally\",\"Rarely\",\"Never\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How comfortable are you learning new digital tools independently?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"Which specific digital tool or skill gap is most holding back your work or career right now?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

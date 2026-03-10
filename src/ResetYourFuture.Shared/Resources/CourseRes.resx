@@ -146,4 +146,16 @@
 	<data name="UpgradeToFormat" xml:space="preserve">
 		<value>🔒 Upgrade to {0}</value>
 	</data>
+	<data name="TotalCoursesFormat" xml:space="preserve">
+		<value>{0} courses</value>
+	</data>
+	<data name="PerPage" xml:space="preserve">
+		<value>Per page:</value>
+	</data>
+	<data name="Previous" xml:space="preserve">
+		<value>Prev</value>
+	</data>
+	<data name="Next" xml:space="preserve">
+		<value>Next</value>
+	</data>
 </root>

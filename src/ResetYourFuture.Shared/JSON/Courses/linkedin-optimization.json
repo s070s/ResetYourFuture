@@ -1,0 +1,51 @@
+{
+  "title": "LinkedIn Profile Optimization",
+  "description": "Transform your LinkedIn profile into a magnet for recruiters, collaborators, and career opportunities.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Profile Essentials",
+      "description": "Set up the core sections recruiters look at first.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Profile Photo and Banner Best Practices",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 7,
+          "sortOrder": 1
+        },
+        {
+          "title": "Writing a Headline That Opens Doors",
+          "content": "# Writing a LinkedIn Headline That Opens Doors\n\nYour headline is the first thing people see. The default is your job title — do better.\n\n## The Formula\n\n`[What you do] | [Who you help] | [Key outcome or value]`\n\n## Examples\n\n**Default (weak):** Marketing Manager at Acme Corp\n\n**Optimised:** B2B Content Strategist | Helping SaaS companies grow organic traffic | SEO & Thought Leadership\n\n## Tips\n- Use keywords recruiters search for.\n- Include your industry niche.\n- Avoid buzzwords: passionate, results-driven, guru.\n- You have 220 characters — use them.",
+          "durationMinutes": 10,
+          "sortOrder": 2
+        },
+        {
+          "title": "Crafting Your About Section",
+          "content": "# Crafting Your About Section\n\nThe About section is your 2,600-character story. Most people leave it blank or paste their resume.\n\n## Structure\n\n1. **Hook** (first 2 lines, visible before "see more") — grab attention with your core value or a compelling statement.\n2. **Your story** — why you do what you do.\n3. **What you bring** — 3–5 key skills or achievements.\n4. **Call to action** — invite connections, collaborations, or conversations.\n\n## Writing Tips\n- Write in first person.\n- Use short paragraphs and line breaks for readability.\n- Include keywords naturally.\n- End with your email or best contact method.",
+          "durationMinutes": 12,
+          "sortOrder": 3
+        }
+      ]
+    },
+    {
+      "title": "Experience, Skills and Recommendations",
+      "description": "Build the sections that prove your credibility.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Adding Quantified Experience Entries",
+          "content": "# Adding Quantified Experience Entries\n\nTreat each role like a resume bullet — show impact, not just duties.\n\n## Format\n- Start with a one-sentence role summary.\n- Follow with 3–5 bullet points using the CAR method (Context, Action, Result).\n- Include keywords relevant to your target roles.\n\n## Example\n\n**Customer Success Manager — TechCorp (2021–Present)**\nManage a portfolio of 35 mid-market SaaS accounts worth $2.4 M ARR.\n- Reduced churn by 22 % through a proactive health-score monitoring programme.\n- Grew net revenue retention to 118 % by identifying upsell opportunities during QBRs.\n- Onboarded 12 new enterprise accounts in Q1 2024, achieving 100 % adoption within 60 days.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Getting Powerful Recommendations",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

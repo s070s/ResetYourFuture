@@ -49,6 +49,10 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
+// --- Assessment Service ---
+builder.Services.AddHttpClient<IAssessmentService, AssessmentService>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
 // --- Subscription Service ---
 builder.Services.AddHttpClient<ISubscriptionService, SubscriptionService>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();

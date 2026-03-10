@@ -1,0 +1,45 @@
+{
+  "title": "Financial Literacy for Professionals",
+  "description": "Take control of your money — budgeting, saving, investing, and planning for the future — at any income level.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Budgeting and Cash Flow",
+      "description": "Know where your money goes and design a plan that actually works.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "The 50/30/20 Framework",
+          "content": "# The 50/30/20 Budgeting Framework\n\nA simple, flexible starting point for managing your income.\n\n## The Split\n\n- **50 % — Needs** — rent/mortgage, utilities, groceries, transport, insurance, minimum debt payments.\n- **30 % — Wants** — dining out, entertainment, subscriptions, hobbies, travel.\n- **20 % — Savings & Investments** — emergency fund, pension contributions, investments, extra debt repayments.\n\n## How to Apply It\n1. Calculate your monthly after-tax income.\n2. Multiply by 0.5, 0.3, and 0.2 to get your target amounts.\n3. Track spending for one month against these targets.\n4. Adjust — life does not fit perfectly into percentages.\n\n## When to Adjust\n- High cost-of-living area: needs may exceed 50 %.\n- Aggressively paying off debt: reduce wants to 15–20 % temporarily.\n- High earner: increase savings rate beyond 20 %.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Building Your Emergency Fund",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Saving and Investing Fundamentals",
+      "description": "Put your money to work for the long term.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "The Power of Compound Growth",
+          "content": "# The Power of Compound Growth\n\nEinstein reportedly called compound interest the eighth wonder of the world. Whether or not that is true, the maths is undeniable.\n\n## How Compounding Works\n\nWhen your investment earns a return, that return is added to your principal. Next period, you earn a return on the larger amount.\n\n**Example:**\n- Invest £5,000 at 7 % per year.\n- After 10 years: ~£9,836 (without adding anything).\n- After 30 years: ~£38,061.\n\n## The Time Variable\nTime is the most powerful factor. Starting at 25 vs. 35 can double your retirement pot — even contributing the same monthly amount.\n\n## The Three Levers\n1. **How much you invest** — even small amounts matter.\n2. **How long you invest** — start as early as possible.\n3. **The return rate** — diversified index funds historically average 7–10 % per year.\n\n## Key Principle\nYou do not need to be a stock picker. Low-cost index funds + time = the most reliable path to wealth for most people.",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        },
+        {
+          "title": "ISAs, Pensions and Tax-Efficient Investing",
+          "content": "# ISAs, Pensions and Tax-Efficient Investing\n\nGrowth inside tax-advantaged accounts is significantly faster because you keep more of your returns.\n\n## Pensions (UK)\n- Contributions are tax-relieved — the government tops up your contributions at your marginal rate.\n- Employer matching is free money — always contribute at least enough to get the full match.\n- Money grows tax-free inside the pension wrapper.\n\n## ISAs (UK)\n- Up to £20,000 per year can be invested with zero tax on growth or withdrawals.\n- **Cash ISA** — savings, FSCS-protected, lower returns.\n- **Stocks & Shares ISA** — invest in funds, shares, ETFs.\n- **Lifetime ISA** — 25 % government bonus on up to £4,000/year for first home or retirement.\n\n## Recommended Order of Priority\n1. Employer pension match (free money).\n2. Emergency fund (3–6 months expenses).\n3. High-interest debt repayment.\n4. ISA allowance.\n5. Additional pension contributions.",
+          "durationMinutes": 14,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

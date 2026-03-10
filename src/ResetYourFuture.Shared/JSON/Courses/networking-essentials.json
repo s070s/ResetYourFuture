@@ -1,0 +1,58 @@
+{
+  "title": "Professional Networking Essentials",
+  "description": "Build a genuine professional network that creates opportunities throughout your entire career.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Networking Mindset",
+      "description": "Shift from transactional thinking to relationship building.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Why Most People Network Wrong",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 1
+        },
+        {
+          "title": "Give First: The Reciprocity Principle",
+          "content": "# Give First: The Reciprocity Principle\n\nThe most effective networkers are givers, not takers.\n\n## What Giving Looks Like\n- Sharing a relevant article with no expectation.\n- Making an introduction between two people who would benefit.\n- Offering your expertise or a quick answer to a question.\n- Congratulating someone on a milestone.\n\n## Why It Works\nReciprocity is one of the most powerful psychological principles. When you give first, people want to return the favour — and they remember you positively.\n\n## The 5:1 Rule\nFor every ask you make, aim to give five times first. This builds relational credit before you need to draw on it.\n\n## Practical Habit\nSpend 10 minutes each morning doing one small act of professional generosity — a comment, a share, an introduction.",
+          "durationMinutes": 10,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Building Your Network",
+      "description": "Practical tactics for expanding your professional circle online and in person.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Crafting Connection Requests That Get Accepted",
+          "content": "# Crafting Connection Requests That Get Accepted\n\nA blank connection request has a low acceptance rate. Personalise every one.\n\n## The Three-Line Formula\n\n1. **Context** — where you found them or what you have in common.\n2. **Reason** — why you want to connect specifically.\n3. **No ask** — do not ask for anything in the first message.\n\n## Example\n\n> Hi Sarah, I came across your article on supply-chain resilience and found your point about nearshoring really insightful. I am researching the same area and would love to connect and follow your future posts.\n\n## Tips\n- Reference something specific they posted or said.\n- Keep it under 300 characters.\n- Never paste the same message to everyone.",
+          "durationMinutes": 9,
+          "sortOrder": 1
+        },
+        {
+          "title": "Making the Most of Networking Events",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 11,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Maintaining and Activating Your Network",
+      "description": "Keep relationships warm and know when to ask for support.",
+      "sortOrder": 3,
+      "lessons": [
+        {
+          "title": "The Follow-Up System",
+          "content": "# The Follow-Up System\n\nMost networking value is lost because people fail to follow up.\n\n## After Meeting Someone\n- Send a personalised message within 24 hours.\n- Reference something specific from your conversation.\n- Suggest a next step only if it is genuinely valuable for them.\n\n## Staying in Touch\n- Use a simple CRM (Notion, a spreadsheet, or HubSpot free tier).\n- Tag contacts by industry, interest, and relationship strength.\n- Set a reminder to reach out to key contacts every 90 days.\n\n## Re-activating Dormant Contacts\nA brief, genuine message works best:\n> Hi James, I came across this podcast on sustainable logistics and immediately thought of our chat from last year. Hope you are well!\n\nNo agenda. Just a touch point.",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        }
+      ]
+    }
+  ]
+}

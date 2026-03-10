@@ -1,0 +1,9 @@
+{
+  "Key": "interview_readiness_v1",
+  "Title": "Interview Readiness Check",
+  "Description": "Assess how prepared you are for each stage of the interview process and identify where to focus your practice.",
+  "SchemaJson": "{\"id\":\"interview_readiness_v1\",\"title\":\"Interview Readiness Check\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How confident do you feel walking into an interview right now?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"Which interview stage do you find most challenging?\",\"options\":[\"Phone or video screening\",\"Competency-based questions\",\"Technical or skills tests\",\"Panel interviews\",\"Final-round or executive interviews\"],\"required\":true},{\"id\":\"q3\",\"type\":\"rating\",\"label\":\"How well-prepared are you with STAR-format stories for common questions?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q4\",\"type\":\"choice\",\"label\":\"How do you currently prepare for interviews?\",\"options\":[\"Research the company and role thoroughly\",\"Practise out loud with someone\",\"Review job description only\",\"I wing it\",\"I have not had interviews recently\"],\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What would make the biggest difference to your interview performance?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

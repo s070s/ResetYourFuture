@@ -1,0 +1,64 @@
+{
+  "title": "Interview Mastery",
+  "description": "Prepare for every stage of the interview process — from phone screens to final-round panels.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Interview Preparation",
+      "description": "Build the research and mindset habits that separate great candidates from average ones.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Researching the Company and Role",
+          "content": "# Researching the Company and Role\n\nWalking into an interview unprepared is the fastest way to disqualify yourself.\n\n## What to Research\n\n### The Company\n- Mission, vision, and core values\n- Recent news, product launches, or earnings reports\n- Culture cues from Glassdoor, LinkedIn, and the careers page\n\n### The Role\n- Re-read the job description and underline required skills\n- Understand how the role fits into the team structure\n- Look up the hiring manager on LinkedIn\n\n### The Industry\n- Key trends and challenges facing the sector\n- Main competitors\n\n## Using Your Research\n- Craft 2–3 tailored answers that reference company specifics.\n- Prepare questions that demonstrate genuine curiosity.",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "The STAR Answer Framework",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 9,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Answering Tough Questions",
+      "description": "Master the most common and difficult interview questions.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Tell Me About Yourself",
+          "content": "# Tell Me About Yourself\n\nThis is almost always the first question. It is your 90-second commercial.\n\n## The Past–Present–Future Structure\n\n1. **Past** — Briefly summarise your background and key experience.\n2. **Present** — What you are doing now and what you have achieved.\n3. **Future** — Why this specific role excites you.\n\n## Example\n\n> I spent four years in retail management, where I led a team of 12 and consistently hit top-quartile NPS scores. More recently I completed a data analytics bootcamp and have been applying those skills to optimise store scheduling. I am excited about this operations analyst role because it combines both sides of my experience in a data-driven environment.\n\n## Tips\n- Keep it to 90 seconds.\n- Practice out loud, not just in your head.\n- End with a bridge to the role.",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Handling Weakness and Failure Questions",
+          "content": "# Handling Weakness and Failure Questions\n\n## \"What Is Your Greatest Weakness?\"\n\nInterviewers want to see self-awareness and a growth mindset.\n\n### Framework\n1. Name a **genuine** weakness (not a strength in disguise).\n2. Show **what you did** to address it.\n3. Share the **progress** you have made.\n\n**Example:** \"I used to struggle with delegating — I preferred doing everything myself. I recognised it was limiting my team's growth so I started assigning stretch projects and scheduling weekly check-ins. My team's output has increased and two members were promoted last year.\"\n\n## \"Tell Me About a Failure\"\n\n1. Describe the situation honestly.\n2. Own your role in it.\n3. Explain what you learned and how you changed.",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Closing and Following Up",
+      "description": "Leave a lasting impression and stay top of mind after the interview.",
+      "sortOrder": 3,
+      "lessons": [
+        {
+          "title": "Questions to Ask the Interviewer",
+          "content": "# Questions to Ask the Interviewer\n\nAlways have 3–5 questions ready. Not asking questions signals disinterest.\n\n## Strong Question Categories\n\n### Role Clarity\n- What does success look like in the first 90 days?\n- What are the biggest challenges the person in this role will face?\n\n### Team and Culture\n- How does the team typically collaborate day-to-day?\n- How would you describe the management style here?\n\n### Growth\n- What does career progression look like from this position?\n- Are there learning and development resources available?\n\n### Next Steps\n- What does the rest of the hiring process look like?\n- When can I expect to hear back?\n\n## Avoid\n- Questions answered on the website.\n- Salary or benefits in early rounds (unless they bring it up).",
+          "durationMinutes": 8,
+          "sortOrder": 1
+        },
+        {
+          "title": "The Thank-You Note That Gets Remembered",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 6,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

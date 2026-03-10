@@ -1,0 +1,45 @@
+{
+  "title": "Entrepreneurship Basics",
+  "description": "Validate and launch your business idea with confidence — without quitting your job before you are ready.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "From Idea to Opportunity",
+      "description": "Learn to evaluate whether your idea is worth pursuing.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Validating Your Business Idea",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 11,
+          "sortOrder": 1
+        },
+        {
+          "title": "Problem–Solution Fit",
+          "content": "# Problem–Solution Fit\n\nThe biggest reason startups fail is building something nobody wants. Problem–solution fit is how you avoid that.\n\n## Step 1: Define the Problem Precisely\n- Who has this problem? (Be specific — \"small restaurant owners in suburban areas\", not \"businesses\".)\n- How painful is it? (1–10 scale — is it a vitamin or a painkiller?)\n- How do they currently solve it?\n- What are the flaws in that current solution?\n\n## Step 2: Test Your Solution Hypothesis\nBefore building anything:\n- Conduct 10–15 customer discovery interviews.\n- Show a simple mockup or landing page — measure interest.\n- Offer to solve the problem manually first (the \"concierge MVP\").\n\n## What You Are Listening For\n- Do people get excited when you describe the solution?\n- Would they pay for it today?\n- Have they already tried to solve this themselves?\n\n## Red Flags\n- \"That is interesting\" (but they do not ask how to sign up).\n- No one has the problem except you.",
+          "durationMinutes": 14,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Starting Lean",
+      "description": "Build the smallest version of your business that generates real learning.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "The Minimum Viable Product",
+          "content": "# The Minimum Viable Product (MVP)\n\nAn MVP is the smallest thing you can build to test your most important assumption.\n\n## What an MVP Is Not\n- A half-finished product.\n- A product with every feature you planned.\n\n## MVP Types\n\n| Type | Example |\n|---|---|\n| Landing page | Describe the product, collect emails, measure interest |\n| Concierge | Do the service manually before automating |\n| Wizard of Oz | Simulate the tech behind the scenes |\n| Pre-sale | Sell before building to validate demand |\n| Prototype | Clickable mockup tested with real users |\n\n## The Build–Measure–Learn Loop\n1. **Build** the smallest testable thing.\n2. **Measure** a specific metric (sign-ups, retention, revenue).\n3. **Learn** — does the data support your hypothesis? Pivot or persevere.\n\n## Speed Is the Goal\nThe faster you complete the loop, the faster you learn — and the less money you waste.",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        },
+        {
+          "title": "Basic Business Finance for Founders",
+          "content": "# Basic Business Finance for Founders\n\nYou do not need an accounting degree, but you do need to understand these numbers.\n\n## The Three Core Metrics\n\n### Revenue\nMoney coming in. Know your monthly recurring revenue (MRR) if you have subscriptions.\n\n### Costs\n- **Fixed costs** — the same every month regardless of sales (rent, software subscriptions, salaries).\n- **Variable costs** — change with sales volume (materials, transaction fees, shipping).\n\n### Profit / Loss\n`Profit = Revenue − Total Costs`\nIf this number is negative, you are burning cash. How many months can you sustain that?\n\n## Break-Even Analysis\nAt what revenue level do your total costs equal your total revenue? This is your break-even point.\n\n## Cash Flow vs. Profit\nYou can be profitable on paper and still run out of cash. Understand *when* money arrives and *when* bills are due.\n\n## Key Rule\nPrice for profit from day one — raising prices later is far harder than setting them right at the start.",
+          "durationMinutes": 12,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

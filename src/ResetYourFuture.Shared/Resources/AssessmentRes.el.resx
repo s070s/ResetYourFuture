@@ -158,4 +158,31 @@
 	<data name="Close" xml:space="preserve">
 		<value>Κλείσιμο</value>
 	</data>
+	<data name="AssessmentsPageTitle" xml:space="preserve">
+		<value>Αξιολογήσεις - Reset Your Future</value>
+	</data>
+	<data name="AvailableAssessments" xml:space="preserve">
+		<value>Διαθέσιμες Αξιολογήσεις</value>
+	</data>
+	<data name="LoadingAssessments" xml:space="preserve">
+		<value>Φόρτωση αξιολογήσεων...</value>
+	</data>
+	<data name="NoAssessmentsAvailable" xml:space="preserve">
+		<value>Δεν υπάρχουν διαθέσιμες αξιολογήσεις αυτή τη στιγμή.</value>
+	</data>
+	<data name="TotalAssessmentsFormat" xml:space="preserve">
+		<value>{0} αξιολογήσεις</value>
+	</data>
+	<data name="PerPage" xml:space="preserve">
+		<value>Ανά σελίδα:</value>
+	</data>
+	<data name="Previous" xml:space="preserve">
+		<value>Προηγ.</value>
+	</data>
+	<data name="Next" xml:space="preserve">
+		<value>Επόμ.</value>
+	</data>
+	<data name="FailedToLoad" xml:space="preserve">
+		<value>Αποτυχία φόρτωσης αξιολογήσεων. Δοκιμάστε ξανά.</value>
+	</data>
 </root>

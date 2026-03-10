@@ -1,0 +1,45 @@
+{
+  "title": "Leadership Fundamentals",
+  "description": "Develop the core leadership skills needed to inspire teams, drive results, and grow into senior roles.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Leadership vs. Management",
+      "description": "Understand the critical difference and why both matter.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "What Leadership Really Means",
+          "content": "# What Leadership Really Means\n\nLeadership is not a title — it is a behaviour you can practise at any level.\n\n## Leadership vs. Management\n\n| Leadership | Management |\n|---|---|\n| Sets direction and vision | Plans and organises tasks |\n| Inspires and motivates | Monitors and controls |\n| Asks \"Why?\" and \"What if?\" | Asks \"How?\" and \"When?\" |\n| Focuses on people | Focuses on systems and processes |\n\nGreat professionals develop both skill sets.\n\n## You Do Not Need a Title to Lead\n- Volunteer to run a project.\n- Mentor a newer colleague.\n- Propose a solution instead of just naming a problem.\n- Model the behaviour you want to see in your team.\n\n## Leadership Styles\n- **Transformational** — inspires change through vision.\n- **Servant** — puts the team's needs first.\n- **Coaching** — develops individuals through questions and feedback.\n- **Democratic** — involves the team in decisions.\n\nSituational leaders adapt their style to the person and context.",
+          "durationMinutes": 13,
+          "sortOrder": 1
+        },
+        {
+          "title": "Developing Your Leadership Identity",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 9,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Motivating and Developing Others",
+      "description": "Create an environment where people do their best work.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "Giving Effective Feedback",
+          "content": "# Giving Effective Feedback\n\nFeedback is the most powerful development tool available to a leader — and the most underused.\n\n## The SBI Model\n- **S**ituation — describe the specific context.\n- **B**ehaviour — describe the observable behaviour (not the person).\n- **I**mpact — explain the effect it had.\n\n**Example:** \"In the client meeting yesterday (Situation), you interrupted the client twice before they finished their point (Behaviour). They seemed frustrated and became less talkative for the rest of the meeting (Impact).\"\n\n## Delivering Feedback\n- Do it promptly — within 24–48 hours of the event.\n- Do it privately for corrective feedback; publicly for praise.\n- Focus on behaviour, not character.\n- Ask: \"What are your thoughts?\" — make it a dialogue.\n\n## Receiving Feedback\n- Listen without defending.\n- Ask clarifying questions.\n- Thank the person, regardless of your reaction.",
+          "durationMinutes": 12,
+          "sortOrder": 1
+        },
+        {
+          "title": "Delegating for Growth",
+          "content": "# Delegating for Growth\n\nDelegation is not just offloading work — it is one of the most powerful ways to develop your team.\n\n## Why Leaders Avoid Delegating\n- \"It is faster if I do it myself.\"\n- Fear of losing control or credit.\n- Not trusting the other person's ability.\n\n## The Delegation Framework\n1. **Choose the right task** — something that stretches the person but is achievable.\n2. **Choose the right person** — match the task to their developmental goals.\n3. **Communicate clearly** — explain the outcome, constraints, and deadline (not the method).\n4. **Give authority** — ensure they have the resources and decision-making power to succeed.\n5. **Check in, not up** — scheduled touchpoints, not micromanagement.\n6. **Debrief** — what worked? What would they do differently?\n\n## The Two Mistakes\n- **Under-delegating** — creates a bottleneck and stunts team growth.\n- **Abdicating** — dumping work with no context, support, or follow-up.",
+          "durationMinutes": 14,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}

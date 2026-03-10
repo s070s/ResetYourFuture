@@ -1,0 +1,9 @@
+{
+  "Key": "salary_confidence_v1",
+  "Title": "Salary Negotiation Confidence",
+  "Description": "Gauge your readiness to negotiate your salary and total compensation, and identify the knowledge or mindset gaps to address first.",
+  "SchemaJson": "{\"id\":\"salary_confidence_v1\",\"title\":\"Salary Negotiation Confidence\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How confident do you feel about negotiating your salary or a job offer?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"Have you ever negotiated a salary, promotion, or job offer?\",\"options\":[\"Yes, successfully\",\"Yes, but it did not go well\",\"I tried but backed down\",\"No, I have never negotiated\",\"I have not had the opportunity\"],\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Do you currently know your market rate for your role and location?\",\"options\":[\"Yes, I have researched it recently\",\"I have a rough idea\",\"I am not sure\",\"No\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How comfortable are you discussing money directly with an employer or manager?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What makes salary negotiation feel difficult or uncomfortable for you?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

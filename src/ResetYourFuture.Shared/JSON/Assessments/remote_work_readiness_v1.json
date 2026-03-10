@@ -1,0 +1,9 @@
+{
+  "Key": "remote_work_readiness_v1",
+  "Title": "Remote Work Readiness",
+  "Description": "Assess how well-set-up you are to thrive in a remote or hybrid work environment across tools, habits, and wellbeing.",
+  "SchemaJson": "{\"id\":\"remote_work_readiness_v1\",\"title\":\"Remote Work Readiness\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"What is your current work arrangement?\",\"options\":[\"Fully remote\",\"Hybrid (some days in office, some remote)\",\"Fully office-based\",\"I am currently between roles\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How productive do you feel when working remotely compared to in an office?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"choice\",\"label\":\"Which remote work challenge affects you most?\",\"options\":[\"Staying focused with home distractions\",\"Feeling isolated or disconnected from the team\",\"Difficulty switching off at the end of the day\",\"Being overlooked or less visible to management\",\"Poor communication and collaboration tools\"],\"required\":true},{\"id\":\"q4\",\"type\":\"rating\",\"label\":\"How well do you separate work time from personal time when working from home?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"What one change would most improve your remote or hybrid work experience?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

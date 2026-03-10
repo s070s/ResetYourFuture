@@ -203,5 +203,41 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("UpgradeToFormat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} courses.
+        /// </summary>
+        public static string TotalCoursesFormat {
+            get {
+                return ResourceManager.GetString("TotalCoursesFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Per page:.
+        /// </summary>
+        public static string PerPage {
+            get {
+                return ResourceManager.GetString("PerPage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Prev.
+        /// </summary>
+        public static string Previous {
+            get {
+                return ResourceManager.GetString("Previous", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Next.
+        /// </summary>
+        public static string Next {
+            get {
+                return ResourceManager.GetString("Next", resourceCulture);
+            }
+        }
     }
 }

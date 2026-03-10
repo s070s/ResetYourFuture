@@ -1,0 +1,9 @@
+{
+  "Key": "eq_snapshot_v1",
+  "Title": "Emotional Intelligence Snapshot",
+  "Description": "A brief self-reflection on the five core components of emotional intelligence to identify your strongest and most underdeveloped areas.",
+  "SchemaJson": "{\"id\":\"eq_snapshot_v1\",\"title\":\"Emotional Intelligence Snapshot\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How well do you understand your own emotional triggers and patterns?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How effectively do you manage your emotions when under pressure or receiving criticism?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"rating\",\"label\":\"How well do you read the emotions and non-verbal cues of colleagues?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q4\",\"type\":\"choice\",\"label\":\"Which EQ area do you most want to develop?\",\"options\":[\"Self-awareness\",\"Self-regulation\",\"Motivation and resilience\",\"Empathy\",\"Social and relationship skills\"],\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"Describe a recent situation where your emotions influenced a professional decision or interaction.\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

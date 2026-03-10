@@ -1,0 +1,9 @@
+{
+  "Key": "communication_style_v1",
+  "Title": "Communication Style Assessment",
+  "Description": "Reflect on how you communicate in written, verbal, and digital contexts to identify your strengths and development areas.",
+  "SchemaJson": "{\"id\":\"communication_style_v1\",\"title\":\"Communication Style Assessment\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"choice\",\"label\":\"How would you describe your natural communication style?\",\"options\":[\"Direct and concise\",\"Detailed and thorough\",\"Collaborative and inclusive\",\"Expressive and persuasive\",\"Reserved and listener-first\"],\"required\":true},{\"id\":\"q2\",\"type\":\"rating\",\"label\":\"How confident are you in your written communication (emails, reports, messages)?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q3\",\"type\":\"rating\",\"label\":\"How confident are you speaking in meetings, presentations, or group settings?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q4\",\"type\":\"choice\",\"label\":\"Which communication situation do you find most challenging?\",\"options\":[\"Delivering difficult feedback\",\"Presenting to senior stakeholders\",\"Disagreeing professionally\",\"Writing clearly and concisely\",\"Active listening without interrupting\"],\"required\":true},{\"id\":\"q5\",\"type\":\"text\",\"label\":\"Describe a recent communication situation that did not go as well as you hoped. What happened?\",\"required\":false}]}",
+  "IsPublished": true,
+  "CreatedAt": "2025-06-01T08:00:00Z",
+  "PublishedAt": "2025-06-01T08:00:00Z"
+}

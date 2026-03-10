@@ -1,0 +1,45 @@
+{
+  "title": "Growth Mindset & Resilience",
+  "description": "Build the mental framework to embrace challenges, learn from setbacks, and sustain long-term career growth.",
+  "isPublished": true,
+  "modules": [
+    {
+      "title": "Understanding Mindset",
+      "description": "Learn the science behind fixed and growth mindsets and why it changes everything.",
+      "sortOrder": 1,
+      "lessons": [
+        {
+          "title": "Fixed vs. Growth Mindset",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 10,
+          "sortOrder": 1
+        },
+        {
+          "title": "Recognising Your Fixed Mindset Triggers",
+          "content": "# Recognising Your Fixed Mindset Triggers\n\nEveryone has a fixed mindset voice — the inner critic that says \"I am not smart enough\" or \"I cannot do this.\" The goal is to recognise it, not silence it.\n\n## Common Fixed Mindset Triggers\n- Receiving critical feedback\n- Watching someone else succeed in an area you care about\n- Facing a challenge that feels beyond your current ability\n- Making a mistake in public\n\n## The Two-Step Shift\n1. **Name the trigger** — \"I am in fixed mindset right now because...\"\n2. **Reframe with a growth question** — \"What can I learn from this?\" / \"What is the next small step?\"\n\n## The Power of \"Yet\"\nInstead of: \"I cannot do this.\"\nSay: \"I cannot do this **yet**.\"\n\nThis single word shift signals to your brain that the situation is temporary and changeable.\n\n## Journal Prompt\nWrite about a recent fixed mindset moment. What triggered it? What would a growth mindset response have looked like?",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        }
+      ]
+    },
+    {
+      "title": "Building Resilience",
+      "description": "Develop the capacity to bounce back stronger from setbacks.",
+      "sortOrder": 2,
+      "lessons": [
+        {
+          "title": "The Resilience Toolkit",
+          "content": "# The Resilience Toolkit\n\nResilience is not about never struggling — it is about recovering faster and growing stronger.\n\n## The Four Pillars of Resilience\n\n### 1. Meaning\nPeople who find meaning in difficulty recover faster. Ask: \"What is this teaching me? How will I use this?\"\n\n### 2. Connection\nIsolation amplifies adversity. Lean on trusted people. Asking for help is a strength, not a weakness.\n\n### 3. Perspective\nMost setbacks feel permanent in the moment. Ask: \"Will this matter in 5 years?\"\n\n### 4. Self-Care\nResilience runs on energy. Sleep, movement, and nutrition are not optional extras during hard times — they are the foundation.\n\n## Processing Setbacks\n1. Allow yourself to feel it — suppression delays recovery.\n2. Separate facts from interpretations (\"I did not get the job\" vs. \"I am a failure\").\n3. Identify one small action you can take today.\n4. Revisit and learn once the emotional intensity fades.",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Learning From Failure",
+          "content": "# Learning From Failure\n\nFailure is data. The most successful professionals are not those who fail least — they are those who extract the most learning from it.\n\n## The After-Action Review\nUsed by military organisations and high-performance teams. Apply it to any significant setback.\n\n1. **What was supposed to happen?** (Your plan or expectation)\n2. **What actually happened?** (The outcome)\n3. **Why was there a gap?** (Honest root-cause analysis — avoid blaming others)\n4. **What will I do differently next time?** (Concrete behaviour change)\n\n## Normalise Failure in Your Narrative\n- Most career stories include visible failures — redundancy, rejection, wrong turns.\n- Reframing these as pivots or turning points makes them assets in interviews and conversations.\n\n## The Failure Résumé\nSome leaders maintain a \"failure résumé\" alongside their regular one — a record of their biggest setbacks and what they learned. It is a powerful exercise in normalising and owning your growth story.",
+          "durationMinutes": 12,
+          "sortOrder": 2
+        }
+      ]
+    }
+  ]
+}
