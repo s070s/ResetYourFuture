@@ -77,15 +77,16 @@ public class ChatService : IChatService
         return [];
     }
 
-    public async Task<List<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int skip = 0 , int take = 50 )
+    public async Task<PagedResult<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int page = 1 , int pageSize = 20 )
     {
         var response = await _http.GetAsync(
-            $"api/chat/conversations/{conversationId}/messages?skip={skip}&take={take}" );
+            $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}" );
         if ( response.IsSuccessStatusCode )
         {
-            return await response.Content.ReadFromJsonAsync<List<ChatMessageDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<PagedResult<ChatMessageDto>>()
+                   ?? new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
         }
-        return [];
+        return new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
     }
 
     public async Task<ChatConversationDto?> StartConversationWithAsync( string targetUserId , string? initialMessage = null )

@@ -29,10 +29,10 @@
                     </div>
 
                     <div class="plan-dates">
-                        <p><strong>@BillingRes.ActiveSince</strong> @_overview.CurrentSubscription?.StartedAt.ToString("dd MMM yyyy")</p>
+                        <p><strong>@BillingRes.ActiveSince</strong> @_overview.CurrentSubscription?.StartedAt.ToLocalTime().ToString("dd MMM yyyy")</p>
                         @if (_overview.CurrentSubscription?.ExpiresAt is not null)
                         {
-                            <p><strong>@BillingRes.NextRenewal</strong> @_overview.CurrentSubscription.ExpiresAt.Value.ToString("dd MMM yyyy")</p>
+                            <p><strong>@BillingRes.NextRenewal</strong> @_overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy")</p>
                         }
                         else
                         {
@@ -108,7 +108,7 @@
                             @foreach (var tx in _overview.Transactions)
                             {
                                 <tr>
-                                    <td>@tx.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td>@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
                                     <td>
                                         <span class="tx-type tx-type-@tx.Type.ToLowerInvariant()">@tx.Type</span>
                                         <span>@tx.Description</span>

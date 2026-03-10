@@ -79,38 +79,46 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
-    /// Get messages for a conversation (paginated, newest first).
+    /// Get messages for a conversation (server-side paginated, page 1 = oldest, last page = newest).
     /// </summary>
     [HttpGet( "conversations/{conversationId:guid}/messages" )]
-    public async Task<ActionResult<List<ChatMessageDto>>> GetMessages(
+    public async Task<ActionResult<PagedResult<ChatMessageDto>>> GetMessages(
         Guid conversationId ,
-        [FromQuery] int skip = 0 ,
-        [FromQuery] int take = 50 )
+        [FromQuery] int page = 1 ,
+        [FromQuery] int pageSize = 20 ,
+        CancellationToken cancellationToken = default )
     {
+        page = Math.Max( 1 , page );
+        pageSize = Math.Clamp( pageSize , 1 , 100 );
+
         var userId = UserId;
 
         var conversation = await _db.ChatConversations
-            .FirstOrDefaultAsync( c => c.Id == conversationId );
+            .FirstOrDefaultAsync( c => c.Id == conversationId , cancellationToken );
 
         if ( conversation is null )
             return NotFound();
 
-        // Verify participant.
         if ( conversation.CreatorId != userId && conversation.ParticipantId != userId )
             return Forbid();
 
-        var messages = await _db.ChatMessages
+        var query = _db.ChatMessages
             .Include( m => m.Sender )
-            .Where( m => m.ConversationId == conversationId )
-            .OrderByDescending( m => m.SentAt )
-            .Skip( skip )
-            .Take( take )
-            .ToListAsync();
+            .Where( m => m.ConversationId == conversationId );
 
-        var result = messages.Select( m =>
+        var totalCount = await query.CountAsync( cancellationToken );
+
+        var messages = await query
+            .OrderBy( m => m.SentAt )
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
+            .ToListAsync( cancellationToken );
+
+        var result = new List<ChatMessageDto>( messages.Count );
+        foreach ( var m in messages )
         {
-            var roles = _userManager.GetRolesAsync( m.Sender! ).GetAwaiter().GetResult();
-            return new ChatMessageDto(
+            var roles = await _userManager.GetRolesAsync( m.Sender! );
+            result.Add( new ChatMessageDto(
                 m.Id ,
                 m.ConversationId ,
                 m.SenderId ,
@@ -118,10 +126,10 @@ public class ChatController : ControllerBase
                 roles.FirstOrDefault() ?? "User" ,
                 m.Content ,
                 m.SentAt ,
-                m.IsRead );
-        } ).Reverse().ToList();
+                m.IsRead ) );
+        }
 
-        return Ok( result );
+        return Ok( new PagedResult<ChatMessageDto>( result , totalCount , page , pageSize ) );
     }
 
     /// <summary>

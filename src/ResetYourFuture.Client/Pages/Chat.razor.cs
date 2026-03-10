@@ -15,7 +15,10 @@ public partial class Chat : IAsyncDisposable
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private List<ChatConversationDto>? _conversations;
-    private List<ChatMessageDto> _messages = [];
+    private PagedResult<ChatMessageDto>? _pagedMessages;
+    private int _messagesPage = 1;
+    private int _messagesPageSize = 20;
+    private static readonly int[] MessagePageSizeOptions = [10, 20, 50];
     private ChatConversationDto? _selectedConversation;
     private string _newMessage = string.Empty;
     private string _currentUserId = string.Empty;
@@ -58,17 +61,69 @@ public partial class Chat : IAsyncDisposable
     private async Task SelectConversation( ChatConversationDto conversation )
     {
         _selectedConversation = conversation;
+        _messagesPage = 1;
         _isLoadingMessages = true;
         StateHasChanged();
 
-        _messages = await ChatService.GetMessagesAsync( conversation.Id );
-        await ChatService.MarkAsReadAsync( conversation.Id );
+        await LoadMessagesAsync();
 
-        // Update unread count in list.
+        // Jump straight to the last (newest) page.
+        if ( _pagedMessages is { TotalPages: > 1 } )
+        {
+            _messagesPage = _pagedMessages.TotalPages;
+            await LoadMessagesAsync();
+        }
+
+        await ChatService.MarkAsReadAsync( conversation.Id );
         UpdateConversationUnread( conversation.Id , 0 );
 
         _isLoadingMessages = false;
         StateHasChanged();
+    }
+
+    private async Task LoadMessagesAsync()
+    {
+        if ( _selectedConversation is null ) return;
+        _pagedMessages = await ChatService.GetMessagesAsync( _selectedConversation.Id , _messagesPage , _messagesPageSize );
+    }
+
+    private async Task GoToMessagePage( int page )
+    {
+        _messagesPage = page;
+        _isLoadingMessages = true;
+        StateHasChanged();
+        await LoadMessagesAsync();
+        _isLoadingMessages = false;
+        StateHasChanged();
+    }
+
+    private async Task PreviousMessagePage()
+    {
+        if ( _messagesPage > 1 )
+            await GoToMessagePage( _messagesPage - 1 );
+    }
+
+    private async Task NextMessagePage()
+    {
+        if ( _pagedMessages is { HasNextPage: true } )
+            await GoToMessagePage( _messagesPage + 1 );
+    }
+
+    private async Task OnMessagePageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        {
+            _messagesPageSize = size;
+            // Load page 1 to get the new TotalPages, then jump to last page.
+            _messagesPage = 1;
+            await LoadMessagesAsync();
+            if ( _pagedMessages is { TotalPages: > 1 } )
+            {
+                _messagesPage = _pagedMessages.TotalPages;
+                await LoadMessagesAsync();
+            }
+            StateHasChanged();
+        }
     }
 
     // --- User Picker ---
@@ -168,9 +223,13 @@ public partial class Chat : IAsyncDisposable
         {
             if ( _selectedConversation is not null && message.ConversationId == _selectedConversation.Id )
             {
-                _messages.Add( message );
+                // Only append to the visible list when on the last (newest) page.
+                if ( _pagedMessages is not null && _messagesPage == _pagedMessages.TotalPages )
+                {
+                    _pagedMessages.Items.Add( message );
+                    _pagedMessages = _pagedMessages with { TotalCount = _pagedMessages.TotalCount + 1 };
+                }
 
-                // Auto-mark as read if we're viewing this conversation.
                 if ( message.SenderId != _currentUserId )
                 {
                     _ = ChatService.MarkAsReadAsync( message.ConversationId );
