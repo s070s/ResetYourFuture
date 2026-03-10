@@ -1,25 +1,24 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
-public partial class AdminUsers
+public partial class AdminUsers : IAsyncDisposable
 {
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
-    private List<UserDto>? users;
+    private PagedResult<AdminUserDto>? pagedResult;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string searchTerm = string.Empty;
     private string message = string.Empty;
     private string? confirmDeleteId;
-
-    private IEnumerable<UserDto> filteredUsers => users?
-        .Where( u => string.IsNullOrEmpty( searchTerm ) ||
-                    u.Email.Contains( searchTerm , StringComparison.OrdinalIgnoreCase ) ||
-                    $"{u.FirstName} {u.LastName}".Contains( searchTerm , StringComparison.OrdinalIgnoreCase ) )
-        ?? Enumerable.Empty<UserDto>();
+    private CancellationTokenSource? _searchCts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -30,11 +29,66 @@ public partial class AdminUsers
     {
         try
         {
-            users = await Http.GetFromJsonAsync<List<UserDto>>( "api/admin/users" );
+            var url = $"api/admin/users?page={currentPage}&pageSize={pageSize}";
+            if ( !string.IsNullOrEmpty( searchTerm ) )
+                url += $"&search={Uri.EscapeDataString( searchTerm )}";
+
+            pagedResult = await Http.GetFromJsonAsync<PagedResult<AdminUserDto>>( url );
         }
         catch ( HttpRequestException ex ) when ( ex.StatusCode == System.Net.HttpStatusCode.Forbidden )
         {
             message = "Access denied";
+        }
+    }
+
+    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString(), out var size ) )
+        {
+            pageSize = size;
+            currentPage = 1;
+            await LoadUsers();
+        }
+    }
+
+    private async Task OnSearchInput( ChangeEventArgs e )
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        currentPage = 1;
+
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+        var cts = _searchCts;
+
+        try
+        {
+            await Task.Delay( 300, cts.Token );
+            await LoadUsers();
+        }
+        catch ( OperationCanceledException ) { }
+    }
+
+    private async Task GoToPage( int page )
+    {
+        currentPage = page;
+        await LoadUsers();
+    }
+
+    private async Task PreviousPage()
+    {
+        if ( currentPage > 1 )
+        {
+            currentPage--;
+            await LoadUsers();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if ( pagedResult is { HasNextPage: true } )
+        {
+            currentPage++;
+            await LoadUsers();
         }
     }
 
@@ -57,9 +111,7 @@ public partial class AdminUsers
         {
             var response = await Http.PostAsync( $"api/admin/users/{userId}/force-password-reset" , null );
             if ( response.IsSuccessStatusCode )
-            {
                 message = "Password reset initiated for user";
-            }
         }
         catch ( Exception ex )
         {
@@ -102,21 +154,10 @@ public partial class AdminUsers
         }
     }
 
-    private class UserDto
+    public async ValueTask DisposeAsync()
     {
-        public string Id { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string FirstName { get; set; } = "";
-        public string LastName { get; set; } = "";
-        public string Status { get; set; } = "";
-        public bool IsEnabled
-        {
-            get; set;
-        }
-        public bool EmailConfirmed
-        {
-            get; set;
-        }
-        public List<string> Roles { get; set; } = new();
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
     }
 }
+

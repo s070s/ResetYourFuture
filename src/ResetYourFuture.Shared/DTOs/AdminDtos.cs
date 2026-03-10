@@ -95,10 +95,10 @@ public record AdminUserDto(
     string LastName,
     string? DisplayName,
     bool EmailConfirmed,
-    bool LockoutEnabled,
-    DateTimeOffset? LockoutEnd,
+    bool IsEnabled,
+    string Status,
     List<string> Roles,
-    DateTimeOffset CreatedAt
+    DateTime CreatedAt
 );
 
 /// <summary>

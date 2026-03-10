@@ -38,37 +38,56 @@ public class AdminController : ControllerBase
     }
 
     /// <summary>
-    /// List all users with their roles. For admin analytics/management.
+    /// List users with server-side pagination and optional search.
     /// </summary>
     [HttpGet( "users" )]
-    public async Task<ActionResult<IEnumerable<object>>> GetUsers()
+    public async Task<ActionResult<PagedResult<AdminUserDto>>> GetUsers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        CancellationToken cancellationToken = default )
     {
-        // Load all users from the Identity store.
-        var users = await _userManager.Users.ToListAsync();
-        // Prepare a lightweight result list for the response.
-        var result = new List<object>();
+        page = Math.Max( 1, page );
+        pageSize = Math.Clamp( pageSize, 1, 100 );
 
-        // For each user, fetch roles and shape the response object.
+        var query = _userManager.Users.AsQueryable();
+
+        if ( !string.IsNullOrWhiteSpace( search ) )
+        {
+            var term = search.Trim();
+            query = query.Where( u =>
+                u.Email!.Contains( term ) ||
+                u.FirstName.Contains( term ) ||
+                u.LastName.Contains( term ) );
+        }
+
+        var totalCount = await query.CountAsync( cancellationToken );
+
+        var users = await query
+            .OrderBy( u => u.Email )
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
+            .ToListAsync( cancellationToken );
+
+        var result = new List<AdminUserDto>( users.Count );
         foreach ( var user in users )
         {
             var roles = await _userManager.GetRolesAsync( user );
-            result.Add( new
-            {
-                user.Id ,
-                user.Email ,
-                user.FirstName ,
-                user.LastName ,
-                user.Age ,
-                Status = user.Status.ToString() ,
-                user.EmailConfirmed ,
-                user.IsEnabled ,
-                user.CreatedAt ,
-                Roles = roles
-            } );
+            result.Add( new AdminUserDto(
+                user.Id,
+                user.Email!,
+                user.FirstName,
+                user.LastName,
+                user.DisplayName,
+                user.EmailConfirmed,
+                user.IsEnabled,
+                user.Status.ToString(),
+                [.. roles],
+                user.CreatedAt
+            ) );
         }
 
-        // Return 200 OK with the user list.
-        return Ok( result );
+        return Ok( new PagedResult<AdminUserDto>( result, totalCount, page, pageSize ) );
     }
 
     /// <summary>

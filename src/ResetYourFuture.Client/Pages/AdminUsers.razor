@@ -7,16 +7,17 @@
     <h2>@AdminRes.UserManagement</h2>
 
     <div class="mb-3">
-        <input type="text" class="form-control" placeholder="@AdminRes.SearchByEmailOrName" @bind="searchTerm" @bind:event="oninput" />
+        <input type="text" class="form-control" placeholder="@AdminRes.SearchByEmailOrName"
+               value="@searchTerm" @oninput="OnSearchInput" />
     </div>
 
     <AuthorizeView Roles="Admin">
         <Authorized>
-            @if (users == null)
+            @if (pagedResult == null)
             {
                 <p>@AdminRes.LoadingUsers</p>
             }
-            else if (!filteredUsers.Any())
+            else if (!pagedResult.Items.Any())
             {
                 <p>@AdminRes.NoUsersFound</p>
             }
@@ -34,9 +35,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var user in filteredUsers)
+                            @foreach (var user in pagedResult.Items)
                             {
-                                <tr>
+                                <tr @key="user.Id">
                                     <td>@user.Email</td>
                                     <td>@user.FirstName @user.LastName</td>
                                     <td>@(user.IsEnabled ? "✓" : "✗")</td>
@@ -70,6 +71,28 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        Showing @((pagedResult.Page - 1) * pagedResult.PageSize + 1)–@(Math.Min(pagedResult.Page * pagedResult.PageSize, pagedResult.TotalCount)) of @pagedResult.TotalCount users
+                    </small>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0 text-muted small">Rows:</label>
+                        <select class="page-size-select" value="@pageSize" @onchange="OnPageSizeChanged">
+                            @foreach (var opt in PageSizeOptions)
+                            {
+                                <option value="@opt">@opt</option>
+                            }
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="PreviousPage"
+                                disabled="@(!pagedResult.HasPreviousPage)">‹ Prev</button>
+                        <span class="small">Page @pagedResult.Page of @pagedResult.TotalPages</span>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="NextPage"
+                                disabled="@(!pagedResult.HasNextPage)">Next ›</button>
+                    </div>
+                </div>
             }
 
             @if (!string.IsNullOrEmpty(message))
@@ -84,4 +107,3 @@
         </NotAuthorized>
     </AuthorizeView>
 </div>
-
