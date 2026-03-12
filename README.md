@@ -1,206 +1,474 @@
-# Reset Your Future
+# ResetYourFuture
 
-A Blazor WebAssembly + ASP.NET Core Web API application with JWT-based authentication, designed for future mobile app compatibility.
+A psychosocial career counseling platform with a Udemy-style course component.
+Supports course / module / lesson authoring, self-assessments, real-time chat, subscription plans, and student progress tracking.
+
+---
+
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Tech Stack](#tech-stack)
+3. [Quickstart for Development](#quickstart-for-development)
+4. [Quickstart for Production](#quickstart-for-production)
+5. [Quickstart for Deployment](#quickstart-for-deployment)
+6. [Endpoints](#endpoints)
+7. [Roles](#roles)
+8. [Default Admin Account To Log In](#default-admin-account-to-log-in)
+9. [Credentials for Seeded Students](#credentials-for-seeded-students)
+10. [How Email Confirmation Works](#how-email-confirmation-works)
+11. [EF Core Migrations](#ef-core-migrations)
+12. [Walkthrough the Configurations of Each Project](#walkthrough-the-configurations-of-each-project)
+13. [File Based Logging](#file-based-logging)
+14. [Troubleshooting](#troubleshooting)
+15. [Adding Seed Content for App Startup](#adding-seed-content-for-app-startup)
+16. [Assessment Authoring Guide for Admins](#assessment-authoring-guide-for-admins)
+17. [Course, Module, Lesson Authoring Guide for Admins](#course-module-lesson-authoring-guide-for-admins)
 
 ---
 
 ## Prerequisites
 
-- .NET SDK 9.x
-- (Developed using LocalDB Microsoft SQL Server)
+Install the following before opening the solution:
+
+| Tool | Notes |
+|------|-------|
+| [Visual Studio 2026](https://visualstudio.microsoft.com/) | Workloads: **ASP.NET and web development**, **.NET desktop development** |
+| [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) | The solution targets `net9.0` |
+| [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) | **LocalDB** (ships with Visual Studio), Developer, or Express edition |
+| [SQL Server Management Studio (SSMS)](https://aka.ms/ssmsfullsetup) | Optional but recommended for inspecting the database |
+| [Git](https://git-scm.com/) | For cloning the repository |
 
 ---
 
-## Quick Start
+## Tech Stack
 
-### 1. Build
+| Layer | Technology |
+|-------|------------|
+| Runtime | .NET 9 |
+| Backend | ASP.NET Core Web API (controllers, OpenAPI) |
+| Frontend | Blazor WebAssembly (standalone client) |
+| ORM | Entity Framework Core 9 (SQL Server provider) |
+| Database | SQL Server (LocalDB for dev) |
+| Auth | ASP.NET Core Identity + JWT Bearer tokens + Refresh tokens |
+| Real-time | SignalR (`/hubs/chat`) |
+| Validation | FluentValidation |
+| Mapping | AutoMapper |
+| Localization | Built-in `Microsoft.Extensions.Localization` (English + Greek) |
+| Client storage | Blazored.LocalStorage (JWT persistence) |
+| Logging | Custom file logger (daily rotating text files) |
+| Email | `StubEmailService` — logs emails to file in dev (no external SMTP required) |
+| Shared | `ResetYourFuture.Shared` class library (DTOs, resources, JSON seed data) |
 
-```powershell
-dotnet build ResetYourFuture.sln
+---
+
+## Quickstart for Development
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/s070s/ResetYourFuture.git
+cd ResetYourFuture
 ```
 
-### 2. Restore Local Tools
+2. **Open** `ResetYourFuture.sln` in Visual Studio 2026.
 
-```powershell
-dotnet tool restore
+3. **Verify the connection string** in `src/ResetYourFuture.Api/appsettings.json`:
+
+```json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=ResetYourFutureDb;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;"
+}
 ```
 
-> This installs `dotnet-ef` locally for migration commands.
+> If you use a full SQL Server instance instead of LocalDB, update the connection string accordingly.
 
-### 3. Run
+4. **Migrations are applied automatically on startup** — the API's `Program.cs` calls `db.Database.Migrate()`, so you do **not** need to run `Update-Database` manually. The database and all tables are created the first time the API starts.
 
-**Option A — Two terminals:**
+5. **Set multiple startup projects**:
+   - Right-click the Solution → **Configure Startup Projects…**
+   - Set both **ResetYourFuture.Api** and **ResetYourFuture.Client** to **Start**.
 
-```powershell
-# Terminal 1 (API on https://localhost:7003)
-dotnet run --project src/ResetYourFuture.Api --launch-profile https
+6. **Press `F5`** to run.
 
-# Terminal 2 (Client on https://localhost:7083)
-dotnet run --project src/ResetYourFuture.Client
-```
- 
-
-**Option B — VS Code task:**
-
-Run `Run Both (Client + API)` from Tasks → Run Task.
-
-### 5. Access
-
-| Service | URL |
+| Project | URL |
 |---------|-----|
-| Client (Blazor) | https://localhost:7083 |
-| API | https://localhost:7003 |
-| OpenAPI | https://localhost:7003/openapi/v1.json |
+| API | `https://localhost:7003` |
+| Blazor Client | `https://localhost:7083` |
+| OpenAPI spec | `https://localhost:7003/openapi/v1.json` (Development only) |
 
-
-**Option C — Visual Studio:**
-
-1. Open the solution in Visual Studio.
-2. Set the `ResetYourFuture.Api` and `ResetYourFuture.Client` projects as startup projects.
-3. Start debugging (F5) to run both projects.
+7. **Seed data** (courses, assessments, students) is loaded automatically in `Development` mode because `appsettings.Development.json` has `"SeedData:Enabled": true`. No extra steps needed.
 
 ---
 
- 
+## Quickstart for Production
 
-## Authentication
+1. Set the environment to `Production`:
 
-### Endpoints
+```
+ASPNETCORE_ENVIRONMENT=Production
+```
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/api/auth/register` | Create account | No |
-| POST | `/api/auth/login` | Get JWT token | No |
-| GET | `/api/auth/confirm-email` | Confirm email | No |
-| POST | `/api/auth/forgot-password` | Request reset | No |
-| POST | `/api/auth/reset-password` | Reset password | No |
-| GET | `/api/auth/me` | Current user info | Yes |
+2. Provide a **production connection string** via environment variables or a secrets manager — **never** leave credentials in `appsettings.json` for production.
 
-### Roles
+3. **Replace the JWT key.** The default key in `appsettings.json` (`CHANGE_THIS_IN_PRODUCTION_MIN_32_CHARS!!`) is a placeholder. Set a strong, unique value of at least 32 characters via an environment variable or secret:
 
-- **Student** — Default role on registration
-- **Admin** — Full user/role management access
+```
+Jwt__Key=<your-strong-secret-key-min-32-chars>
+```
 
-### Default Admin Account (Development Only)
+4. Optionally override the admin credentials:
 
-An admin user is created automatically on first run:
+```
+AdminUser__Email=admin@yourdomain.com
+AdminUser__Password=<strong-password>
+```
+
+5. Migrations are applied automatically on startup (`db.Database.Migrate()`). If you prefer to run them manually in CI/CD, generate a SQL script instead (see [EF Core Migrations](#ef-core-migrations)).
+
+6. Development-only seed data (courses, assessments, students) is **skipped** in Production because `SeedData:Enabled` defaults to `false`.
+
+---
+
+## Quickstart for Deployment
+
+General steps for deploying to Azure App Service, IIS, or a container:
+
+1. **Publish the API project**:
+   - Right-click `ResetYourFuture.Api` → **Publish**
+   - Select target (Azure App Service, folder, Docker, etc.)
+
+2. **Publish the Blazor client project**:
+   - Right-click `ResetYourFuture.Client` → **Publish**
+   - The output is a set of static files (`wwwroot/`). Host them on Azure Static Web Apps, Blob Storage + CDN, or behind the same App Service.
+
+3. **Set environment variables** on the host:
+   - `ConnectionStrings__DefaultConnection`
+   - `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
+   - `AdminUser__Email`, `AdminUser__Password`
+   - `AllowedClientOrigin` (must match the Blazor client's origin for CORS)
+
+4. **Run database migrations** — they run automatically at startup, or use `Script-Migration` to generate a SQL script for DBA-managed environments.
+
+5. Update `ApiBaseUrl` in the **Blazor client's** `wwwroot/appsettings.json` to point to the production API URL.
+
+---
+
+## Endpoints
+
+### Auth — `api/auth`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `POST` | `api/auth/register` | Register a new user (Student role by default) | No |
+| `GET` | `api/auth/confirm-email` | Confirm email via token link | No |
+| `POST` | `api/auth/login` | Log in and receive JWT + refresh token | No |
+| `POST` | `api/auth/forgot-password` | Request a password-reset email | No |
+| `POST` | `api/auth/reset-password` | Reset password with token | No |
+| `GET` | `api/auth/me` | Get current user info from JWT | Yes |
+| `POST` | `api/auth/dev/confirm-email` | Dev-only: confirm email without a real email | Dev only |
+| `POST` | `api/auth/dev/reset-password` | Dev-only: reset password without email | Dev only |
+
+### Profile — `api/profile`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/profile` | Get current user's profile | Yes |
+| `PUT` | `api/profile` | Update profile | Yes |
+| `POST` | `api/profile/avatar` | Upload avatar image | Yes |
+| `GET` | `api/profile/avatar` | Get avatar image | Yes |
+| `POST` | `api/profile/change-password` | Change password | Yes |
+
+### Courses — `api/courses` (Student-facing)
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/courses` | List published courses | Yes |
+| `GET` | `api/courses/{courseId}` | Get course detail with modules and lessons | Yes |
+| `POST` | `api/courses/{courseId}/enroll` | Enroll in a course | Yes |
+| `GET` | `api/courses/lessons/{lessonId}` | Get lesson detail | Yes |
+| `POST` | `api/courses/lessons/{lessonId}/complete` | Mark lesson as complete | Yes |
+
+### Lesson Assets — `api/lessons`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/lessons/{lessonId}/asset?type=pdf\|video` | Download lesson PDF or video (enrolled students only) | Yes |
+
+### Assessments — `api/assessments` (Student-facing)
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/assessments` | List published assessments (paged) | Yes |
+| `GET` | `api/assessments/{id}` | Get assessment detail | Yes |
+| `POST` | `api/assessments/{id}/submit` | Submit assessment answers | Yes |
+| `GET` | `api/assessments/mine` | Get current user's submissions | Yes |
+
+### Subscriptions — `api/subscription`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/subscription/plans` | List subscription plans (public) | No |
+| `GET` | `api/subscription/status` | Get current user's subscription status | Yes |
+| `POST` | `api/subscription/checkout` | Start checkout | Yes |
+| `POST` | `api/subscription/webhook` | Payment webhook callback | No |
+| `POST` | `api/subscription/cancel` | Cancel subscription | Yes |
+| `GET` | `api/subscription/billing` | Get billing history | Yes |
+
+### Chat — `api/chat` + SignalR Hub `/hubs/chat`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/chat/conversations` | List conversations | Yes |
+| `GET` | `api/chat/conversations/{id}/messages` | Load messages for a conversation | Yes |
+| `POST` | `api/chat/conversations/start` | Start a new conversation | Yes |
+| `GET` | `api/chat/users` | List users available to chat | Yes |
+| `GET` | `api/chat/unread-count` | Get unread message count | Yes |
+| — | `/hubs/chat` (SignalR) | Real-time messaging hub | Yes (JWT via query string) |
+
+### Site Settings — `api/site`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/site/background-image` | Get landing page background image | No |
+| `POST` | `api/site/admin/background-image` | Upload landing page background image | Admin |
+
+### Admin — User Management — `api/admin`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/users` | List users (paged, searchable) | Admin |
+| `GET` | `api/admin/users/{userId}` | Get user detail | Admin |
+| `GET` | `api/admin/users/search` | Search users | Admin |
+| `POST` | `api/admin/users/{userId}/roles/{roleName}` | Add role to user | Admin |
+| `DELETE` | `api/admin/users/{userId}/roles/{roleName}` | Remove role from user | Admin |
+| `GET` | `api/admin/roles` | List all roles | Admin |
+| `POST` | `api/admin/roles/{roleName}` | Create a new role | Admin |
+| `POST` | `api/admin/users/{userId}/toggle-enable` | Toggle user enabled/disabled | Admin |
+| `POST` | `api/admin/users/{userId}/disable` | Disable user | Admin |
+| `POST` | `api/admin/users/{userId}/enable` | Enable user | Admin |
+| `DELETE` | `api/admin/users/{userId}` | Delete user | Admin |
+| `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset | Admin |
+| `POST` | `api/admin/users/{userId}/impersonate` | Impersonate a user | Admin |
+
+### Admin — Courses — `api/admin/courses`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/courses` | List all courses (published and unpublished) | Admin |
+| `GET` | `api/admin/courses/{id}` | Get course detail with modules and enrollments | Admin |
+| `POST` | `api/admin/courses` | Create a course | Admin |
+| `PUT` | `api/admin/courses/{id}` | Update a course | Admin |
+| `DELETE` | `api/admin/courses/{id}` | Delete a course | Admin |
+| `POST` | `api/admin/courses/{id}/publish` | Publish a course | Admin |
+| `POST` | `api/admin/courses/{id}/unpublish` | Unpublish a course | Admin |
+
+### Admin — Modules — `api/admin/modules`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/modules/course/{courseId}` | List modules for a course | Admin |
+| `GET` | `api/admin/modules/{id}` | Get module detail | Admin |
+| `POST` | `api/admin/modules` | Create a module | Admin |
+| `PUT` | `api/admin/modules/{id}` | Update a module | Admin |
+| `DELETE` | `api/admin/modules/{id}` | Delete a module | Admin |
+
+### Admin — Lessons — `api/admin/lessons`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/lessons/module/{moduleId}` | List lessons for a module | Admin |
+| `POST` | `api/admin/lessons` | Create a lesson | Admin |
+| `PUT` | `api/admin/lessons/{id}` | Update a lesson | Admin |
+| `DELETE` | `api/admin/lessons/{id}` | Delete a lesson | Admin |
+| `POST` | `api/admin/lessons/{id}/upload/pdf` | Upload PDF for a lesson | Admin |
+| `POST` | `api/admin/lessons/{id}/upload/video` | Upload video for a lesson | Admin |
+| `POST` | `api/admin/lessons/{id}/publish` | Publish a lesson | Admin |
+
+### Admin — Assessments — `api/admin/assessments`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/assessments` | List all assessment definitions (paged) | Admin |
+| `GET` | `api/admin/assessments/{id}` | Get assessment detail | Admin |
+| `POST` | `api/admin/assessments` | Create assessment definition | Admin |
+| `PUT` | `api/admin/assessments/{id}` | Update assessment definition | Admin |
+| `DELETE` | `api/admin/assessments/{id}` | Delete assessment definition | Admin |
+| `POST` | `api/admin/assessments/{id}/publish` | Publish assessment | Admin |
+| `POST` | `api/admin/assessments/{id}/unpublish` | Unpublish assessment | Admin |
+| `GET` | `api/admin/assessments/{id}/submissions` | List submissions for an assessment | Admin |
+
+### Admin — Analytics — `api/admin/analytics`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/analytics/summary` | Dashboard analytics summary | Admin |
+
+---
+
+## Roles
+
+| Role | Description |
+|------|-------------|
+| `Admin` | Full access. Can author courses, modules, lessons, and assessments. Manages users, roles, subscriptions, and site settings. |
+| `Student` | Can enroll in courses, view lessons, complete assessments, manage profile and subscriptions. |
+
+Roles are seeded automatically on startup in `Program.cs`.
+
+---
+
+## Default Admin Account To Log In
 
 | Field | Value |
 |-------|-------|
-| **Email** | `admin@resetyourfuture.local` |
-| **Password** | `Admin123!` |
+| Email | `admin@resetyourfuture.local` |
+| Password | `Admin123!` |
 
-> Credentials are configured in `appsettings.Development.json` under `AdminUser`.
-
-### Email Confirmation (Development)
-
-Since no email service is configured, the API returns the confirmation URL in the registration response:
-
-```json
-{
-  "message": "Registration successful. Please confirm your email.",
-  "devConfirmationUrl": "https://localhost:7003/api/Auth/confirm-email?userId=...&token=..."
-}
-```
-
-**To confirm:** Copy the `devConfirmationUrl` and paste it into your browser or click the button:
-
-
-### Admin Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/admin/users` | List all users |
-| GET | `/api/admin/users/{id}` | Get user details |
-| POST | `/api/admin/users/{id}/roles/{role}` | Assign role |
-| DELETE | `/api/admin/users/{id}/roles/{role}` | Remove role |
-| DELETE | `/api/admin/users/{id}` | Delete user |
-| GET | `/api/admin/roles` | List roles |
-| POST | `/api/admin/roles/{name}` | Create role |
+These defaults are set in `appsettings.json` under `AdminUser` and can be overridden via environment variables (`AdminUser__Email`, `AdminUser__Password`). The admin user is seeded on every startup if it does not already exist.
 
 ---
 
-## Database
+## Credentials for Seeded Students
 
-The application uses **SQL Server** with LocalDB and uses Migrations.
+Student accounts are only seeded in **Development** mode when `SeedData:Enabled` is `true`.
 
+All students share the same password: **`Student123!`**
 
-### EF Core Migrations (Optional)
+The email for each student is auto-generated as `firstname.lastname@resetyourfuture.local`.
 
-For production deployments, you may want to use migrations instead of `EnsureCreated()`:
+| Email | Password |
+|-------|----------|
+| `alice.johnson@resetyourfuture.local` | `Student123!` |
+| `bob.smith@resetyourfuture.local` | `Student123!` |
+| `charlie.williams@resetyourfuture.local` | `Student123!` |
+| `diana.brown@resetyourfuture.local` | `Student123!` |
+| `edward.jones@resetyourfuture.local` | `Student123!` |
+| `fiona.garcia@resetyourfuture.local` | `Student123!` |
+| `george.miller@resetyourfuture.local` | `Student123!` |
+| `hannah.davis@resetyourfuture.local` | `Student123!` |
+| `ivan.martinez@resetyourfuture.local` | `Student123!` |
+| `julia.wilson@resetyourfuture.local` | `Student123!` |
 
-```powershell
-cd src/ResetYourFuture.Api
-
-# Restore EF tools
-dotnet tool restore
-
-# Add migration
-dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --context ApplicationDbContext
-
-# Apply migrations
-dotnet ef database update --project src/ResetYourFuture.Api
-
-# Remove last migration (multiple times to remove older ones)
- dotnet ef migrations remove --project src/ResetYourFuture.Api
-
-# Generate SQL script
-dotnet ef migrations script --output migration.sql
-
-# Rollback to Migration 0
-dotnet ef database update 0
-
-
-
-
-Example
-dotnet ef database update 0 --project src/ResetYourFuture.Api
-dotnet ef migrations remove --project src/ResetYourFuture.Api
-dotnet ef migrations add MigrationName --project src/ResetYourFuture.Api --context ApplicationDbContext
-dotnet ef database update --project src/ResetYourFuture.Api
-
-```
+Student JSON source: `src/ResetYourFuture.Shared/JSON/Students/students.json`
 
 ---
 
-## Configuration
+## How Email Confirmation Works
 
-### appsettings.json (API)
+The app uses a **`StubEmailService`** (registered as `IEmailService`) that **logs emails** instead of sending them. No external SMTP server is required for development.
 
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "AllowedClientOrigin": "https://localhost:7083",
+### Registration flow
 
-  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ResetYourFutureDb;Integrated Security=True;Persist Security Info=False;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Application Name=\"SQL Server Management Studio\";Command Timeout=0"
-  },
+1. User calls `POST api/auth/register`.
+2. The API creates the user via ASP.NET Core Identity with `EmailConfirmed = false`.
+3. A confirmation token is generated and a confirmation link is built.
+4. `StubEmailService.SendEmailConfirmationAsync` logs the link to the file logger and console.
+5. In **Development** mode the dev shortcut `POST api/auth/dev/confirm-email` can confirm the account without clicking the link.
+6. In Production you would replace `StubEmailService` with a real implementation (e.g., SendGrid, Mailgun) by swapping the `IEmailService` DI registration in `Program.cs`.
 
-  "Jwt": {
-    "Key": "CHANGE_THIS_IN_PRODUCTION_MIN_32_CHARS!!",
-    "Issuer": "ResetYourFuture.Api",
-    "Audience": "ResetYourFuture.Client",
-    "AccessTokenExpirationMinutes": 60,
-    "RefreshTokenExpirationDays": 7
-  },
-  "SeedData": {
+### Where to find the confirmation link in dev
 
-    "JsonPaths": {
-      "Courses": "../ResetYourFuture.Shared/JSON/Courses",
-      "Assessments": "../ResetYourFuture.Shared/JSON/Assessments"
-    }
-  }
-}
+Open the daily log file at `src/ResetYourFuture.Api/Logs/log-YYYY-MM-DD.txt` and search for `STUB EMAIL - Email Confirmation`. The full link is printed there.
+
+### Password reset
+
+The same pattern applies: `POST api/auth/forgot-password` → stub logs the reset link → user opens the link or uses `POST api/auth/dev/reset-password` in dev.
+
+---
+
+## EF Core Migrations
+
+> **Note:** Migrations are applied automatically on app startup (`db.Database.Migrate()` in `Program.cs`). The commands below are only needed when you change the data model.
+
+All migration commands are run in the **Package Manager Console (PMC)** inside Visual Studio.
+
+**Open PMC:** Tools → NuGet Package Manager → Package Manager Console
+
+| PMC setting | Value |
+|-------------|-------|
+| **Default project** | `src\ResetYourFuture.Api` (contains `ApplicationDbContext`) |
+| **Startup project** | `ResetYourFuture.Api` (set in Solution Explorer) |
+
+### Add a new migration
 
 ```
+Add-Migration <MigrationName>
+```
 
-### appsettings.json (Client - wwwroot)
+### Apply migrations to the database
+
+```
+Update-Database
+```
+
+### Remove the last migration (if not yet applied)
+
+```
+Remove-Migration
+```
+
+### List all migrations
+
+```
+Get-Migration
+```
+
+### Generate a SQL script (for production / DBA review)
+
+```
+Script-Migration
+```
+
+The project also includes a `DesignTimeDbContextFactory` (`src/ResetYourFuture.Api/Data/DesignTimeDbContextFactory.cs`) so `dotnet ef` CLI commands work outside of the running application.
+
+---
+
+## Walkthrough the Configurations of Each Project
+
+### API Project — `ResetYourFuture.Api`
+
+| File | Purpose |
+|------|---------|
+| `appsettings.json` | Base configuration (connection string, JWT, admin user, allowed client origin, logging) |
+| `appsettings.Development.json` | Development overrides — enables seed data, sets JSON seed paths and student password |
+| `Properties/launchSettings.json` | Launch profile — `https://localhost:7003` |
+| `Program.cs` | Service registration (Identity, JWT, EF Core, CORS, SignalR, localization, file logger, DI), middleware pipeline, auto-migration, and all seed logic |
+
+**Key configuration sections in `appsettings.json`:**
+
+| Section | Description |
+|---------|-------------|
+| `ConnectionStrings:DefaultConnection` | SQL Server connection string |
+| `Jwt:Key` | Symmetric signing key for JWTs (min 32 chars) |
+| `Jwt:Issuer` | Token issuer (`ResetYourFuture.Api`) |
+| `Jwt:Audience` | Token audience (`ResetYourFuture.Client`) |
+| `Jwt:AccessTokenExpirationMinutes` | Access token lifetime (default `60`) |
+| `Jwt:RefreshTokenExpirationDays` | Refresh token lifetime (default `7`) |
+| `AdminUser:Email` / `Password` | Seeded admin credentials |
+| `AllowedClientOrigin` | CORS origin for the Blazor client (`https://localhost:7083` in dev) |
+| `Logging:LogLevel` | Standard .NET logging levels |
+
+**Additional sections in `appsettings.Development.json`:**
+
+| Section | Description |
+|---------|-------------|
+| `SeedData:Enabled` | `true` to seed courses, assessments, and students on startup |
+| `SeedData:StudentPassword` | Shared password for all seeded students (`Student123!`) |
+| `SeedData:JsonPaths:Courses` | Path to course JSON seed files |
+| `SeedData:JsonPaths:Assessments` | Path to assessment JSON seed files |
+| `SeedData:JsonPaths:Students` | Path to student JSON seed files |
+
+---
+
+### Client Project — `ResetYourFuture.Client`
+
+| File | Purpose |
+|------|---------|
+| `wwwroot/appsettings.json` | Client-side config — API base URL and social links |
+| `Properties/launchSettings.json` | Launch profile — `https://localhost:7083` |
+| `Program.cs` | Service registration (HttpClient with auth handler, auth state provider, localization, Blazored.LocalStorage, SignalR client) |
+
+**Key configuration in `wwwroot/appsettings.json`:**
 
 ```json
 {
@@ -212,11 +480,57 @@ dotnet ef database update --project src/ResetYourFuture.Api
 }
 ```
 
+> **Important:** `ApiBaseUrl` must match the running API URL. Update this when deploying to production.
+
 ---
 
-## File-Based Logging
+### Shared Project — `ResetYourFuture.Shared`
 
-Logs are written to `src/ResetYourFuture.Api/Logs/log-YYYY-MM-DD.txt`.
+Contains DTOs, resource files, enums, and JSON seed data. **No configuration file — no secrets should ever be placed here.**
+
+| Folder | Contents |
+|--------|----------|
+| `DTOs/` | Data transfer objects shared between API and Client |
+| `DTOs/Auth/` | `LoginRequestDto`, `RegisterRequestDto`, `AuthResponseDto`, etc. |
+| `DTOs/Courses/` | `CourseDetailDtos`, `CourseListItemDto`, `LessonDetailDto`, `EnrollmentResultDtos` |
+| `DTOs/Subscriptions/` | `SubscriptionDtos`, `BillingDtos`, `SubscriptionTierEnum` |
+| `DTOs/Chat/` | `ChatDtos` |
+| `DTOs/Seed/` | `CourseSeedDtos`, `AssessmentSeedDto`, `StudentSeedDto` |
+| `Resources/` | `.resx` localization files (English + Greek) for each UI area |
+| `JSON/Courses/` | JSON files for seeding courses (one file per course) |
+| `JSON/Assessments/` | JSON files for seeding assessments (one file per assessment) |
+| `JSON/Students/` | JSON file with seeded student records |
+
+---
+
+## File Based Logging
+
+The API uses a **custom file logger** (no third-party library) implemented in three files:
+
+| File | Purpose |
+|------|---------|
+| `Logging/FileLogger.cs` | Writes log entries to daily text files |
+| `Logging/FileLoggerProvider.cs` | Creates and caches `FileLogger` instances per category |
+| `Logging/FileLoggerExtensions.cs` | `ILoggingBuilder.AddFileLogger()` extension method |
+
+| Setting | Value |
+|---------|-------|
+| Log directory | `src/ResetYourFuture.Api/Logs/` |
+| File name pattern | `log-YYYY-MM-DD.txt` |
+| Rotation | Daily (one file per day) |
+| Minimum level | `Information` |
+
+Configured in `Program.cs`:
+
+```csharp
+builder.Logging.AddFileLogger("Logs");
+```
+
+Log entry format:
+
+```
+[2025-06-01 14:30:00.123] [INFORMATION] [ResetYourFuture.Api.Controllers.AuthController] User registered successfully.
+```
 
 ### Tail logs in PowerShell
 
@@ -224,22 +538,55 @@ Logs are written to `src/ResetYourFuture.Api/Logs/log-YYYY-MM-DD.txt`.
 Get-Content -Path .\src\ResetYourFuture.Api\Logs\log-$(Get-Date -Format yyyy-MM-dd).txt -Wait -Tail 50
 ```
 
-### Usage in code
-
-```csharp
-app.MapGet("/api/example", (ILogger<Program> log) =>
-{
-    log.LogInformation("Endpoint called");
-    return Results.Ok();
-});
-```
-
 ---
 
- 
 ## Troubleshooting
 
- 
+### Database connection fails on startup
+
+- Verify SQL Server / LocalDB is running. In a terminal: `sqllocaldb info MSSQLLocalDB`.
+- Check the connection string in `appsettings.json` or `appsettings.Development.json`.
+- Ensure `TrustServerCertificate=True` is set for local development.
+
+### Migrations fail in PMC
+
+- Confirm the **Default project** dropdown in PMC is set to `src\ResetYourFuture.Api`.
+- Confirm the **startup project** in Solution Explorer is `ResetYourFuture.Api`.
+- If the database is out of sync, try `Update-Database` before `Add-Migration`.
+
+### Seed data does not appear
+
+- Verify `appsettings.Development.json` has `"SeedData": { "Enabled": true }`.
+- Check the **Output** window or log file for warnings about missing JSON seed folders.
+- Seed data only runs in the `Development` environment.
+
+### Email confirmation link not found
+
+- There is no real email provider — `StubEmailService` logs the link to the file logger.
+- Open `Logs/log-<today>.txt` and search for `STUB EMAIL`.
+- Use the dev shortcut endpoint `POST api/auth/dev/confirm-email` to confirm without the link.
+
+### Blazor client cannot reach the API
+
+- Confirm both projects are set as startup projects.
+- Confirm `ApiBaseUrl` in `src/ResetYourFuture.Client/wwwroot/appsettings.json` is `https://localhost:7003`.
+- Confirm `AllowedClientOrigin` in the API's `appsettings.json` is `https://localhost:7083`.
+- Check the browser console (F12) for CORS errors.
+
+### Role-based pages are inaccessible
+
+- Confirm the logged-in account has the correct role. Check the `AspNetUserRoles` table in SSMS.
+- Admin pages require the `Admin` role; student pages require the `Student` role.
+
+### SignalR / Chat not connecting
+
+- The chat hub is at `/hubs/chat`. JWT is passed via the `access_token` query string parameter.
+- Ensure the JWT has not expired (default: 60 minutes).
+
+### JWT `401 Unauthorized` even after login
+
+- Check that `Jwt:Key`, `Jwt:Issuer`, and `Jwt:Audience` values match between API config and the token.
+- If a user account is disabled (`IsEnabled = false`), the API returns `401` with a `X-User-Disabled: true` response header.
 
 ### HTTPS certificate not trusted
 
@@ -249,552 +596,42 @@ If the browser shows certificate warnings:
 dotnet dev-certs https --trust
 ```
 
-### Port already in use
-
-Stop all running dotnet processes:
-
-```powershell
-Stop-Process -Name dotnet -Force -ErrorAction SilentlyContinue
-```
-
 ---
 
-## VS Code Tasks
+## Adding Seed Content for App Startup
 
-Available via **Terminal → Run Task**:
+Seed data runs automatically on startup in `Program.cs`. There are four seeders:
 
-| Task | Description |
-|------|-------------|
-| Build Solution | Build all projects |
-| Clean Solution | Clean build outputs |
-| Restore Packages | Restore NuGet packages |
-| Restore Tools | Install local dotnet tools (dotnet-ef) |
-| Run API | Start API server (HTTPS on 7003) |
-| Run Client | Start Blazor client (HTTPS on 7083) |
-| Run Both (Client + API) | Start both in parallel |
-| Stop All Servers | Kill all dotnet processes |
-| Reset Database | Delete SQLite database file |
-| Drop Database | Delete SQLite database file |
-| Add Migration | Create new EF migration |
-| Update Database | Apply pending migrations |
-| Tail Logs | Watch API log file |
-| Clean Client Cache | Remove Client obj folder |
-| Test API Health | Quick API connectivity test |
-| Login as Admin | Get JWT token for admin user |
-| Trust Dev Certificates | Trust ASP.NET Core dev certs |
+| Seeder | Source | Runs When |
+|--------|--------|-----------|
+| **Roles** (`Admin`, `Student`) | Inline in `Program.cs` | Always (idempotent) |
+| **Subscription Plans** (Free, Plus, Pro) | `SubscriptionPlanSeeder.cs` | Always (skips if plans exist) |
+| **Admin User** | Inline in `Program.cs` | Always (skips if admin email exists) |
+| **Courses** | `CourseSeeder.cs` ← JSON files | Development only, `SeedData:Enabled = true`, skips if any courses exist |
+| **Assessments** | `AssessmentSeeder.cs` ← JSON files | Development only, `SeedData:Enabled = true`, skips if any assessments exist |
+| **Students** | `StudentSeeder.cs` ← JSON files | Development only, `SeedData:Enabled = true`, skips existing emails |
 
----
- 
+### Adding a new seed course
 
-### Tasks.json in .vscode
-
-``` json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "Build Solution",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["build", "ResetYourFuture/ResetYourFuture.sln"],
-      "group": { "kind": "build", "isDefault": false },
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Clean Solution",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["clean", "ResetYourFuture/ResetYourFuture.sln"],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Restore Packages",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["restore", "ResetYourFuture/ResetYourFuture.sln"],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Restore Tools",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["tool", "restore"],
-      "options": { "cwd": "${workspaceFolder}/ResetYourFuture" },
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Reset Database",
-      "type": "shell",
-      "command": "Remove-Item",
-      "args": ["ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.db", "-ErrorAction", "SilentlyContinue"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Run API",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["run", "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj", "--launch-profile", "https"],
-      "problemMatcher": "$msCompile",
-      "isBackground": true,
-      "presentation": { "reveal": "always", "panel": "dedicated", "group": "servers" }
-    },
-    {
-      "label": "Run Client",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["run", "--project", "ResetYourFuture/src/ResetYourFuture.Client/ResetYourFuture.Client.csproj"],
-      "problemMatcher": "$msCompile",
-      "isBackground": true,
-      "presentation": { "reveal": "always", "panel": "dedicated", "group": "servers" }
-    },
-    {
-      "label": "Run Both (Client + API)",
-      "dependsOn": ["Run API", "Run Client"],
-      "dependsOrder": "parallel",
-      "group": { "kind": "build", "isDefault": true },
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Add Migration",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "ef", "migrations", "add", "${input:migrationName}",
-        "--context", "ApplicationDbContext",
-        "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj"
-      ],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Update Database",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "ef", "database", "update",
-        "--context", "ApplicationDbContext",
-        "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj"
-      ],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Drop Database",
-      "type": "shell",
-      "command": "Remove-Item",
-      "args": ["ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.db", "-Force", "-ErrorAction", "SilentlyContinue"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Remove Last Migration",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "ef", "migrations", "remove",
-        "--context", "ApplicationDbContext",
-        "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj"
-      ],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "List Migrations",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "ef", "migrations", "list",
-        "--context", "ApplicationDbContext",
-        "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj"
-      ],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Generate SQL Script",
-      "type": "shell",
-      "command": "dotnet",
-      "args": [
-        "ef", "migrations", "script",
-        "--context", "ApplicationDbContext",
-        "--project", "ResetYourFuture/src/ResetYourFuture.Api/ResetYourFuture.Api.csproj",
-        "--output", "ResetYourFuture/migration.sql"
-      ],
-      "problemMatcher": "$msCompile",
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Tail Logs",
-      "type": "shell",
-      "command": "Get-Content",
-      "args": [
-        "-Path", "ResetYourFuture/src/ResetYourFuture.Api/Logs/log-$(Get-Date -Format yyyy-MM-dd).txt",
-        "-Wait", "-Tail", "50"
-      ],
-      "isBackground": true,
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "dedicated", "group": "logs" }
-    },
-    {
-      "label": "Clean Client Cache",
-      "type": "shell",
-      "command": "Remove-Item",
-      "args": ["-Recurse", "-Force", "ResetYourFuture/src/ResetYourFuture.Client/obj", "-ErrorAction", "SilentlyContinue"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Test API Health",
-      "type": "shell",
-      "command": "Invoke-RestMethod",
-      "args": ["-Uri", "https://localhost:7003/api/students", "-Method", "Get"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Login as Admin",
-      "type": "shell",
-      "command": "powershell",
-      "args": [
-        "-Command",
-        "$body = @{ email = 'admin@resetyourfuture.local'; password = 'Admin123!' } | ConvertTo-Json; $r = Invoke-RestMethod -Uri 'https://localhost:7003/api/auth/login' -Method Post -Body $body -ContentType 'application/json'; Write-Host 'Token:' $r.token"
-      ],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Trust Dev Certificates",
-      "type": "shell",
-      "command": "dotnet",
-      "args": ["dev-certs", "https", "--trust"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    },
-    {
-      "label": "Stop All Servers",
-      "type": "shell",
-      "command": "Stop-Process",
-      "args": ["-Name", "dotnet", "-Force", "-ErrorAction", "SilentlyContinue"],
-      "problemMatcher": [],
-      "presentation": { "reveal": "always", "panel": "shared" }
-    }
-  ],
-  "inputs": [
-    {
-      "id": "migrationName",
-      "description": "Name for the new migration",
-      "type": "promptString",
-      "default": "NewMigration"
-    }
-  ]
-}
-```
-
----
-
-## Assessment Authoring Guide
-
-Assessments are seeded from JSON files at startup. Each file describes one assessment and lives in:
-
-```
-src/ResetYourFuture.Shared/JSON/Assessments/
-```
-
-> The seeder runs **only when the database has no assessments**. To re-seed, delete existing assessments from the DB (or drop and re-create) and restart the API.
-
-### 1. Create the seed file
-
-Add a new `.json` file in the folder above. Name it after the `Key` (e.g. `stress_check_v1.json`).
+1. Create a new JSON file in `src/ResetYourFuture.Shared/JSON/Courses/` (e.g., `my-new-course.json`).
+2. Follow the existing structure (see `career-discovery.json` for a complete example):
 
 ```json
 {
-  "Key": "stress_check_v1",
-  "Title": "Stress Check",
-  "Description": "A quick check-in to reflect on your current stress levels.",
-  "IsPublished": true,
-  "CreatedAt": "2025-07-01T08:00:00Z",
-  "PublishedAt": "2025-07-01T08:00:00Z",
-  "SchemaJson": "<escaped JSON string — see step 2>"
-}
-```
-
-| Field | Required | Notes |
-|---|---|---|
-| `Key` | ✅ | Unique identifier (`snake_case` recommended). |
-| `Title` | ✅ | Display name shown to students and admins. |
-| `Description` | ❌ | Shown on the assessment card before starting. |
-| `SchemaJson` | ✅ | **Escaped** JSON string containing the questions (see below). |
-| `IsPublished` | ❌ | `true` = visible to students immediately. Default `false`. |
-| `CreatedAt` | ❌ | ISO 8601. Defaults to current UTC time. |
-| `PublishedAt` | ❌ | ISO 8601. Auto-set when `IsPublished` is `true`. |
-
-### 2. Write the schema
-
-`SchemaJson` is a JSON **string** (escaped inside the seed file). Its inner structure:
-
-```json
-{
-  "id": "stress_check_v1",
-  "title": "Stress Check",
-  "version": "1.0",
-  "questions": [ ]
-}
-```
-
-### 3. Supported question types
-
-#### `text` — Free-text input
-
-```json
-{ "id": "q1", "type": "text", "label": "What is your biggest challenge right now?", "required": true }
-```
-
-#### `choice` — Single-select dropdown
-
-```json
-{
-  "id": "q2",
-  "type": "choice",
-  "label": "Where are you in your career journey?",
-  "options": ["Exploring options", "Starting out", "Growing skills", "Changing direction", "Established"],
-  "required": true
-}
-```
-
-#### `rating` — Numeric scale (button group, configurable range)
-
-```json
-{ "id": "q3", "type": "rating", "label": "How clear are your career goals?", "min": 1, "max": 5, "required": true }
-```
-
-#### `multi-select` — Multiple-choice checkboxes
-
-```json
-{
-  "id": "q4",
-  "type": "multi-select",
-  "label": "Which skills are you developing?",
-  "options": ["Communication", "Leadership", "Technical", "Creative"],
-  "required": false
-}
-```
-
-#### `likert` — 1–5 scale (alias of `rating`, defaults to min=1 max=5)
-
-```json
-{ "id": "q5", "type": "likert", "label": "I feel confident about my next career step.", "required": true }
-```
-
-#### `date` — Date picker
-
-```json
-{ "id": "q6", "type": "date", "label": "When did you start your current role?", "required": false }
-```
-
-### 4. Question field reference
-
-| Field | Required | Type | Notes |
-|---|---|---|---|
-| `id` | ✅ | `string` | Unique within the assessment (e.g. `q1`, `q2`). |
-| `type` | ✅ | `string` | `text` · `choice` · `rating` · `multi-select` · `likert` · `date` |
-| `label` | ✅ | `string` | The question text shown to the student. |
-| `options` | ⚠️ | `string[]` | **Required** for `choice` and `multi-select`. |
-| `min` | ❌ | `int` | Lower bound for `rating`. Default `1`. |
-| `max` | ❌ | `int` | Upper bound for `rating`. Default `5`. |
-| `required` | ❌ | `bool` | Shows a `*` indicator on the form. Default `false`. |
-
-### 5. Full working example
-
-**File:** `src/ResetYourFuture.Shared/JSON/Assessments/stress_check_v1.json`
-
-```json
-{
-  "Key": "stress_check_v1",
-  "Title": "Stress Check",
-  "Description": "A quick check-in to reflect on your current stress levels.",
-  "IsPublished": true,
-  "CreatedAt": "2025-07-01T08:00:00Z",
-  "PublishedAt": "2025-07-01T08:00:00Z",
-  "SchemaJson": "{\"id\":\"stress_check_v1\",\"title\":\"Stress Check\",\"version\":\"1.0\",\"questions\":[{\"id\":\"q1\",\"type\":\"rating\",\"label\":\"How stressed have you felt this week?\",\"min\":1,\"max\":5,\"required\":true},{\"id\":\"q2\",\"type\":\"choice\",\"label\":\"What is your main source of stress?\",\"options\":[\"Work\",\"Finances\",\"Relationships\",\"Health\",\"Other\"],\"required\":true},{\"id\":\"q3\",\"type\":\"multi-select\",\"label\":\"What helps you manage stress?\",\"options\":[\"Exercise\",\"Meditation\",\"Talking to someone\",\"Hobbies\",\"Sleep\"],\"required\":false},{\"id\":\"q4\",\"type\":\"text\",\"label\":\"Anything else you would like to share?\",\"required\":false}]}"
-}
-```
-
-> **Tip:** Write the schema as pretty-printed JSON first, then escape it into a single-line string for `SchemaJson`. Most editors or online tools can do this.
-
-### 6. Verify
-
-1. Place the `.json` file in `src/ResetYourFuture.Shared/JSON/Assessments/`.
-2. Clear existing assessments (drop DB or delete rows) and restart the API.
-3. Check the API logs — the seeder logs each loaded assessment.
-4. **Admin** → `/admin/assessments` — confirm it appears and can be published/unpublished.
-5. **Student** → `/assessments` — take the assessment and view results in `/assessments/mine`.
-
----
-
-## Course Authoring Guide
-
-Courses are seeded from JSON files at startup. Each file describes one course (with modules and lessons) and lives in:
-
-```
-src/ResetYourFuture.Shared/JSON/Courses/
-```
-
-> The seeder runs **only when the database has no courses**. To re-seed, delete existing courses from the DB (or drop and re-create) and restart the API.
-
-### 1. Create the seed file
-
-Add a new `.json` file in the folder above. Use a kebab-case name (e.g. `interview-skills.json`).
-
-```json
-{
-  "title": "Interview Skills",
-  "description": "Master the art of job interviews.",
-  "isPublished": true,
-  "modules": [ ]
-}
-```
-
-| Field | Required | Notes |
-|---|---|---|
-| `title` | ✅ | Display name shown to students and admins. |
-| `description` | ❌ | Shown on the course card in the catalog. |
-| `isPublished` | ❌ | `true` = visible to students immediately. Default `false`. |
-| `modules` | ✅ | Array of module objects (see below). |
-
-### 2. Add modules
-
-Each module groups related lessons within the course.
-
-```json
-{
-  "title": "Preparation",
-  "description": "Everything you need before the interview.",
-  "sortOrder": 1,
-  "lessons": [ ]
-}
-```
-
-| Field | Required | Notes |
-|---|---|---|
-| `title` | ✅ | Module heading displayed in the course outline. |
-| `description` | ❌ | Short summary of the module. |
-| `sortOrder` | ✅ | Display order within the course (1, 2, 3 …). |
-| `lessons` | ✅ | Array of lesson objects (see below). |
-
-### 3. Add lessons
-
-Each lesson is a single learning unit. A lesson can have **text/markdown content**, a **video**, a **PDF**, or any combination.
-
-#### Text / Markdown lesson
-
-```json
-{
-  "title": "Research the Company",
-  "content": "# Research the Company\n\nBefore any interview, you should:\n\n- Visit the company website\n- Read recent news articles\n- Understand their products and values",
-  "durationMinutes": 10,
-  "sortOrder": 1
-}
-```
-
-#### Video lesson
-
-```json
-{
-  "title": "Body Language Tips",
-  "videoPath": "https://www.youtube.com/embed/VIDEO_ID",
-  "durationMinutes": 8,
-  "sortOrder": 2
-}
-```
-
-#### PDF lesson
-
-```json
-{
-  "title": "Interview Checklist",
-  "pdfPath": "/assets/lessons/interview-checklist.pdf",
-  "durationMinutes": 5,
-  "sortOrder": 3
-}
-```
-
-#### Combined lesson (video + text)
-
-```json
-{
-  "title": "Common Questions",
-  "videoPath": "https://www.youtube.com/embed/VIDEO_ID",
-  "content": "## Key Takeaways\n\n- Always prepare examples using the STAR method\n- Keep answers concise (1–2 minutes)",
-  "durationMinutes": 15,
-  "sortOrder": 4
-}
-```
-
-### 4. Lesson field reference
-
-| Field | Required | Type | Notes |
-|---|---|---|---|
-| `title` | ✅ | `string` | Lesson heading. |
-| `content` | ❌ | `string` | Text or Markdown content. Use `\n` for newlines. |
-| `videoPath` | ❌ | `string` | Embeddable video URL (YouTube embed format recommended). |
-| `pdfPath` | ❌ | `string` | Path to a PDF file served from the API. |
-| `durationMinutes` | ❌ | `int` | Estimated reading/watching time. Used for progress display. |
-| `sortOrder` | ✅ | `int` | Display order within the module (1, 2, 3 …). |
-
-> At least one of `content`, `videoPath`, or `pdfPath` should be provided so the lesson has something to display.
-
-### 5. Full working example
-
-**File:** `src/ResetYourFuture.Shared/JSON/Courses/interview-skills.json`
-
-```json
-{
-  "title": "Interview Skills",
-  "description": "Master the art of job interviews — from preparation to follow-up.",
+  "title": "My New Course",
+  "description": "Course description.",
   "isPublished": true,
   "modules": [
     {
-      "title": "Before the Interview",
-      "description": "Preparation is everything.",
+      "title": "Module 1",
+      "description": "Module description.",
       "sortOrder": 1,
       "lessons": [
         {
-          "title": "Research the Company",
-          "content": "# Research the Company\n\nBefore any interview:\n\n- Visit the company website and read the About page\n- Check recent news and press releases\n- Understand their products, services, and competitors\n- Look up the interviewer on LinkedIn",
+          "title": "Lesson 1",
+          "content": "# Markdown content here",
           "durationMinutes": 10,
           "sortOrder": 1
-        },
-        {
-          "title": "Prepare Your Answers",
-          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          "content": "## The STAR Method\n\n- **S**ituation — set the scene\n- **T**ask — describe the challenge\n- **A**ction — explain what you did\n- **R**esult — share the outcome",
-          "durationMinutes": 12,
-          "sortOrder": 2
-        }
-      ]
-    },
-    {
-      "title": "During the Interview",
-      "description": "Making a great impression.",
-      "sortOrder": 2,
-      "lessons": [
-        {
-          "title": "Body Language",
-          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          "durationMinutes": 8,
-          "sortOrder": 1
-        },
-        {
-          "title": "Asking Good Questions",
-          "content": "# Questions to Ask the Interviewer\n\n1. What does a typical day look like in this role?\n2. How do you measure success for this position?\n3. What are the biggest challenges the team faces?\n4. What opportunities are there for growth?",
-          "durationMinutes": 5,
-          "sortOrder": 2
         }
       ]
     }
@@ -802,23 +639,154 @@ Each lesson is a single learning unit. A lesson can have **text/markdown content
 }
 ```
 
-### 6. Markdown tips for `content`
+3. Run the app — `CourseSeeder` picks up all `*.json` files in the folder automatically.
 
-Since JSON doesn't support multi-line strings, use `\n` for line breaks:
+> **Important:** Course seeding only runs if **no courses exist** in the database. To re-seed, delete all rows from the `Courses` table first.
 
-| Markdown | JSON string |
-|---|---|
-| Heading | `"# My Heading"` |
-| Subheading | `"## Subheading"` |
-| Bullet list | `"- Item one\n- Item two"` |
-| Bold | `"**bold text**"` |
-| Numbered list | `"1. First\n2. Second"` |
-| Paragraph break | `"\n\n"` (double newline) |
+### Adding a new seed assessment
 
-### 7. Verify
+1. Create a JSON file in `src/ResetYourFuture.Shared/JSON/Assessments/` (see `career_clarity_v1.json` for the schema).
+2. Each file contains a single assessment definition with a `SchemaJson` field holding the question schema as an escaped JSON string.
+3. Run the app — `AssessmentSeeder` picks up all `*.json` files automatically.
 
-1. Place the `.json` file in `src/ResetYourFuture.Shared/JSON/Courses/`.
-2. Clear existing courses (drop DB or delete rows) and restart the API.
-3. Check the API logs — the seeder logs each loaded course.
-4. **Admin** → `/admin/courses` — confirm it appears and can be published/unpublished.
-5. **Student** → `/courses` — enroll and view lessons.
+> Assessment seeding only runs if **no assessment definitions exist** in the database.
+
+### Adding new seed students
+
+1. Edit `src/ResetYourFuture.Shared/JSON/Students/students.json`.
+2. Add objects with `firstName` and `lastName` (and optionally `email`):
+
+```json
+{ "firstName": "NewFirst", "lastName": "NewLast" }
+```
+
+3. Emails default to `firstname.lastname@resetyourfuture.local` if not specified.
+4. Run the app — `StudentSeeder` skips any email that already exists.
+
+---
+
+## Assessment Authoring Guide for Admins
+
+Log in as Admin (`admin@resetyourfuture.local` / `Admin123!`).
+
+### Via the Admin UI
+
+1. Navigate to the **Assessments** section in the admin panel.
+2. Click **Create Assessment**.
+3. Fill in:
+   - **Title** — display name for students.
+   - **Key** — unique machine-readable identifier (e.g., `career_clarity_v1`).
+   - **Description** — short summary shown on the assessment list.
+   - **Schema JSON** — the full question schema as a JSON string (see below).
+4. Save the assessment (it starts unpublished).
+5. Click **Publish** to make it visible to students.
+6. To unpublish or delete, use the corresponding buttons.
+
+### Via the API
+
+| Action | Endpoint |
+|--------|----------|
+| Create | `POST api/admin/assessments` |
+| Update | `PUT api/admin/assessments/{id}` |
+| Publish | `POST api/admin/assessments/{id}/publish` |
+| Unpublish | `POST api/admin/assessments/{id}/unpublish` |
+| Delete | `DELETE api/admin/assessments/{id}` |
+| View submissions | `GET api/admin/assessments/{id}/submissions` |
+
+### Schema JSON structure
+
+The `SchemaJson` field holds a JSON string that defines the questions:
+
+```json
+{
+  "id": "career_clarity_v1",
+  "title": "Career Clarity",
+  "version": "1.0",
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "label": "Where are you in your career journey?",
+      "options": ["Exploring", "Starting out", "Growing", "Changing", "Established"],
+      "required": true
+    },
+    {
+      "id": "q2",
+      "type": "rating",
+      "label": "How clear are your career goals?",
+      "min": 1,
+      "max": 5,
+      "required": true
+    },
+    {
+      "id": "q3",
+      "type": "text",
+      "label": "What is one next step you could take?",
+      "required": true
+    }
+  ]
+}
+```
+
+Supported question types: `choice`, `rating`, `text`.
+
+---
+
+## Course, Module, Lesson Authoring Guide for Admins
+
+Log in as Admin (`admin@resetyourfuture.local` / `Admin123!`).
+
+### Create a Course
+
+1. Navigate to **Courses** in the admin panel.
+2. Click **Create Course**.
+3. Fill in: **Title**, **Description**.
+4. Save. The course is created in **unpublished** state.
+
+**API:** `POST api/admin/courses`
+
+### Add a Module to a Course
+
+1. Open the course from the admin course list.
+2. Click **Add Module**.
+3. Fill in: **Title**, **Description**, **Sort Order** (controls display order).
+4. Save.
+
+**API:** `POST api/admin/modules` (include `courseId` in the body)
+
+### Add a Lesson to a Module
+
+1. Open the module.
+2. Click **Add Lesson**.
+3. Fill in:
+   - **Title**
+   - **Content** — Markdown text for the lesson body
+   - **Duration (minutes)**
+   - **Sort Order**
+4. Save.
+5. Optionally upload a **PDF** or **Video** file using the upload buttons.
+
+**API:**
+- Create: `POST api/admin/lessons`
+- Upload PDF: `POST api/admin/lessons/{id}/upload/pdf`
+- Upload Video: `POST api/admin/lessons/{id}/upload/video`
+
+### Content types
+
+Lessons support three content types, chosen automatically based on what is provided:
+
+| Priority | Type | Source |
+|----------|------|--------|
+| 1 | Video | `VideoPath` is set (uploaded file or YouTube embed URL) |
+| 2 | PDF | `PdfPath` is set (uploaded PDF file) |
+| 3 | Text | Markdown `Content` field (default fallback) |
+
+### Publishing
+
+1. A course must have **at least one module with at least one lesson** before it can be published.
+2. Click **Publish** on the course to make it visible to students.
+3. To hide a course, click **Unpublish**.
+
+**API:**
+- Publish: `POST api/admin/courses/{id}/publish`
+- Unpublish: `POST api/admin/courses/{id}/unpublish`
