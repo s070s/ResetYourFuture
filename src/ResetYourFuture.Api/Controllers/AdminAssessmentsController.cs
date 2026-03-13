@@ -259,23 +259,34 @@ public class AdminAssessmentsController : ControllerBase
     }
 
     /// <summary>
-    /// Get all submissions for a specific assessment.
+    /// Get a paged list of submissions for a specific assessment.
     /// </summary>
     [HttpGet( "{id:guid}/submissions" )]
-    public async Task<ActionResult<List<AssessmentSubmissionListItemDto>>> GetSubmissions( Guid id )
+    public async Task<ActionResult<PagedResult<AssessmentSubmissionListItemDto>>> GetSubmissions(
+        Guid id,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10 )
     {
+        if ( page < 1 ) page = 1;
+        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+
         // Ensure the assessment exists before querying submissions
-        var assessment = await _db.AssessmentDefinitions.FindAsync( id );
-        if ( assessment == null )
+        var assessmentExists = await _db.AssessmentDefinitions.AnyAsync( a => a.Id == id );
+        if ( !assessmentExists )
         {
             return NotFound();
         }
 
-        // Query submissions, include the user navigation, map to DTOs and order by submitted time
-        var submissions = await _db.AssessmentSubmissions
-            .Where( s => s.AssessmentDefinitionId == id )
-            .Include( s => s.User )
+        var query = _db.AssessmentSubmissions
+            .Where( s => s.AssessmentDefinitionId == id );
+
+        var totalCount = await query.CountAsync();
+
+        // Order, paginate, then project to DTO — EF Core resolves the User navigation via SELECT JOIN
+        var items = await query
             .OrderByDescending( s => s.SubmittedAt )
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( s => new AssessmentSubmissionListItemDto(
                 s.Id ,
                 s.UserId ,
@@ -287,7 +298,6 @@ public class AdminAssessmentsController : ControllerBase
             ) )
             .ToListAsync();
 
-        // Return 200 OK with the list of submissions
-        return Ok( submissions );
+        return Ok( new PagedResult<AssessmentSubmissionListItemDto>( items , totalCount , page , pageSize ) );
     }
 }

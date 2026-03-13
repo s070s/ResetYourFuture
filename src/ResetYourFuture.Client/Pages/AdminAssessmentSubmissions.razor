@@ -9,11 +9,11 @@
 
 <h2>@(assessmentTitle != null ? string.Format(AdminRes.SubmissionsWithTitle, assessmentTitle) : AdminRes.ColSubmissions)</h2>
 
-@if (submissions == null)
+@if (_pagedResult == null)
 {
     <p>@AdminRes.Loading</p>
 }
-else if (submissions.Count == 0)
+else if (_pagedResult.TotalCount == 0)
 {
     <div class="alert alert-info">@AdminRes.NoSubmissions</div>
 }
@@ -30,7 +30,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var sub in submissions)
+                @foreach (var sub in _pagedResult.Items)
                 {
                     <tr @key="sub.Id">
                         <td>@sub.UserDisplayName</td>
@@ -76,6 +76,28 @@ else
                 }
             </tbody>
         </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+            Showing @((_pagedResult.Page - 1) * _pagedResult.PageSize + 1)–@(Math.Min(_pagedResult.Page * _pagedResult.PageSize, _pagedResult.TotalCount)) of @_pagedResult.TotalCount submissions
+        </small>
+        <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 text-muted small">Rows:</label>
+            <select class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
+                @foreach (var opt in PageSizeOptions)
+                {
+                    <option value="@opt">@opt</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-outline-secondary"
+                    @onclick="() => GoToPage(_pagedResult.Page - 1)"
+                    disabled="@(!_pagedResult.HasPreviousPage)">‹ Prev</button>
+            <span class="small">Page @_pagedResult.Page of @_pagedResult.TotalPages</span>
+            <button class="btn btn-sm btn-outline-secondary"
+                    @onclick="() => GoToPage(_pagedResult.Page + 1)"
+                    disabled="@(!_pagedResult.HasNextPage)">Next ›</button>
+        </div>
     </div>
 }
 

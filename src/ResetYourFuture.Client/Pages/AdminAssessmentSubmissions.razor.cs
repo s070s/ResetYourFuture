@@ -16,7 +16,10 @@ public partial class AdminAssessmentSubmissions
     [Inject] private HttpClient Http { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private List<AssessmentSubmissionListItemDto>? submissions;
+    private PagedResult<AssessmentSubmissionListItemDto>? _pagedResult;
+    private int _page = 1;
+    private int _pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string errorMessage = string.Empty;
     private Guid? expandedSubmissionId;
     private string? assessmentTitle;
@@ -33,7 +36,7 @@ public partial class AdminAssessmentSubmissions
     {
         try
         {
-            // Load the assessment definition to get schema + title
+            // Load the assessment definition once to get schema + title
             var definition = await Http.GetFromJsonAsync<AssessmentDefinitionDto>(
                 $"api/admin/assessments/{AssessmentId}" );
 
@@ -42,15 +45,43 @@ public partial class AdminAssessmentSubmissions
                 assessmentTitle = definition.Title;
                 BuildQuestionLabels( definition.SchemaJson );
             }
+        }
+        catch ( Exception ex )
+        {
+            errorMessage = $"Error loading assessment: {ex.Message}";
+        }
 
-            submissions = await Http.GetFromJsonAsync<List<AssessmentSubmissionListItemDto>>(
-                $"api/admin/assessments/{AssessmentId}/submissions" );
+        await LoadSubmissions();
+    }
+
+    private async Task LoadSubmissions()
+    {
+        try
+        {
+            _pagedResult = await Http.GetFromJsonAsync<PagedResult<AssessmentSubmissionListItemDto>>(
+                $"api/admin/assessments/{AssessmentId}/submissions?page={_page}&pageSize={_pageSize}" );
         }
         catch ( Exception ex )
         {
             errorMessage = $"Error loading submissions: {ex.Message}";
-            submissions = [];
+            _pagedResult = new PagedResult<AssessmentSubmissionListItemDto>( [] , 0 , _page , _pageSize );
         }
+    }
+
+    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString(), out var size ) )
+        {
+            _pageSize = size;
+            _page = 1;
+            await LoadSubmissions();
+        }
+    }
+
+    private async Task GoToPage( int page )
+    {
+        _page = page;
+        await LoadSubmissions();
     }
 
     private void BuildQuestionLabels( string schemaJson )
