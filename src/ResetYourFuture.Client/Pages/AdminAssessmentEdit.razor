@@ -21,7 +21,7 @@ else
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">@AdminRes.FieldKey <small class="text-muted">(@AdminRes.FieldKeyHint)</small></label>
+                    <label class="form-label">@AdminRes.FieldKey <small class="text-light-muted">(@AdminRes.FieldKeyHint)</small></label>
                     <input class="form-control" @bind="assessmentKey" placeholder="my_assessment_v1" />
                 </div>
                 <div class="col-md-6 mb-3">
@@ -44,7 +44,7 @@ else
         <div class="card-body">
             @if (questions.Count == 0)
             {
-                <p class="text-muted">@AdminRes.NoQuestions</p>
+                <p class="text-light-muted">@AdminRes.NoQuestions</p>
             }
             else
             {
@@ -113,7 +113,7 @@ else
                             @if (q.Type == "choice")
                             {
                                 <div class="mb-2">
-                                    <label class="form-label">@AdminRes.FieldOptions <small class="text-muted">(@AdminRes.FieldOptionsHint)</small></label>
+                                    <label class="form-label">@AdminRes.FieldOptions <small class="text-light-muted">(@AdminRes.FieldOptionsHint)</small></label>
                                     <textarea class="form-control form-control-sm" rows="4"
                                               @bind="q.OptionsText"
                                               placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>

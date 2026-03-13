@@ -9,11 +9,11 @@
     --bg-table-header-active: #22265a;
     --bg-table-row-hover: #2d205a;
     /* Text */
-    --text-strong-normal: #E7E7E7;
-    --text-light-normal: #c3c9d3;
-    --text-accent: #c4bcea;
-    --text-strong-accent: #a85d94;
-    --text-light-muted: rgb(154 169 183 / 76%);
+    --text-strong-normal: #F0F0F0;
+    --text-light-normal: #CDD5DF;
+    --text-accent: #CEC8F0;
+    --text-strong-accent: #C47CB4;
+    --text-light-muted: rgb(175 189 202 / 82%);
     /* Semantic / Feedback */
     --color-success: #17c40f;
     --color-error: #c53923;
@@ -30,8 +30,8 @@
     /* RGB triplets (for rgba() decomposition) */
     --bg-primary-rgb: 10, 12, 32;
     --bg-surface-rgb: 18, 20, 41;
-    --text-accent-rgb: 196, 188, 234;
-    --text-strong-accent-rgb: 168, 93, 148;
+    --text-accent-rgb: 206, 200, 240;
+    --text-strong-accent-rgb: 196, 124, 180;
     /* UI Utilities */
     --border-subtle: #acadbe40;
     --focus-ring: #c4bcea8c;

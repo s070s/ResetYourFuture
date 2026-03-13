@@ -59,7 +59,7 @@ else
                 }
                 else if (modules.Count == 0)
                 {
-                    <p class="text-muted">@AdminRes.NoModules</p>
+                    <p class="text-light-muted">@AdminRes.NoModules</p>
                 }
                 else
                 {
@@ -93,17 +93,17 @@ else
                                     </div>
                                     @if (!string.IsNullOrEmpty(module.Description))
                                     {
-                                        <p class="text-muted small mb-3">@module.Description</p>
+                                        <p class="text-light-muted small mb-3">@module.Description</p>
                                     }
 
                                     @* Inline lessons list *@
                                     @if (moduleLessons == null)
                                     {
-                                        <p class="text-muted small">@AdminRes.LoadingLessons</p>
+                                        <p class="text-light-muted small">@AdminRes.LoadingLessons</p>
                                     }
                                     else if (moduleLessons.Count == 0)
                                     {
-                                        <p class="text-muted small">@AdminRes.NoLessons</p>
+                                        <p class="text-light-muted small">@AdminRes.NoLessons</p>
                                     }
                                     else
                                     {
@@ -256,7 +256,7 @@ else
                     <div class="mb-3">
                         <label class="form-label">@AdminRes.VideoUrlLabel</label>
                         <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
-                        <small class="text-muted">@AdminRes.VideoUrlHint</small>
+                        <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
                     </div>
 
                     <div class="row">

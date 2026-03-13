@@ -19,7 +19,7 @@
 }
 else if (lessons.Count == 0)
 {
-    <p class="text-muted">@AdminRes.NoLessons</p>
+    <p class="text-light-muted">@AdminRes.NoLessons</p>
 }
 else
 {
@@ -30,7 +30,7 @@ else
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="mb-1">@lesson.Title</h6>
-                        <small class="text-muted">
+                        <small class="text-light-muted">
                             @string.Format(AdminRes.OrderFormat, lesson.SortOrder)
                             @if (lesson.DurationMinutes.HasValue)
                             {
@@ -90,7 +90,7 @@ else
                     <div class="mb-3">
                         <label class="form-label">@AdminRes.VideoUrlLabel</label>
                         <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
-                        <small class="text-muted">@AdminRes.VideoUrlHint</small>
+                        <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
                     </div>
 
                     <div class="row">
