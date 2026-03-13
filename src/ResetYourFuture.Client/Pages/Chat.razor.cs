@@ -14,7 +14,10 @@ public partial class Chat : IAsyncDisposable
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    private List<ChatConversationDto>? _conversations;
+    private PagedResult<ChatConversationDto>? _conversations;
+    private int _conversationsPage = 1;
+    private int _conversationsPageSize = 10;
+    private static readonly int[] ConversationPageSizeOptions = [10, 25, 50];
     private PagedResult<ChatMessageDto>? _pagedMessages;
     private int _messagesPage = 1;
     private int _messagesPageSize = 20;
@@ -46,7 +49,7 @@ public partial class Chat : IAsyncDisposable
         ChatService.OnNotificationReceived += HandleNotification;
 
         await ChatService.StartAsync();
-        _conversations = await ChatService.GetConversationsAsync();
+        await LoadConversationsAsync();
     }
 
     protected override async Task OnAfterRenderAsync( bool firstRender )
@@ -79,6 +82,11 @@ public partial class Chat : IAsyncDisposable
 
         _isLoadingMessages = false;
         StateHasChanged();
+    }
+
+    private async Task LoadConversationsAsync()
+    {
+        _conversations = await ChatService.GetConversationsAsync( _conversationsPage , _conversationsPageSize );
     }
 
     private async Task LoadMessagesAsync()
@@ -123,6 +131,37 @@ public partial class Chat : IAsyncDisposable
                 await LoadMessagesAsync();
             }
             StateHasChanged();
+        }
+    }
+
+    // --- Conversation Pagination ---
+
+    private async Task GoToConversationPage( int page )
+    {
+        _conversationsPage = page;
+        await LoadConversationsAsync();
+        StateHasChanged();
+    }
+
+    private async Task PreviousConversationPage()
+    {
+        if ( _conversationsPage > 1 )
+            await GoToConversationPage( _conversationsPage - 1 );
+    }
+
+    private async Task NextConversationPage()
+    {
+        if ( _conversations is { HasNextPage: true } )
+            await GoToConversationPage( _conversationsPage + 1 );
+    }
+
+    private async Task OnConversationPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        {
+            _conversationsPageSize = size;
+            _conversationsPage = 1;
+            await GoToConversationPage( 1 );
         }
     }
 
@@ -181,21 +220,21 @@ public partial class Chat : IAsyncDisposable
         _isStarting = true;
         StateHasChanged();
 
-        var conversation = await ChatService.StartConversationWithAsync( user.Id );
-        if ( conversation is not null )
+        try
         {
-            // Add to list if not already present.
-            var existing = _conversations?.FirstOrDefault( c => c.Id == conversation.Id );
-            if ( existing is null )
+            var conversation = await ChatService.StartConversationWithAsync( user.Id );
+            if ( conversation is not null )
             {
-                _conversations?.Insert( 0 , conversation );
+                _conversationsPage = 1;
+                await LoadConversationsAsync();
+                await SelectConversation( conversation );
             }
-
-            await SelectConversation( conversation );
         }
-
-        _isStarting = false;
-        StateHasChanged();
+        finally
+        {
+            _isStarting = false;
+            StateHasChanged();
+        }
     }
 
     // --- Messaging ---
@@ -244,11 +283,11 @@ public partial class Chat : IAsyncDisposable
             // Update last message in sidebar.
             if ( _conversations is not null )
             {
-                var idx = _conversations.FindIndex( c => c.Id == message.ConversationId );
+                var idx = _conversations.Items.FindIndex( c => c.Id == message.ConversationId );
                 if ( idx >= 0 )
                 {
-                    var old = _conversations [ idx ];
-                    _conversations [ idx ] = old with
+                    var old = _conversations.Items [ idx ];
+                    _conversations.Items [ idx ] = old with
                     {
                         LastMessageContent = message.Content ,
                         LastMessageAt = message.SentAt
@@ -257,9 +296,9 @@ public partial class Chat : IAsyncDisposable
                     // Move to top.
                     if ( idx > 0 )
                     {
-                        var item = _conversations [ idx ];
-                        _conversations.RemoveAt( idx );
-                        _conversations.Insert( 0 , item );
+                        var item = _conversations.Items [ idx ];
+                        _conversations.Items.RemoveAt( idx );
+                        _conversations.Items.Insert( 0 , item );
                     }
                 }
             }
@@ -279,13 +318,13 @@ public partial class Chat : IAsyncDisposable
         if ( _conversations is null )
             return;
 
-        var idx = _conversations.FindIndex( c => c.Id == conversationId );
+        var idx = _conversations.Items.FindIndex( c => c.Id == conversationId );
         if ( idx < 0 )
             return;
 
-        var old = _conversations [ idx ];
+        var old = _conversations.Items [ idx ];
         var newCount = explicitCount ?? ( old.UnreadCount + 1 );
-        _conversations [ idx ] = old with
+        _conversations.Items [ idx ] = old with
         {
             UnreadCount = newCount
         };

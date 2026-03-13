@@ -21,31 +21,50 @@
                 <div class="spinner-border spinner-border-sm" role="status"></div>
             </div>
         }
-        else if ( _conversations.Count == 0 )
+        else if ( _conversations.Items.Count == 0 )
         {
             <div class="text-light-muted p-3 small">@ChatRes.NoConversations</div>
         }
         else
         {
             <div class="conversation-list">
-                @foreach ( var convo in _conversations )
-                {
-                    var isActive = _selectedConversation?.Id == convo.Id;
-                    <div class="conversation-item @(isActive ? "active" : "")"
-                         @onclick="() => SelectConversation( convo )"
-                         @key="convo.Id">
-                        <div class="convo-name">
-                            @convo.OtherUserName
-                            <span class="convo-role">@convo.OtherUserRole</span>
+                    @foreach ( var convo in _conversations.Items )
+                    {
+                        var isActive = _selectedConversation?.Id == convo.Id;
+                        <div class="conversation-item @(isActive ? "active" : "")"
+                             @onclick="() => SelectConversation( convo )"
+                             @key="convo.Id">
+                            <div class="convo-name">
+                                @convo.OtherUserName
+                                <span class="convo-role">@convo.OtherUserRole</span>
+                            </div>
+                            <div class="convo-preview">@( convo.LastMessageContent ?? ChatRes.NoMessages )</div>
+                            @if ( convo.UnreadCount > 0 )
+                            {
+                                <span class="badge bg-danger">@convo.UnreadCount</span>
+                            }
                         </div>
-                        <div class="convo-preview">@( convo.LastMessageContent ?? ChatRes.NoMessages )</div>
-                        @if ( convo.UnreadCount > 0 )
-                        {
-                            <span class="badge bg-danger">@convo.UnreadCount</span>
-                        }
+                    }
+                </div>
+                <div class="d-flex justify-content-between align-items-center px-2 py-1 sidebar-pagination">
+                    <small class="text-light-muted">@_conversations.TotalCount</small>
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
+                        <select class="page-size-select" value="@_conversationsPageSize" @onchange="OnConversationPageSizeChanged">
+                            @foreach ( var opt in ConversationPageSizeOptions )
+                            {
+                                <option value="@opt">@opt</option>
+                            }
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="PreviousConversationPage"
+                                disabled="@(!_conversations.HasPreviousPage)">‹</button>
+                        <span class="small">@_conversations.Page/@_conversations.TotalPages</span>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="NextConversationPage"
+                                disabled="@(!_conversations.HasNextPage)">›</button>
                     </div>
-                }
-            </div>
+                </div>
         }
     </div>
 

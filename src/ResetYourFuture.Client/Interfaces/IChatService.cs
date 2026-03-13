@@ -28,7 +28,7 @@ public interface IChatService : IAsyncDisposable
     Task StartAsync();
     Task StopAsync();
 
-    Task<List<ChatConversationDto>> GetConversationsAsync();
+    Task<PagedResult<ChatConversationDto>> GetConversationsAsync( int page = 1 , int pageSize = 10 );
     Task<PagedResult<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int page = 1 , int pageSize = 20 );
     Task<ChatConversationDto?> StartConversationWithAsync( string targetUserId , string? initialMessage = null );
     Task<List<ChatUserDto>> GetAvailableUsersAsync( string? search = null );

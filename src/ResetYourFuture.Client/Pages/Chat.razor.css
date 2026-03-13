@@ -36,6 +36,7 @@
 .conversation-list {
     flex: 1;
     overflow-y: auto;
+    min-height: 0;
 }
 
 .conversation-item {
@@ -117,6 +118,13 @@
     border-bottom: 1px solid var(--border-subtle);
     background-color: var(--bg-surface);
     font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.sidebar-pagination {
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface);
+    font-size: 0.78rem;
     flex-shrink: 0;
 }
 

@@ -54,7 +54,15 @@ public class ChatService : IChatService
             OnNotificationReceived?.Invoke( notification );
         } );
 
-        await _hub.StartAsync();
+        try
+        {
+            await _hub.StartAsync();
+        }
+        catch ( Exception )
+        {
+            await _hub.DisposeAsync();
+            _hub = null;
+        }
     }
 
     public async Task StopAsync()
@@ -67,50 +75,67 @@ public class ChatService : IChatService
         }
     }
 
-    public async Task<List<ChatConversationDto>> GetConversationsAsync()
+    public async Task<PagedResult<ChatConversationDto>> GetConversationsAsync( int page = 1 , int pageSize = 10 )
     {
-        var response = await _http.GetAsync( "api/chat/conversations" );
-        if ( response.IsSuccessStatusCode )
+        try
         {
-            return await response.Content.ReadFromJsonAsync<List<ChatConversationDto>>() ?? [];
+            var response = await _http.GetAsync( $"api/chat/conversations?page={page}&pageSize={pageSize}" );
+            if ( response.IsSuccessStatusCode )
+            {
+                return await response.Content.ReadFromJsonAsync<PagedResult<ChatConversationDto>>()
+                       ?? new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
+            }
         }
-        return [];
+        catch ( HttpRequestException ) { }
+        return new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
     }
 
     public async Task<PagedResult<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int page = 1 , int pageSize = 20 )
     {
-        var response = await _http.GetAsync(
-            $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}" );
-        if ( response.IsSuccessStatusCode )
+        try
         {
-            return await response.Content.ReadFromJsonAsync<PagedResult<ChatMessageDto>>()
-                   ?? new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
+            var response = await _http.GetAsync(
+                $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}" );
+            if ( response.IsSuccessStatusCode )
+            {
+                return await response.Content.ReadFromJsonAsync<PagedResult<ChatMessageDto>>()
+                       ?? new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
+            }
         }
+        catch ( HttpRequestException ) { }
         return new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
     }
 
     public async Task<ChatConversationDto?> StartConversationWithAsync( string targetUserId , string? initialMessage = null )
     {
-        var request = new StartConversationRequest( targetUserId , initialMessage );
-        var response = await _http.PostAsJsonAsync( "api/chat/conversations/start" , request );
-        if ( response.IsSuccessStatusCode )
+        try
         {
-            return await response.Content.ReadFromJsonAsync<ChatConversationDto>();
+            var request = new StartConversationRequest( targetUserId , initialMessage );
+            var response = await _http.PostAsJsonAsync( "api/chat/conversations/start" , request );
+            if ( response.IsSuccessStatusCode )
+            {
+                return await response.Content.ReadFromJsonAsync<ChatConversationDto>();
+            }
         }
+        catch ( HttpRequestException ) { }
         return null;
     }
 
     public async Task<List<ChatUserDto>> GetAvailableUsersAsync( string? search = null )
     {
-        var url = string.IsNullOrWhiteSpace( search )
-            ? "api/chat/users"
-            : $"api/chat/users?search={Uri.EscapeDataString( search )}";
-
-        var response = await _http.GetAsync( url );
-        if ( response.IsSuccessStatusCode )
+        try
         {
-            return await response.Content.ReadFromJsonAsync<List<ChatUserDto>>() ?? [];
+            var url = string.IsNullOrWhiteSpace( search )
+                ? "api/chat/users"
+                : $"api/chat/users?search={Uri.EscapeDataString( search )}";
+
+            var response = await _http.GetAsync( url );
+            if ( response.IsSuccessStatusCode )
+            {
+                return await response.Content.ReadFromJsonAsync<List<ChatUserDto>>() ?? [];
+            }
         }
+        catch ( HttpRequestException ) { }
         return [];
     }
 
@@ -132,11 +157,15 @@ public class ChatService : IChatService
 
     public async Task<int> GetUnreadCountAsync()
     {
-        var response = await _http.GetAsync( "api/chat/unread-count" );
-        if ( response.IsSuccessStatusCode )
+        try
         {
-            return await response.Content.ReadFromJsonAsync<int>();
+            var response = await _http.GetAsync( "api/chat/unread-count" );
+            if ( response.IsSuccessStatusCode )
+            {
+                return await response.Content.ReadFromJsonAsync<int>();
+            }
         }
+        catch ( HttpRequestException ) { }
         return 0;
     }
 

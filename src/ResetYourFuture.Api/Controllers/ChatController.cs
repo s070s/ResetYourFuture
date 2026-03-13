@@ -37,27 +37,39 @@ public class ChatController : ControllerBase
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
 
     /// <summary>
-    /// Get all conversations for the current user.
+    /// Get conversations for the current user (server-side paginated).
     /// </summary>
     [HttpGet( "conversations" )]
-    public async Task<ActionResult<List<ChatConversationDto>>> GetConversations()
+    public async Task<ActionResult<PagedResult<ChatConversationDto>>> GetConversations(
+        [FromQuery] int page = 1 ,
+        [FromQuery] int pageSize = 10 ,
+        CancellationToken cancellationToken = default )
     {
+        page = Math.Max( 1 , page );
+        pageSize = Math.Clamp( pageSize , 1 , 100 );
+
         var userId = UserId;
 
-        var conversations = await _db.ChatConversations
+        var query = _db.ChatConversations
             .Include( c => c.Creator )
             .Include( c => c.Participant )
             .Where( c => c.CreatorId == userId || c.ParticipantId == userId )
-            .OrderByDescending( c => c.LastMessageAt ?? c.CreatedAt )
-            .ToListAsync();
+            .OrderByDescending( c => c.LastMessageAt ?? c.CreatedAt );
 
-        var result = new List<ChatConversationDto>();
+        var totalCount = await query.CountAsync( cancellationToken );
+
+        var conversations = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
+            .ToListAsync( cancellationToken );
+
+        var result = new List<ChatConversationDto>( conversations.Count );
         foreach ( var c in conversations )
         {
             var unreadCount = await _db.ChatMessages
                 .CountAsync( m => m.ConversationId == c.Id
                                && m.SenderId != userId
-                               && !m.IsRead );
+                               && !m.IsRead , cancellationToken );
 
             var otherUser = c.CreatorId == userId ? c.Participant : c.Creator;
             var otherUserId = c.CreatorId == userId ? c.ParticipantId : c.CreatorId;
@@ -75,7 +87,7 @@ public class ChatController : ControllerBase
                 unreadCount ) );
         }
 
-        return Ok( result );
+        return Ok( new PagedResult<ChatConversationDto>( result , totalCount , page , pageSize ) );
     }
 
     /// <summary>
