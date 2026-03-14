@@ -115,13 +115,16 @@ public class SubscriptionController : ControllerBase
     }
 
     /// <summary>
-    /// Get billing overview: current plan + transaction history.
+    /// Get billing overview: current plan + paged transaction history.
     /// </summary>
     [HttpGet( "billing" )]
     [Authorize]
-    public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview( CancellationToken cancellationToken )
+    public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default )
     {
-        var overview = await _subscriptionService.GetBillingOverviewAsync( UserId , cancellationToken );
+        var overview = await _subscriptionService.GetBillingOverviewAsync( UserId , page , pageSize , cancellationToken );
         return Ok( overview );
     }
 }

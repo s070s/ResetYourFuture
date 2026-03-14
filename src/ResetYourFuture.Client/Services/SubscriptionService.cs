@@ -53,9 +53,9 @@ public class SubscriptionService : ISubscriptionService
         return await response.Content.ReadFromJsonAsync<CancelSubscriptionResultDto>();
     }
 
-    public async Task<BillingOverviewDto?> GetBillingOverviewAsync()
+    public async Task<BillingOverviewDto?> GetBillingOverviewAsync( int page = 1 , int pageSize = 10 )
     {
-        var response = await _http.GetAsync( "api/subscription/billing" );
+        var response = await _http.GetAsync( $"api/subscription/billing?page={page}&pageSize={pageSize}" );
         if ( response.IsSuccessStatusCode )
         {
             return await response.Content.ReadFromJsonAsync<BillingOverviewDto>();

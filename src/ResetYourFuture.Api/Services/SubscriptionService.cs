@@ -279,14 +279,23 @@ public class SubscriptionService : ISubscriptionService
     }
 
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
-        string userId , CancellationToken cancellationToken = default )
+        string userId , int page = 1 , int pageSize = 10 , CancellationToken cancellationToken = default )
     {
+        if ( page < 1 ) page = 1;
+        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+
         var status = await GetUserStatusAsync( userId , cancellationToken );
 
-        var transactions = await _db.BillingTransactions
+        var query = _db.BillingTransactions
             .Include( bt => bt.SubscriptionPlan )
             .Where( bt => bt.UserId == userId )
-            .OrderByDescending( bt => bt.CreatedAt )
+            .OrderByDescending( bt => bt.CreatedAt );
+
+        var totalCount = await query.CountAsync( cancellationToken );
+
+        var transactions = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
             .Select( bt => new BillingTransactionDto(
                 bt.Id ,
                 bt.SubscriptionPlan.Name ,
@@ -302,7 +311,7 @@ public class SubscriptionService : ISubscriptionService
         return new BillingOverviewDto
         {
             CurrentSubscription = status ,
-            Transactions = transactions
+            Transactions = new PagedResult<BillingTransactionDto>( transactions , totalCount , page , pageSize )
         };
     }
 

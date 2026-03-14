@@ -15,12 +15,22 @@ public partial class Billing
     private string? _error;
     private string? _cancelMessage;
     private bool _cancelSuccess;
+    private int _page = 1;
+    private int _pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50];
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadBillingOverviewAsync();
+    }
+
+    private async Task LoadBillingOverviewAsync()
+    {
+        _loading = true;
+        _error = null;
         try
         {
-            _overview = await SubscriptionService.GetBillingOverviewAsync();
+            _overview = await SubscriptionService.GetBillingOverviewAsync( _page , _pageSize );
         }
         catch ( Exception ex )
         {
@@ -30,6 +40,22 @@ public partial class Billing
         finally
         {
             _loading = false;
+        }
+    }
+
+    private async Task GoToPage( int page )
+    {
+        _page = page;
+        await LoadBillingOverviewAsync();
+    }
+
+    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    {
+        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        {
+            _pageSize = size;
+            _page = 1;
+            await LoadBillingOverviewAsync();
         }
     }
 
@@ -47,8 +73,8 @@ public partial class Billing
 
                 if ( result.Success )
                 {
-                    // Reload billing overview to reflect the change
-                    _overview = await SubscriptionService.GetBillingOverviewAsync();
+                    _page = 1;
+                    await LoadBillingOverviewAsync();
                 }
             }
         }

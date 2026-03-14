@@ -22,8 +22,8 @@ public record BillingOverviewDto
     /// <summary>Current subscription status.</summary>
     public UserSubscriptionStatusDto? CurrentSubscription { get; init; }
 
-    /// <summary>Transaction history, newest first.</summary>
-    public List<BillingTransactionDto> Transactions { get; init; } = [];
+    /// <summary>Paged transaction history, newest first.</summary>
+    public PagedResult<BillingTransactionDto> Transactions { get; init; } = new( [] , 0 , 1 , 10 );
 }
 
 /// <summary>

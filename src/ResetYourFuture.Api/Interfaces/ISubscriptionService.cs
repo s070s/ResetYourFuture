@@ -45,7 +45,7 @@ public interface ISubscriptionService
     Task<CancelSubscriptionResultDto> CancelSubscriptionAsync( string userId , CancellationToken cancellationToken = default );
 
     /// <summary>
-    /// Get the user's billing overview (current plan + transaction history).
+    /// Get the user's billing overview (current plan + paged transaction history).
     /// </summary>
-    Task<BillingOverviewDto> GetBillingOverviewAsync( string userId , CancellationToken cancellationToken = default );
+    Task<BillingOverviewDto> GetBillingOverviewAsync( string userId , int page = 1 , int pageSize = 10 , CancellationToken cancellationToken = default );
 }

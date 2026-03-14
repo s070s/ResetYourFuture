@@ -11,5 +11,5 @@ public interface ISubscriptionService
     Task<UserSubscriptionStatusDto?> GetStatusAsync();
     Task<CheckoutSessionDto?> CheckoutAsync( Guid planId );
     Task<CancelSubscriptionResultDto?> CancelAsync();
-    Task<BillingOverviewDto?> GetBillingOverviewAsync();
+    Task<BillingOverviewDto?> GetBillingOverviewAsync( int page = 1 , int pageSize = 10 );
 }

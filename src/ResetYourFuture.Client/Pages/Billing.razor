@@ -87,7 +87,7 @@
         <div class="billing-section">
             <h2>@BillingRes.TransactionHistory</h2>
 
-            @if (_overview.Transactions.Count == 0)
+            @if (_overview.Transactions.TotalCount == 0)
             {
                 <p class="text-light-muted">@BillingRes.NoTransactions</p>
             }
@@ -105,9 +105,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var tx in _overview.Transactions)
+                            @foreach (var tx in _overview.Transactions.Items)
                             {
-                                <tr>
+                                <tr @key="tx.Id">
                                     <td>@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
                                     <td>
                                         <span class="tx-type tx-type-@tx.Type.ToLowerInvariant()">@tx.Type</span>
@@ -138,6 +138,28 @@
                             }
                         </tbody>
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-light-muted">
+                        Showing @((_overview.Transactions.Page - 1) * _overview.Transactions.PageSize + 1)–@(Math.Min(_overview.Transactions.Page * _overview.Transactions.PageSize, _overview.Transactions.TotalCount)) of @_overview.Transactions.TotalCount transactions
+                    </small>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
+                        <select class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
+                            @foreach (var opt in PageSizeOptions)
+                            {
+                                <option value="@opt">@opt</option>
+                            }
+                        </select>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="() => GoToPage(_overview.Transactions.Page - 1)"
+                                disabled="@(!_overview.Transactions.HasPreviousPage)">‹ Prev</button>
+                        <span class="small">Page @_overview.Transactions.Page of @_overview.Transactions.TotalPages</span>
+                        <button class="btn btn-sm btn-outline-secondary"
+                                @onclick="() => GoToPage(_overview.Transactions.Page + 1)"
+                                disabled="@(!_overview.Transactions.HasNextPage)">Next ›</button>
+                    </div>
                 </div>
             }
         </div>
