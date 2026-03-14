@@ -37,6 +37,7 @@ public class SiteSettingsController : ControllerBase
     public async Task<IActionResult> GetBackgroundImage()
     {
         var setting = await _db.SiteSettings
+            .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Key == "LandingBackgroundImage");
 
         if (setting == null || string.IsNullOrEmpty(setting.Value))

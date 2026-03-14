@@ -54,7 +54,7 @@ public class AdminController : ControllerBase
         page = Math.Max( 1, page );
         pageSize = Math.Clamp( pageSize, 1, 100 );
 
-        var query = _userManager.Users.AsQueryable();
+        var query = _userManager.Users.AsNoTracking();
 
         if ( !string.IsNullOrWhiteSpace( search ) )
         {
@@ -280,6 +280,7 @@ public class AdminController : ControllerBase
 
         // Query the Identity store for matching users (limit to 50).
         var users = await _userManager.Users
+            .AsNoTracking()
             .Where( u => u.Email!.Contains( query ) ||
                        u.FirstName.Contains( query ) ||
                        u.LastName.Contains( query ) )

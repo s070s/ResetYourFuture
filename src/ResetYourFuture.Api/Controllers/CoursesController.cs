@@ -61,6 +61,7 @@ public class CoursesController : ControllerBase
         var userId = UserId;
 
         var query = _db.Courses
+            .AsNoTracking()
             .Where( c => c.IsPublished )
             .OrderBy( c => c.Title );
 
@@ -91,6 +92,7 @@ public class CoursesController : ControllerBase
         var userId = UserId;
 
         var course = await _db.Courses
+            .AsNoTracking()
             .Include( c => c.Modules.OrderBy( m => m.SortOrder ) )
                 .ThenInclude( m => m.Lessons.OrderBy( l => l.SortOrder ) )
             .Include( c => c.Enrollments.Where( e => e.UserId == userId ) )
@@ -102,6 +104,7 @@ public class CoursesController : ControllerBase
         var enrollment = course.Enrollments.FirstOrDefault();
         var allLessonIds = course.Modules.SelectMany( m => m.Lessons ).Select( l => l.Id ).ToList();
         var completedLessonIds = await _db.LessonCompletions
+            .AsNoTracking()
             .Where( lc => lc.UserId == userId && allLessonIds.Contains( lc.LessonId ) )
             .Select( lc => lc.LessonId )
             .ToHashSetAsync();
@@ -201,6 +204,7 @@ public class CoursesController : ControllerBase
         var userId = UserId;
 
         var lesson = await _db.Lessons
+            .AsNoTracking()
             .Include( l => l.Module )
                 .ThenInclude( m => m.Course )
             .Include( l => l.Module )
@@ -227,6 +231,7 @@ public class CoursesController : ControllerBase
 
         // Get all lessons in course for navigation
         var allLessons = await _db.Lessons
+            .AsNoTracking()
             .Where( l => l.Module.CourseId == course.Id )
             .OrderBy( l => l.Module.SortOrder )
             .ThenBy( l => l.SortOrder )

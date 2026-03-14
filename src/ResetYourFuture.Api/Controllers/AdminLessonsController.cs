@@ -38,6 +38,7 @@ public class AdminLessonsController : ControllerBase
     {
         // Query lessons for the module, order and project to DTOs to minimize payload.
         var lessons = await _db.Lessons
+            .AsNoTracking()
             .Where( l => l.ModuleId == moduleId )
             .OrderBy( l => l.SortOrder )
             .Select( l => new AdminLessonDto(

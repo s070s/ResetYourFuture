@@ -45,6 +45,7 @@ public class AdminAssessmentsController : ControllerBase
         if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
 
         var query = _db.AssessmentDefinitions
+            .AsNoTracking()
             .OrderByDescending( a => a.CreatedAt );
 
         var totalCount = await query.CountAsync();
@@ -71,7 +72,9 @@ public class AdminAssessmentsController : ControllerBase
     [HttpGet( "{id:guid}" )]
     public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessmentById( Guid id )
     {
-        var assessment = await _db.AssessmentDefinitions.FindAsync( id );
+        var assessment = await _db.AssessmentDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync( a => a.Id == id );
         if ( assessment == null )
         {
             return NotFound();
@@ -278,6 +281,7 @@ public class AdminAssessmentsController : ControllerBase
         }
 
         var query = _db.AssessmentSubmissions
+            .AsNoTracking()
             .Where( s => s.AssessmentDefinitionId == id );
 
         var totalCount = await query.CountAsync();

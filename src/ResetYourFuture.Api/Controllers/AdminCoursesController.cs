@@ -39,6 +39,7 @@ public class AdminCoursesController : ControllerBase
     public async Task<ActionResult<AdminCourseDto>> GetCourseById( Guid id )
     {
         var course = await _db.Courses
+            .AsNoTracking()
             .Include( c => c.Modules )
             .ThenInclude( m => m.Lessons )
             .Include( c => c.Enrollments )
@@ -79,6 +80,7 @@ public class AdminCoursesController : ControllerBase
         var totalCount = await _db.Courses.CountAsync( cancellationToken );
 
         var items = await _db.Courses
+            .AsNoTracking()
             .Include( c => c.Modules )
             .ThenInclude( m => m.Lessons )
             .Include( c => c.Enrollments )

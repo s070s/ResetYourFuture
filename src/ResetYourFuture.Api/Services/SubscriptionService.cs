@@ -26,6 +26,7 @@ public class SubscriptionService : ISubscriptionService
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync( CancellationToken cancellationToken = default )
     {
         var plans = await _db.SubscriptionPlans
+            .AsNoTracking()
             .Where( sp => sp.IsActive )
             .OrderBy( sp => sp.Tier )
             .ThenBy( sp => sp.Price )
@@ -48,6 +49,7 @@ public class SubscriptionService : ISubscriptionService
         string userId , CancellationToken cancellationToken = default )
     {
         var activeSub = await _db.UserSubscriptions
+            .AsNoTracking()
             .Include( us => us.SubscriptionPlan )
             .Where( us => us.UserId == userId && us.IsActive )
             .FirstOrDefaultAsync( cancellationToken );
@@ -78,6 +80,7 @@ public class SubscriptionService : ISubscriptionService
         string userId , CancellationToken cancellationToken = default )
     {
         var tier = await _db.UserSubscriptions
+            .AsNoTracking()
             .Include( us => us.SubscriptionPlan )
             .Where( us => us.UserId == userId && us.IsActive )
             .Select( us => ( SubscriptionTierEnum? ) us.SubscriptionPlan.Tier )
@@ -287,6 +290,7 @@ public class SubscriptionService : ISubscriptionService
         var status = await GetUserStatusAsync( userId , cancellationToken );
 
         var query = _db.BillingTransactions
+            .AsNoTracking()
             .Include( bt => bt.SubscriptionPlan )
             .Where( bt => bt.UserId == userId )
             .OrderByDescending( bt => bt.CreatedAt );

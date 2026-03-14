@@ -45,6 +45,7 @@ public class AssessmentsController : ControllerBase
         if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
 
         var query = _db.AssessmentDefinitions
+            .AsNoTracking()
             .Where( a => a.IsPublished )
             .OrderBy( a => a.Title );
 
@@ -76,6 +77,7 @@ public class AssessmentsController : ControllerBase
     public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment( Guid id )
     {
         var assessment = await _db.AssessmentDefinitions
+            .AsNoTracking()
             .Where( a => a.Id == id && a.IsPublished )
             .Select( a => new AssessmentDefinitionDto(
                 a.Id ,
@@ -152,6 +154,7 @@ public class AssessmentsController : ControllerBase
     public async Task<ActionResult<List<AssessmentSubmissionDto>>> GetMySubmissions()
     {
         var submissions = await _db.AssessmentSubmissions
+            .AsNoTracking()
             .Where( s => s.UserId == UserId )
             .Include( s => s.AssessmentDefinition )
             .OrderByDescending( s => s.SubmittedAt )

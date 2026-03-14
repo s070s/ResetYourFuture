@@ -29,6 +29,7 @@ public class AdminModulesController : ControllerBase
     public async Task<ActionResult<List<AdminModuleDto>>> GetModulesByCourse( Guid courseId )
     {
         var modules = await _db.Modules
+            .AsNoTracking()
             .Where( m => m.CourseId == courseId )
             .Include( m => m.Lessons )
             .OrderBy( m => m.SortOrder )
@@ -49,6 +50,7 @@ public class AdminModulesController : ControllerBase
     public async Task<ActionResult<AdminModuleDto>> GetModuleById( Guid id )
     {
         var module = await _db.Modules
+            .AsNoTracking()
             .Include( m => m.Lessons )
             .FirstOrDefaultAsync( m => m.Id == id );
 
