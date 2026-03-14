@@ -263,7 +263,8 @@ public partial class Chat : IAsyncDisposable
             if ( _selectedConversation is not null && message.ConversationId == _selectedConversation.Id )
             {
                 // Only append to the visible list when on the last (newest) page.
-                if ( _pagedMessages is not null && _messagesPage == _pagedMessages.TotalPages )
+                // Use >= so that an empty conversation (TotalPages == 0) also receives the first message.
+                if ( _pagedMessages is not null && _messagesPage >= _pagedMessages.TotalPages )
                 {
                     _pagedMessages.Items.Add( message );
                     _pagedMessages = _pagedMessages with { TotalCount = _pagedMessages.TotalCount + 1 };
