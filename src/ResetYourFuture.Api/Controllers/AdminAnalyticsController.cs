@@ -34,50 +34,32 @@ public class AdminAnalyticsController : ControllerBase
     [HttpGet( "summary" )]
     public async Task<ActionResult<AnalyticsSummaryDto>> GetSummary()
     {
-        // Count total users using the Identity user store (efficient SQL COUNT)
         var totalUsers = await _userManager.Users.CountAsync();
 
-        // Load all users into memory so we can check each user's roles
-        var allUsers = await _userManager.Users.ToListAsync();
-        // Lists to separate admin and student users for simple counting
-        var adminUsers = new List<ApplicationUser>();
-        var studentUsers = new List<ApplicationUser>();
+        // Single JOIN + COUNT query — eliminates the N+1 GetRolesAsync loop
+        var totalAdmins = await (
+            from ur in _db.UserRoles
+            join r in _db.Roles on ur.RoleId equals r.Id
+            where r.NormalizedName == "ADMIN"
+            select ur.UserId
+        ).CountAsync();
 
-        // Iterate users and classify by role; GetRolesAsync queries the role table for each user
-        foreach ( var user in allUsers )
-        {
-            var roles = await _userManager.GetRolesAsync( user );
-            if ( roles.Contains( "Admin" ) )
-            {
-                adminUsers.Add( user );
-            }
-            else
-            {
-                studentUsers.Add( user );
-            }
-        }
-
-        // Compute totals from the classified lists
-        var totalAdmins = adminUsers.Count;
-        var totalStudents = studentUsers.Count;
-        // Use EF Core counts to get totals for courses and related entities
+        var totalStudents = totalUsers - totalAdmins;
         var totalCourses = await _db.Courses.CountAsync();
         var publishedCourses = await _db.Courses.CountAsync( c => c.IsPublished );
         var activeEnrollments = await _db.Enrollments.CountAsync();
         var totalAssessmentSubmissions = await _db.AssessmentSubmissions.CountAsync();
 
-        // Create the DTO that will be serialized to JSON and returned to the client
         var dto = new AnalyticsSummaryDto(
-            totalUsers ,
-            totalStudents ,
-            totalAdmins ,
-            totalCourses ,
-            publishedCourses ,
-            activeEnrollments ,
+            totalUsers,
+            totalStudents,
+            totalAdmins,
+            totalCourses,
+            publishedCourses,
+            activeEnrollments,
             totalAssessmentSubmissions
         );
 
-        // Return 200 OK with the DTO payload
         return Ok( dto );
     }
 }
