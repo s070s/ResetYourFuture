@@ -66,7 +66,7 @@ else
                             <tbody>
                                 @foreach (var courseStat in stats.CourseStats)
                                 {
-                                    <tr>
+                                    <tr @key="courseStat.CourseTitle">
                                         <td>@courseStat.CourseTitle</td>
                                         <td>@courseStat.EnrollmentCount</td>
                                         <td>@courseStat.CompletionCount</td>
@@ -101,7 +101,7 @@ else
                             <tbody>
                                 @foreach (var assessmentStat in stats.AssessmentStats)
                                 {
-                                    <tr>
+                                    <tr @key="assessmentStat.AssessmentTitle">
                                         <td>@assessmentStat.AssessmentTitle</td>
                                         <td>@assessmentStat.SubmissionCount</td>
                                     </tr>
