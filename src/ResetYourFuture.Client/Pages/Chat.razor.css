@@ -260,6 +260,46 @@
 }
 
 /* --- User Picker Modal --- */
+.modal-content {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-strong-normal);
+}
+
+.modal-header {
+    border-bottom-color: var(--border-subtle);
+}
+
+.modal-header .modal-title {
+    color: var(--text-strong-normal);
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.7;
+}
+
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+
+.modal-body .form-control {
+    background-color: var(--bg-primary);
+    border-color: var(--border-subtle);
+    color: var(--text-strong-normal);
+}
+
+    .modal-body .form-control::placeholder {
+        color: var(--text-light-muted);
+    }
+
+    .modal-body .form-control:focus {
+        background-color: var(--bg-primary);
+        border-color: var(--text-accent);
+        color: var(--text-strong-normal);
+        box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--text-accent) 25%, transparent);
+    }
+
 .user-picker-list {
     max-height: 300px;
     overflow-y: auto;
