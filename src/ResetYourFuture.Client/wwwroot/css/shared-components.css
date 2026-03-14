@@ -53,6 +53,77 @@
     color: var(--text-accent);
 }
 
+/* Global dark-theme form inputs */
+.form-control {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+}
+
+.form-control::placeholder {
+    color: var(--text-light-muted);
+    opacity: 1;
+}
+
+.form-control:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+    outline: none;
+}
+
+.form-select {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23acadbe' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.form-select:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+}
+
+.form-select option {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.form-check-input {
+    background-color: transparent;
+    border-color: var(--border-subtle);
+}
+
+.form-check-input:checked {
+    background-color: var(--text-strong-accent);
+    border-color: var(--text-strong-accent);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+    border-color: var(--focus-ring);
+}
+
+.form-check-label {
+    color: var(--text-light-normal);
+}
+
+.btn-outline-primary {
+    color: var(--text-accent);
+    border-color: var(--border-subtle);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--text-strong-accent);
+    border-color: var(--text-strong-accent);
+    color: var(--bg-primary);
+}
+
 /* Alerts */
 .alert-danger {
     background-color: var(--bg-error-subtle);
@@ -130,7 +201,6 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
 }
 
 /* Keep focus ring consistent with app theme */
-.form-control:focus,
 input[type="date"].form-control:focus {
     box-shadow:
         0 0 0 0.1rem var(--bg-primary),
