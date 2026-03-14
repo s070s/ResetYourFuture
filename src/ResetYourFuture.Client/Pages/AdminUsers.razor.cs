@@ -56,13 +56,14 @@ public partial class AdminUsers : IAsyncDisposable
         searchTerm = e.Value?.ToString() ?? string.Empty;
         currentPage = 1;
 
-        _searchCts?.Cancel();
+        var previous = _searchCts;
         _searchCts = new CancellationTokenSource();
-        var cts = _searchCts;
+        previous?.Cancel();
+        previous?.Dispose();
 
         try
         {
-            await Task.Delay( 300, cts.Token );
+            await Task.Delay( 300, _searchCts.Token );
             await LoadUsers();
         }
         catch ( OperationCanceledException ) { }
