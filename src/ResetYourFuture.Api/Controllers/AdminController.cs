@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
@@ -24,17 +25,20 @@ public class AdminController : ControllerBase
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ITokenService _tokenService;
     private readonly ILogger<AdminController> _logger;
+    private readonly ApplicationDbContext _context;
 
     public AdminController(
         UserManager<ApplicationUser> userManager ,
         RoleManager<IdentityRole> roleManager ,
         ITokenService tokenService ,
-        ILogger<AdminController> logger )
+        ILogger<AdminController> logger ,
+        ApplicationDbContext context )
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _tokenService = tokenService;
         _logger = logger;
+        _context = context;
     }
 
     /// <summary>
@@ -69,11 +73,24 @@ public class AdminController : ControllerBase
             .Take( pageSize )
             .ToListAsync( cancellationToken );
 
-        var result = new List<AdminUserDto>( users.Count );
-        foreach ( var user in users )
+        // Single query: fetch all (userId → roleName) pairs for the current page
+        var userIds = users.Select( u => u.Id ).ToList();
+        var userRolePairs = await _context.UserRoles
+            .Where( ur => userIds.Contains( ur.UserId ) )
+            .Join( _context.Roles,
+                   ur => ur.RoleId,
+                   r => r.Id,
+                   ( ur, r ) => new { ur.UserId, r.Name } )
+            .ToListAsync( cancellationToken );
+
+        var userRoleMap = userRolePairs
+            .GroupBy( x => x.UserId )
+            .ToDictionary( g => g.Key, g => g.Select( x => x.Name! ).ToList() );
+
+        var result = users.Select( user =>
         {
-            var roles = await _userManager.GetRolesAsync( user );
-            result.Add( new AdminUserDto(
+            var roles = userRoleMap.TryGetValue( user.Id, out var r ) ? r : [];
+            return new AdminUserDto(
                 user.Id,
                 user.Email!,
                 user.FirstName,
@@ -84,8 +101,8 @@ public class AdminController : ControllerBase
                 user.Status.ToString(),
                 [.. roles],
                 user.CreatedAt
-            ) );
-        }
+            );
+        } ).ToList();
 
         return Ok( new PagedResult<AdminUserDto>( result, totalCount, page, pageSize ) );
     }
