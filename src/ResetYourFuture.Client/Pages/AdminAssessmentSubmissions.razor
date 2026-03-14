@@ -19,9 +19,9 @@ else if (_pagedResult.TotalCount == 0)
 }
 else
 {
-    <div class="table-responsive">
+    <div class="table-responsive" style="max-height:60vh; overflow-y:auto">
         <table class="table table-striped align-middle">
-            <thead>
+            <thead style="position:sticky; top:0; z-index:1">
                 <tr>
                     <th>@AdminRes.ColUser</th>
                     <th>@AdminRes.ColEmail</th>
@@ -30,8 +30,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var sub in _pagedResult.Items)
-                {
+                <Virtualize Items="_pagedResult.Items" Context="sub" SpacerElement="tr" OverscanCount="10">
                     <tr @key="sub.Id">
                         <td>@sub.UserDisplayName</td>
                         <td>@sub.UserEmail</td>
@@ -73,7 +72,7 @@ else
                             </td>
                         </tr>
                     }
-                }
+                </Virtualize>
             </tbody>
         </table>
     </div>

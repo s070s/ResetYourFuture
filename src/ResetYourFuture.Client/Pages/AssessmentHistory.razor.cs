@@ -10,6 +10,7 @@ public partial class AssessmentHistory
     [Inject] private HttpClient Http { get; set; } = default!;
 
     private List<AssessmentSubmissionDto>? submissions;
+    private List<AssessmentSubmissionDto> _sortedSubmissions = new();
     private AssessmentSubmissionDto? latestSubmission;
     private AssessmentSubmissionDto? selectedSubmission;
 
@@ -27,6 +28,7 @@ public partial class AssessmentHistory
         {
             submissions = await Http.GetFromJsonAsync<List<AssessmentSubmissionDto>>( "api/assessments/mine" );
             latestSubmission = submissions?.OrderByDescending( s => s.SubmittedAt ).FirstOrDefault();
+            _sortedSubmissions = submissions?.OrderByDescending( s => s.SubmittedAt ).ToList() ?? new();
 
             // Pre-load schemas for all distinct assessments so labels are available immediately
             if ( submissions != null )

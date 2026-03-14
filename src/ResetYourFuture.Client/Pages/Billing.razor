@@ -93,9 +93,9 @@
             }
             else
             {
-                <div class="transactions-table-wrapper">
+                <div class="transactions-table-wrapper" style="max-height:60vh; overflow-y:auto">
                     <table class="transactions-table">
-                        <thead>
+                        <thead style="position:sticky; top:0; z-index:1">
                             <tr>
                                 <th>@BillingRes.ColDate</th>
                                 <th>@BillingRes.ColDescription</th>
@@ -105,8 +105,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var tx in _overview.Transactions.Items)
-                            {
+                            <Virtualize Items="_overview.Transactions.Items" Context="tx" SpacerElement="tr" OverscanCount="10">
                                 <tr @key="tx.Id">
                                     <td>@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
                                     <td>
@@ -135,7 +134,7 @@
                                         }
                                     </td>
                                 </tr>
-                            }
+                            </Virtualize>
                         </tbody>
                     </table>
                 </div>

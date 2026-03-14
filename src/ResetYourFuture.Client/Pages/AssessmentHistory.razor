@@ -31,9 +31,9 @@ else
     }
 
     <h4>@AssessmentRes.AllSubmissions</h4>
-    <div class="table-responsive">
+    <div class="table-responsive" style="max-height:60vh; overflow-y:auto">
         <table class="table table-striped">
-            <thead>
+            <thead style="position:sticky; top:0; z-index:1">
                 <tr>
                     <th>@AssessmentRes.AssessmentHeader</th>
                     <th>@AssessmentRes.SubmittedHeader</th>
@@ -41,16 +41,15 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var submission in submissions.OrderByDescending(s => s.SubmittedAt))
-                {
-                    <tr>
+                <Virtualize Items="_sortedSubmissions" Context="submission" SpacerElement="tr" OverscanCount="10">
+                    <tr @key="submission.Id">
                         <td>@submission.AssessmentTitle</td>
                         <td>@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
                         </td>
                     </tr>
-                }
+                </Virtualize>
             </tbody>
         </table>
     </div>
