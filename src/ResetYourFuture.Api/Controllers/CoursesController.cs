@@ -207,8 +207,6 @@ public class CoursesController : ControllerBase
             .AsNoTracking()
             .Include( l => l.Module )
                 .ThenInclude( m => m.Course )
-            .Include( l => l.Module )
-                .ThenInclude( m => m.Lessons.OrderBy( x => x.SortOrder ) )
             .FirstOrDefaultAsync( l => l.Id == lessonId );
 
         if ( lesson is null )
