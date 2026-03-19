@@ -251,6 +251,7 @@ public class CoursesController : ControllerBase
             lesson.Title ,
             contentType ,
             displayContent ,
+            lesson.PdfPath ,
             lesson.DurationMinutes ,
             isCompleted ,
             lesson.ModuleId ,

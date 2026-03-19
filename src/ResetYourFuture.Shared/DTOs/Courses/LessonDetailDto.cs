@@ -8,6 +8,7 @@ public record LessonDetailDto(
     string Title,
     int ContentType,
     string? Content,
+    string? PdfPath,
     int? DurationMinutes,
     bool IsCompleted,
     Guid ModuleId,

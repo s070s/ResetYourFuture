@@ -142,6 +142,22 @@ public partial class LessonViewer
     }
 
     /// <summary>
+    /// Absolute URL used by the &lt;iframe&gt; element to stream the uploaded lesson PDF
+    /// through the authorized asset endpoint.
+    /// </summary>
+    private string PdfAssetUrl
+    {
+        get
+        {
+            var apiBase = ( AppConfig [ "ApiBaseUrl" ] ?? "https://localhost:7003" ).TrimEnd( '/' );
+            var url = $"{apiBase}/api/lessons/{LessonId}/asset?type=pdf";
+            if ( !string.IsNullOrEmpty( _videoToken ) )
+                url += $"&access_token={Uri.EscapeDataString( _videoToken )}";
+            return url;
+        }
+    }
+
+    /// <summary>
     /// Converts YouTube watch/short/youtu.be URLs into embed-friendly URLs.
     /// Returns the original URL unchanged if it's already an embed URL or non-YouTube.
     /// </summary>

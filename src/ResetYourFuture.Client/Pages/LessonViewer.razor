@@ -58,6 +58,17 @@ else
                     }
                 </div>
             }
+            else if (_lesson.ContentType == 3)
+            {
+                @* PDF lesson *@
+                <div class="pdf-container">
+                    <iframe
+                        src="@PdfAssetUrl"
+                        title="@_lesson.Title"
+                        style="width:100%; height:80vh; border:none;">
+                    </iframe>
+                </div>
+            }
             else
             {
                 @* Text lesson - render HTML from WYSIWYG or markdown from seed data *@
