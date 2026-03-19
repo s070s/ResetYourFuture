@@ -212,6 +212,8 @@ public class AdminLessonsController : ControllerBase
 
     // Upload a video for a lesson.
     [HttpPost( "{id:guid}/upload/video" )]
+    [DisableRequestSizeLimit]
+    [RequestFormLimits( MultipartBodyLengthLimit = 524_288_000 )] // 500 MB
     public async Task<IActionResult> UploadVideo( Guid id , IFormFile file )
     {
         // Find the lesson or return 404.

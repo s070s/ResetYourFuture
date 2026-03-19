@@ -62,12 +62,15 @@ builder.Services.AddAuthentication( options =>
 
     options.Events = new JwtBearerEvents
     {
-        // Allow SignalR to receive JWT from query string (WebSocket cannot send headers).
+        // Allow SignalR and media asset requests to receive JWT from query string.
+        // WebSocket connections and browser <video>/<audio> elements cannot send custom headers.
         OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if ( !string.IsNullOrEmpty( accessToken ) && path.StartsWithSegments( "/hubs/chat" ) )
+            if ( !string.IsNullOrEmpty( accessToken ) &&
+                 ( path.StartsWithSegments( "/hubs/chat" ) ||
+                   path.StartsWithSegments( "/api/lessons" ) ) )
             {
                 context.Token = accessToken;
             }

@@ -335,6 +335,12 @@ public partial class AdminCourseEdit
 
     private async Task SaveLesson()
     {
+        if ( string.IsNullOrWhiteSpace( lessonTitle ) )
+        {
+            message = "Lesson title is required.";
+            return;
+        }
+
         isLessonSaving = true;
         message = string.Empty;
         try
@@ -374,19 +380,22 @@ public partial class AdminCourseEdit
                 }
             }
 
-            // Upload files if selected
+            // Upload files if selected; collect errors so they are visible to the admin.
+            var uploadErrors = new System.Text.StringBuilder();
             if ( pendingPdf != null )
             {
-                await UploadFileAsync( lessonId , pendingPdf , "pdf" );
+                var err = await UploadFileAsync( lessonId , pendingPdf , "pdf" );
+                if ( err is not null ) uploadErrors.AppendLine( err );
             }
             if ( pendingVideo != null )
             {
-                await UploadFileAsync( lessonId , pendingVideo , "video" );
+                var err = await UploadFileAsync( lessonId , pendingVideo , "video" );
+                if ( err is not null ) uploadErrors.AppendLine( err );
             }
 
             await LoadModulesAndLessons();
             CloseLessonModal();
-            message = "Lesson saved";
+            message = uploadErrors.Length > 0 ? uploadErrors.ToString().Trim() : "Lesson saved";
         }
         catch ( Exception ex )
         {
@@ -398,18 +407,20 @@ public partial class AdminCourseEdit
         }
     }
 
-    private async Task UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
+    private async Task<string?> UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
     {
-        const long maxFileSize = 200 * 1024 * 1024; // 200 MB
+        const long maxFileSize = 500L * 1024 * 1024; // 500 MB — matches server limit
         using var formContent = new MultipartFormDataContent();
         using var stream = file.OpenReadStream( maxFileSize );
         var streamContent = new StreamContent( stream );
-        streamContent.Headers.ContentType =
-            new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
+        if ( !string.IsNullOrEmpty( file.ContentType ) )
+            streamContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
         formContent.Add( streamContent , "file" , file.Name );
         var uploadResponse = await Http.PostAsync( $"api/admin/lessons/{lessonId}/upload/{type}" , formContent );
-        if ( !uploadResponse.IsSuccessStatusCode )
-            message = $"Error uploading {type}: {uploadResponse.ReasonPhrase}";
+        return uploadResponse.IsSuccessStatusCode
+            ? null
+            : $"Error uploading {type}: {uploadResponse.StatusCode} {uploadResponse.ReasonPhrase}";
     }
 
     private async Task DeleteLesson( Guid lessonId , Guid moduleId )

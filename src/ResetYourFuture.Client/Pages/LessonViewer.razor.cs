@@ -1,4 +1,6 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Configuration;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
@@ -16,12 +18,15 @@ public partial class LessonViewer
 
     [Inject] private ICourseService CourseService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private IConfiguration AppConfig { get; set; } = default!;
+    [Inject] private ILocalStorageService LocalStorage { get; set; } = default!;
 
     private LessonDetailDto? _lesson;
     private LessonCompletionResultDto? _completionResult;
     private bool _loading = true;
     private bool _completing;
     private string? _error;
+    private string? _videoToken;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -36,6 +41,7 @@ public partial class LessonViewer
 
         try
         {
+            _videoToken = await LocalStorage.GetItemAsStringAsync( "authToken" );
             _lesson = await CourseService.GetLessonAsync( LessonId );
             if ( _lesson is null )
             {
@@ -109,6 +115,30 @@ public partial class LessonViewer
 
         // Otherwise fall back to the simple markdown converter for seed/legacy content.
         return RenderMarkdown( content );
+    }
+
+    /// <summary>
+    /// Returns true when the content is a YouTube URL rather than an uploaded file path.
+    /// </summary>
+    private static bool IsYouTubeUrl( string? url ) =>
+        !string.IsNullOrEmpty( url ) &&
+        ( url.Contains( "youtube.com" , StringComparison.OrdinalIgnoreCase ) ||
+          url.Contains( "youtu.be" , StringComparison.OrdinalIgnoreCase ) );
+
+    /// <summary>
+    /// Absolute URL used by the &lt;video&gt; element to stream the uploaded lesson video
+    /// through the authorized asset endpoint.
+    /// </summary>
+    private string VideoAssetUrl
+    {
+        get
+        {
+            var apiBase = ( AppConfig [ "ApiBaseUrl" ] ?? "https://localhost:7003" ).TrimEnd( '/' );
+            var url = $"{apiBase}/api/lessons/{LessonId}/asset?type=video";
+            if ( !string.IsNullOrEmpty( _videoToken ) )
+                url += $"&access_token={Uri.EscapeDataString( _videoToken )}";
+            return url;
+        }
     }
 
     /// <summary>

@@ -49,12 +49,6 @@ public class LessonAssetsController : ControllerBase
             return NotFound("Lesson not found");
         }
 
-        // Check if lesson is published
-        if (!lesson.IsPublished)
-        {
-            return Forbid("Lesson is not published");
-        }
-
         // Check if user is enrolled in the course
         var isEnrolled = await _db.Enrollments
             .AnyAsync(e => e.UserId == UserId && e.CourseId == lesson.Module.Course.Id);
