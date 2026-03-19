@@ -5,8 +5,8 @@ using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Domain.Enums;
 using ResetYourFuture.Api.Interfaces;
-using  ResetYourFuture.Shared.DTOs;
- using System.Security.Claims;
+using ResetYourFuture.Shared.DTOs;
+using System.Security.Claims;
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -52,11 +52,13 @@ public class CoursesController : ControllerBase
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResult<CourseListItemDto>>> GetCourses(
-        [FromQuery] int page = 1,
+        [FromQuery] int page = 1 ,
         [FromQuery] int pageSize = 10 )
     {
-        if ( page < 1 ) page = 1;
-        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+        if ( page < 1 )
+            page = 1;
+        if ( pageSize < 1 || pageSize > 100 )
+            pageSize = 10;
 
         var userId = UserId;
 
