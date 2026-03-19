@@ -1,15 +1,16 @@
+using System.Threading.Channels;
+
 namespace ResetYourFuture.Api.Logging;
 
 public sealed class FileLogger : ILogger
 {
-    private readonly string _logDirectory;
     private readonly string _categoryName;
-    private static readonly Lock _lock = new();
+    private readonly ChannelWriter<string> _writer;
 
-    public FileLogger(string logDirectory, string categoryName)
+    public FileLogger(string categoryName, ChannelWriter<string> writer)
     {
-        _logDirectory = logDirectory;
         _categoryName = categoryName;
+        _writer = writer;
     }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
@@ -26,21 +27,13 @@ public sealed class FileLogger : ILogger
         if (!IsEnabled(logLevel))
             return;
 
-        var logFileName = $"log-{DateTime.Now:yyyy-MM-dd}.txt";
-        var logFilePath = Path.Combine(_logDirectory, logFileName);
-        var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
         var level = logLevel.ToString().ToUpperInvariant();
         var message = formatter(state, exception);
-
-        var logEntry = $"[{timestamp}] [{level}] [{_categoryName}] {message}";
+        var entry = $"[{timestamp}] [{level}] [{_categoryName}] {message}";
         if (exception != null)
-        {
-            logEntry += Environment.NewLine + exception;
-        }
+            entry += Environment.NewLine + exception;
 
-        lock (_lock)
-        {
-            File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
-        }
+        _writer.TryWrite(entry);
     }
 }

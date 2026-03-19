@@ -15,26 +15,31 @@ namespace ResetYourFuture.Api.Services;
 /// </summary>
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _config;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly SymmetricSecurityKey _signingKey;
+    private readonly double _accessTokenExpirationMinutes;
+    private readonly string? _jwtIssuer;
+    private readonly string? _jwtAudience;
+    private static readonly JwtSecurityTokenHandler _tokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 
     public TokenService(
         IConfiguration config,
         UserManager<ApplicationUser> userManager,
         ISubscriptionService subscriptionService)
     {
-        _config = config;
         _userManager = userManager;
         _subscriptionService = subscriptionService;
+        _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
+        _accessTokenExpirationMinutes = double.Parse(config["Jwt:AccessTokenExpirationMinutes"] ?? "60");
+        _jwtIssuer = config["Jwt:Issuer"];
+        _jwtAudience = config["Jwt:Audience"];
     }
 
     public async Task<(string AccessToken, DateTime Expiration)> GenerateAccessTokenAsync(ApplicationUser user)
     {
-        var jwtSettings = _config.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expiration = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["AccessTokenExpirationMinutes"] ?? "60"));
+        var creds = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+        var expiration = DateTime.UtcNow.AddMinutes(_accessTokenExpirationMinutes);
 
         var roles = await _userManager.GetRolesAsync(user);
         var tier = await _subscriptionService.GetUserTierAsync(user.Id);
@@ -55,13 +60,13 @@ public class TokenService : ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: _jwtIssuer,
+            audience: _jwtAudience,
             claims: claims,
             expires: expiration,
             signingCredentials: creds);
 
-        return (new JwtSecurityTokenHandler().WriteToken(token), expiration);
+        return (_tokenHandler.WriteToken(token), expiration);
     }
 
     /// <summary>
@@ -78,10 +83,8 @@ public class TokenService : ITokenService
 
     public async Task<(string AccessToken, DateTime Expiration)> GenerateImpersonationTokenAsync(ApplicationUser user, string adminId)
     {
-        var jwtSettings = _config.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expiration = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["AccessTokenExpirationMinutes"] ?? "60"));
+        var creds = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+        var expiration = DateTime.UtcNow.AddMinutes(_accessTokenExpirationMinutes);
 
         var roles = await _userManager.GetRolesAsync(user);
         var tier = await _subscriptionService.GetUserTierAsync(user.Id);
@@ -102,12 +105,12 @@ public class TokenService : ITokenService
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: _jwtIssuer,
+            audience: _jwtAudience,
             claims: claims,
             expires: expiration,
             signingCredentials: creds);
 
-        return (new JwtSecurityTokenHandler().WriteToken(token), expiration);
+        return (_tokenHandler.WriteToken(token), expiration);
     }
 }

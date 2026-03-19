@@ -63,29 +63,44 @@ public class ChatController : ControllerBase
             .Take( pageSize )
             .ToListAsync( cancellationToken );
 
-        var result = new List<ChatConversationDto>( conversations.Count );
-        foreach ( var c in conversations )
+        var conversationIds = conversations.Select( c => c.Id ).ToList();
+
+        var unreadCounts = await _db.ChatMessages
+            .Where( m => conversationIds.Contains( m.ConversationId ) && m.SenderId != userId && !m.IsRead )
+            .GroupBy( m => m.ConversationId )
+            .Select( g => new { ConversationId = g.Key , Count = g.Count() } )
+            .ToDictionaryAsync( x => x.ConversationId , x => x.Count , cancellationToken );
+
+        var otherUserIds = conversations
+            .Select( c => c.CreatorId == userId ? c.ParticipantId : c.CreatorId )
+            .Distinct()
+            .ToList();
+
+        var roleData = await _db.UserRoles
+            .Where( ur => otherUserIds.Contains( ur.UserId ) )
+            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
+            .ToListAsync( cancellationToken );
+
+        var roleMap = roleData
+            .GroupBy( x => x.UserId )
+            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
+
+        var result = conversations.Select( c =>
         {
-            var unreadCount = await _db.ChatMessages
-                .CountAsync( m => m.ConversationId == c.Id
-                               && m.SenderId != userId
-                               && !m.IsRead , cancellationToken );
-
-            var otherUser = c.CreatorId == userId ? c.Participant : c.Creator;
             var otherUserId = c.CreatorId == userId ? c.ParticipantId : c.CreatorId;
-            var otherRole = otherUser is not null
-                ? ( await _userManager.GetRolesAsync( otherUser ) ).FirstOrDefault() ?? "User"
-                : "User";
+            var otherUser = c.CreatorId == userId ? c.Participant : c.Creator;
+            var otherRole = roleMap.TryGetValue( otherUserId , out var role ) ? role : "User";
+            var unreadCount = unreadCounts.TryGetValue( c.Id , out var count ) ? count : 0;
 
-            result.Add( new ChatConversationDto(
+            return new ChatConversationDto(
                 c.Id ,
                 otherUserId ,
                 $"{otherUser?.FirstName} {otherUser?.LastName}" ,
                 otherRole ,
                 c.LastMessageContent ,
                 c.LastMessageAt ,
-                unreadCount ) );
-        }
+                unreadCount );
+        } ).ToList();
 
         return Ok( new PagedResult<ChatConversationDto>( result , totalCount , page , pageSize ) );
     }
@@ -126,20 +141,26 @@ public class ChatController : ControllerBase
             .Take( pageSize )
             .ToListAsync( cancellationToken );
 
-        var result = new List<ChatMessageDto>( messages.Count );
-        foreach ( var m in messages )
-        {
-            var roles = await _userManager.GetRolesAsync( m.Sender! );
-            result.Add( new ChatMessageDto(
-                m.Id ,
-                m.ConversationId ,
-                m.SenderId ,
-                $"{m.Sender?.FirstName} {m.Sender?.LastName}" ,
-                roles.FirstOrDefault() ?? "User" ,
-                m.Content ,
-                m.SentAt ,
-                m.IsRead ) );
-        }
+        var senderIds = messages.Select( m => m.SenderId ).Distinct().ToList();
+
+        var roleData = await _db.UserRoles
+            .Where( ur => senderIds.Contains( ur.UserId ) )
+            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
+            .ToListAsync( cancellationToken );
+
+        var roleMap = roleData
+            .GroupBy( x => x.UserId )
+            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
+
+        var result = messages.Select( m => new ChatMessageDto(
+            m.Id ,
+            m.ConversationId ,
+            m.SenderId ,
+            $"{m.Sender?.FirstName} {m.Sender?.LastName}" ,
+            roleMap.TryGetValue( m.SenderId , out var role ) ? role : "User" ,
+            m.Content ,
+            m.SentAt ,
+            m.IsRead ) ).ToList();
 
         return Ok( new PagedResult<ChatMessageDto>( result , totalCount , page , pageSize ) );
     }
@@ -244,15 +265,21 @@ public class ChatController : ControllerBase
             .Take( 20 )
             .ToListAsync();
 
-        var result = new List<ChatUserDto>();
-        foreach ( var u in users )
-        {
-            var roles = await _userManager.GetRolesAsync( u );
-            result.Add( new ChatUserDto(
-                u.Id ,
-                $"{u.FirstName} {u.LastName}" ,
-                roles.FirstOrDefault() ?? "User" ) );
-        }
+        var userIds = users.Select( u => u.Id ).ToList();
+
+        var roleData = await _db.UserRoles
+            .Where( ur => userIds.Contains( ur.UserId ) )
+            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
+            .ToListAsync();
+
+        var roleMap = roleData
+            .GroupBy( x => x.UserId )
+            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
+
+        var result = users.Select( u => new ChatUserDto(
+            u.Id ,
+            $"{u.FirstName} {u.LastName}" ,
+            roleMap.TryGetValue( u.Id , out var role ) ? role : "User" ) ).ToList();
 
         return Ok( result );
     }
@@ -265,15 +292,13 @@ public class ChatController : ControllerBase
     {
         var userId = UserId;
 
-        var conversationIds = await _db.ChatConversations
-            .Where( c => c.CreatorId == userId || c.ParticipantId == userId )
-            .Select( c => c.Id )
-            .ToListAsync();
-
-        var count = await _db.ChatMessages
-            .CountAsync( m => conversationIds.Contains( m.ConversationId )
-                           && m.SenderId != userId
-                           && !m.IsRead );
+        var count = await (
+            from m in _db.ChatMessages
+            join c in _db.ChatConversations on m.ConversationId equals c.Id
+            where !m.IsRead && m.SenderId != userId
+               && ( c.CreatorId == userId || c.ParticipantId == userId )
+            select m
+        ).CountAsync();
 
         return Ok( count );
     }

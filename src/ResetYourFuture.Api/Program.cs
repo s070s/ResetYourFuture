@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Api.Data;
@@ -74,13 +75,23 @@ builder.Services.AddAuthentication( options =>
         } ,
         OnTokenValidated = async context =>
         {
-            var userManager = context.HttpContext.RequestServices
-                .GetRequiredService<UserManager<ApplicationUser>>();
             var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
             if ( userId is not null )
             {
-                var user = await userManager.FindByIdAsync( userId );
-                if ( user is null || !user.IsEnabled )
+                var cache = context.HttpContext.RequestServices
+                    .GetRequiredService<IMemoryCache>();
+                var cacheKey = $"user_enabled_{userId}";
+
+                if ( !cache.TryGetValue( cacheKey , out bool isEnabled ) )
+                {
+                    var userManager = context.HttpContext.RequestServices
+                        .GetRequiredService<UserManager<ApplicationUser>>();
+                    var user = await userManager.FindByIdAsync( userId );
+                    isEnabled = user is not null && user.IsEnabled;
+                    cache.Set( cacheKey , isEnabled , TimeSpan.FromSeconds( 60 ) );
+                }
+
+                if ( !isEnabled )
                 {
                     context.Fail( "Account is disabled." );
                     context.HttpContext.Items["UserDisabled"] = true;
@@ -119,6 +130,7 @@ builder.Services.Configure<RequestLocalizationOptions>( options =>
         .AddSupportedUICultures( supportedCultures );
 } );
 
+builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -144,9 +156,16 @@ using ( var scope = app.Services.CreateScope() )
 
     try
     {
-        // Apply EF Core migrations (creates database if it doesn't exist)
-        db.Database.Migrate();
-        startupLogger.LogInformation( "Applied EF Core migrations successfully." );
+        var pending = await db.Database.GetPendingMigrationsAsync();
+        if ( pending.Any() )
+        {
+            await db.Database.MigrateAsync();
+            startupLogger.LogInformation( "Applied EF Core migrations successfully." );
+        }
+        else
+        {
+            startupLogger.LogInformation( "No pending EF Core migrations — skipping." );
+        }
     }
     catch ( Exception ex )
     {

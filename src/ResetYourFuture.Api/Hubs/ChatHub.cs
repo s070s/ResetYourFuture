@@ -135,20 +135,10 @@ public class ChatHub : Hub
         if ( string.IsNullOrEmpty( userId ) )
             return;
 
-        var unread = await _db.ChatMessages
+        await _db.ChatMessages
             .Where( m => m.ConversationId == conversationId
                       && m.SenderId != userId
                       && !m.IsRead )
-            .ToListAsync();
-
-        foreach ( var msg in unread )
-        {
-            msg.IsRead = true;
-        }
-
-        if ( unread.Count > 0 )
-        {
-            await _db.SaveChangesAsync();
-        }
+            .ExecuteUpdateAsync( s => s.SetProperty( m => m.IsRead , true ) );
     }
 }
