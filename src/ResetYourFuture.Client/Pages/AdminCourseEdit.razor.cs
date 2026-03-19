@@ -56,6 +56,8 @@ public partial class AdminCourseEdit
     private IBrowserFile? pendingVideo;
     private bool isLessonSaving;
     private Guid _lastLoadedCourseId;
+    private string _coursePreviewJson = "{}";
+    private static readonly JsonSerializerOptions _previewJsonOptions = new() { WriteIndented = true };
 
     protected override async Task OnParametersSetAsync()
     {
@@ -91,6 +93,7 @@ public partial class AdminCourseEdit
                 courseTitle = course.Title;
                 courseDescription = course.Description;
             }
+            UpdatePreviewJson();
         }
         catch ( Exception ex )
         {
@@ -103,13 +106,13 @@ public partial class AdminCourseEdit
         try
         {
             modules = await Http.GetFromJsonAsync<List<AdminModuleDto>>( $"api/admin/modules/course/{CourseId}" );
+            lessonsMap = new();
             if ( modules != null )
             {
-                foreach ( var m in modules )
-                {
-                    await LoadLessonsForModule( m.Id );
-                }
+                modules = [.. modules.OrderBy( m => m.SortOrder )];
+                await Task.WhenAll( modules.Select( m => LoadLessonsForModule( m.Id ) ) );
             }
+            UpdatePreviewJson();
         }
         catch ( Exception ex )
         {
@@ -123,7 +126,7 @@ public partial class AdminCourseEdit
         {
             var lessons = await Http.GetFromJsonAsync<List<AdminLessonDto>>(
                 $"api/admin/lessons/module/{moduleId}" ) ?? [];
-            lessonsMap [ moduleId ] = lessons;
+            lessonsMap [ moduleId ] = [.. lessons.OrderBy( l => l.SortOrder )];
         }
         catch
         {
@@ -381,8 +384,6 @@ public partial class AdminCourseEdit
                 await UploadFileAsync( lessonId , pendingVideo , "video" );
             }
 
-            await LoadLessonsForModule( lessonModuleId );
-            // Refresh module counts
             await LoadModulesAndLessons();
             CloseLessonModal();
             message = "Lesson saved";
@@ -406,7 +407,9 @@ public partial class AdminCourseEdit
         streamContent.Headers.ContentType =
             new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
         formContent.Add( streamContent , "file" , file.Name );
-        await Http.PostAsync( $"api/admin/lessons/{lessonId}/upload/{type}" , formContent );
+        var uploadResponse = await Http.PostAsync( $"api/admin/lessons/{lessonId}/upload/{type}" , formContent );
+        if ( !uploadResponse.IsSuccessStatusCode )
+            message = $"Error uploading {type}: {uploadResponse.ReasonPhrase}";
     }
 
     private async Task DeleteLesson( Guid lessonId , Guid moduleId )
@@ -419,7 +422,6 @@ public partial class AdminCourseEdit
             var response = await Http.DeleteAsync( $"api/admin/lessons/{lessonId}" );
             if ( response.IsSuccessStatusCode )
             {
-                await LoadLessonsForModule( moduleId );
                 await LoadModulesAndLessons();
                 message = "Lesson deleted";
             }
@@ -472,17 +474,19 @@ public partial class AdminCourseEdit
 
     // ── Course Structure Preview (mirrors the seed JSON format) ──
 
+    private void UpdatePreviewJson() => _coursePreviewJson = GenerateCoursePreviewJson();
+
     private string GenerateCoursePreviewJson()
     {
         if ( modules == null )
             return "{}";
 
-        var preview = new
+        var obj = new
         {
             title = courseTitle ,
             description = courseDescription ,
             isPublished = course?.IsPublished ?? false ,
-            modules = modules.OrderBy( m => m.SortOrder ).Select( m =>
+            modules = modules.Select( m =>
             {
                 var moduleLessons = lessonsMap.GetValueOrDefault( m.Id ) ?? [];
                 return new
@@ -490,7 +494,7 @@ public partial class AdminCourseEdit
                     title = m.Title ,
                     description = m.Description ,
                     sortOrder = m.SortOrder ,
-                    lessons = moduleLessons.OrderBy( l => l.SortOrder ).Select( l =>
+                    lessons = moduleLessons.Select( l =>
                     {
                         var dict = new Dictionary<string , object?>
                         {
@@ -503,11 +507,10 @@ public partial class AdminCourseEdit
 
                         if ( !string.IsNullOrEmpty( l.Content ) )
                         {
-                            // Show a truncated preview for readability
-                            var preview = l.Content.Length > 80
+                            var contentPreview = l.Content.Length > 80
                                 ? l.Content [ ..80 ] + "..."
                                 : l.Content;
-                            dict [ "content" ] = preview;
+                            dict [ "content" ] = contentPreview;
                         }
 
                         if ( !string.IsNullOrEmpty( l.PdfPath ) )
@@ -522,6 +525,6 @@ public partial class AdminCourseEdit
             } ).ToList()
         };
 
-        return JsonSerializer.Serialize( preview , new JsonSerializerOptions { WriteIndented = true } );
+        return JsonSerializer.Serialize( obj , _previewJsonOptions );
     }
 }

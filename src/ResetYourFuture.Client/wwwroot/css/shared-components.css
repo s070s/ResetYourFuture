@@ -234,6 +234,37 @@ input[type="date"].form-control:focus {
     background-color: var(--bg-table-even);
 }
 
+/* Modal theming */
+.modal-content {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-light-normal);
+}
+
+.modal-header {
+    background-color: var(--bg-table-header);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-accent);
+}
+
+.modal-title {
+    color: var(--text-accent);
+}
+
+.modal-body {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.modal-footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
 /* Mobile adjustments */
 @media (max-width: 640.98px) {
     .auth-container,

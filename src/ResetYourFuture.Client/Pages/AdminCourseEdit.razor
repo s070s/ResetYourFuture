@@ -63,7 +63,7 @@ else
                 }
                 else
                 {
-                    @foreach (var module in modules.OrderBy(m => m.SortOrder))
+                    @foreach (var module in modules)
                     {
                         var moduleLessons = lessonsMap.GetValueOrDefault(module.Id);
                         var isExpanded = expandedModules.Contains(module.Id);
@@ -119,7 +119,7 @@ else
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach (var lesson in moduleLessons.OrderBy(l => l.SortOrder))
+                                                @foreach (var lesson in moduleLessons)
                                                 {
                                                     <tr @key="lesson.Id">
                                                         <td>@lesson.SortOrder</td>
@@ -165,7 +165,7 @@ else
         <div class="card mb-4">
             <div class="card-header">@AdminRes.CourseStructurePreview</div>
             <div class="card-body">
-                <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem;">@GenerateCoursePreviewJson()</pre>
+                <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; font-size: 0.85rem;">@_coursePreviewJson</pre>
             </div>
         </div>
 
