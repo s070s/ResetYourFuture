@@ -21,7 +21,11 @@ builder.Logging.AddFileLogger( "Logs" );
 
 // --- Database (SQL Server for dev & Azure) ---
 builder.Services.AddDbContext<ApplicationDbContext>( options =>
-    options.UseSqlServer( config.GetConnectionString( "DefaultConnection" ) ) );
+    options.UseSqlServer( config.GetConnectionString( "DefaultConnection" ) ,
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5 ,
+            maxRetryDelay: TimeSpan.FromSeconds( 10 ) ,
+            errorNumbersToAdd: null ) ) );
 
 // --- Identity ---
 builder.Services.AddIdentity<ApplicationUser , IdentityRole>( options =>
@@ -159,16 +163,8 @@ using ( var scope = app.Services.CreateScope() )
 
     try
     {
-        var pending = await db.Database.GetPendingMigrationsAsync();
-        if ( pending.Any() )
-        {
-            await db.Database.MigrateAsync();
-            startupLogger.LogInformation( "Applied EF Core migrations successfully." );
-        }
-        else
-        {
-            startupLogger.LogInformation( "No pending EF Core migrations — skipping." );
-        }
+        await db.Database.MigrateAsync();
+        startupLogger.LogInformation( "EF Core migrations applied (database created if needed)." );
     }
     catch ( Exception ex )
     {
