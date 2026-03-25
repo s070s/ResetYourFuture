@@ -2,6 +2,9 @@ PRIORITY FIX
 Video Player in Courses should not permit the user to
 Download the video or open it in a new tab.
 
+Section in the Home,Landing Page for
+Blog Type Articles
+
 
 
 
