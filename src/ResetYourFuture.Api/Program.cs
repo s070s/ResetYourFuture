@@ -14,7 +14,6 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder( args );
 var config = builder.Configuration;
-var clientOrigin = config [ "AllowedClientOrigin" ] ?? "https://localhost:7083";
 
 // --- Logging ---
 builder.Logging.AddFileLogger( "Logs" );
@@ -142,14 +141,14 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// --- CORS ---
+// --- CORS (fully permissive – demo only, restrict in production) ---
 builder.Services.AddCors( options =>
 {
     options.AddPolicy( "BlazorClient" , p => p
-        .WithOrigins( clientOrigin )
+        .SetIsOriginAllowed( _ => true )
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials() // Required for auth headers
+        .AllowCredentials()
         .WithExposedHeaders( "X-User-Disabled" ) );
 } );
 

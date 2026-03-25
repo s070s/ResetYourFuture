@@ -1,3 +1,10 @@
+PRIORITY FIX
+Video Player in Courses should not permit the user to
+Download the video or open it in a new tab.
+
+
+
+
 9. UX Pass
 
 Rule of thumb: clarity beats beauty.

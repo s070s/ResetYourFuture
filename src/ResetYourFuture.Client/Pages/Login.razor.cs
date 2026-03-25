@@ -44,28 +44,35 @@ public partial class Login
         loginRequest.Email = loginRequest.Email?.Trim() ?? string.Empty;
         loginRequest.Password = loginRequest.Password?.Trim() ?? string.Empty;
 
-        var result = await AuthService.LoginAsync( loginRequest );
-
-        if ( result.Success )
+        try
         {
-            Navigation.NavigateTo( "/" );
-        }
-        else
-        {
-            // Preserve original message
-            errorMessage = result.Message ?? ErrorMessagesRes.LoginError;
+            var result = await AuthService.LoginAsync( loginRequest );
 
-            // Detect "email not confirmed" failure and surface a dev-only confirm action.
-            // NOTE: without a machine-readable failure code from the API, the client must infer this.
-            // If you want a robust non-string check, add a structured flag to the API response.
-            if ( Env.IsDevelopment() && !string.IsNullOrEmpty( result.Message )
-                && result.Message.Contains( "email not confirmed" , StringComparison.OrdinalIgnoreCase ) )
+            if ( result.Success )
             {
-                unconfirmedEmailPending = true;
-                pendingUnconfirmedEmail = loginRequest.Email;
-                // Hide generic error when showing the targeted unconfirmed-email UI
-                errorMessage = null;
+                Navigation.NavigateTo( "/" );
             }
+            else
+            {
+                // Preserve original message
+                errorMessage = result.Message ?? ErrorMessagesRes.LoginError;
+
+                // Detect "email not confirmed" failure and surface a dev-only confirm action.
+                // NOTE: without a machine-readable failure code from the API, the client must infer this.
+                // If you want a robust non-string check, add a structured flag to the API response.
+                if ( Env.IsDevelopment() && !string.IsNullOrEmpty( result.Message )
+                    && result.Message.Contains( "email not confirmed" , StringComparison.OrdinalIgnoreCase ) )
+                {
+                    unconfirmedEmailPending = true;
+                    pendingUnconfirmedEmail = loginRequest.Email;
+                    // Hide generic error when showing the targeted unconfirmed-email UI
+                    errorMessage = null;
+                }
+            }
+        }
+        catch ( HttpRequestException )
+        {
+            errorMessage = "Unable to connect to the server. Please ensure the API is running and try again.";
         }
 
         isLoading = false;
