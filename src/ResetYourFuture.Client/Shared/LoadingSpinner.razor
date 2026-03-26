@@ -1,0 +1,77 @@
+@* Compass-style loading spinner. Reusable across the app. *@
+<div class="@CssClass" role="status" aria-label="@(string.IsNullOrEmpty(Label) ? "Loading" : Label)">
+    <div class="compass-spinner__container">
+        <svg class="compass-spinner__svg"
+             viewBox="0 0 120 120"
+             xmlns="http://www.w3.org/2000/svg"
+             aria-hidden="true">
+
+            <!-- Outer bezel ring -->
+            <circle cx="60" cy="60" r="54" class="compass-spinner__ring-outer" />
+
+            <!-- Cardinal ticks: N / E / S / W -->
+            <line x1="60"  y1="6"   x2="60"  y2="18"  class="compass-spinner__tick-cardinal" />
+            <line x1="114" y1="60"  x2="102" y2="60"  class="compass-spinner__tick-cardinal" />
+            <line x1="60"  y1="114" x2="60"  y2="102" class="compass-spinner__tick-cardinal" />
+            <line x1="6"   y1="60"  x2="18"  y2="60"  class="compass-spinner__tick-cardinal" />
+
+            <!-- Diagonal minor ticks: NE / SE / SW / NW -->
+            <line x1="98" y1="22" x2="93" y2="27" class="compass-spinner__tick-minor" />
+            <line x1="98" y1="98" x2="93" y2="93" class="compass-spinner__tick-minor" />
+            <line x1="22" y1="98" x2="27" y2="93" class="compass-spinner__tick-minor" />
+            <line x1="22" y1="22" x2="27" y2="27" class="compass-spinner__tick-minor" />
+
+            <!-- N label just inside the bezel -->
+            <text x="60" y="24" class="compass-spinner__cardinal-n">N</text>
+
+            <!-- Arc track (faint background ring) -->
+            <circle cx="60" cy="60" r="47" class="compass-spinner__arc-track" />
+
+            <!-- Comet trail arc (follows main arc, offset via delay) -->
+            <circle cx="60" cy="60" r="47" class="compass-spinner__arc-trail" />
+
+            <!-- Main spinning arc -->
+            <circle cx="60" cy="60" r="47" class="compass-spinner__arc" />
+
+            <!-- Inner decorative ring -->
+            <circle cx="60" cy="60" r="34" class="compass-spinner__ring-inner" />
+
+            <!-- Compass needle (paths in SVG coordinates centered at 60,60) -->
+            <g class="compass-spinner__needle-group">
+                <!-- North half: long, pink -->
+                <path d="M60,32 L55,62 L60,61 L65,62 Z" class="compass-spinner__needle-north" />
+                <!-- South half: shorter, muted -->
+                <path d="M60,82 L56,60 L60,59 L64,60 Z" class="compass-spinner__needle-south" />
+            </g>
+
+            <!-- Center pivot dot -->
+            <circle cx="60" cy="60" r="4.5" class="compass-spinner__center" />
+            <circle cx="60" cy="60" r="2"   class="compass-spinner__center-inner" />
+
+        </svg>
+
+        @if (!string.IsNullOrEmpty(Label))
+        {
+            <span class="compass-spinner__label">@Label</span>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Visual size of the spinner.</summary>
+    [Parameter] public SpinnerSize Size { get; set; } = SpinnerSize.Medium;
+
+    /// <summary>Optional label displayed below the compass.</summary>
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    /// <summary>
+    /// When true the spinner fills the nearest positioned ancestor
+    /// with a translucent overlay so it blocks interaction beneath it.
+    /// </summary>
+    [Parameter] public bool Overlay { get; set; }
+
+    private string CssClass =>
+        $"compass-spinner compass-spinner--{Size.ToString().ToLowerInvariant()}{(Overlay ? " compass-spinner--overlay" : "")}";
+
+    public enum SpinnerSize { Small, Medium, Large }
+}

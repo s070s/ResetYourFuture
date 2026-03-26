@@ -291,3 +291,134 @@ input[type="date"].form-control:focus {
         max-width: 90%;
     }
 }
+
+/* ================================================
+   LoadingSpinner component — compass-themed
+   ================================================ */
+.compass-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fills the nearest positioned ancestor with a soft blur overlay */
+.compass-spinner--overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(var(--bg-primary-rgb), 0.78);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 100;
+}
+
+.compass-spinner__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.compass-spinner__svg {
+    overflow: visible;
+}
+
+/* Size variants */
+.compass-spinner--small  .compass-spinner__svg { width: 48px;  height: 48px; }
+.compass-spinner--medium .compass-spinner__svg { width: 80px;  height: 80px; }
+.compass-spinner--large  .compass-spinner__svg { width: 120px; height: 120px; }
+
+/* SVG element classes */
+.compass-spinner__ring-outer {
+    fill: none;
+    stroke: rgba(172, 173, 190, 0.22);
+    stroke-width: 1.5;
+}
+
+.compass-spinner__tick-cardinal {
+    stroke: rgba(206, 200, 240, 0.65);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.compass-spinner__tick-minor {
+    stroke: rgba(206, 200, 240, 0.25);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.compass-spinner__cardinal-n {
+    fill: rgba(206, 200, 240, 0.65);
+    font-size: 9px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Hide "N" label on the smallest size — too tiny to read */
+.compass-spinner--small .compass-spinner__cardinal-n {
+    display: none;
+}
+
+.compass-spinner__arc-track {
+    fill: none;
+    stroke: rgba(196, 124, 180, 0.14);
+    stroke-width: 3;
+}
+
+/* Main arc — spins continuously */
+.compass-spinner__arc {
+    fill: none;
+    stroke: #C47CB4;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 88 207;
+    transform-origin: 60px 60px;
+    animation: compass-arc-spin 1.8s linear infinite;
+    filter: drop-shadow(0 0 5px rgba(196, 124, 180, 0.6));
+    will-change: transform;
+}
+
+/* Ghost trail arc — offset behind the main arc for a comet effect */
+.compass-spinner__arc-trail {
+    fill: none;
+    stroke: rgba(196, 124, 180, 0.22);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 26 269;
+    transform-origin: 60px 60px;
+    animation: compass-arc-spin 1.8s linear infinite;
+    animation-delay: -0.35s;
+    will-change: transform;
+}
+
+.compass-spinner__ring-inner {
+    fill: none;
+    stroke: rgba(172, 173, 190, 0.12);
+    stroke-width: 0.8;
+}
+
+/* Needle — seeks north like a real compass */
+.compass-spinner__needle-group {
+    transform-origin: 60px 60px;
+    animation: compass-needle-seek 4s linear infinite;
+    will-change: transform;
+}
+
+.compass-spinner__needle-north { fill: #C47CB4; }
+.compass-spinner__needle-south { fill: rgba(206, 200, 240, 0.45); }
+
+.compass-spinner__center       { fill: #C47CB4; }
+.compass-spinner__center-inner { fill: var(--bg-primary); }
+
+.compass-spinner__label {
+    color: var(--text-light-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* No label on small spinners */
+.compass-spinner--small .compass-spinner__label {
+    display: none;
+}

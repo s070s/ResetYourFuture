@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
@@ -11,9 +12,11 @@ namespace ResetYourFuture.Client.Pages;
 public partial class Chat : IAsyncDisposable
 {
     [Inject] private IChatService ChatService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
+    private bool _chatAccess = false;
     private PagedResult<ChatConversationDto>? _conversations;
     private int _conversationsPage = 1;
     private int _conversationsPageSize = 10;
@@ -48,6 +51,12 @@ public partial class Chat : IAsyncDisposable
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         _currentUserId = user.FindFirst( ClaimTypes.NameIdentifier )?.Value ?? string.Empty;
+
+        var status = await SubscriptionService.GetStatusAsync();
+        _chatAccess = status?.Features?.PrioritySupport == true;
+
+        if ( !_chatAccess )
+            return;
 
         ChatService.OnMessageReceived += HandleMessageReceived;
         ChatService.OnNotificationReceived += HandleNotification;
@@ -379,8 +388,11 @@ public partial class Chat : IAsyncDisposable
     {
         _searchCts?.Cancel();
         _searchCts?.Dispose();
-        ChatService.OnMessageReceived -= HandleMessageReceived;
-        ChatService.OnNotificationReceived -= HandleNotification;
-        await ChatService.DisposeAsync();
+        if ( _chatAccess )
+        {
+            ChatService.OnMessageReceived -= HandleMessageReceived;
+            ChatService.OnNotificationReceived -= HandleNotification;
+            await ChatService.DisposeAsync();
+        }
     }
 }

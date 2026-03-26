@@ -125,39 +125,129 @@ input:-webkit-autofill:active {
     content: "An error has occurred.";
 }
 
-/* Loading indicator */
-.loading-progress {
-    position: relative;
-    display: block;
-    width: 8rem;
-    height: 8rem;
-    margin: 20vh auto 1rem auto;
+/* ================================================
+   Boot Loader — compass-themed Blazor startup screen
+   ================================================ */
+.compass-boot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    gap: 1.25rem;
 }
 
-.loading-progress circle {
+.compass-boot__svg {
+    width: 140px;
+    height: 140px;
+    overflow: visible;
+    animation: compass-boot-glow 2.8s ease-in-out infinite;
+}
+
+.compass-boot__ring-outer {
     fill: none;
-    stroke: var(--border-subtle);
-    stroke-width: 0.6rem;
-    transform-origin: 50% 50%;
+    stroke: rgba(172, 173, 190, 0.25);
+    stroke-width: 1.5;
+}
+
+.compass-boot__tick-cardinal {
+    stroke: rgba(206, 200, 240, 0.75);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.compass-boot__tick-minor {
+    stroke: rgba(206, 200, 240, 0.3);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.compass-boot__cardinal-n {
+    fill: rgba(206, 200, 240, 0.7);
+    font-size: 9px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.compass-boot__arc-track {
+    fill: none;
+    stroke: rgba(196, 124, 180, 0.15);
+    stroke-width: 3;
+}
+
+/* Progress arc: driven by --blazor-load-percentage, starts at 12 o'clock */
+.compass-boot__arc-progress {
+    fill: none;
+    stroke: #C47CB4;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transform-origin: 60px 60px;
     transform: rotate(-90deg);
+    stroke-dasharray: calc(2.9531 * var(--blazor-load-percentage, 0%)), 295.31;
+    transition: stroke-dasharray 0.12s ease-out;
+    filter: drop-shadow(0 0 5px rgba(196, 124, 180, 0.65));
 }
 
-.loading-progress circle:last-child {
-    stroke: var(--text-strong-accent);
-    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
-    transition: stroke-dasharray 0.05s ease-in-out;
+.compass-boot__ring-inner {
+    fill: none;
+    stroke: rgba(172, 173, 190, 0.15);
+    stroke-width: 0.8;
 }
 
-.loading-progress-text {
-    position: absolute;
-    text-align: center;
-    font-weight: bold;
-    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
-    color: var(--text-accent);
+.compass-boot__needle-group {
+    transform-origin: 60px 60px;
+    animation: compass-needle-seek 4s linear infinite;
+    will-change: transform;
 }
 
-.loading-progress-text:after {
+.compass-boot__needle-north { fill: #C47CB4; }
+.compass-boot__needle-south { fill: rgba(206, 200, 240, 0.45); }
+
+.compass-boot__center       { fill: #C47CB4; }
+.compass-boot__center-inner { fill: #0a0c20; }
+
+.compass-boot__label {
+    color: rgba(206, 200, 240, 0.6);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.compass-boot__label::after {
     content: var(--blazor-load-percentage-text, "Loading");
+}
+
+/* ================================================
+   Compass animations — shared by boot loader and
+   the LoadingSpinner Blazor component
+   ================================================ */
+
+/* Needle: fast spin that decelerates near north, overshoots, settles, then repeats */
+@keyframes compass-needle-seek {
+    0%   { transform: rotate(0deg); }
+    30%  { transform: rotate(290deg); }
+    45%  { transform: rotate(348deg); }
+    55%  { transform: rotate(368deg); }
+    65%  { transform: rotate(355deg); }
+    72%  { transform: rotate(362deg); }
+    78%  { transform: rotate(358deg); }
+    84%  { transform: rotate(360deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Arc: constant clockwise rotation */
+@keyframes compass-arc-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Outer SVG breathing glow on the boot screen */
+@keyframes compass-boot-glow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(196, 124, 180, 0.2)); }
+    50%       { filter: drop-shadow(0 0 20px rgba(196, 124, 180, 0.5)); }
 }
 
 /* Global form adjustments */

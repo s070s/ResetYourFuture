@@ -13,6 +13,15 @@
 {
     <p>@AssessmentRes.LoadingAssessments</p>
 }
+else if (!_assessmentAccess)
+{
+    <div class="upgrade-prompt">
+        <div class="upgrade-icon">🔒</div>
+        <h4>Plus Plan Required</h4>
+        <p>Assessments are available on the <strong>Plus</strong> plan and above. Upgrade to unlock all assessments.</p>
+        <a href="/pricing" class="btn btn-primary">Upgrade Now</a>
+    </div>
+}
 else if (_error is not null)
 {
     <p class="text-danger">@_error</p>

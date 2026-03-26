@@ -9,9 +9,11 @@ namespace ResetYourFuture.Client.Pages;
 public partial class Assessments
 {
     [Inject] private IAssessmentConsumer AssessmentService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private PagedResult<AssessmentDefinitionDto>? _pagedResult;
+    private bool _assessmentAccess = false;
     private bool _loading = true;
     private string? _error;
 
@@ -25,7 +27,13 @@ public partial class Assessments
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadAssessmentsAsync();
+        var status = await SubscriptionService.GetStatusAsync();
+        _assessmentAccess = status?.Features?.AssessmentAccess == true;
+
+        if ( _assessmentAccess )
+            await LoadAssessmentsAsync();
+        else
+            _loading = false;
     }
 
     private async Task LoadAssessmentsAsync()

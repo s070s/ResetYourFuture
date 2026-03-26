@@ -5,28 +5,32 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Api.Hubs;
 
 /// <summary>
 /// SignalR hub for real-time user-to-user chat.
-/// All methods require authentication.
+/// All methods require authentication and a Pro subscription (PrioritySupport feature).
 /// </summary>
 [Authorize]
 public class ChatHub : Hub
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
         ApplicationDbContext db ,
         UserManager<ApplicationUser> userManager ,
+        ISubscriptionService subscriptionService ,
         ILogger<ChatHub> logger )
     {
         _db = db;
         _userManager = userManager;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
@@ -62,6 +66,13 @@ public class ChatHub : Hub
         var userId = Context.UserIdentifier;
         if ( string.IsNullOrEmpty( userId ) || string.IsNullOrWhiteSpace( content ) )
             return;
+
+        var userStatus = await _subscriptionService.GetUserStatusAsync( userId );
+        if ( userStatus.Features?.PrioritySupport != true )
+        {
+            await Clients.Caller.SendAsync( "ChatError" , "Chat requires a Pro subscription." );
+            return;
+        }
 
         var conversation = await _db.ChatConversations
             .FirstOrDefaultAsync( c => c.Id == conversationId );

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
 using ResetYourFuture.Api.Identity;
+using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
 
@@ -13,7 +14,7 @@ namespace ResetYourFuture.Api.Controllers;
 /// <summary>
 /// REST endpoints for chat history, conversations, and management.
 /// SignalR handles real-time; this covers load-on-demand scenarios.
-/// Any authenticated user can chat with any other user.
+/// Chat requires a Pro subscription (PrioritySupport feature).
 /// </summary>
 [ApiController]
 [Route( "api/[controller]" )]
@@ -22,19 +23,28 @@ public class ChatController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<ChatController> _logger;
 
     public ChatController(
         ApplicationDbContext db ,
         UserManager<ApplicationUser> userManager ,
+        ISubscriptionService subscriptionService ,
         ILogger<ChatController> logger )
     {
         _db = db;
         _userManager = userManager;
+        _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
+
+    private async Task<bool> HasChatAccessAsync( string userId )
+    {
+        var status = await _subscriptionService.GetUserStatusAsync( userId );
+        return status.Features?.PrioritySupport == true;
+    }
 
     /// <summary>
     /// Get conversations for the current user (server-side paginated).
@@ -49,6 +59,8 @@ public class ChatController : ControllerBase
         pageSize = Math.Clamp( pageSize , 1 , 100 );
 
         var userId = UserId;
+        if ( !await HasChatAccessAsync( userId ) )
+            return StatusCode( 403 , "Chat requires a Pro subscription." );
 
         var query = _db.ChatConversations
             .Include( c => c.Creator )
@@ -174,6 +186,8 @@ public class ChatController : ControllerBase
         [FromBody] StartConversationRequest request )
     {
         var callerId = UserId;
+        if ( !await HasChatAccessAsync( callerId ) )
+            return StatusCode( 403 , "Chat requires a Pro subscription." );
 
         if ( string.IsNullOrWhiteSpace( request.TargetUserId ) )
             return BadRequest( "TargetUserId is required." );
@@ -240,6 +254,8 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<List<ChatUserDto>>> GetAvailableUsers( [FromQuery] string? search )
     {
         var userId = UserId;
+        if ( !await HasChatAccessAsync( userId ) )
+            return StatusCode( 403 , "Chat requires a Pro subscription." );
 
         // Get IDs of users the caller already has conversations with.
         var existingPartnerIds = await _db.ChatConversations

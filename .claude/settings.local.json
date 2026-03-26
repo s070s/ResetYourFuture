@@ -4,7 +4,9 @@
       "Bash(for f:*)",
       "Bash(do echo:*)",
       "Read(//c/Users/gsoti/Desktop/Projects/s070s/ResetYourFuture/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -A 5 \"RequiredTier\" /c/Users/gsoti/Desktop/Projects/s070s/ResetYourFuture/src/ResetYourFuture.Api/Domain/Entities/*.cs)"
     ]
   }
 }

@@ -127,47 +127,6 @@ public partial class AdminAssessmentEdit
         }
     }
 
-    private string GenerateSchemaJson()
-    {
-        var schema = new
-        {
-            id = assessmentKey ,
-            title = assessmentTitleEn ,
-            version = "1.0" ,
-            questions = questions.Select( q =>
-            {
-                var dict = new Dictionary<string , object>
-                {
-                    [ "id" ] = q.Id ,
-                    [ "type" ] = q.Type ,
-                    [ "labelEn" ] = q.LabelEn ,
-                    [ "required" ] = q.Required == "true"
-                };
-
-                if ( !string.IsNullOrEmpty( q.LabelEl ) )
-                    dict [ "labelEl" ] = q.LabelEl;
-
-                if ( q.Type == "rating" )
-                {
-                    dict [ "min" ] = q.Min;
-                    dict [ "max" ] = q.Max;
-                }
-
-                if ( q.Type == "choice" )
-                {
-                    dict [ "optionsEn" ] = q.GetOptionsEn();
-                    var optionsEl = q.GetOptionsEl();
-                    if ( optionsEl.Count > 0 )
-                        dict [ "optionsEl" ] = optionsEl;
-                }
-
-                return dict;
-            } ).ToList()
-        };
-
-        return JsonSerializer.Serialize( schema , new JsonSerializerOptions { WriteIndented = true } );
-    }
-
     private void AddQuestion()
     {
         var nextNum = questions.Count + 1;
@@ -241,18 +200,65 @@ public partial class AdminAssessmentEdit
         Nav.NavigateTo( "/admin/assessments" );
     }
 
+    private string GenerateSchemaJson()
+    {
+        var schema = new
+        {
+            id = assessmentKey ,
+            title = assessmentTitleEn ,
+            version = "1.0" ,
+            questions = questions.Select( q =>
+            {
+                var dict = new Dictionary<string , object>
+                {
+                    [ "id" ] = q.Id ,
+                    [ "type" ] = q.Type ,
+                    [ "labelEn" ] = q.LabelEn ,
+                    [ "required" ] = q.Required == "true"
+                };
+
+                if ( !string.IsNullOrEmpty( q.LabelEl ) )
+                    dict [ "labelEl" ] = q.LabelEl;
+
+                if ( q.Type == "rating" )
+                {
+                    dict [ "min" ] = q.Min;
+                    dict [ "max" ] = q.Max;
+                }
+
+                if ( q.Type == "choice" )
+                {
+                    dict [ "optionsEn" ] = q.GetOptionsEn();
+                    var optionsEl = q.GetOptionsEl();
+                    if ( optionsEl.Count > 0 )
+                        dict [ "optionsEl" ] = optionsEl;
+                }
+
+                return dict;
+            } ).ToList()
+        };
+
+        return JsonSerializer.Serialize( schema , new JsonSerializerOptions { WriteIndented = true } );
+    }
+
     private class QuestionModel
     {
         public string TempId { get; } = Guid.NewGuid().ToString( "N" );
         public string Id { get; set; } = string.Empty;
         public string Type { get; set; } = "text";
         public string LabelEn { get; set; } = string.Empty;
-        public string? LabelEl { get; set; }
+        public string? LabelEl
+        {
+            get; set;
+        }
         public string Required { get; set; } = "false";
         public int Min { get; set; } = 1;
         public int Max { get; set; } = 5;
         public string OptionsTextEn { get; set; } = string.Empty;
-        public string? OptionsTextEl { get; set; }
+        public string? OptionsTextEl
+        {
+            get; set;
+        }
 
         public List<string> GetOptionsEn() =>
             OptionsTextEn.Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();

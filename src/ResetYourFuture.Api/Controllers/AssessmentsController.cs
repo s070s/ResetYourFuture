@@ -122,6 +122,10 @@ public class AssessmentsController : ControllerBase
         if ( page < 1 ) page = 1;
         if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
 
+        var userStatus = await _subscriptionService.GetUserStatusAsync( UserId );
+        if ( userStatus.Features?.AssessmentAccess != true )
+            return StatusCode( 403 , "Assessment access requires a Plus subscription or higher." );
+
         var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
 
         var query = _db.AssessmentDefinitions
@@ -159,6 +163,10 @@ public class AssessmentsController : ControllerBase
     [HttpGet( "{id:guid}" )]
     public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment( Guid id , [FromQuery] string lang = "en" )
     {
+        var userStatus = await _subscriptionService.GetUserStatusAsync( UserId );
+        if ( userStatus.Features?.AssessmentAccess != true )
+            return StatusCode( 403 , "Assessment access requires a Plus subscription or higher." );
+
         var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
 
         var assessment = await _db.AssessmentDefinitions
@@ -203,12 +211,12 @@ public class AssessmentsController : ControllerBase
             return NotFound( "Assessment not found or not published" );
         }
 
-        // Check subscription tier
-        var userTier = await _subscriptionService.GetUserTierAsync( UserId );
-        if ( userTier < assessment.RequiredTier )
-        {
+        // Check subscription features and tier
+        var userStatus = await _subscriptionService.GetUserStatusAsync( UserId );
+        if ( userStatus.Features?.AssessmentAccess != true )
+            return StatusCode( 403 , "Assessment access requires a Plus subscription or higher." );
+        if ( userStatus.Tier < assessment.RequiredTier )
             return StatusCode( 403 , $"This assessment requires a {assessment.RequiredTier} subscription or higher." );
-        }
 
         var submission = new Domain.Entities.AssessmentSubmission
         {

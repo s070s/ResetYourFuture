@@ -166,13 +166,28 @@ public class CoursesController : ControllerBase
             return NotFound( new EnrollmentResultDto( false , "Course not found" , null ) );
 
         // Check subscription tier
-        var userTier = await _subscriptionService.GetUserTierAsync( userId );
-        if ( userTier < course.RequiredTier )
+        var userStatus = await _subscriptionService.GetUserStatusAsync( userId );
+        if ( userStatus.Tier < course.RequiredTier )
         {
             return StatusCode( 403 , new EnrollmentResultDto(
                 false ,
                 $"This course requires a {course.RequiredTier} subscription or higher. Please upgrade your plan." ,
                 null ) );
+        }
+
+        // Check MaxCourses limit
+        var maxCourses = userStatus.Features?.MaxCourses ?? 1;
+        if ( maxCourses != int.MaxValue )
+        {
+            var enrollmentCount = await _db.Enrollments
+                .CountAsync( e => e.UserId == userId );
+            if ( enrollmentCount >= maxCourses )
+            {
+                return StatusCode( 403 , new EnrollmentResultDto(
+                    false ,
+                    $"Your {userStatus.PlanName} plan allows up to {maxCourses} course(s). Please upgrade to enroll in more courses." ,
+                    null ) );
+            }
         }
 
         var existing = await _db.Enrollments

@@ -4,6 +4,17 @@
 
 <PageTitle>@ChatRes.PageTitle</PageTitle>
 
+@if (!_chatAccess)
+{
+    <div class="upgrade-prompt">
+        <div class="upgrade-icon">🔒</div>
+        <h4>Pro Plan Required</h4>
+        <p>Chat is available on the <strong>Pro</strong> plan. Upgrade to get priority support and direct messaging.</p>
+        <a href="/pricing" class="btn btn-primary">Upgrade Now</a>
+    </div>
+}
+else
+{
 <div class="chat-container">
     @* --- Conversation List Sidebar --- *@
     <div class="chat-sidebar">
@@ -154,6 +165,7 @@
         }
     </div>
 </div>
+}
 
 @* --- User Picker Modal --- *@
 @if ( _showUserPicker )

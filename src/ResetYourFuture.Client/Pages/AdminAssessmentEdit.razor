@@ -148,13 +148,6 @@ else
         </div>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-header">@AdminRes.SchemaPreview</div>
-        <div class="card-body">
-            <pre class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto; font-size: 0.85rem;">@GenerateSchemaJson()</pre>
-        </div>
-    </div>
-
     <div class="mb-4">
         <button class="btn btn-primary" @onclick="SaveAssessment" disabled="@isSaving">
             @(isSaving ? AdminRes.Saving : AdminRes.SaveAssessment)

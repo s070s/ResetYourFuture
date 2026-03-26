@@ -4,8 +4,6 @@ using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
-using System.Text.Json;
-
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AdminCourseEdit
@@ -66,8 +64,6 @@ public partial class AdminCourseEdit
     private IBrowserFile? pendingVideo;
     private bool isLessonSaving;
     private Guid _lastLoadedCourseId;
-    private string _coursePreviewJson = "{}";
-    private static readonly JsonSerializerOptions _previewJsonOptions = new() { WriteIndented = true };
 
     protected override async Task OnParametersSetAsync()
     {
@@ -105,7 +101,6 @@ public partial class AdminCourseEdit
                 courseDescriptionEn = course.DescriptionEn;
                 courseDescriptionEl = course.DescriptionEl;
             }
-            UpdatePreviewJson();
         }
         catch ( Exception ex )
         {
@@ -124,7 +119,6 @@ public partial class AdminCourseEdit
                 modules = [.. modules.OrderBy( m => m.SortOrder )];
                 await Task.WhenAll( modules.Select( m => LoadLessonsForModule( m.Id ) ) );
             }
-            UpdatePreviewJson();
         }
         catch ( Exception ex )
         {
@@ -486,64 +480,4 @@ public partial class AdminCourseEdit
         }
     }
 
-    // ── Course Structure Preview (mirrors the seed JSON format) ──
-
-    private void UpdatePreviewJson() => _coursePreviewJson = GenerateCoursePreviewJson();
-
-    private string GenerateCoursePreviewJson()
-    {
-        if ( modules == null )
-            return "{}";
-
-        var obj = new
-        {
-            titleEn = courseTitleEn ,
-            titleEl = courseTitleEl ,
-            descriptionEn = courseDescriptionEn ,
-            descriptionEl = courseDescriptionEl ,
-            isPublished = course?.IsPublished ?? false ,
-            modules = modules.Select( m =>
-            {
-                var moduleLessons = lessonsMap.GetValueOrDefault( m.Id ) ?? [];
-                return new
-                {
-                    titleEn = m.TitleEn ,
-                    titleEl = m.TitleEl ,
-                    descriptionEn = m.DescriptionEn ,
-                    descriptionEl = m.DescriptionEl ,
-                    sortOrder = m.SortOrder ,
-                    lessons = moduleLessons.Select( l =>
-                    {
-                        var dict = new Dictionary<string , object?>
-                        {
-                            [ "titleEn" ] = l.TitleEn ,
-                            [ "titleEl" ] = l.TitleEl ,
-                            [ "sortOrder" ] = l.SortOrder
-                        };
-
-                        if ( !string.IsNullOrEmpty( l.VideoPath ) )
-                            dict [ "videoPath" ] = l.VideoPath;
-
-                        if ( !string.IsNullOrEmpty( l.ContentEn ) )
-                        {
-                            var contentPreview = l.ContentEn.Length > 80
-                                ? l.ContentEn [ ..80 ] + "..."
-                                : l.ContentEn;
-                            dict [ "contentEn" ] = contentPreview;
-                        }
-
-                        if ( !string.IsNullOrEmpty( l.PdfPath ) )
-                            dict [ "pdfPath" ] = l.PdfPath;
-
-                        if ( l.DurationMinutes.HasValue )
-                            dict [ "durationMinutes" ] = l.DurationMinutes;
-
-                        return dict;
-                    } ).ToList()
-                };
-            } ).ToList()
-        };
-
-        return JsonSerializer.Serialize( obj , _previewJsonOptions );
     }
-}

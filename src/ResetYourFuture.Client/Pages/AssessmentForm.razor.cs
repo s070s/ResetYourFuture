@@ -15,6 +15,7 @@ public partial class AssessmentForm
     }
 
     [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -30,6 +31,13 @@ public partial class AssessmentForm
 
     protected override async Task OnInitializedAsync()
     {
+        var status = await SubscriptionService.GetStatusAsync();
+        if ( status?.Features?.AssessmentAccess != true )
+        {
+            Nav.NavigateTo( "/pricing" );
+            return;
+        }
+
         try
         {
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";

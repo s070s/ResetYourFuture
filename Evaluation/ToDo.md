@@ -2,7 +2,7 @@ PRIORITY FIX
 -Section in the Home,Landing Page for
 Blog Type Articles
 
-\-Subscription Features Enforced,Applied in the whole app
+\-Testimonials on landing page
 
 
 
