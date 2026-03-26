@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AdminAssessments
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -26,8 +26,7 @@ public partial class AdminAssessments
     {
         try
         {
-            _pagedResult = await Http.GetFromJsonAsync<PagedResult<AssessmentDefinitionListItemDto>>(
-                $"api/admin/assessments?page={_page}&pageSize={_pageSize}" );
+            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync( _page , _pageSize );
         }
         catch ( Exception ex )
         {
@@ -65,8 +64,7 @@ public partial class AdminAssessments
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/assessments/{id}/publish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await AssessmentConsumer.PublishAssessmentAsync( id ) )
             {
                 await LoadAssessments();
                 message = "Assessment published";
@@ -82,8 +80,7 @@ public partial class AdminAssessments
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/assessments/{id}/unpublish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await AssessmentConsumer.UnpublishAssessmentAsync( id ) )
             {
                 await LoadAssessments();
                 message = "Assessment unpublished";
@@ -107,8 +104,7 @@ public partial class AdminAssessments
 
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/assessments/{id}" );
-            if ( response.IsSuccessStatusCode )
+            if ( await AssessmentConsumer.DeleteAssessmentAsync( id ) )
             {
                 await LoadAssessments();
                 message = "Assessment deleted";

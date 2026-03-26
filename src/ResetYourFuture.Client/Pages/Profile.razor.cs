@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class Profile
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IProfileConsumer ProfileConsumer { get; set; } = default!;
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
@@ -29,12 +29,14 @@ public partial class Profile
         _isImpersonating = await AuthService.IsImpersonatingAsync();
         try
         {
-            profile = await Http.GetFromJsonAsync<ProfileDto>( "api/profile" );
-            if ( profile is not null )
+            profile = await ProfileConsumer.GetProfileAsync();
+            if ( profile is null )
             {
-                displayName = profile.DisplayName ?? string.Empty;
-                await LoadAvatarAsync();
+                Navigation.NavigateTo( "/login" );
+                return;
             }
+            displayName = profile.DisplayName ?? string.Empty;
+            await LoadAvatarAsync();
         }
         catch
         {
@@ -52,13 +54,10 @@ public partial class Profile
 
         try
         {
-            var response = await Http.GetAsync( "api/profile/avatar" );
-            if ( response.IsSuccessStatusCode )
-            {
-                var bytes = await response.Content.ReadAsByteArrayAsync();
-                var contentType = response.Content.Headers.ContentType?.MediaType ?? "image/png";
-                avatarDataUrl = $"data:{contentType};base64,{Convert.ToBase64String( bytes )}";
-            }
+            var avatar = await ProfileConsumer.GetAvatarAsync();
+            avatarDataUrl = avatar.HasValue
+                ? $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String( avatar.Value.Data )}"
+                : null;
         }
         catch
         {
@@ -77,18 +76,10 @@ public partial class Profile
 
         try
         {
-            const long maxFileSize = 5 * 1024 * 1024;
-            using var content = new MultipartFormDataContent();
-            using var stream = file.OpenReadStream( maxFileSize );
-            var streamContent = new StreamContent( stream );
-            streamContent.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
-            content.Add( streamContent , "file" , file.Name );
-
-            var response = await Http.PostAsync( "api/profile/avatar" , content );
-            if ( response.IsSuccessStatusCode )
+            var success = await ProfileConsumer.UploadAvatarAsync( file );
+            if ( success )
             {
-                profile = await Http.GetFromJsonAsync<ProfileDto>( "api/profile" );
+                profile = await ProfileConsumer.GetProfileAsync();
                 await LoadAvatarAsync();
                 message = ProfileRes.AvatarUploadedSuccess;
             }
@@ -119,11 +110,11 @@ public partial class Profile
                 profile.DateOfBirth
             );
 
-            var response = await Http.PutAsJsonAsync( "api/profile" , updateRequest );
+            var updated = await ProfileConsumer.UpdateProfileAsync( updateRequest );
 
-            if ( response.IsSuccessStatusCode )
+            if ( updated is not null )
             {
-                profile = await response.Content.ReadFromJsonAsync<ProfileDto>();
+                profile = updated;
                 message = ProfileRes.ProfileUpdatedSuccess;
             }
             else
@@ -161,9 +152,9 @@ public partial class Profile
         {
             var changeRequest = new ChangePasswordRequest( currentPassword , newPassword );
 
-            var response = await Http.PostAsJsonAsync( "api/profile/change-password" , changeRequest );
+            var success = await ProfileConsumer.ChangePasswordAsync( changeRequest );
 
-            if ( response.IsSuccessStatusCode )
+            if ( success )
             {
                 message = ProfileRes.PasswordChangedSuccess;
                 currentPassword = string.Empty;

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using System.Globalization;
 
@@ -7,8 +7,8 @@ namespace ResetYourFuture.Client.Pages;
 
 public partial class Courses
 {
-    [Inject] private ICourseService CourseService { get; set; } = default!;
-    [Inject] private ISubscriptionService SubscriptionService { get; set; } = default!;
+    [Inject] private ICourseConsumer CourseService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private PagedResult<CourseListItemDto>? _pagedResult;

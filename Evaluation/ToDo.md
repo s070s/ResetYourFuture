@@ -2,7 +2,9 @@ PRIORITY FIX
 -Section in the Home,Landing Page for
 Blog Type Articles
 
-\-API Consumers in Blazor Project (Consumers Folder)
+\-Subscription Features Enforced,Applied in the whole app
+
+
 
 
 
@@ -110,6 +112,5 @@ Explicitly postponed to protect April deadline:
 • Advanced analytics
 • Mobile app
 • Full payment enforcement
-• Admin Course Creator feature,Courses,Lectures Stored in json files
 • AI features using slm like ollama
 

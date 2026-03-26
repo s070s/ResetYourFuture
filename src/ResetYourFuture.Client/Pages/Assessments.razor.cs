@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
 using System.Globalization;
@@ -8,7 +8,7 @@ namespace ResetYourFuture.Client.Pages;
 
 public partial class Assessments
 {
-    [Inject] private IAssessmentService AssessmentService { get; set; } = default!;
+    [Inject] private IAssessmentConsumer AssessmentService { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private PagedResult<AssessmentDefinitionDto>? _pagedResult;

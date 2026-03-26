@@ -1,11 +1,11 @@
 using ResetYourFuture.Shared.DTOs;
 
-namespace ResetYourFuture.Client.Interfaces;
+namespace ResetYourFuture.Client.Consumers;
 
 /// <summary>
-/// Client service interface for course-related API operations.
+/// Client consumer for course-related API operations.
 /// </summary>
-public interface ICourseService
+public interface ICourseConsumer
 {
     Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10, string lang = "en" );
     Task<CourseDetailDto?> GetCourseAsync( Guid courseId, string lang = "en" );

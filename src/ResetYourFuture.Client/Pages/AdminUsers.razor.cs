@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AdminUsers : IAsyncDisposable
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminUserConsumer UserConsumer { get; set; } = default!;
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
@@ -29,11 +29,10 @@ public partial class AdminUsers : IAsyncDisposable
     {
         try
         {
-            var url = $"api/admin/users?page={currentPage}&pageSize={pageSize}";
-            if ( !string.IsNullOrEmpty( searchTerm ) )
-                url += $"&search={Uri.EscapeDataString( searchTerm )}";
-
-            pagedResult = await Http.GetFromJsonAsync<PagedResult<AdminUserDto>>( url );
+            pagedResult = await UserConsumer.GetUsersAsync(
+                currentPage ,
+                pageSize ,
+                string.IsNullOrEmpty( searchTerm ) ? null : searchTerm );
         }
         catch ( HttpRequestException ex ) when ( ex.StatusCode == System.Net.HttpStatusCode.Forbidden )
         {
@@ -110,9 +109,11 @@ public partial class AdminUsers : IAsyncDisposable
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/users/{userId}/force-password-reset" , null );
-            if ( response.IsSuccessStatusCode )
+            var token = await UserConsumer.ForcePasswordResetAsync( userId );
+            if ( token is not null )
                 message = "Password reset initiated for user";
+            else
+                message = "Error initiating password reset";
         }
         catch ( Exception ex )
         {
@@ -124,11 +125,15 @@ public partial class AdminUsers : IAsyncDisposable
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/users/{userId}/toggle-enable" , null );
-            if ( response.IsSuccessStatusCode )
+            var result = await UserConsumer.ToggleEnableAsync( userId );
+            if ( result.HasValue )
             {
                 await LoadUsers();
                 message = "User enable/disable toggled";
+            }
+            else
+            {
+                message = "Error toggling user";
             }
         }
         catch ( Exception ex )
@@ -141,12 +146,16 @@ public partial class AdminUsers : IAsyncDisposable
     {
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/users/{userId}" );
-            if ( response.IsSuccessStatusCode )
+            var success = await UserConsumer.DeleteUserAsync( userId );
+            if ( success )
             {
                 confirmDeleteId = null;
                 await LoadUsers();
                 message = "User deleted";
+            }
+            else
+            {
+                message = "Error deleting user";
             }
         }
         catch ( Exception ex )

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using ResetYourFuture.Client;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Client.Services;
 using System.Globalization;
@@ -45,20 +46,42 @@ builder.Services.AddScoped(sp =>
     return factory.CreateClient("AuthenticatedApi");
 });
 
-// --- Course Service ---
-builder.Services.AddHttpClient<ICourseService, CourseService>(c => c.BaseAddress = new Uri(apiBase))
+// --- Course Consumer ---
+builder.Services.AddHttpClient<ICourseConsumer, CourseConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
-// --- Assessment Service ---
-builder.Services.AddHttpClient<IAssessmentService, AssessmentService>(c => c.BaseAddress = new Uri(apiBase))
+// --- Assessment Consumer ---
+builder.Services.AddHttpClient<IAssessmentConsumer, AssessmentConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
-// --- Subscription Service ---
-builder.Services.AddHttpClient<ISubscriptionService, SubscriptionService>(c => c.BaseAddress = new Uri(apiBase))
+// --- Subscription Consumer ---
+builder.Services.AddHttpClient<ISubscriptionConsumer, SubscriptionConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
 // --- Chat Service ---
 builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+// --- API Consumers ---
+builder.Services.AddHttpClient<IProfileConsumer, ProfileConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminAnalyticsConsumer, AdminAnalyticsConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminUserConsumer, AdminUserConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminCourseConsumer, AdminCourseConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminModuleConsumer, AdminModuleConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminLessonConsumer, AdminLessonConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
+builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
 // --- Authorization ---

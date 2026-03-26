@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using System.Globalization;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AssessmentHistory
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
 
     private List<AssessmentSubmissionDto>? submissions;
     private List<AssessmentSubmissionDto> _sortedSubmissions = new();
@@ -27,7 +27,7 @@ public partial class AssessmentHistory
     {
         try
         {
-            submissions = await Http.GetFromJsonAsync<List<AssessmentSubmissionDto>>( "api/assessments/mine" );
+            submissions = await AssessmentConsumer.GetMySubmissionsAsync();
             latestSubmission = submissions?.OrderByDescending( s => s.SubmittedAt ).FirstOrDefault();
             _sortedSubmissions = submissions?.OrderByDescending( s => s.SubmittedAt ).ToList() ?? new();
 
@@ -55,7 +55,7 @@ public partial class AssessmentHistory
         try
         {
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
-            var def = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{definitionId}?lang={lang}" );
+            var def = await AssessmentConsumer.GetAssessmentAsync( definitionId, lang );
             if ( def != null )
             {
                 var schema = JsonSerializer.Deserialize<SchemaRoot>( def.SchemaJson , JsonOptions );

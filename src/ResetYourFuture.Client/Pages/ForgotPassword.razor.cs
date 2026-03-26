@@ -1,13 +1,17 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class ForgotPassword
 {
+    [Inject] private IAuthService AuthService { get; set; } = default!;
+    // HttpClient retained exclusively for the dev-only reset endpoint (not in IAuthService)
     [Inject] private HttpClient Http { get; set; } = default!;
 
-    private ForgotPasswordRequest forgotPasswordRequest = new();
+    private ForgotPasswordRequestDto forgotPasswordRequest = new();
     private string? successMessage;
     private string? errorMessage;
     private bool isLoading;
@@ -23,15 +27,14 @@ public partial class ForgotPassword
 
         try
         {
-            var response = await Http.PostAsJsonAsync( "api/auth/forgot-password" , forgotPasswordRequest );
-            if ( response.IsSuccessStatusCode )
+            var result = await AuthService.ForgotPasswordAsync( forgotPasswordRequest );
+            if ( result.Success )
             {
-                var result = await response.Content.ReadFromJsonAsync<AuthResponse>();
-                successMessage = result?.Message ?? "If the email exists, a reset link has been sent.";
+                successMessage = result.Message ?? "If the email exists, a reset link has been sent.";
             }
             else
             {
-                errorMessage = "Error sending reset link";
+                errorMessage = result.Message ?? "Error sending reset link";
             }
         }
         catch ( Exception ex )
@@ -76,20 +79,4 @@ public partial class ForgotPassword
         }
     }
 
-    private class ForgotPasswordRequest
-    {
-        public string Email { get; set; } = string.Empty;
-    }
-
-    private class AuthResponse
-    {
-        public bool Success
-        {
-            get; set;
-        }
-        public string? Message
-        {
-            get; set;
-        }
-    }
 }

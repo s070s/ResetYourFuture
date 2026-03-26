@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
-using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Layout;
 
 public partial class AvatarDropdown : IDisposable
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IProfileConsumer ProfileConsumer { get; set; } = default!;
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
@@ -48,15 +47,13 @@ public partial class AvatarDropdown : IDisposable
     {
         try
         {
-            var profile = await Http.GetFromJsonAsync<ProfileDto>( "api/profile" );
+            var profile = await ProfileConsumer.GetProfileAsync();
             if ( profile is not null && !string.IsNullOrEmpty( profile.AvatarPath ) )
             {
-                var response = await Http.GetAsync( "api/profile/avatar" );
-                if ( response.IsSuccessStatusCode )
+                var avatar = await ProfileConsumer.GetAvatarAsync();
+                if ( avatar is not null )
                 {
-                    var bytes = await response.Content.ReadAsByteArrayAsync();
-                    var contentType = response.Content.Headers.ContentType?.MediaType ?? "image/png";
-                    avatarDataUrl = $"data:{contentType};base64,{Convert.ToBase64String( bytes )}";
+                    avatarDataUrl = $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String( avatar.Value.Data )}";
                     return;
                 }
             }

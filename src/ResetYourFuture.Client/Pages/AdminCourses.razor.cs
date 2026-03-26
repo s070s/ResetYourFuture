@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AdminCourses
 {
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminCourseConsumer CourseConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -26,8 +26,7 @@ public partial class AdminCourses
     {
         try
         {
-            pagedResult = await Http.GetFromJsonAsync<PagedResult<AdminCourseDto>>(
-                $"api/admin/courses?page={currentPage}&pageSize={pageSize}" );
+            pagedResult = await CourseConsumer.GetCoursesAsync( currentPage , pageSize );
         }
         catch ( Exception ex )
         {
@@ -77,8 +76,7 @@ public partial class AdminCourses
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/courses/{id}/publish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await CourseConsumer.PublishCourseAsync( id ) )
             {
                 await LoadCourses();
                 message = "Course published";
@@ -94,8 +92,7 @@ public partial class AdminCourses
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/courses/{id}/unpublish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await CourseConsumer.UnpublishCourseAsync( id ) )
             {
                 await LoadCourses();
                 message = "Course unpublished";
@@ -114,16 +111,14 @@ public partial class AdminCourses
 
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/courses/{id}" );
-            if ( response.IsSuccessStatusCode )
+            if ( await CourseConsumer.DeleteCourseAsync( id ) )
             {
                 await LoadCourses();
                 message = "Course deleted";
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync();
-                message = $"Error: {body}";
+                message = "Error deleting course";
             }
         }
         catch ( Exception ex )

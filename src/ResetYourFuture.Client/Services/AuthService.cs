@@ -157,4 +157,18 @@ public class AuthService : IAuthService
     {
         return await _localStorage.GetItemAsStringAsync( TokenKey );
     }
+
+    public async Task<AuthResponseDto> ForgotPasswordAsync( ForgotPasswordRequestDto request )
+    {
+        var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( "api/auth/forgot-password" , request ) );
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        return result ?? new AuthResponseDto { Success = false , Message = "Unknown error" };
+    }
+
+    public async Task<AuthResponseDto> ResetPasswordAsync( ResetPasswordRequestDto request )
+    {
+        var response = await SendWithRetryAsync( () => _httpClient.PostAsJsonAsync( "api/auth/reset-password" , request ) );
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        return result ?? new AuthResponseDto { Success = false , Message = "Unknown error" };
+    }
 }

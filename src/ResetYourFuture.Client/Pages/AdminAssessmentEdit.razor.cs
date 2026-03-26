@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ResetYourFuture.Client.Pages;
@@ -15,7 +15,7 @@ public partial class AdminAssessmentEdit
         get; set;
     }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -46,8 +46,7 @@ public partial class AdminAssessmentEdit
     {
         try
         {
-            var assessment = await Http.GetFromJsonAsync<AdminAssessmentDefinitionDto>(
-                $"api/admin/assessments/{AssessmentId}" );
+            var assessment = await AssessmentConsumer.GetAssessmentAsync( AssessmentId );
             if ( assessment != null )
             {
                 assessmentKey = assessment.Key;
@@ -216,25 +215,16 @@ public partial class AdminAssessmentEdit
                 schemaJson
             );
 
-            HttpResponseMessage response;
+            AdminAssessmentDefinitionDto? result;
             if ( IsNew )
-            {
-                response = await Http.PostAsJsonAsync( "api/admin/assessments" , request );
-            }
+                result = await AssessmentConsumer.CreateAssessmentAsync( request );
             else
-            {
-                response = await Http.PutAsJsonAsync( $"api/admin/assessments/{AssessmentId}" , request );
-            }
+                result = await AssessmentConsumer.UpdateAssessmentAsync( AssessmentId , request );
 
-            if ( response.IsSuccessStatusCode )
-            {
+            if ( result is not null )
                 Nav.NavigateTo( "/admin/assessments" );
-            }
             else
-            {
-                var body = await response.Content.ReadAsStringAsync();
-                message = $"Error saving: {body}";
-            }
+                message = "Error saving assessment";
         }
         catch ( Exception ex )
         {

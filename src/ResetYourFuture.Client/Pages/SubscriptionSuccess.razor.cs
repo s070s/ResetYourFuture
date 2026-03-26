@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Client.Pages;
 
 public partial class SubscriptionSuccess
 {
-    [Inject] private ISubscriptionService SubscriptionService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private UserSubscriptionStatusDto? _status;

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ResetYourFuture.Client.Pages;
@@ -13,7 +13,7 @@ public partial class AdminAssessmentSubmissions
         get; set;
     }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private PagedResult<AssessmentSubmissionListItemDto>? _pagedResult;
@@ -37,8 +37,7 @@ public partial class AdminAssessmentSubmissions
         try
         {
             // Load the assessment definition once to get schema + title
-            var definition = await Http.GetFromJsonAsync<AdminAssessmentDefinitionDto>(
-                $"api/admin/assessments/{AssessmentId}" );
+            var definition = await AssessmentConsumer.GetAssessmentAsync( AssessmentId );
 
             if ( definition != null )
             {
@@ -58,8 +57,8 @@ public partial class AdminAssessmentSubmissions
     {
         try
         {
-            _pagedResult = await Http.GetFromJsonAsync<PagedResult<AssessmentSubmissionListItemDto>>(
-                $"api/admin/assessments/{AssessmentId}/submissions?page={_page}&pageSize={_pageSize}" );
+            _pagedResult = await AssessmentConsumer.GetSubmissionsAsync( AssessmentId , _page , _pageSize )
+                ?? new PagedResult<AssessmentSubmissionListItemDto>( [] , 0 , _page , _pageSize );
         }
         catch ( Exception ex )
         {

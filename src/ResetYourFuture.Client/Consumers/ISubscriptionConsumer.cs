@@ -1,15 +1,15 @@
 using ResetYourFuture.Shared.DTOs;
 
-namespace ResetYourFuture.Client.Interfaces;
+namespace ResetYourFuture.Client.Consumers;
 
 /// <summary>
-/// Client service interface for subscription-related API operations.
+/// Client consumer for subscription-related API operations.
 /// </summary>
-public interface ISubscriptionService
+public interface ISubscriptionConsumer
 {
     Task<List<SubscriptionPlanDto>> GetPlansAsync();
     Task<UserSubscriptionStatusDto?> GetStatusAsync();
     Task<CheckoutSessionDto?> CheckoutAsync( Guid planId );
     Task<CancelSubscriptionResultDto?> CancelAsync();
-    Task<BillingOverviewDto?> GetBillingOverviewAsync( int page = 1 , int pageSize = 10 );
+    Task<BillingOverviewDto?> GetBillingOverviewAsync( int page = 1, int pageSize = 10 );
 }

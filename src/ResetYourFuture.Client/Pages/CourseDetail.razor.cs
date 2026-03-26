@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using System.Globalization;
 
@@ -13,7 +13,7 @@ public partial class CourseDetail
         get; set;
     }
 
-    [Inject] private ICourseService CourseService { get; set; } = default!;
+    [Inject] private ICourseConsumer CourseService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private CourseDetailDto? _course;

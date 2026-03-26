@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using System.Globalization;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ResetYourFuture.Client.Pages;
@@ -14,7 +14,7 @@ public partial class AssessmentForm
         get; set;
     }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -33,7 +33,7 @@ public partial class AssessmentForm
         try
         {
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
-            assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{AssessmentId}?lang={lang}" );
+            assessment = await AssessmentConsumer.GetAssessmentAsync( AssessmentId, lang );
             if ( assessment != null )
             {
                 var schema = JsonSerializer.Deserialize<AssessmentSchema>( assessment.SchemaJson , JsonOptions );
@@ -77,15 +77,15 @@ public partial class AssessmentForm
             var answersJson = JsonSerializer.Serialize( answers );
             var request = new SubmitAssessmentRequest( answersJson , null );
 
-            var response = await Http.PostAsJsonAsync( $"api/assessments/{AssessmentId}/submit" , request );
+            var submission = await AssessmentConsumer.SubmitAssessmentAsync( AssessmentId, request );
 
-            if ( response.IsSuccessStatusCode )
+            if ( submission is not null )
             {
                 submitted = true;
             }
             else
             {
-                Console.WriteLine( $"Error submitting assessment: {response.StatusCode}" );
+                Console.WriteLine( "Error submitting assessment." );
             }
         }
         catch ( Exception ex )

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace ResetYourFuture.Client.Pages;
@@ -16,7 +16,9 @@ public partial class AdminCourseEdit
         get; set;
     }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminCourseConsumer CourseConsumer { get; set; } = default!;
+    [Inject] private IAdminModuleConsumer ModuleConsumer { get; set; } = default!;
+    [Inject] private IAdminLessonConsumer LessonConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -95,7 +97,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            course = await Http.GetFromJsonAsync<AdminCourseDto>( $"api/admin/courses/{CourseId}" );
+            course = await CourseConsumer.GetCourseAsync( CourseId );
             if ( course != null )
             {
                 courseTitleEn = course.TitleEn;
@@ -115,7 +117,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            modules = await Http.GetFromJsonAsync<List<AdminModuleDto>>( $"api/admin/modules/course/{CourseId}" );
+            modules = await ModuleConsumer.GetModulesByCourseAsync( CourseId );
             lessonsMap = new();
             if ( modules != null )
             {
@@ -134,8 +136,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            var lessons = await Http.GetFromJsonAsync<List<AdminLessonDto>>(
-                $"api/admin/lessons/module/{moduleId}" ) ?? [];
+            var lessons = await LessonConsumer.GetLessonsByModuleAsync( moduleId );
             lessonsMap [ moduleId ] = [.. lessons.OrderBy( l => l.SortOrder )];
         }
         catch
@@ -170,33 +171,28 @@ public partial class AdminCourseEdit
 
             var request = new SaveCourseRequest( courseTitleEn , courseTitleEl , descEn , descEl );
 
-            HttpResponseMessage response;
             if ( IsNew )
             {
-                response = await Http.PostAsJsonAsync( "api/admin/courses" , request );
-            }
-            else
-            {
-                response = await Http.PutAsJsonAsync( $"api/admin/courses/{CourseId}" , request );
-            }
-
-            if ( response.IsSuccessStatusCode )
-            {
-                if ( IsNew )
+                var created = await CourseConsumer.CreateCourseAsync( request );
+                if ( created is not null )
                 {
-                    var created = await response.Content.ReadFromJsonAsync<AdminCourseDto>();
-                    if ( created != null )
-                    {
-                        Nav.NavigateTo( $"/admin/courses/{created.Id}" );
-                        return;
-                    }
+                    Nav.NavigateTo( $"/admin/courses/{created.Id}" );
+                    return;
                 }
-                await LoadCourse();
-                message = "Course saved successfully";
+                message = "Error saving course";
             }
             else
             {
-                message = $"Error saving course: {response.ReasonPhrase}";
+                var updated = await CourseConsumer.UpdateCourseAsync( CourseId , request );
+                if ( updated is not null )
+                {
+                    await LoadCourse();
+                    message = "Course saved successfully";
+                }
+                else
+                {
+                    message = "Error saving course";
+                }
             }
         }
         catch ( Exception ex )
@@ -249,17 +245,11 @@ public partial class AdminCourseEdit
         {
             var request = new SaveModuleRequest( moduleTitleEn , moduleTitleEl , moduleDescriptionEn , moduleDescriptionEl , moduleSortOrder , CourseId );
 
-            HttpResponseMessage response;
-            if ( editingModuleId == null )
-            {
-                response = await Http.PostAsJsonAsync( "api/admin/modules" , request );
-            }
-            else
-            {
-                response = await Http.PutAsJsonAsync( $"api/admin/modules/{editingModuleId}" , request );
-            }
+            var result = editingModuleId == null
+                ? await ModuleConsumer.CreateModuleAsync( request )
+                : await ModuleConsumer.UpdateModuleAsync( editingModuleId.Value , request );
 
-            if ( response.IsSuccessStatusCode )
+            if ( result is not null )
             {
                 await LoadModulesAndLessons();
                 CloseModuleModal();
@@ -267,7 +257,7 @@ public partial class AdminCourseEdit
             }
             else
             {
-                message = $"Error saving module: {response.ReasonPhrase}";
+                message = "Error saving module";
             }
         }
         catch ( Exception ex )
@@ -283,8 +273,8 @@ public partial class AdminCourseEdit
 
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/modules/{moduleId}" );
-            if ( response.IsSuccessStatusCode )
+            var success = await ModuleConsumer.DeleteModuleAsync( moduleId );
+            if ( success )
             {
                 lessonsMap.Remove( moduleId );
                 await LoadModulesAndLessons();
@@ -292,8 +282,7 @@ public partial class AdminCourseEdit
             }
             else
             {
-                var body = await response.Content.ReadAsStringAsync();
-                message = $"Error: {body}";
+                message = "Error deleting module";
             }
         }
         catch ( Exception ex )
@@ -378,30 +367,28 @@ public partial class AdminCourseEdit
             var request = new SaveLessonRequest(
                 lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , lessonModuleId );
 
-            HttpResponseMessage response;
             Guid lessonId;
 
             if ( editingLessonId == null )
             {
-                response = await Http.PostAsJsonAsync( "api/admin/lessons" , request );
-                if ( response.IsSuccessStatusCode )
+                var created = await LessonConsumer.CreateLessonAsync( request );
+                if ( created is not null )
                 {
-                    var created = await response.Content.ReadFromJsonAsync<AdminLessonDto>();
-                    lessonId = created!.Id;
+                    lessonId = created.Id;
                 }
                 else
                 {
-                    message = $"Error creating lesson: {response.ReasonPhrase}";
+                    message = "Error creating lesson";
                     return;
                 }
             }
             else
             {
                 lessonId = editingLessonId.Value;
-                response = await Http.PutAsJsonAsync( $"api/admin/lessons/{lessonId}" , request );
-                if ( !response.IsSuccessStatusCode )
+                var updated = await LessonConsumer.UpdateLessonAsync( lessonId , request );
+                if ( updated is null )
                 {
-                    message = $"Error updating lesson: {response.ReasonPhrase}";
+                    message = "Error updating lesson";
                     return;
                 }
             }
@@ -435,18 +422,10 @@ public partial class AdminCourseEdit
 
     private async Task<string?> UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
     {
-        const long maxFileSize = 500L * 1024 * 1024; // 500 MB — matches server limit
-        using var formContent = new MultipartFormDataContent();
-        using var stream = file.OpenReadStream( maxFileSize );
-        var streamContent = new StreamContent( stream );
-        if ( !string.IsNullOrEmpty( file.ContentType ) )
-            streamContent.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
-        formContent.Add( streamContent , "file" , file.Name );
-        var uploadResponse = await Http.PostAsync( $"api/admin/lessons/{lessonId}/upload/{type}" , formContent );
-        return uploadResponse.IsSuccessStatusCode
-            ? null
-            : $"Error uploading {type}: {uploadResponse.StatusCode} {uploadResponse.ReasonPhrase}";
+        var result = type == "pdf"
+            ? await LessonConsumer.UploadPdfAsync( lessonId , file )
+            : await LessonConsumer.UploadVideoAsync( lessonId , file );
+        return result is not null ? null : $"Error uploading {type}";
     }
 
     private async Task DeleteLesson( Guid lessonId , Guid moduleId )
@@ -456,8 +435,8 @@ public partial class AdminCourseEdit
 
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/lessons/{lessonId}" );
-            if ( response.IsSuccessStatusCode )
+            var success = await LessonConsumer.DeleteLessonAsync( lessonId );
+            if ( success )
             {
                 await LoadModulesAndLessons();
                 message = "Lesson deleted";
@@ -479,8 +458,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/courses/{CourseId}/publish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await CourseConsumer.PublishCourseAsync( CourseId ) )
             {
                 await LoadCourse();
                 message = "Course published";
@@ -496,8 +474,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            var response = await Http.PostAsync( $"api/admin/courses/{CourseId}/unpublish" , null );
-            if ( response.IsSuccessStatusCode )
+            if ( await CourseConsumer.UnpublishCourseAsync( CourseId ) )
             {
                 await LoadCourse();
                 message = "Course unpublished";

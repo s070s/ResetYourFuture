@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
 
@@ -7,7 +7,7 @@ namespace ResetYourFuture.Client.Pages;
 
 public partial class Pricing
 {
-    [Inject] private ISubscriptionService SubscriptionService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private List<SubscriptionPlanDto> _plans = [];

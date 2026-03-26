@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -15,7 +15,8 @@ public partial class AdminLessonEdit
         get; set;
     }
 
-    [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private IAdminLessonConsumer LessonConsumer { get; set; } = default!;
+    [Inject] private IAdminModuleConsumer ModuleConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
@@ -51,7 +52,7 @@ public partial class AdminLessonEdit
     {
         try
         {
-            var module = await Http.GetFromJsonAsync<AdminModuleDto>( $"api/admin/modules/{ModuleId}" );
+            var module = await ModuleConsumer.GetModuleAsync( ModuleId );
             parentCourseId = module?.CourseId;
         }
         catch { /* parentCourseId remains null, back goes to courses list */ }
@@ -61,7 +62,7 @@ public partial class AdminLessonEdit
     {
         try
         {
-            lessons = await Http.GetFromJsonAsync<List<AdminLessonDto>>( $"api/admin/lessons/module/{ModuleId}" );
+            lessons = await LessonConsumer.GetLessonsByModuleAsync( ModuleId );
         }
         catch ( Exception ex )
         {
@@ -140,30 +141,28 @@ public partial class AdminLessonEdit
 
             var request = new SaveLessonRequest( lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , ModuleId );
 
-            HttpResponseMessage response;
             Guid lessonId;
 
             if ( editingLessonId == null )
             {
-                response = await Http.PostAsJsonAsync( "api/admin/lessons" , request );
-                if ( response.IsSuccessStatusCode )
+                var created = await LessonConsumer.CreateLessonAsync( request );
+                if ( created is not null )
                 {
-                    var created = await response.Content.ReadFromJsonAsync<AdminLessonDto>();
-                    lessonId = created!.Id;
+                    lessonId = created.Id;
                 }
                 else
                 {
-                    message = $"Error creating lesson: {response.ReasonPhrase}";
+                    message = "Error creating lesson";
                     return;
                 }
             }
             else
             {
                 lessonId = editingLessonId.Value;
-                response = await Http.PutAsJsonAsync( $"api/admin/lessons/{lessonId}" , request );
-                if ( !response.IsSuccessStatusCode )
+                var updated = await LessonConsumer.UpdateLessonAsync( lessonId , request );
+                if ( updated is null )
                 {
-                    message = $"Error updating lesson: {response.ReasonPhrase}";
+                    message = "Error updating lesson";
                     return;
                 }
             }
@@ -197,17 +196,10 @@ public partial class AdminLessonEdit
 
     private async Task<string?> UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
     {
-        const long maxFileSize = 500L * 1024 * 1024; // 500 MB — matches server limit
-        using var formContent = new MultipartFormDataContent();
-        using var stream = file.OpenReadStream( maxFileSize );
-        var streamContent = new StreamContent( stream );
-        if ( !string.IsNullOrEmpty( file.ContentType ) )
-            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue( file.ContentType );
-        formContent.Add( streamContent , "file" , file.Name );
-        var uploadResponse = await Http.PostAsync( $"api/admin/lessons/{lessonId}/upload/{type}" , formContent );
-        return uploadResponse.IsSuccessStatusCode
-            ? null
-            : $"Error uploading {type}: {uploadResponse.StatusCode} {uploadResponse.ReasonPhrase}";
+        var result = type == "pdf"
+            ? await LessonConsumer.UploadPdfAsync( lessonId , file )
+            : await LessonConsumer.UploadVideoAsync( lessonId , file );
+        return result is not null ? null : $"Error uploading {type}";
     }
 
     private async Task DeleteLesson( Guid lessonId )
@@ -217,8 +209,8 @@ public partial class AdminLessonEdit
 
         try
         {
-            var response = await Http.DeleteAsync( $"api/admin/lessons/{lessonId}" );
-            if ( response.IsSuccessStatusCode )
+            var success = await LessonConsumer.DeleteLessonAsync( lessonId );
+            if ( success )
             {
                 await LoadLessons();
                 message = "Lesson deleted";

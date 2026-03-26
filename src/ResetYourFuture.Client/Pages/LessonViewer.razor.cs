@@ -1,7 +1,7 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
-using ResetYourFuture.Client.Interfaces;
+using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
 using System.Globalization;
@@ -17,7 +17,7 @@ public partial class LessonViewer
         get; set;
     }
 
-    [Inject] private ICourseService CourseService { get; set; } = default!;
+    [Inject] private ICourseConsumer CourseService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IConfiguration AppConfig { get; set; } = default!;
     [Inject] private ILocalStorageService LocalStorage { get; set; } = default!;

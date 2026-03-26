@@ -15,4 +15,6 @@ public interface IAuthService
     Task<AuthResponseDto> ImpersonateAsync( string userId );
     Task ExitImpersonationAsync();
     Task<bool> IsImpersonatingAsync();
+    Task<AuthResponseDto> ForgotPasswordAsync( ForgotPasswordRequestDto request );
+    Task<AuthResponseDto> ResetPasswordAsync( ResetPasswordRequestDto request );
 }
