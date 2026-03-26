@@ -53,7 +53,7 @@ else
                 </div>
                 @if (!string.IsNullOrEmpty(course.Description))
                 {
-                    <p class="description">@course.Description</p>
+                    <div class="description">@((MarkupString)course.Description)</div>
                 }
                 <div class="meta">
                     <span class="lessons">@string.Format(CourseRes.LessonsCountFormat, course.TotalLessons)</span>

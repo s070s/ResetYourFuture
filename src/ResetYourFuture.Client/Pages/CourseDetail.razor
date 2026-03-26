@@ -24,7 +24,7 @@ else
         <h1>@_course.Title</h1>
         @if (!string.IsNullOrEmpty(_course.Description))
         {
-            <p class="description">@_course.Description</p>
+            <div class="description">@((MarkupString)_course.Description)</div>
         }
 
         <div class="progress-section">
@@ -57,7 +57,7 @@ else
                 <h3>@module.SortOrder. @module.Title</h3>
                 @if (!string.IsNullOrEmpty(module.Description))
                 {
-                    <p class="module-description">@module.Description</p>
+                    <div class="module-description">@((MarkupString)module.Description)</div>
                 }
 
                 <ul class="lessons-list">

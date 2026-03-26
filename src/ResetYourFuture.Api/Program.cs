@@ -179,6 +179,30 @@ using ( var scope = app.Services.CreateScope() )
 
     try
     {
+        // Detect a database that exists but was created outside EF Core Migrations
+        // (e.g. via EnsureCreated or manual scripts). In that case the schema is
+        // already present but __EFMigrationsHistory is empty, so MigrateAsync would
+        // fail trying to re-create existing tables.
+        var appliedMigrations = await db.Database.GetAppliedMigrationsAsync();
+        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+
+        if ( !appliedMigrations.Any() && pendingMigrations.Any() && await db.Database.CanConnectAsync() )
+        {
+            if ( app.Environment.IsDevelopment() )
+            {
+                startupLogger.LogWarning(
+                    "Database exists without migration history. " +
+                    "Dropping and recreating to apply migrations cleanly." );
+                await db.Database.EnsureDeletedAsync();
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    "Database exists but has no EF Core migration history. " +
+                    "Manually reconcile the schema or drop and recreate the database." );
+            }
+        }
+
         await db.Database.MigrateAsync();
         startupLogger.LogInformation( "EF Core migrations applied (database created if needed)." );
     }
