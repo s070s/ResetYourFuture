@@ -23,81 +23,64 @@
             }
             else
             {
-                <div class="table-responsive" style="max-height:60vh; overflow-y:auto">
-                    <table class="table table-striped">
-                        <thead style="position:sticky; top:0; z-index:1">
-                            <tr>
-                                <th>@AdminRes.ColEmail</th>
-                                <th>@AdminRes.ColName</th>
-                                <th>@AdminRes.ColEnabled</th>
-                                <th>@AdminRes.ColRoles</th>
-                                <th>@AdminRes.ColActions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <Virtualize Items="pagedResult.Items" Context="user" SpacerElement="tr" OverscanCount="10">
-                                <tr @key="user.Id">
-                                    <td>@user.Email</td>
-                                    <td>@user.FirstName @user.LastName</td>
-                                    <td>@(user.IsEnabled ? "✓" : "✗")</td>
-                                    <td>@string.Join(", ", user.Roles)</td>
-                                    <td>
-                                        @if (user.Roles.Contains("Student"))
-                                        {
-                                            <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
-                                        }
-                                        <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">@AdminRes.ResetPassword</button>
-                                        @if (user.IsEnabled)
-                                        {
-                                            <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
-                                        }
-                                        @if (confirmDeleteId == user.Id)
-                                        {
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
-                                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
-                                        }
-                                        else
-                                        {
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
-                                        }
-                                    </td>
-                                </tr>
-                            </Virtualize>
-                        </tbody>
-                    </table>
-                </div>
+                <VirtualizedTable Items="pagedResult.Items" TItem="AdminUserDto">
+                    <HeaderRow>
+                        <tr>
+                            <th>@AdminRes.ColEmail</th>
+                            <th>@AdminRes.ColName</th>
+                            <th>@AdminRes.ColEnabled</th>
+                            <th>@AdminRes.ColRoles</th>
+                            <th>@AdminRes.ColActions</th>
+                        </tr>
+                    </HeaderRow>
+                    <RowTemplate Context="user">
+                        <tr @key="user.Id">
+                            <td>@user.Email</td>
+                            <td>@user.FirstName @user.LastName</td>
+                            <td>@(user.IsEnabled ? "✓" : "✗")</td>
+                            <td>@string.Join(", ", user.Roles)</td>
+                            <td>
+                                @if (user.Roles.Contains("Student"))
+                                {
+                                    <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
+                                }
+                                <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">@AdminRes.ResetPassword</button>
+                                @if (user.IsEnabled)
+                                {
+                                    <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
+                                }
+                                @if (confirmDeleteId == user.Id)
+                                {
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
+                                }
+                            </td>
+                        </tr>
+                    </RowTemplate>
+                </VirtualizedTable>
 
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <small class="text-light-muted">
-                        Showing @((pagedResult.Page - 1) * pagedResult.PageSize + 1)–@(Math.Min(pagedResult.Page * pagedResult.PageSize, pagedResult.TotalCount)) of @pagedResult.TotalCount users
-                    </small>
-                    <div class="d-flex align-items-center gap-2">
-                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
-                        <select class="page-size-select" value="@pageSize" @onchange="OnPageSizeChanged">
-                            @foreach (var opt in PageSizeOptions)
-                            {
-                                <option value="@opt">@opt</option>
-                            }
-                        </select>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="PreviousPage"
-                                disabled="@(!pagedResult.HasPreviousPage)">‹ Prev</button>
-                        <span class="small">Page @pagedResult.Page of @pagedResult.TotalPages</span>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="NextPage"
-                                disabled="@(!pagedResult.HasNextPage)">Next ›</button>
-                    </div>
-                </div>
+                <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                        TotalPages="pagedResult.TotalPages"
+                                        TotalCount="pagedResult.TotalCount"
+                                        PageSize="pagedResult.PageSize"
+                                        HasPreviousPage="pagedResult.HasPreviousPage"
+                                        HasNextPage="pagedResult.HasNextPage"
+                                        PageSizeOptions="PageSizeOptions"
+                                        ItemLabel="users"
+                                        OnPageSizeChanged="OnPageSizeChanged"
+                                        OnPreviousPage="PreviousPage"
+                                        OnNextPage="NextPage" />
             }
 
-            @if (!string.IsNullOrEmpty(message))
-            {
-                <div class="alert alert-info mt-3">@message</div>
-            }
+            <DismissibleAlert Message="@message" Dismissible="false" OnDismiss="@(() => message = string.Empty)" />
         </Authorized>
         <NotAuthorized>
             <div class="alert alert-danger">

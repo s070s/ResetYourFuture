@@ -67,11 +67,15 @@ public class ChatHub : Hub
         if ( string.IsNullOrEmpty( userId ) || string.IsNullOrWhiteSpace( content ) )
             return;
 
-        var userStatus = await _subscriptionService.GetUserStatusAsync( userId );
-        if ( userStatus.Features?.PrioritySupport != true )
+        var isAdmin = Context.User?.IsInRole( "Admin" ) == true;
+        if ( !isAdmin )
         {
-            await Clients.Caller.SendAsync( "ChatError" , "Chat requires a Pro subscription." );
-            return;
+            var userStatus = await _subscriptionService.GetUserStatusAsync( userId );
+            if ( userStatus.Features?.PrioritySupport != true )
+            {
+                await Clients.Caller.SendAsync( "ChatError" , "Chat requires a Pro subscription." );
+                return;
+            }
         }
 
         var conversation = await _db.ChatConversations

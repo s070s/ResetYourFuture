@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 
@@ -9,13 +8,13 @@ public partial class AdminCourses
 {
     [Inject] private IAdminCourseConsumer CourseConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private PagedResult<AdminCourseDto>? pagedResult;
     private int currentPage = 1;
     private int pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
+    private Guid? _pendingDeleteId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,14 +33,11 @@ public partial class AdminCourses
         }
     }
 
-    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    private async Task OnPageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString() , out var size ) )
-        {
-            pageSize = size;
-            currentPage = 1;
-            await LoadCourses();
-        }
+        pageSize = size;
+        currentPage = 1;
+        await LoadCourses();
     }
 
     private async Task PreviousPage()
@@ -104,10 +100,17 @@ public partial class AdminCourses
         }
     }
 
-    private async Task DeleteCourse( Guid id )
+    private void DeleteCourse( Guid id )
     {
-        if ( !await JSRuntime.InvokeAsync<bool>( "confirm" , "Are you sure you want to delete this course and all its modules/lessons?" ) )
+        _pendingDeleteId = id;
+    }
+
+    private async Task ExecuteDeleteAsync()
+    {
+        if ( _pendingDeleteId is not { } id )
             return;
+
+        _pendingDeleteId = null;
 
         try
         {

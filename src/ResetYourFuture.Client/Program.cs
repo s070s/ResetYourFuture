@@ -128,18 +128,35 @@ try
     }
     else
     {
-        // Fallback: if server set the RequestLocalization cookie for the API host and the cookie is visible on this origin (rare),
-        // read it and apply. Cookie format: c=<culture>|uic=<ui-culture>
-        var cookieVal = await js.InvokeAsync<string>("eval", "document.cookie.split('; ').find(c=>c.startsWith('__RequestCulture='))?.split('=')[1] ?? null");
-        if (!string.IsNullOrWhiteSpace(cookieVal))
+        // Fallback 1: localStorage (set by CultureSelector on in-app switches)
+        var lsCulture = await js.InvokeAsync<string?>("eval", "localStorage.getItem('culture')");
+        if (!string.IsNullOrWhiteSpace(lsCulture))
         {
-            var match = Regex.Match(cookieVal, @"c=([^|;]+)");
-            if (match.Success)
+            var normalized = lsCulture.ToLowerInvariant() switch
             {
-                var normalized = match.Groups[1].Value;
-                var ci = new CultureInfo(normalized);
-                CultureInfo.DefaultThreadCurrentCulture = ci;
-                CultureInfo.DefaultThreadCurrentUICulture = ci;
+                "en" => "en-GB",
+                "el" => "el-GR",
+                _ => lsCulture
+            };
+            var ci = new CultureInfo(normalized);
+            CultureInfo.DefaultThreadCurrentCulture = ci;
+            CultureInfo.DefaultThreadCurrentUICulture = ci;
+        }
+        else
+        {
+            // Fallback 2: if server set the RequestLocalization cookie for the API host and the cookie is visible on this origin (rare),
+            // read it and apply. Cookie format: c=<culture>|uic=<ui-culture>
+            var cookieVal = await js.InvokeAsync<string>("eval", "document.cookie.split('; ').find(c=>c.startsWith('__RequestCulture='))?.split('=')[1] ?? null");
+            if (!string.IsNullOrWhiteSpace(cookieVal))
+            {
+                var match = Regex.Match(cookieVal, @"c=([^|;]+)");
+                if (match.Success)
+                {
+                    var normalized = match.Groups[1].Value;
+                    var ci = new CultureInfo(normalized);
+                    CultureInfo.DefaultThreadCurrentCulture = ci;
+                    CultureInfo.DefaultThreadCurrentUICulture = ci;
+                }
             }
         }
     }

@@ -1,24 +1,17 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace ResetYourFuture.Client.Layout;
 
 public partial class CultureSelector
 {
-    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    private void SetCulture(string culture)
+    private async Task SetCulture(string culture)
     {
-        var currentUri = new Uri(Nav.Uri);
-
-        // Preserve existing query params except any stale 'culture' entry
-        var existingParts = currentUri.Query.TrimStart('?')
-            .Split('&', StringSplitOptions.RemoveEmptyEntries)
-            .Where(p => !p.StartsWith("culture=", StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        existingParts.Add($"culture={culture}");
-
-        var target = currentUri.AbsolutePath + "?" + string.Join("&", existingParts);
-        Nav.NavigateTo(target, forceLoad: true);
+        // Persist to localStorage so Program.cs can read it on reload,
+        // then reload the current URL — avoids per-URL browser cache issues
+        // that occur when navigating to /?culture=xx with forceLoad.
+        await JS.InvokeVoidAsync("eval", $"localStorage.setItem('culture','{culture}');location.reload()");
     }
 }

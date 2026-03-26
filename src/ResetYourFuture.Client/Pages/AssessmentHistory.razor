@@ -31,69 +31,60 @@ else
     }
 
     <h4>@AssessmentRes.AllSubmissions</h4>
-    <div class="table-responsive" style="max-height:60vh; overflow-y:auto">
-        <table class="table table-striped">
-            <thead style="position:sticky; top:0; z-index:1">
-                <tr>
-                    <th>@AssessmentRes.AssessmentHeader</th>
-                    <th>@AssessmentRes.SubmittedHeader</th>
-                    <th>@AssessmentRes.Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <Virtualize Items="_sortedSubmissions" Context="submission" SpacerElement="tr" OverscanCount="10">
-                    <tr @key="submission.Id">
-                        <td>@submission.AssessmentTitle</td>
-                        <td>@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
-                        </td>
-                    </tr>
-                </Virtualize>
-            </tbody>
-        </table>
-    </div>
+    <VirtualizedTable Items="_sortedSubmissions" TItem="AssessmentSubmissionDto">
+        <HeaderRow>
+            <tr>
+                <th>@AssessmentRes.AssessmentHeader</th>
+                <th>@AssessmentRes.SubmittedHeader</th>
+                <th>@AssessmentRes.Actions</th>
+            </tr>
+        </HeaderRow>
+        <RowTemplate Context="submission">
+            <tr @key="submission.Id">
+                <td>@submission.AssessmentTitle</td>
+                <td>@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
+                </td>
+            </tr>
+        </RowTemplate>
+    </VirtualizedTable>
 }
 
-@if (selectedSubmission != null)
-{
-    <div class="modal" tabindex="-1" style="display: block; background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@selectedSubmission.AssessmentTitle</h5>
-                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
-                    <h6>@AssessmentRes.YourAnswers</h6>
-                    @{ var parsed = ParseAnswers(selectedSubmission.AnswersJson); }
-                    @if (parsed.Count > 0)
+<FormModal IsVisible="@(selectedSubmission != null)"
+           Title="@(selectedSubmission?.AssessmentTitle ?? "")"
+           Size="modal-lg"
+           OnClose="CloseModal">
+    <Body>
+        @if (selectedSubmission != null)
+        {
+            <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+            <h6>@AssessmentRes.YourAnswers</h6>
+            var parsed = ParseAnswers(selectedSubmission.AnswersJson);
+            @if (parsed.Count > 0)
+            {
+                <dl class="row mb-0">
+                    @foreach (var kv in parsed)
                     {
-                        <dl class="row mb-0">
-                            @foreach (var kv in parsed)
-                            {
-                                <dt class="col-sm-5 text-truncate">@ResolveLabel(selectedSubmission.AssessmentDefinitionId, kv.Key)</dt>
-                                <dd class="col-sm-7">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
-                            }
-                        </dl>
+                        <dt class="col-sm-5 text-truncate">@ResolveLabel(selectedSubmission.AssessmentDefinitionId, kv.Key)</dt>
+                        <dd class="col-sm-7">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
                     }
-                    else
-                    {
-                        <pre class="mb-0">@selectedSubmission.AnswersJson</pre>
-                    }
-                    @if (!string.IsNullOrEmpty(selectedSubmission.SummaryJson))
-                    {
-                        <hr />
-                        <h6>@AssessmentRes.SummaryLabel</h6>
-                        <pre class="mb-0">@selectedSubmission.SummaryJson</pre>
-                    }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">@AssessmentRes.Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-}
+                </dl>
+            }
+            else
+            {
+                <pre class="mb-0">@selectedSubmission.AnswersJson</pre>
+            }
+            @if (!string.IsNullOrEmpty(selectedSubmission.SummaryJson))
+            {
+                <hr />
+                <h6>@AssessmentRes.SummaryLabel</h6>
+                <pre class="mb-0">@selectedSubmission.SummaryJson</pre>
+            }
+        }
+    </Body>
+    <Footer>
+        <button type="button" class="btn btn-secondary" @onclick="CloseModal">@AssessmentRes.Close</button>
+    </Footer>
+</FormModal>
 

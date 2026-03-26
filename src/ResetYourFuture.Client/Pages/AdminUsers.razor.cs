@@ -40,14 +40,11 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    private async Task OnPageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString(), out var size ) )
-        {
-            pageSize = size;
-            currentPage = 1;
-            await LoadUsers();
-        }
+        pageSize = size;
+        currentPage = 1;
+        await LoadUsers();
     }
 
     private async Task OnSearchInput( ChangeEventArgs e )

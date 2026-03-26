@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
@@ -17,7 +16,6 @@ public partial class AdminAssessmentEdit
 
     [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private bool IsNew => AssessmentId == Guid.Empty;
     private bool loading = true;

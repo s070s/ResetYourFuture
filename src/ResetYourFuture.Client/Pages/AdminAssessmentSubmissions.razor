@@ -19,89 +19,72 @@ else if (_pagedResult.TotalCount == 0)
 }
 else
 {
-    <div class="table-responsive" style="max-height:60vh; overflow-y:auto">
-        <table class="table table-striped align-middle">
-            <thead style="position:sticky; top:0; z-index:1">
+    <VirtualizedTable Items="_pagedResult.Items" TItem="AssessmentSubmissionListItemDto" TableCssClass="table table-striped align-middle">
+        <HeaderRow>
+            <tr>
+                <th>@AdminRes.ColUser</th>
+                <th>@AdminRes.ColEmail</th>
+                <th>@AdminRes.ColSubmittedAt</th>
+                <th>@AdminRes.ColActions</th>
+            </tr>
+        </HeaderRow>
+        <RowTemplate Context="sub">
+            <tr @key="sub.Id">
+                <td>@sub.UserDisplayName</td>
+                <td>@sub.UserEmail</td>
+                <td>@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary"
+                            @onclick="() => ToggleAnswers(sub.Id)">
+                        @(expandedSubmissionId == sub.Id ? AdminRes.HideAnswers : AdminRes.ViewAnswers)
+                    </button>
+                </td>
+            </tr>
+            @if (expandedSubmissionId == sub.Id)
+            {
                 <tr>
-                    <th>@AdminRes.ColUser</th>
-                    <th>@AdminRes.ColEmail</th>
-                    <th>@AdminRes.ColSubmittedAt</th>
-                    <th>@AdminRes.ColActions</th>
+                    <td colspan="4">
+                        <div class="card card-body bg-light">
+                            @{ var parsed = ParseAnswers(sub.AnswersJson); }
+                            @if (parsed.Count > 0)
+                            {
+                                <dl class="row mb-0">
+                                    @foreach (var kv in parsed)
+                                    {
+                                        <dt class="col-sm-4">@ResolveLabel(kv.Key)</dt>
+                                        <dd class="col-sm-8">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
+                                    }
+                                </dl>
+                            }
+                            else
+                            {
+                                <pre class="mb-0">@sub.AnswersJson</pre>
+                            }
+                            @if (!string.IsNullOrEmpty(sub.SummaryJson))
+                            {
+                                <hr />
+                                <h6>@AdminRes.Summary</h6>
+                                <pre class="mb-0">@sub.SummaryJson</pre>
+                            }
+                        </div>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <Virtualize Items="_pagedResult.Items" Context="sub" SpacerElement="tr" OverscanCount="10">
-                    <tr @key="sub.Id">
-                        <td>@sub.UserDisplayName</td>
-                        <td>@sub.UserEmail</td>
-                        <td>@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary"
-                                    @onclick="() => ToggleAnswers(sub.Id)">
-                                @(expandedSubmissionId == sub.Id ? AdminRes.HideAnswers : AdminRes.ViewAnswers)
-                            </button>
-                        </td>
-                    </tr>
-                    @if (expandedSubmissionId == sub.Id)
-                    {
-                        <tr>
-                            <td colspan="4">
-                                <div class="card card-body bg-light">
-                                    @{ var parsed = ParseAnswers(sub.AnswersJson); }
-                                    @if (parsed.Count > 0)
-                                    {
-                                        <dl class="row mb-0">
-                                            @foreach (var kv in parsed)
-                                            {
-                                                <dt class="col-sm-4">@ResolveLabel(kv.Key)</dt>
-                                                <dd class="col-sm-8">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
-                                            }
-                                        </dl>
-                                    }
-                                    else
-                                    {
-                                        <pre class="mb-0">@sub.AnswersJson</pre>
-                                    }
-                                    @if (!string.IsNullOrEmpty(sub.SummaryJson))
-                                    {
-                                        <hr />
-                                        <h6>@AdminRes.Summary</h6>
-                                        <pre class="mb-0">@sub.SummaryJson</pre>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </Virtualize>
-            </tbody>
-        </table>
-    </div>
+            }
+        </RowTemplate>
+    </VirtualizedTable>
 
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <small class="text-light-muted">
-            Showing @((_pagedResult.Page - 1) * _pagedResult.PageSize + 1)–@(Math.Min(_pagedResult.Page * _pagedResult.PageSize, _pagedResult.TotalCount)) of @_pagedResult.TotalCount submissions
-        </small>
-        <div class="d-flex align-items-center gap-2">
-            <label class="form-label mb-0 text-light-muted small">Rows:</label>
-            <select class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
-                @foreach (var opt in PageSizeOptions)
-                {
-                    <option value="@opt">@opt</option>
-                }
-            </select>
-            <button class="btn btn-sm btn-outline-secondary"
-                    @onclick="() => GoToPage(_pagedResult.Page - 1)"
-                    disabled="@(!_pagedResult.HasPreviousPage)">‹ Prev</button>
-            <span class="small">Page @_pagedResult.Page of @_pagedResult.TotalPages</span>
-            <button class="btn btn-sm btn-outline-secondary"
-                    @onclick="() => GoToPage(_pagedResult.Page + 1)"
-                    disabled="@(!_pagedResult.HasNextPage)">Next ›</button>
-        </div>
-    </div>
+    <AdminPaginationToolbar CurrentPage="_pagedResult.Page"
+                            TotalPages="_pagedResult.TotalPages"
+                            TotalCount="_pagedResult.TotalCount"
+                            PageSize="_pagedResult.PageSize"
+                            HasPreviousPage="_pagedResult.HasPreviousPage"
+                            HasNextPage="_pagedResult.HasNextPage"
+                            PageSizeOptions="PageSizeOptions"
+                            ItemLabel="submissions"
+                            OnPageSizeChanged="OnPageSizeChanged"
+                            OnPreviousPage="() => GoToPage(_pagedResult.Page - 1)"
+                            OnNextPage="() => GoToPage(_pagedResult.Page + 1)" />
 }
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger mt-3">@errorMessage</div>
-}
+<DismissibleAlert Message="@errorMessage" AlertType="danger" Dismissible="false" />
 

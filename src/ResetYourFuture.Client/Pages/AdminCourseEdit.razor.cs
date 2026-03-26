@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
@@ -18,7 +17,6 @@ public partial class AdminCourseEdit
     [Inject] private IAdminModuleConsumer ModuleConsumer { get; set; } = default!;
     [Inject] private IAdminLessonConsumer LessonConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private bool IsNew => CourseId == Guid.Empty;
     private AdminCourseDto? course;
@@ -27,6 +25,12 @@ public partial class AdminCourseEdit
     private HashSet<Guid> expandedModules = new();
     private bool isSaving;
     private string message = string.Empty;
+
+    // ConfirmModal state for module/lesson deletion
+    private Guid? _pendingDeleteModuleId;
+    private Guid? _pendingDeleteLessonId;
+    private Guid? _pendingDeleteLessonModuleId;
+    private string _pendingDeleteMessage = string.Empty;
 
     // Course fields
     private string courseTitleEn = string.Empty;
@@ -260,29 +264,10 @@ public partial class AdminCourseEdit
         }
     }
 
-    private async Task DeleteModule( Guid moduleId )
+    private void DeleteModule( Guid moduleId )
     {
-        if ( !await JSRuntime.InvokeAsync<bool>( "confirm" , "Delete this module and all its lessons?" ) )
-            return;
-
-        try
-        {
-            var success = await ModuleConsumer.DeleteModuleAsync( moduleId );
-            if ( success )
-            {
-                lessonsMap.Remove( moduleId );
-                await LoadModulesAndLessons();
-                message = "Module deleted";
-            }
-            else
-            {
-                message = "Error deleting module";
-            }
-        }
-        catch ( Exception ex )
-        {
-            message = $"Error: {ex.Message}";
-        }
+        _pendingDeleteModuleId = moduleId;
+        _pendingDeleteMessage = "Delete this module and all its lessons?";
     }
 
     // ── Lesson modal ──
@@ -422,28 +407,69 @@ public partial class AdminCourseEdit
         return result is not null ? null : $"Error uploading {type}";
     }
 
-    private async Task DeleteLesson( Guid lessonId , Guid moduleId )
+    private void DeleteLesson( Guid lessonId , Guid moduleId )
     {
-        if ( !await JSRuntime.InvokeAsync<bool>( "confirm" , "Delete this lesson?" ) )
-            return;
+        _pendingDeleteLessonId = lessonId;
+        _pendingDeleteLessonModuleId = moduleId;
+        _pendingDeleteMessage = "Delete this lesson?";
+    }
 
-        try
+    private async Task ExecuteDeleteAsync()
+    {
+        if ( _pendingDeleteModuleId is { } moduleId )
         {
-            var success = await LessonConsumer.DeleteLessonAsync( lessonId );
-            if ( success )
+            _pendingDeleteModuleId = null;
+            _pendingDeleteMessage = string.Empty;
+            try
             {
-                await LoadModulesAndLessons();
-                message = "Lesson deleted";
+                var success = await ModuleConsumer.DeleteModuleAsync( moduleId );
+                if ( success )
+                {
+                    lessonsMap.Remove( moduleId );
+                    await LoadModulesAndLessons();
+                    message = "Module deleted";
+                }
+                else
+                {
+                    message = "Error deleting module";
+                }
             }
-            else
+            catch ( Exception ex )
             {
-                message = "Error deleting lesson";
+                message = $"Error: {ex.Message}";
             }
         }
-        catch ( Exception ex )
+        else if ( _pendingDeleteLessonId is { } lessonId )
         {
-            message = $"Error: {ex.Message}";
+            _pendingDeleteLessonId = null;
+            _pendingDeleteLessonModuleId = null;
+            _pendingDeleteMessage = string.Empty;
+            try
+            {
+                var success = await LessonConsumer.DeleteLessonAsync( lessonId );
+                if ( success )
+                {
+                    await LoadModulesAndLessons();
+                    message = "Lesson deleted";
+                }
+                else
+                {
+                    message = "Error deleting lesson";
+                }
+            }
+            catch ( Exception ex )
+            {
+                message = $"Error: {ex.Message}";
+            }
         }
+    }
+
+    private void CancelPendingDelete()
+    {
+        _pendingDeleteModuleId = null;
+        _pendingDeleteLessonId = null;
+        _pendingDeleteLessonModuleId = null;
+        _pendingDeleteMessage = string.Empty;
     }
 
     // ── Publish ──

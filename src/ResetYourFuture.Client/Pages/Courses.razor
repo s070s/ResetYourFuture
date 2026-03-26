@@ -72,32 +72,14 @@ else
         }
     </div>
 
-    @if (_pagedResult.TotalPages > 1)
-    {
-        <nav class="pagination-nav" aria-label="Course pages">
-            <button class="pagination-btn"
-                    disabled="@(!_pagedResult.HasPreviousPage)"
-                    @onclick="() => GoToPage(_page - 1)">
-                ‹ @CourseRes.Previous
-            </button>
-
-            @for (int p = 1; p <= _pagedResult.TotalPages; p++)
-            {
-                var pageNum = p;
-                <button class="pagination-btn @(_page == pageNum ? "active" : "")"
-                        @onclick="() => GoToPage(pageNum)"
-                        @key="pageNum">
-                    @pageNum
-                </button>
-            }
-
-            <button class="pagination-btn"
-                    disabled="@(!_pagedResult.HasNextPage)"
-                    @onclick="() => GoToPage(_page + 1)">
-                @CourseRes.Next ›
-            </button>
-        </nav>
-    }
+    <PaginationNav CurrentPage="_page"
+                    TotalPages="_pagedResult.TotalPages"
+                    HasPreviousPage="_pagedResult.HasPreviousPage"
+                    HasNextPage="_pagedResult.HasNextPage"
+                    PreviousLabel="@CourseRes.Previous"
+                    NextLabel="@CourseRes.Next"
+                    AriaLabel="Course pages"
+                    OnPageChanged="GoToPage" />
 }
 
 

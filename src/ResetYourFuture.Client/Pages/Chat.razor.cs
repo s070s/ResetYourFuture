@@ -52,8 +52,16 @@ public partial class Chat : IAsyncDisposable
         var user = authState.User;
         _currentUserId = user.FindFirst( ClaimTypes.NameIdentifier )?.Value ?? string.Empty;
 
-        var status = await SubscriptionService.GetStatusAsync();
-        _chatAccess = status?.Features?.PrioritySupport == true;
+        var isAdmin = user.IsInRole( "Admin" );
+        if ( isAdmin )
+        {
+            _chatAccess = true;
+        }
+        else
+        {
+            var status = await SubscriptionService.GetStatusAsync();
+            _chatAccess = status?.Features?.PrioritySupport == true;
+        }
 
         if ( !_chatAccess )
             return;

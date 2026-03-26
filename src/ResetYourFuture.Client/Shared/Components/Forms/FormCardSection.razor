@@ -1,0 +1,21 @@
+@* Renders a card section with header and optional header actions slot. *@
+
+<div class="@CssClass">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>@Title</span>
+        @if (HeaderActions is not null)
+        {
+            @HeaderActions
+        }
+    </div>
+    <div class="card-body">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? HeaderActions { get; set; }
+    [Parameter] public string CssClass { get; set; } = "card mb-4";
+}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Shared.DTOs;
 
@@ -9,13 +8,13 @@ public partial class AdminAssessments
 {
     [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private PagedResult<AssessmentDefinitionListItemDto>? _pagedResult;
     private int _page = 1;
     private int _pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string message = string.Empty;
+    private Guid? _pendingDeleteId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,14 +33,11 @@ public partial class AdminAssessments
         }
     }
 
-    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    private async Task OnPageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString(), out var size ) )
-        {
-            _pageSize = size;
-            _page = 1;
-            await LoadAssessments();
-        }
+        _pageSize = size;
+        _page = 1;
+        await LoadAssessments();
     }
 
     private async Task GoToPage( int page )
@@ -97,10 +93,17 @@ public partial class AdminAssessments
         Nav.NavigateTo( $"/admin/assessments/{id}/submissions" );
     }
 
-    private async Task DeleteAssessment( Guid id )
+    private void DeleteAssessment( Guid id )
     {
-        if ( !await JSRuntime.InvokeAsync<bool>( "confirm" , "Are you sure you want to delete this assessment?" ) )
+        _pendingDeleteId = id;
+    }
+
+    private async Task ExecuteDeleteAsync()
+    {
+        if ( _pendingDeleteId is not { } id )
             return;
+
+        _pendingDeleteId = null;
 
         try
         {

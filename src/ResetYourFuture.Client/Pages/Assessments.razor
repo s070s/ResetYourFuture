@@ -15,12 +15,9 @@
 }
 else if (!_assessmentAccess)
 {
-    <div class="upgrade-prompt">
-        <div class="upgrade-icon">🔒</div>
-        <h4>Plus Plan Required</h4>
-        <p>Assessments are available on the <strong>Plus</strong> plan and above. Upgrade to unlock all assessments.</p>
-        <a href="/pricing" class="btn btn-primary">Upgrade Now</a>
-    </div>
+    <UpgradePrompt PlanName="Plus"
+                   FeatureName="Assessments"
+                   Description="Assessments are available on the Plus plan and above. Upgrade to unlock all assessments." />
 }
 else if (_error is not null)
 {
@@ -64,30 +61,12 @@ else
         }
     </div>
 
-    @if (_pagedResult.TotalPages > 1)
-    {
-        <nav class="pagination-nav" aria-label="Assessment pages">
-            <button class="pagination-btn"
-                    disabled="@(!_pagedResult.HasPreviousPage)"
-                    @onclick="() => GoToPage(_page - 1)">
-                ‹ @AssessmentRes.Previous
-            </button>
-
-            @for (int p = 1; p <= _pagedResult.TotalPages; p++)
-            {
-                var pageNum = p;
-                <button class="pagination-btn @(_page == pageNum ? "active" : "")"
-                        @onclick="() => GoToPage(pageNum)"
-                        @key="pageNum">
-                    @pageNum
-                </button>
-            }
-
-            <button class="pagination-btn"
-                    disabled="@(!_pagedResult.HasNextPage)"
-                    @onclick="() => GoToPage(_page + 1)">
-                @AssessmentRes.Next ›
-            </button>
-        </nav>
-    }
+    <PaginationNav CurrentPage="_page"
+                    TotalPages="_pagedResult.TotalPages"
+                    HasPreviousPage="_pagedResult.HasPreviousPage"
+                    HasNextPage="_pagedResult.HasNextPage"
+                    PreviousLabel="@AssessmentRes.Previous"
+                    NextLabel="@AssessmentRes.Next"
+                    AriaLabel="Assessment pages"
+                    OnPageChanged="GoToPage" />
 }

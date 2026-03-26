@@ -16,9 +16,8 @@
 }
 else
 {
-    <div class="card mb-4">
-        <div class="card-header">@AdminRes.AssessmentDetails</div>
-        <div class="card-body">
+    <FormCardSection Title="@AdminRes.AssessmentDetails">
+        <ChildContent>
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label">@AdminRes.FieldKey <small class="text-light-muted">(@AdminRes.FieldKeyHint)</small></label>
@@ -41,15 +40,14 @@ else
                 <label class="form-label">@AdminRes.FieldDescription (EL)</label>
                 <QuillEditor @ref="descriptionEditorEl" Content="@assessmentDescriptionEl" MinHeight="120px" />
             </div>
-        </div>
-    </div>
+        </ChildContent>
+    </FormCardSection>
 
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <span>@AdminRes.Questions</span>
+    <FormCardSection Title="@AdminRes.Questions">
+        <HeaderActions>
             <button class="btn btn-sm btn-success" @onclick="AddQuestion">@AdminRes.AddQuestion</button>
-        </div>
-        <div class="card-body">
+        </HeaderActions>
+        <ChildContent>
             @if (questions.Count == 0)
             {
                 <p class="text-light-muted">@AdminRes.NoQuestions</p>
@@ -145,22 +143,15 @@ else
                     </div>
                 }
             }
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <button class="btn btn-primary" @onclick="SaveAssessment" disabled="@isSaving">
-            @(isSaving ? AdminRes.Saving : AdminRes.SaveAssessment)
-        </button>
-        <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.Cancel</button>
-    </div>
+        </ChildContent>
+    </FormCardSection>
+    <SaveCancelBar SaveLabel="@AdminRes.SaveAssessment"
+                    SavingLabel="@AdminRes.Saving"
+                    IsSaving="isSaving"
+                    OnSave="SaveAssessment"
+                    CancelLabel="@AdminRes.Cancel"
+                    OnCancel="GoBack" />
 }
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert alert-info alert-dismissible mt-3">
-        @message
-        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
-    </div>
-}
+<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 

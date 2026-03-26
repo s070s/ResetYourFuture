@@ -42,6 +42,8 @@ public class ChatController : ControllerBase
 
     private async Task<bool> HasChatAccessAsync( string userId )
     {
+        if ( User.IsInRole( "Admin" ) )
+            return true;
         var status = await _subscriptionService.GetUserStatusAsync( userId );
         return status.Features?.PrioritySupport == true;
     }

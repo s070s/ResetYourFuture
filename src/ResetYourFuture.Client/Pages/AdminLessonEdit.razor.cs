@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
@@ -18,12 +17,12 @@ public partial class AdminLessonEdit
     [Inject] private IAdminLessonConsumer LessonConsumer { get; set; } = default!;
     [Inject] private IAdminModuleConsumer ModuleConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private List<AdminLessonDto>? lessons;
     private Guid? parentCourseId;
     private bool isSaving;
     private string message = string.Empty;
+    private Guid? _pendingDeleteLessonId;
 
     // Lesson modal fields
     private bool showLessonModal;
@@ -202,14 +201,21 @@ public partial class AdminLessonEdit
         return result is not null ? null : $"Error uploading {type}";
     }
 
-    private async Task DeleteLesson( Guid lessonId )
+    private void DeleteLesson( Guid lessonId )
     {
-        if ( !await JSRuntime.InvokeAsync<bool>( "confirm" , "Delete this lesson?" ) )
+        _pendingDeleteLessonId = lessonId;
+    }
+
+    private async Task ExecuteDeleteLessonAsync()
+    {
+        if ( _pendingDeleteLessonId is not { } id )
             return;
+
+        _pendingDeleteLessonId = null;
 
         try
         {
-            var success = await LessonConsumer.DeleteLessonAsync( lessonId );
+            var success = await LessonConsumer.DeleteLessonAsync( id );
             if ( success )
             {
                 await LoadLessons();

@@ -17,9 +17,8 @@
 else
 {
     @* ── Course Details ── *@
-    <div class="card mb-4">
-        <div class="card-header">@AdminRes.CourseDetails</div>
-        <div class="card-body">
+    <FormCardSection Title="@AdminRes.CourseDetails">
+        <ChildContent>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">@AdminRes.FieldTitle (EN)</label>
@@ -41,11 +40,12 @@ else
                 <QuillEditor @ref="descriptionEditorEl" Content="@courseDescriptionEl" MinHeight="150px" />
             </div>
 
-            <button class="btn btn-primary" @onclick="SaveCourse" disabled="@isSaving">
-                @(isSaving ? AdminRes.Saving : AdminRes.SaveCourse)
-            </button>
-        </div>
-    </div>
+            <SaveCancelBar SaveLabel="@AdminRes.SaveCourse"
+                           SavingLabel="@AdminRes.Saving"
+                           IsSaving="isSaving"
+                           OnSave="SaveCourse" />
+        </ChildContent>
+    </FormCardSection>
 
     @if (IsNew)
     {
@@ -58,12 +58,11 @@ else
     @if (!IsNew && course != null)
     {
         @* ── Modules & Lessons ── *@
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>@AdminRes.ModulesAndLessons</span>
+        <FormCardSection Title="@AdminRes.ModulesAndLessons">
+            <HeaderActions>
                 <button class="btn btn-sm btn-success" @onclick="ShowAddModule">@AdminRes.AddModule</button>
-            </div>
-            <div class="card-body">
+            </HeaderActions>
+            <ChildContent>
                 @if (modules == null)
                 {
                     <p>@AdminRes.LoadingModules</p>
@@ -151,9 +150,9 @@ else
                                                         </td>
                                                         <td>@(lesson.DurationMinutes?.ToString() ?? "—")</td>
                                                         <td>
-                                                            <span class="badge @(lesson.IsPublished ? "bg-success" : "bg-secondary")">
-                                                                @(lesson.IsPublished ? AdminRes.StatusLive : AdminRes.StatusDraft)
-                                                            </span>
+                                                            <StatusBadge IsActive="lesson.IsPublished"
+                                                                         ActiveText="@AdminRes.StatusLive"
+                                                                         InactiveText="@AdminRes.StatusDraft" />
                                                         </td>
                                                         <td>
                                                             <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowEditLesson(lesson)">@AdminRes.Edit</button>
@@ -169,153 +168,137 @@ else
                         </div>
                     }
                 }
-            </div>
-        </div>
+            </ChildContent>
+        </FormCardSection>
 
         @* ── Publish ── *@
-        <div class="card mb-4">
-            <div class="card-header">@AdminRes.Publish</div>
-            <div class="card-body d-flex align-items-center gap-2">
-                <span class="badge @(course.IsPublished ? "bg-success" : "bg-secondary")">
-                    @(course.IsPublished ? AdminRes.StatusPublished : AdminRes.StatusDraft)
-                </span>
-                @if (!course.IsPublished)
-                {
-                    <button class="btn btn-success" @onclick="PublishCourse">@AdminRes.PublishCourse</button>
-                }
-                else
-                {
-                    <button class="btn btn-warning" @onclick="UnpublishCourse">@AdminRes.UnpublishCourse</button>
-                }
-            </div>
-        </div>
+        <FormCardSection Title="@AdminRes.Publish">
+            <ChildContent>
+                <div class="d-flex align-items-center gap-2">
+                    <StatusBadge IsActive="course.IsPublished"
+                                 ActiveText="@AdminRes.StatusPublished"
+                                 InactiveText="@AdminRes.StatusDraft" />
+                    @if (!course.IsPublished)
+                    {
+                        <button class="btn btn-success" @onclick="PublishCourse">@AdminRes.PublishCourse</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-warning" @onclick="UnpublishCourse">@AdminRes.UnpublishCourse</button>
+                    }
+                </div>
+            </ChildContent>
+        </FormCardSection>
     }
 }
 
 @* ── Module Create/Edit Modal ── *@
-@if (showModuleModal)
-{
-    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@(editingModuleId == null ? AdminRes.AddModule : AdminRes.EditModule)</h5>
-                    <button type="button" class="btn-close" @onclick="CloseModuleModal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                            <input class="form-control" @bind="moduleTitleEn" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                            <input class="form-control" @bind="moduleTitleEl" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldDescription (EN)</label>
-                        <textarea class="form-control" @bind="moduleDescriptionEn" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldDescription (EL)</label>
-                        <textarea class="form-control" @bind="moduleDescriptionEl" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.SortOrder</label>
-                        <input type="number" class="form-control" @bind="moduleSortOrder" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" @onclick="SaveModule">@AdminRes.Save</button>
-                    <button class="btn btn-secondary" @onclick="CloseModuleModal">@AdminRes.Cancel</button>
-                </div>
+<FormModal IsVisible="showModuleModal"
+           Title="@(editingModuleId == null ? AdminRes.AddModule : AdminRes.EditModule)"
+           OnClose="CloseModuleModal">
+    <Body>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                <input class="form-control" @bind="moduleTitleEn" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                <input class="form-control" @bind="moduleTitleEl" />
             </div>
         </div>
-    </div>
-}
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldDescription (EN)</label>
+            <textarea class="form-control" @bind="moduleDescriptionEn" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldDescription (EL)</label>
+            <textarea class="form-control" @bind="moduleDescriptionEl" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.SortOrder</label>
+            <input type="number" class="form-control" @bind="moduleSortOrder" />
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-primary" @onclick="SaveModule">@AdminRes.Save</button>
+        <button class="btn btn-secondary" @onclick="CloseModuleModal">@AdminRes.Cancel</button>
+    </Footer>
+</FormModal>
 
 @* ── Lesson Create/Edit Modal ── *@
-@if (showLessonModal)
-{
-    <div class="modal d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@(editingLessonId == null ? AdminRes.AddLesson : AdminRes.EditLesson)</h5>
-                    <button type="button" class="btn-close" @onclick="CloseLessonModal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                            <input class="form-control" @bind="lessonTitleEn" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                            <input class="form-control" @bind="lessonTitleEl" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@AdminRes.SortOrder</label>
-                            <input type="number" class="form-control" @bind="lessonSortOrder" />
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label">@AdminRes.DurationMinutes</label>
-                            <input type="number" class="form-control" @bind="lessonDuration" />
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldContent (EN)</label>
-                        <QuillEditor @ref="lessonContentEditorEn" Content="@lessonContentEn" MinHeight="300px" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldContent (EL)</label>
-                        <QuillEditor @ref="lessonContentEditorEl" Content="@lessonContentEl" MinHeight="300px" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.VideoUrlLabel</label>
-                        <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
-                        <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.UploadPdf</label>
-                            <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
-                            @if (!string.IsNullOrEmpty(lessonPdfPath))
-                            {
-                                <small class="text-success">@AdminRes.Current @lessonPdfPath</small>
-                            }
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.UploadVideo</label>
-                            <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
-                            @if (!string.IsNullOrEmpty(lessonVideoFilePath))
-                            {
-                                <small class="text-success">@AdminRes.Current @lessonVideoFilePath</small>
-                            }
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-primary" @onclick="SaveLesson" disabled="@isLessonSaving">
-                        @(isLessonSaving ? AdminRes.Saving : AdminRes.SaveLesson)
-                    </button>
-                    <button class="btn btn-secondary" @onclick="CloseLessonModal">@AdminRes.Cancel</button>
-                </div>
+<FormModal IsVisible="showLessonModal"
+           Title="@(editingLessonId == null ? AdminRes.AddLesson : AdminRes.EditLesson)"
+           Size="modal-xl"
+           OnClose="CloseLessonModal">
+    <Body>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                <input class="form-control" @bind="lessonTitleEn" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                <input class="form-control" @bind="lessonTitleEl" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.SortOrder</label>
+                <input type="number" class="form-control" @bind="lessonSortOrder" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.DurationMinutes</label>
+                <input type="number" class="form-control" @bind="lessonDuration" />
             </div>
         </div>
-    </div>
-}
 
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert alert-info alert-dismissible mt-3">
-        @message
-        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
-    </div>
-}
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldContent (EN)</label>
+            <QuillEditor @ref="lessonContentEditorEn" Content="@lessonContentEn" MinHeight="300px" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldContent (EL)</label>
+            <QuillEditor @ref="lessonContentEditorEl" Content="@lessonContentEl" MinHeight="300px" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.VideoUrlLabel</label>
+            <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
+            <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.UploadPdf</label>
+                <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
+                @if (!string.IsNullOrEmpty(lessonPdfPath))
+                {
+                    <small class="text-success">@AdminRes.Current @lessonPdfPath</small>
+                }
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.UploadVideo</label>
+                <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
+                @if (!string.IsNullOrEmpty(lessonVideoFilePath))
+                {
+                    <small class="text-success">@AdminRes.Current @lessonVideoFilePath</small>
+                }
+            </div>
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-primary" @onclick="SaveLesson" disabled="@isLessonSaving">
+            @(isLessonSaving ? AdminRes.Saving : AdminRes.SaveLesson)
+        </button>
+        <button class="btn btn-secondary" @onclick="CloseLessonModal">@AdminRes.Cancel</button>
+    </Footer>
+</FormModal>
+
+<ConfirmModal IsVisible="@(_pendingDeleteModuleId.HasValue || _pendingDeleteLessonId.HasValue)"
+              Title="Confirm"
+              Message="@_pendingDeleteMessage"
+              OnConfirm="ExecuteDeleteAsync"
+              OnCancel="CancelPendingDelete" />
+
+<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 

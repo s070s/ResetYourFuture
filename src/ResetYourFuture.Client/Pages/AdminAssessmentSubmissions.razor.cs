@@ -67,14 +67,11 @@ public partial class AdminAssessmentSubmissions
         }
     }
 
-    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    private async Task OnPageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString(), out var size ) )
-        {
-            _pageSize = size;
-            _page = 1;
-            await LoadSubmissions();
-        }
+        _pageSize = size;
+        _page = 1;
+        await LoadSubmissions();
     }
 
     private async Task GoToPage( int page )

@@ -1,0 +1,21 @@
+@* Renders a save/cancel button bar for form pages. *@
+
+<div class="mb-4">
+    <button class="@SaveButtonClass" @onclick="OnSave" disabled="@IsSaving">
+        @(IsSaving ? SavingLabel : SaveLabel)
+    </button>
+    @if (CancelLabel is not null)
+    {
+        <button class="btn btn-secondary" @onclick="OnCancel">@CancelLabel</button>
+    }
+</div>
+
+@code {
+    [Parameter] public string SaveLabel { get; set; } = "Save";
+    [Parameter] public string SavingLabel { get; set; } = "Saving...";
+    [Parameter] public bool IsSaving { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+    [Parameter] public string? CancelLabel { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public string SaveButtonClass { get; set; } = "btn btn-primary";
+}
