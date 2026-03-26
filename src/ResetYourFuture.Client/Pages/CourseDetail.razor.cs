@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using System.Globalization;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -20,6 +21,9 @@ public partial class CourseDetail
     private bool _enrolling;
     private string? _error;
 
+    private static string CurrentLang =>
+        CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+
     protected override async Task OnInitializedAsync()
     {
         await LoadCourse();
@@ -32,7 +36,7 @@ public partial class CourseDetail
 
         try
         {
-            _course = await CourseService.GetCourseAsync( CourseId );
+            _course = await CourseService.GetCourseAsync( CourseId, CurrentLang );
             if ( _course is null )
             {
                 _error = "Course not found.";

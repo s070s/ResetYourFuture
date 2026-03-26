@@ -35,8 +35,10 @@ public class AdminModulesController : ControllerBase
             .OrderBy( m => m.SortOrder )
             .Select( m => new AdminModuleDto(
                 m.Id ,
-                m.Title ,
-                m.Description ,
+                m.TitleEn ,
+                m.TitleEl ,
+                m.DescriptionEn ,
+                m.DescriptionEl ,
                 m.SortOrder ,
                 m.CourseId ,
                 m.Lessons.Count
@@ -59,8 +61,10 @@ public class AdminModulesController : ControllerBase
 
         return Ok( new AdminModuleDto(
             module.Id ,
-            module.Title ,
-            module.Description ,
+            module.TitleEn ,
+            module.TitleEl ,
+            module.DescriptionEn ,
+            module.DescriptionEl ,
             module.SortOrder ,
             module.CourseId ,
             module.Lessons.Count
@@ -73,8 +77,10 @@ public class AdminModulesController : ControllerBase
         var module = new Module
         {
             Id = Guid.NewGuid() ,
-            Title = request.Title ,
-            Description = request.Description ,
+            TitleEn = request.TitleEn ,
+            TitleEl = request.TitleEl ,
+            DescriptionEn = request.DescriptionEn ,
+            DescriptionEl = request.DescriptionEl ,
             SortOrder = request.SortOrder ,
             CourseId = request.CourseId ,
             UpdatedByUserId = UserId
@@ -85,8 +91,10 @@ public class AdminModulesController : ControllerBase
 
         var dto = new AdminModuleDto(
             module.Id ,
-            module.Title ,
-            module.Description ,
+            module.TitleEn ,
+            module.TitleEl ,
+            module.DescriptionEn ,
+            module.DescriptionEl ,
             module.SortOrder ,
             module.CourseId ,
             0
@@ -108,8 +116,10 @@ public class AdminModulesController : ControllerBase
         if ( module == null )
             return NotFound();
 
-        module.Title = request.Title;
-        module.Description = request.Description;
+        module.TitleEn = request.TitleEn;
+        module.TitleEl = request.TitleEl;
+        module.DescriptionEn = request.DescriptionEn;
+        module.DescriptionEl = request.DescriptionEl;
         module.SortOrder = request.SortOrder;
         module.UpdatedAt = DateTimeOffset.UtcNow;
         module.UpdatedByUserId = UserId;
@@ -118,8 +128,10 @@ public class AdminModulesController : ControllerBase
 
         var dto = new AdminModuleDto(
             module.Id ,
-            module.Title ,
-            module.Description ,
+            module.TitleEn ,
+            module.TitleEl ,
+            module.DescriptionEn ,
+            module.DescriptionEl ,
             module.SortOrder ,
             module.CourseId ,
             module.Lessons.Count

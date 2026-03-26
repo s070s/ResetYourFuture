@@ -29,29 +29,37 @@ public partial class AdminCourseEdit
     private string message = string.Empty;
 
     // Course fields
-    private string courseTitle = string.Empty;
-    private string? courseDescription;
-    private QuillEditor? descriptionEditor;
+    private string courseTitleEn = string.Empty;
+    private string? courseTitleEl;
+    private string? courseDescriptionEn;
+    private string? courseDescriptionEl;
+    private QuillEditor? descriptionEditorEn;
+    private QuillEditor? descriptionEditorEl;
 
     // Module modal fields
     private bool showModuleModal;
     private Guid? editingModuleId;
-    private string moduleTitle = string.Empty;
-    private string? moduleDescription;
+    private string moduleTitleEn = string.Empty;
+    private string? moduleTitleEl;
+    private string? moduleDescriptionEn;
+    private string? moduleDescriptionEl;
     private int moduleSortOrder;
 
     // Lesson modal fields
     private bool showLessonModal;
     private Guid? editingLessonId;
     private Guid lessonModuleId;
-    private string lessonTitle = string.Empty;
-    private string? lessonContent;
+    private string lessonTitleEn = string.Empty;
+    private string? lessonTitleEl;
+    private string? lessonContentEn;
+    private string? lessonContentEl;
     private string? lessonVideoUrl;
     private int lessonSortOrder;
     private int? lessonDuration;
     private string? lessonPdfPath;
     private string? lessonVideoFilePath;
-    private QuillEditor? lessonContentEditor;
+    private QuillEditor? lessonContentEditorEn;
+    private QuillEditor? lessonContentEditorEl;
     private IBrowserFile? pendingPdf;
     private IBrowserFile? pendingVideo;
     private bool isLessonSaving;
@@ -90,8 +98,10 @@ public partial class AdminCourseEdit
             course = await Http.GetFromJsonAsync<AdminCourseDto>( $"api/admin/courses/{CourseId}" );
             if ( course != null )
             {
-                courseTitle = course.Title;
-                courseDescription = course.Description;
+                courseTitleEn = course.TitleEn;
+                courseTitleEl = course.TitleEl;
+                courseDescriptionEn = course.DescriptionEn;
+                courseDescriptionEl = course.DescriptionEl;
             }
             UpdatePreviewJson();
         }
@@ -150,11 +160,15 @@ public partial class AdminCourseEdit
         message = string.Empty;
         try
         {
-            var desc = descriptionEditor != null
-                ? await descriptionEditor.GetContentAsync()
-                : courseDescription;
+            var descEn = descriptionEditorEn != null
+                ? await descriptionEditorEn.GetContentAsync()
+                : courseDescriptionEn;
 
-            var request = new SaveCourseRequest( courseTitle , desc );
+            var descEl = descriptionEditorEl != null
+                ? await descriptionEditorEl.GetContentAsync()
+                : courseDescriptionEl;
+
+            var request = new SaveCourseRequest( courseTitleEn , courseTitleEl , descEn , descEl );
 
             HttpResponseMessage response;
             if ( IsNew )
@@ -205,8 +219,10 @@ public partial class AdminCourseEdit
     private void ShowAddModule()
     {
         editingModuleId = null;
-        moduleTitle = string.Empty;
-        moduleDescription = null;
+        moduleTitleEn = string.Empty;
+        moduleTitleEl = null;
+        moduleDescriptionEn = null;
+        moduleDescriptionEl = null;
         moduleSortOrder = ( modules?.Count ?? 0 ) + 1;
         showModuleModal = true;
     }
@@ -214,8 +230,10 @@ public partial class AdminCourseEdit
     private void ShowEditModule( AdminModuleDto module )
     {
         editingModuleId = module.Id;
-        moduleTitle = module.Title;
-        moduleDescription = module.Description;
+        moduleTitleEn = module.TitleEn;
+        moduleTitleEl = module.TitleEl;
+        moduleDescriptionEn = module.DescriptionEn;
+        moduleDescriptionEl = module.DescriptionEl;
         moduleSortOrder = module.SortOrder;
         showModuleModal = true;
     }
@@ -229,7 +247,7 @@ public partial class AdminCourseEdit
     {
         try
         {
-            var request = new SaveModuleRequest( moduleTitle , moduleDescription , moduleSortOrder , CourseId );
+            var request = new SaveModuleRequest( moduleTitleEn , moduleTitleEl , moduleDescriptionEn , moduleDescriptionEl , moduleSortOrder , CourseId );
 
             HttpResponseMessage response;
             if ( editingModuleId == null )
@@ -290,8 +308,10 @@ public partial class AdminCourseEdit
     {
         editingLessonId = null;
         lessonModuleId = moduleId;
-        lessonTitle = string.Empty;
-        lessonContent = null;
+        lessonTitleEn = string.Empty;
+        lessonTitleEl = null;
+        lessonContentEn = null;
+        lessonContentEl = null;
         lessonVideoUrl = null;
         lessonSortOrder = ( lessonsMap.GetValueOrDefault( moduleId )?.Count ?? 0 ) + 1;
         lessonDuration = null;
@@ -306,8 +326,10 @@ public partial class AdminCourseEdit
     {
         editingLessonId = lesson.Id;
         lessonModuleId = lesson.ModuleId;
-        lessonTitle = lesson.Title;
-        lessonContent = lesson.Content;
+        lessonTitleEn = lesson.TitleEn;
+        lessonTitleEl = lesson.TitleEl;
+        lessonContentEn = lesson.ContentEn;
+        lessonContentEl = lesson.ContentEl;
         lessonVideoUrl = lesson.VideoPath;
         lessonSortOrder = lesson.SortOrder;
         lessonDuration = lesson.DurationMinutes;
@@ -335,7 +357,7 @@ public partial class AdminCourseEdit
 
     private async Task SaveLesson()
     {
-        if ( string.IsNullOrWhiteSpace( lessonTitle ) )
+        if ( string.IsNullOrWhiteSpace( lessonTitleEn ) )
         {
             message = "Lesson title is required.";
             return;
@@ -345,12 +367,16 @@ public partial class AdminCourseEdit
         message = string.Empty;
         try
         {
-            var content = lessonContentEditor != null
-                ? await lessonContentEditor.GetContentAsync()
-                : lessonContent;
+            var contentEn = lessonContentEditorEn != null
+                ? await lessonContentEditorEn.GetContentAsync()
+                : lessonContentEn;
+
+            var contentEl = lessonContentEditorEl != null
+                ? await lessonContentEditorEl.GetContentAsync()
+                : lessonContentEl;
 
             var request = new SaveLessonRequest(
-                lessonTitle , content , lessonVideoUrl , lessonDuration , lessonSortOrder , lessonModuleId );
+                lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , lessonModuleId );
 
             HttpResponseMessage response;
             Guid lessonId;
@@ -494,34 +520,39 @@ public partial class AdminCourseEdit
 
         var obj = new
         {
-            title = courseTitle ,
-            description = courseDescription ,
+            titleEn = courseTitleEn ,
+            titleEl = courseTitleEl ,
+            descriptionEn = courseDescriptionEn ,
+            descriptionEl = courseDescriptionEl ,
             isPublished = course?.IsPublished ?? false ,
             modules = modules.Select( m =>
             {
                 var moduleLessons = lessonsMap.GetValueOrDefault( m.Id ) ?? [];
                 return new
                 {
-                    title = m.Title ,
-                    description = m.Description ,
+                    titleEn = m.TitleEn ,
+                    titleEl = m.TitleEl ,
+                    descriptionEn = m.DescriptionEn ,
+                    descriptionEl = m.DescriptionEl ,
                     sortOrder = m.SortOrder ,
                     lessons = moduleLessons.Select( l =>
                     {
                         var dict = new Dictionary<string , object?>
                         {
-                            [ "title" ] = l.Title ,
+                            [ "titleEn" ] = l.TitleEn ,
+                            [ "titleEl" ] = l.TitleEl ,
                             [ "sortOrder" ] = l.SortOrder
                         };
 
                         if ( !string.IsNullOrEmpty( l.VideoPath ) )
                             dict [ "videoPath" ] = l.VideoPath;
 
-                        if ( !string.IsNullOrEmpty( l.Content ) )
+                        if ( !string.IsNullOrEmpty( l.ContentEn ) )
                         {
-                            var contentPreview = l.Content.Length > 80
-                                ? l.Content [ ..80 ] + "..."
-                                : l.Content;
-                            dict [ "content" ] = contentPreview;
+                            var contentPreview = l.ContentEn.Length > 80
+                                ? l.ContentEn [ ..80 ] + "..."
+                                : l.ContentEn;
+                            dict [ "contentEn" ] = contentPreview;
                         }
 
                         if ( !string.IsNullOrEmpty( l.PdfPath ) )

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using System.Globalization;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -20,6 +21,9 @@ public partial class Courses
 
     private static readonly int[] PageSizeOptions = [5, 10, 20, 50];
 
+    private static string CurrentLang =>
+        CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+
     protected override async Task OnInitializedAsync()
     {
         var statusTask = SubscriptionService.GetStatusAsync();
@@ -36,7 +40,7 @@ public partial class Courses
         _error = null;
         try
         {
-            _pagedResult = await CourseService.GetCoursesAsync( _page, _pageSize );
+            _pagedResult = await CourseService.GetCoursesAsync( _page, _pageSize, CurrentLang );
         }
         catch ( Exception ex )
         {

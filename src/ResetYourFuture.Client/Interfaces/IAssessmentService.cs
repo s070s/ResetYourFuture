@@ -7,5 +7,5 @@ namespace ResetYourFuture.Client.Interfaces;
 /// </summary>
 public interface IAssessmentService
 {
-    Task<PagedResult<AssessmentDefinitionDto>> GetAssessmentsAsync( int page = 1, int pageSize = 10 );
+    Task<PagedResult<AssessmentDefinitionDto>> GetAssessmentsAsync( int page = 1, int pageSize = 10, string lang = "en" );
 }

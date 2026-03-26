@@ -9,11 +9,11 @@ using ResetYourFuture.Api.Data;
 
 #nullable disable
 
-namespace ResetYourFuture.Api.Migrations
+namespace ResetYourFuture.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260310141423_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260326140534_AddContentLocalization")]
+    partial class AddContentLocalization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,7 +168,11 @@ namespace ResetYourFuture.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(48)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DescriptionEl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("DescriptionEn")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -190,7 +194,11 @@ namespace ResetYourFuture.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TitleEl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -376,7 +384,11 @@ namespace ResetYourFuture.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(48)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DescriptionEl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("DescriptionEn")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
@@ -389,7 +401,11 @@ namespace ResetYourFuture.Api.Migrations
                     b.Property<int>("RequiredTier")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TitleEl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");

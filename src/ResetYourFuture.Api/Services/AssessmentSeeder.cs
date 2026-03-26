@@ -83,7 +83,7 @@ public static class AssessmentSeeder
         db.AssessmentDefinitions.Add( def );
 
         logger.LogInformation( "Loaded assessment '{Title}' (Key: {Key}) from {FileName}" ,
-            def.Title , def.Key , Path.GetFileName( filePath ) );
+            def.TitleEn , def.Key , Path.GetFileName( filePath ) );
     }
 
     private static AssessmentDefinition MapToAssessmentDefinition( AssessmentSeedDto dto )
@@ -94,8 +94,8 @@ public static class AssessmentSeeder
         {
             Id = Guid.NewGuid() ,
             Key = dto.Key ,
-            Title = dto.Title ,
-            Description = dto.Description ,
+            TitleEn = dto.Title ,
+            DescriptionEn = dto.Description ,
             SchemaJson = dto.SchemaJson ,
             CreatedAt = dto.CreatedAt ?? now ,
             UpdatedAt = null ,

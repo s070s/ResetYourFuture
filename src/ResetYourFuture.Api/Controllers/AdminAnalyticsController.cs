@@ -48,7 +48,7 @@ public class AdminAnalyticsController : ControllerBase
             .CountAsync( e => e.Status == EnrollmentStatus.Completed );
 
         var enrollmentData = await _db.Enrollments
-            .Select( e => new { e.CourseId, CourseTitle = e.Course.Title, e.Status } )
+            .Select( e => new { e.CourseId, CourseTitle = e.Course.TitleEn, e.Status } )
             .ToListAsync();
 
         var courseStats = enrollmentData
@@ -61,7 +61,7 @@ public class AdminAnalyticsController : ControllerBase
             .ToList();
 
         var submissionData = await _db.AssessmentSubmissions
-            .Select( s => new { s.AssessmentDefinitionId, AssessmentTitle = s.AssessmentDefinition.Title } )
+            .Select( s => new { s.AssessmentDefinitionId, AssessmentTitle = s.AssessmentDefinition.TitleEn } )
             .ToListAsync();
 
         var assessmentStats = submissionData

@@ -5,6 +5,7 @@ using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace ResetYourFuture.Api.Controllers;
 
@@ -34,20 +35,99 @@ public class AssessmentsController : ControllerBase
         ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
+    /// Resolves dual-language schema JSON to single-language for the student view.
+    /// Maps labelEn/labelEl → label, optionsEn/optionsEl → options based on the requested language.
+    /// </summary>
+    private static string ResolveSchemaJsonByLang( string schemaJson , bool isEl )
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse( schemaJson );
+            var root = doc.RootElement;
+
+            using var ms = new MemoryStream();
+            using var writer = new Utf8JsonWriter( ms , new JsonWriterOptions { Indented = false } );
+            writer.WriteStartObject();
+
+            foreach ( var prop in root.EnumerateObject() )
+            {
+                if ( prop.Name == "questions" && prop.Value.ValueKind == JsonValueKind.Array )
+                {
+                    writer.WritePropertyName( "questions" );
+                    writer.WriteStartArray();
+                    foreach ( var q in prop.Value.EnumerateArray() )
+                    {
+                        writer.WriteStartObject();
+                        foreach ( var qProp in q.EnumerateObject() )
+                        {
+                            // Resolve label
+                            if ( qProp.Name == "labelEn" || qProp.Name == "labelEl" )
+                            {
+                                // Only emit once when we hit labelEn
+                                if ( qProp.Name == "labelEn" )
+                                {
+                                    var labelEn = qProp.Value.GetString() ?? "";
+                                    var labelEl = q.TryGetProperty( "labelEl" , out var elVal ) ? elVal.GetString() : null;
+                                    writer.WriteString( "label" , isEl ? ( labelEl ?? labelEn ) : labelEn );
+                                }
+                                // Skip labelEl as it was handled above
+                                continue;
+                            }
+                            // Resolve options
+                            if ( qProp.Name == "optionsEn" || qProp.Name == "optionsEl" )
+                            {
+                                if ( qProp.Name == "optionsEn" )
+                                {
+                                    var useEl = isEl && q.TryGetProperty( "optionsEl" , out var elOpts ) && elOpts.GetArrayLength() > 0;
+                                    writer.WritePropertyName( "options" );
+                                    if ( useEl )
+                                        q.GetProperty( "optionsEl" ).WriteTo( writer );
+                                    else
+                                        qProp.Value.WriteTo( writer );
+                                }
+                                continue;
+                            }
+                            // Keep legacy single-language "label" and "options" as-is
+                            qProp.WriteTo( writer );
+                        }
+                        writer.WriteEndObject();
+                    }
+                    writer.WriteEndArray();
+                }
+                else
+                {
+                    prop.WriteTo( writer );
+                }
+            }
+
+            writer.WriteEndObject();
+            writer.Flush();
+            return System.Text.Encoding.UTF8.GetString( ms.ToArray() );
+        }
+        catch
+        {
+            return schemaJson;
+        }
+    }
+
+    /// <summary>
     /// Get a paged list of published assessments.
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<PagedResult<AssessmentDefinitionDto>>> GetPublishedAssessments(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10 )
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string lang = "en" )
     {
         if ( page < 1 ) page = 1;
         if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
 
+        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+
         var query = _db.AssessmentDefinitions
             .AsNoTracking()
             .Where( a => a.IsPublished )
-            .OrderBy( a => a.Title );
+            .OrderBy( a => a.TitleEn );
 
         var totalCount = await query.CountAsync();
 
@@ -57,8 +137,8 @@ public class AssessmentsController : ControllerBase
             .Select( a => new AssessmentDefinitionDto(
                 a.Id ,
                 a.Key ,
-                a.Title ,
-                a.Description ,
+                isEl ? ( a.TitleEl ?? a.TitleEn ) : a.TitleEn ,
+                isEl ? ( a.DescriptionEl ?? a.DescriptionEn ) : a.DescriptionEn ,
                 a.SchemaJson ,
                 a.IsPublished ,
                 a.CreatedAt ,
@@ -67,23 +147,28 @@ public class AssessmentsController : ControllerBase
             ) )
             .ToListAsync();
 
-        return Ok( new PagedResult<AssessmentDefinitionDto>( items , totalCount , page , pageSize ) );
+        // Resolve dual-language schema to single-language for student view
+        var resolved = items.Select( a => a with { SchemaJson = ResolveSchemaJsonByLang( a.SchemaJson , isEl ) } ).ToList();
+
+        return Ok( new PagedResult<AssessmentDefinitionDto>( resolved , totalCount , page , pageSize ) );
     }
 
     /// <summary>
     /// Get a specific published assessment by ID.
     /// </summary>
     [HttpGet( "{id:guid}" )]
-    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment( Guid id )
+    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment( Guid id , [FromQuery] string lang = "en" )
     {
+        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+
         var assessment = await _db.AssessmentDefinitions
             .AsNoTracking()
             .Where( a => a.Id == id && a.IsPublished )
             .Select( a => new AssessmentDefinitionDto(
                 a.Id ,
                 a.Key ,
-                a.Title ,
-                a.Description ,
+                isEl ? ( a.TitleEl ?? a.TitleEn ) : a.TitleEn ,
+                isEl ? ( a.DescriptionEl ?? a.DescriptionEn ) : a.DescriptionEn ,
                 a.SchemaJson ,
                 a.IsPublished ,
                 a.CreatedAt ,
@@ -97,7 +182,10 @@ public class AssessmentsController : ControllerBase
             return NotFound();
         }
 
-        return Ok( assessment );
+        // Resolve dual-language schema to single-language for student view
+        var resolved = assessment with { SchemaJson = ResolveSchemaJsonByLang( assessment.SchemaJson , isEl ) };
+
+        return Ok( resolved );
     }
 
     /// <summary>
@@ -138,7 +226,7 @@ public class AssessmentsController : ControllerBase
         var dto = new AssessmentSubmissionDto(
             submission.Id ,
             submission.AssessmentDefinitionId ,
-            assessment.Title ,
+            assessment.TitleEn ,
             submission.AnswersJson ,
             submission.SummaryJson ,
             submission.SubmittedAt
@@ -161,7 +249,7 @@ public class AssessmentsController : ControllerBase
             .Select( s => new AssessmentSubmissionDto(
                 s.Id ,
                 s.AssessmentDefinitionId ,
-                s.AssessmentDefinition.Title ,
+                s.AssessmentDefinition.TitleEn ,
                 s.AnswersJson ,
                 s.SummaryJson ,
                 s.SubmittedAt

@@ -25,9 +25,12 @@ public partial class AdminAssessmentEdit
     private string message = string.Empty;
 
     private string assessmentKey = string.Empty;
-    private string assessmentTitle = string.Empty;
-    private string? assessmentDescription;
-    private QuillEditor? descriptionEditor;
+    private string assessmentTitleEn = string.Empty;
+    private string? assessmentTitleEl;
+    private string? assessmentDescriptionEn;
+    private string? assessmentDescriptionEl;
+    private QuillEditor? descriptionEditorEn;
+    private QuillEditor? descriptionEditorEl;
     private List<QuestionModel> questions = new();
 
     protected override async Task OnInitializedAsync()
@@ -43,13 +46,15 @@ public partial class AdminAssessmentEdit
     {
         try
         {
-            var assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>(
+            var assessment = await Http.GetFromJsonAsync<AdminAssessmentDefinitionDto>(
                 $"api/admin/assessments/{AssessmentId}" );
             if ( assessment != null )
             {
                 assessmentKey = assessment.Key;
-                assessmentTitle = assessment.Title;
-                assessmentDescription = assessment.Description;
+                assessmentTitleEn = assessment.TitleEn;
+                assessmentTitleEl = assessment.TitleEl;
+                assessmentDescriptionEn = assessment.DescriptionEn;
+                assessmentDescriptionEl = assessment.DescriptionEl;
                 ParseSchemaToQuestions( assessment.SchemaJson );
             }
         }
@@ -74,7 +79,9 @@ public partial class AdminAssessmentEdit
                     {
                         Id = qEl.TryGetProperty( "id" , out var idEl ) ? idEl.GetString() ?? "" : "" ,
                         Type = qEl.TryGetProperty( "type" , out var typeEl ) ? typeEl.GetString() ?? "text" : "text" ,
-                        Label = qEl.TryGetProperty( "label" , out var labelEl ) ? labelEl.GetString() ?? "" : "" ,
+                        LabelEn = qEl.TryGetProperty( "labelEn" , out var labelEnEl ) ? labelEnEl.GetString() ?? ""
+                            : ( qEl.TryGetProperty( "label" , out var labelEl ) ? labelEl.GetString() ?? "" : "" ) ,
+                        LabelEl = qEl.TryGetProperty( "labelEl" , out var labelElEl ) ? labelElEl.GetString() : null ,
                         Required = qEl.TryGetProperty( "required" , out var reqEl ) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
                     };
 
@@ -84,14 +91,30 @@ public partial class AdminAssessmentEdit
                         q.Max = qEl.TryGetProperty( "max" , out var maxEl ) ? maxEl.GetInt32() : 5;
                     }
 
-                    if ( q.Type == "choice" && qEl.TryGetProperty( "options" , out var optEl ) )
+                    if ( q.Type == "choice" )
                     {
-                        var options = new List<string>();
-                        foreach ( var opt in optEl.EnumerateArray() )
+                        if ( qEl.TryGetProperty( "optionsEn" , out var optEnEl ) )
                         {
-                            options.Add( opt.GetString() ?? "" );
+                            var options = new List<string>();
+                            foreach ( var opt in optEnEl.EnumerateArray() )
+                                options.Add( opt.GetString() ?? "" );
+                            q.OptionsTextEn = string.Join( "\n" , options );
                         }
-                        q.OptionsText = string.Join( "\n" , options );
+                        else if ( qEl.TryGetProperty( "options" , out var optEl ) )
+                        {
+                            var options = new List<string>();
+                            foreach ( var opt in optEl.EnumerateArray() )
+                                options.Add( opt.GetString() ?? "" );
+                            q.OptionsTextEn = string.Join( "\n" , options );
+                        }
+
+                        if ( qEl.TryGetProperty( "optionsEl" , out var optElEl ) )
+                        {
+                            var options = new List<string>();
+                            foreach ( var opt in optElEl.EnumerateArray() )
+                                options.Add( opt.GetString() ?? "" );
+                            q.OptionsTextEl = string.Join( "\n" , options );
+                        }
                     }
 
                     questions.Add( q );
@@ -110,7 +133,7 @@ public partial class AdminAssessmentEdit
         var schema = new
         {
             id = assessmentKey ,
-            title = assessmentTitle ,
+            title = assessmentTitleEn ,
             version = "1.0" ,
             questions = questions.Select( q =>
             {
@@ -118,9 +141,12 @@ public partial class AdminAssessmentEdit
                 {
                     [ "id" ] = q.Id ,
                     [ "type" ] = q.Type ,
-                    [ "label" ] = q.Label ,
+                    [ "labelEn" ] = q.LabelEn ,
                     [ "required" ] = q.Required == "true"
                 };
+
+                if ( !string.IsNullOrEmpty( q.LabelEl ) )
+                    dict [ "labelEl" ] = q.LabelEl;
 
                 if ( q.Type == "rating" )
                 {
@@ -130,7 +156,10 @@ public partial class AdminAssessmentEdit
 
                 if ( q.Type == "choice" )
                 {
-                    dict [ "options" ] = q.GetOptions();
+                    dict [ "optionsEn" ] = q.GetOptionsEn();
+                    var optionsEl = q.GetOptionsEl();
+                    if ( optionsEl.Count > 0 )
+                        dict [ "optionsEl" ] = optionsEl;
                 }
 
                 return dict;
@@ -168,16 +197,22 @@ public partial class AdminAssessmentEdit
         message = string.Empty;
         try
         {
-            var desc = descriptionEditor != null
-                ? await descriptionEditor.GetContentAsync()
-                : assessmentDescription;
+            var descEn = descriptionEditorEn != null
+                ? await descriptionEditorEn.GetContentAsync()
+                : assessmentDescriptionEn;
+
+            var descEl = descriptionEditorEl != null
+                ? await descriptionEditorEl.GetContentAsync()
+                : assessmentDescriptionEl;
 
             var schemaJson = GenerateSchemaJson();
 
             var request = new SaveAssessmentDefinitionRequest(
                 assessmentKey ,
-                assessmentTitle ,
-                desc ,
+                assessmentTitleEn ,
+                assessmentTitleEl ,
+                descEn ,
+                descEl ,
                 schemaJson
             );
 
@@ -221,13 +256,18 @@ public partial class AdminAssessmentEdit
         public string TempId { get; } = Guid.NewGuid().ToString( "N" );
         public string Id { get; set; } = string.Empty;
         public string Type { get; set; } = "text";
-        public string Label { get; set; } = string.Empty;
+        public string LabelEn { get; set; } = string.Empty;
+        public string? LabelEl { get; set; }
         public string Required { get; set; } = "false";
         public int Min { get; set; } = 1;
         public int Max { get; set; } = 5;
-        public string OptionsText { get; set; } = string.Empty;
+        public string OptionsTextEn { get; set; } = string.Empty;
+        public string? OptionsTextEl { get; set; }
 
-        public List<string> GetOptions() =>
-            OptionsText.Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();
+        public List<string> GetOptionsEn() =>
+            OptionsTextEn.Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();
+
+        public List<string> GetOptionsEl() =>
+            ( OptionsTextEl ?? string.Empty ).Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();
     }
 }

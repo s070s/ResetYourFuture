@@ -14,17 +14,33 @@ public class Course : AuditableEntity
     }
 
     /// <summary>
-    /// Display title of the course.
+    /// Display title of the course (English).
     /// </summary>
-    public required string Title
+    public required string TitleEn
     {
         get; set;
     }
 
     /// <summary>
-    /// Optional description for catalog/marketing.
+    /// Display title of the course (Greek). Falls back to English when null.
     /// </summary>
-    public string? Description
+    public string? TitleEl
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional description for catalog/marketing (English).
+    /// </summary>
+    public string? DescriptionEn
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional description for catalog/marketing (Greek). Falls back to English when null.
+    /// </summary>
+    public string? DescriptionEl
     {
         get; set;
     }

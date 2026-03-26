@@ -43,8 +43,10 @@ public class AdminLessonsController : ControllerBase
             .OrderBy( l => l.SortOrder )
             .Select( l => new AdminLessonDto(
                 l.Id ,
-                l.Title ,
-                l.Content ,
+                l.TitleEn ,
+                l.TitleEl ,
+                l.ContentEn ,
+                l.ContentEl ,
                 l.PdfPath ,
                 l.VideoPath ,
                 l.DurationMinutes ,
@@ -66,8 +68,10 @@ public class AdminLessonsController : ControllerBase
         var lesson = new Lesson
         {
             Id = Guid.NewGuid() ,
-            Title = request.Title ,
-            Content = request.Content ,
+            TitleEn = request.TitleEn ,
+            TitleEl = request.TitleEl ,
+            ContentEn = request.ContentEn ,
+            ContentEl = request.ContentEl ,
             VideoPath = request.VideoUrl ,
             DurationMinutes = request.DurationMinutes ,
             SortOrder = request.SortOrder ,
@@ -83,8 +87,10 @@ public class AdminLessonsController : ControllerBase
         // Map persisted entity to DTO for the response.
         var dto = new AdminLessonDto(
             lesson.Id ,
-            lesson.Title ,
-            lesson.Content ,
+            lesson.TitleEn ,
+            lesson.TitleEl ,
+            lesson.ContentEn ,
+            lesson.ContentEl ,
             lesson.PdfPath ,
             lesson.VideoPath ,
             lesson.DurationMinutes ,
@@ -110,8 +116,10 @@ public class AdminLessonsController : ControllerBase
             return NotFound();
 
         // Apply updates to the entity and set audit metadata.
-        lesson.Title = request.Title;
-        lesson.Content = request.Content;
+        lesson.TitleEn = request.TitleEn;
+        lesson.TitleEl = request.TitleEl;
+        lesson.ContentEn = request.ContentEn;
+        lesson.ContentEl = request.ContentEl;
         lesson.VideoPath = request.VideoUrl ?? lesson.VideoPath;
         lesson.DurationMinutes = request.DurationMinutes;
         lesson.SortOrder = request.SortOrder;
@@ -124,8 +132,10 @@ public class AdminLessonsController : ControllerBase
         // Map updated entity to DTO and return it.
         var dto = new AdminLessonDto(
             lesson.Id ,
-            lesson.Title ,
-            lesson.Content ,
+            lesson.TitleEn ,
+            lesson.TitleEl ,
+            lesson.ContentEn ,
+            lesson.ContentEl ,
             lesson.PdfPath ,
             lesson.VideoPath ,
             lesson.DurationMinutes ,

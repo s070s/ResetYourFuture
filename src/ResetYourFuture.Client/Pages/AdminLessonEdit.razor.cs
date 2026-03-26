@@ -27,14 +27,17 @@ public partial class AdminLessonEdit
     // Lesson modal fields
     private bool showLessonModal;
     private Guid? editingLessonId;
-    private string lessonTitle = string.Empty;
-    private string? lessonContent;
+    private string lessonTitleEn = string.Empty;
+    private string? lessonTitleEl;
+    private string? lessonContentEn;
+    private string? lessonContentEl;
     private int lessonSortOrder;
     private int? lessonDuration;
     private string? lessonPdfPath;
     private string? lessonVideoPath;
     private string? lessonVideoUrl;
-    private QuillEditor? lessonContentEditor;
+    private QuillEditor? lessonContentEditorEn;
+    private QuillEditor? lessonContentEditorEl;
     private IBrowserFile? pendingPdf;
     private IBrowserFile? pendingVideo;
 
@@ -69,8 +72,10 @@ public partial class AdminLessonEdit
     private void ShowAddLesson()
     {
         editingLessonId = null;
-        lessonTitle = string.Empty;
-        lessonContent = null;
+        lessonTitleEn = string.Empty;
+        lessonTitleEl = null;
+        lessonContentEn = null;
+        lessonContentEl = null;
         lessonVideoUrl = null;
         lessonSortOrder = ( lessons?.Count ?? 0 ) + 1;
         lessonDuration = null;
@@ -84,8 +89,10 @@ public partial class AdminLessonEdit
     private void ShowEditLesson( AdminLessonDto lesson )
     {
         editingLessonId = lesson.Id;
-        lessonTitle = lesson.Title;
-        lessonContent = lesson.Content;
+        lessonTitleEn = lesson.TitleEn;
+        lessonTitleEl = lesson.TitleEl;
+        lessonContentEn = lesson.ContentEn;
+        lessonContentEl = lesson.ContentEl;
         lessonVideoUrl = lesson.VideoPath;
         lessonSortOrder = lesson.SortOrder;
         lessonDuration = lesson.DurationMinutes;
@@ -113,7 +120,7 @@ public partial class AdminLessonEdit
 
     private async Task SaveLesson()
     {
-        if ( string.IsNullOrWhiteSpace( lessonTitle ) )
+        if ( string.IsNullOrWhiteSpace( lessonTitleEn ) )
         {
             message = "Lesson title is required.";
             return;
@@ -123,11 +130,15 @@ public partial class AdminLessonEdit
         message = string.Empty;
         try
         {
-            var content = lessonContentEditor != null
-                ? await lessonContentEditor.GetContentAsync()
-                : lessonContent;
+            var contentEn = lessonContentEditorEn != null
+                ? await lessonContentEditorEn.GetContentAsync()
+                : lessonContentEn;
 
-            var request = new SaveLessonRequest( lessonTitle , content , lessonVideoUrl , lessonDuration , lessonSortOrder , ModuleId );
+            var contentEl = lessonContentEditorEl != null
+                ? await lessonContentEditorEl.GetContentAsync()
+                : lessonContentEl;
+
+            var request = new SaveLessonRequest( lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , ModuleId );
 
             HttpResponseMessage response;
             Guid lessonId;

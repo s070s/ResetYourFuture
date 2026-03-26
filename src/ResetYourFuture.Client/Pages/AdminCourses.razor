@@ -32,7 +32,7 @@ else
             <tbody>
                 <Virtualize Items="pagedResult.Items" Context="course" SpacerElement="tr" OverscanCount="10">
                     <tr @key="course.Id">
-                        <td>@course.Title</td>
+                        <td>@course.TitleEn</td>
                         <td>
                             <span class="badge @(course.IsPublished ? "bg-success" : "bg-secondary")">
                                 @(course.IsPublished ? AdminRes.StatusPublished : AdminRes.StatusDraft)

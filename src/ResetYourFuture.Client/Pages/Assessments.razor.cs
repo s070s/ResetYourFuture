@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
+using System.Globalization;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -19,6 +20,9 @@ public partial class Assessments
 
     private static readonly int[] PageSizeOptions = [5, 10, 20, 50];
 
+    private static string CurrentLang =>
+        CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAssessmentsAsync();
@@ -30,7 +34,7 @@ public partial class Assessments
         _error = null;
         try
         {
-            _pagedResult = await AssessmentService.GetAssessmentsAsync( _page, _pageSize );
+            _pagedResult = await AssessmentService.GetAssessmentsAsync( _page, _pageSize, CurrentLang );
         }
         catch ( Exception ex )
         {

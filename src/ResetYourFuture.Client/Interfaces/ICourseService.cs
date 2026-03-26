@@ -7,9 +7,9 @@ namespace ResetYourFuture.Client.Interfaces;
 /// </summary>
 public interface ICourseService
 {
-    Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10 );
-    Task<CourseDetailDto?> GetCourseAsync( Guid courseId );
+    Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10, string lang = "en" );
+    Task<CourseDetailDto?> GetCourseAsync( Guid courseId, string lang = "en" );
     Task<EnrollmentResultDto?> EnrollAsync( Guid courseId );
-    Task<LessonDetailDto?> GetLessonAsync( Guid lessonId );
+    Task<LessonDetailDto?> GetLessonAsync( Guid lessonId, string lang = "en" );
     Task<LessonCompletionResultDto?> CompleteLessonAsync( Guid lessonId );
 }

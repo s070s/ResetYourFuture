@@ -9,14 +9,24 @@ public class Module : AuditableEntity
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Display title for the module.
+    /// Display title for the module (English).
     /// </summary>
-    public required string Title { get; set; }
+    public required string TitleEn { get; set; }
 
     /// <summary>
-    /// Optional summary of module content.
+    /// Display title for the module (Greek). Falls back to TitleEn when null.
     /// </summary>
-    public string? Description { get; set; }
+    public string? TitleEl { get; set; }
+
+    /// <summary>
+    /// Optional summary of module content (English).
+    /// </summary>
+    public string? DescriptionEn { get; set; }
+
+    /// <summary>
+    /// Optional summary of module content (Greek). Falls back to DescriptionEn when null.
+    /// </summary>
+    public string? DescriptionEl { get; set; }
 
     /// <summary>
     /// Determines display order within the parent Course.

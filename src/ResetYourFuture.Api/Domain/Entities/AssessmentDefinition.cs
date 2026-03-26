@@ -23,17 +23,33 @@ public class AssessmentDefinition : AuditableEntity
     }
 
     /// <summary>
-    /// Display title for the assessment.
+    /// Display title for the assessment (English).
     /// </summary>
-    public required string Title
+    public required string TitleEn
     {
         get; set;
     }
 
     /// <summary>
-    /// Optional description explaining the assessment purpose.
+    /// Display title for the assessment (Greek). Falls back to English when null.
     /// </summary>
-    public string? Description
+    public string? TitleEl
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional description explaining the assessment purpose (English).
+    /// </summary>
+    public string? DescriptionEn
+    {
+        get; set;
+    }
+
+    /// <summary>
+    /// Optional description explaining the assessment purpose (Greek). Falls back to English when null.
+    /// </summary>
+    public string? DescriptionEl
     {
         get; set;
     }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace ResetYourFuture.Client.Pages;
@@ -42,7 +43,8 @@ public partial class LessonViewer
         try
         {
             _videoToken = await LocalStorage.GetItemAsStringAsync( "authToken" );
-            _lesson = await CourseService.GetLessonAsync( LessonId );
+            var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+            _lesson = await CourseService.GetLessonAsync( LessonId, lang );
             if ( _lesson is null )
             {
                 _error = LessonRes.LessonNotFoundOrNotEnrolled;

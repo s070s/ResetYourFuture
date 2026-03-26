@@ -29,7 +29,7 @@ else
             <div class="list-group-item" @key="lesson.Id">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1">@lesson.Title</h6>
+                        <h6 class="mb-1">@lesson.TitleEn</h6>
                         <small class="text-light-muted">
                             @string.Format(AdminRes.OrderFormat, lesson.SortOrder)
                             @if (lesson.DurationMinutes.HasValue)
@@ -68,9 +68,13 @@ else
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle</label>
-                            <input class="form-control" @bind="lessonTitle" />
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                            <input class="form-control" @bind="lessonTitleEn" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                            <input class="form-control" @bind="lessonTitleEl" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">@AdminRes.SortOrder</label>
@@ -83,8 +87,13 @@ else
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldContent</label>
-                        <QuillEditor @ref="lessonContentEditor" Content="@lessonContent" MinHeight="300px" />
+                        <label class="form-label">@AdminRes.FieldContent (EN)</label>
+                        <QuillEditor @ref="lessonContentEditorEn" Content="@lessonContentEn" MinHeight="300px" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@AdminRes.FieldContent (EL)</label>
+                        <QuillEditor @ref="lessonContentEditorEl" Content="@lessonContentEl" MinHeight="300px" />
                     </div>
 
                     <div class="mb-3">

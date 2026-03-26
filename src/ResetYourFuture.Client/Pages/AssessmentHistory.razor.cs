@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Shared.DTOs;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -53,7 +54,8 @@ public partial class AssessmentHistory
             return;
         try
         {
-            var def = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{definitionId}" );
+            var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+            var def = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{definitionId}?lang={lang}" );
             if ( def != null )
             {
                 var schema = JsonSerializer.Deserialize<SchemaRoot>( def.SchemaJson , JsonOptions );

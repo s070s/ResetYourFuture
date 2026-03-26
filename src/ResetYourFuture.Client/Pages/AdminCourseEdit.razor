@@ -20,14 +20,25 @@ else
     <div class="card mb-4">
         <div class="card-header">@AdminRes.CourseDetails</div>
         <div class="card-body">
-            <div class="mb-3">
-                <label class="form-label">@AdminRes.FieldTitle</label>
-                <input class="form-control" @bind="courseTitle" />
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                    <input class="form-control" @bind="courseTitleEn" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                    <input class="form-control" @bind="courseTitleEl" />
+                </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">@AdminRes.FieldDescription</label>
-                <QuillEditor @ref="descriptionEditor" Content="@courseDescription" MinHeight="150px" />
+                <label class="form-label">@AdminRes.FieldDescription (EN)</label>
+                <QuillEditor @ref="descriptionEditorEn" Content="@courseDescriptionEn" MinHeight="150px" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">@AdminRes.FieldDescription (EL)</label>
+                <QuillEditor @ref="descriptionEditorEl" Content="@courseDescriptionEl" MinHeight="150px" />
             </div>
 
             <button class="btn btn-primary" @onclick="SaveCourse" disabled="@isSaving">
@@ -71,7 +82,7 @@ else
                             <div class="card-header d-flex justify-content-between align-items-center"
                                  style="cursor: pointer;" @onclick="() => ToggleModule(module.Id)">
                                 <div>
-                                    <span class="fw-semibold">@module.Title</span>
+                                    <span class="fw-semibold">@module.TitleEn</span>
                                     <span class="badge bg-secondary ms-2">@string.Format(AdminRes.LessonsCountFormat, module.LessonCount)</span>
                                     <span class="badge bg-light text-dark ms-1">@string.Format(AdminRes.OrderFormat, module.SortOrder)</span>
                                 </div>
@@ -91,9 +102,9 @@ else
                                             @AdminRes.AddLesson
                                         </button>
                                     </div>
-                                    @if (!string.IsNullOrEmpty(module.Description))
+                                    @if (!string.IsNullOrEmpty(module.DescriptionEn))
                                     {
-                                        <p class="text-light-muted small mb-3">@module.Description</p>
+                                        <p class="text-light-muted small mb-3">@module.DescriptionEn</p>
                                     }
 
                                     @* Inline lessons list *@
@@ -123,7 +134,7 @@ else
                                                 {
                                                     <tr @key="lesson.Id">
                                                         <td>@lesson.SortOrder</td>
-                                                        <td>@lesson.Title</td>
+                                                        <td>@lesson.TitleEn</td>
                                                         <td>
                                                             @if (!string.IsNullOrEmpty(lesson.VideoPath))
                                                             {
@@ -200,13 +211,23 @@ else
                     <button type="button" class="btn-close" @onclick="CloseModuleModal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldTitle</label>
-                        <input class="form-control" @bind="moduleTitle" />
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                            <input class="form-control" @bind="moduleTitleEn" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                            <input class="form-control" @bind="moduleTitleEl" />
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldDescription</label>
-                        <textarea class="form-control" @bind="moduleDescription" rows="3"></textarea>
+                        <label class="form-label">@AdminRes.FieldDescription (EN)</label>
+                        <textarea class="form-control" @bind="moduleDescriptionEn" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@AdminRes.FieldDescription (EL)</label>
+                        <textarea class="form-control" @bind="moduleDescriptionEl" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">@AdminRes.SortOrder</label>
@@ -234,9 +255,13 @@ else
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">@AdminRes.FieldTitle</label>
-                            <input class="form-control" @bind="lessonTitle" />
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                            <input class="form-control" @bind="lessonTitleEn" />
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                            <input class="form-control" @bind="lessonTitleEl" />
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">@AdminRes.SortOrder</label>
@@ -249,8 +274,13 @@ else
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">@AdminRes.FieldContent</label>
-                        <QuillEditor @ref="lessonContentEditor" Content="@lessonContent" MinHeight="300px" />
+                        <label class="form-label">@AdminRes.FieldContent (EN)</label>
+                        <QuillEditor @ref="lessonContentEditorEn" Content="@lessonContentEn" MinHeight="300px" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">@AdminRes.FieldContent (EL)</label>
+                        <QuillEditor @ref="lessonContentEditorEl" Content="@lessonContentEl" MinHeight="300px" />
                     </div>
 
                     <div class="mb-3">

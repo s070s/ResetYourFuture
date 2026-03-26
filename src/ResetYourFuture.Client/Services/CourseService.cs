@@ -16,9 +16,9 @@ public class CourseService : ICourseService
         _http = http;
     }
 
-    public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10 )
+    public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10, string lang = "en" )
     {
-        var response = await _http.GetAsync( $"api/courses?page={page}&pageSize={pageSize}" );
+        var response = await _http.GetAsync( $"api/courses?page={page}&pageSize={pageSize}&lang={lang}" );
         if ( response.IsSuccessStatusCode )
         {
             return await response.Content.ReadFromJsonAsync<PagedResult<CourseListItemDto>>()
@@ -27,9 +27,9 @@ public class CourseService : ICourseService
         return new PagedResult<CourseListItemDto>( [], 0, page, pageSize );
     }
 
-    public async Task<CourseDetailDto?> GetCourseAsync( Guid courseId )
+    public async Task<CourseDetailDto?> GetCourseAsync( Guid courseId, string lang = "en" )
     {
-        var response = await _http.GetAsync( $"api/courses/{courseId}" );
+        var response = await _http.GetAsync( $"api/courses/{courseId}?lang={lang}" );
         if ( response.IsSuccessStatusCode )
         {
             return await response.Content.ReadFromJsonAsync<CourseDetailDto>();
@@ -47,9 +47,9 @@ public class CourseService : ICourseService
         return null;
     }
 
-    public async Task<LessonDetailDto?> GetLessonAsync( Guid lessonId )
+    public async Task<LessonDetailDto?> GetLessonAsync( Guid lessonId, string lang = "en" )
     {
-        var response = await _http.GetAsync( $"api/courses/lessons/{lessonId}" );
+        var response = await _http.GetAsync( $"api/courses/lessons/{lessonId}?lang={lang}" );
         if ( response.IsSuccessStatusCode )
         {
             return await response.Content.ReadFromJsonAsync<LessonDetailDto>();

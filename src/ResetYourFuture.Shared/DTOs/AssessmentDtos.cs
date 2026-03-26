@@ -20,9 +20,28 @@ public record AssessmentDefinitionDto(
 /// </summary>
 public record SaveAssessmentDefinitionRequest(
     string Key,
-    string Title,
-    string? Description,
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl,
     string SchemaJson
+);
+
+/// <summary>
+/// Admin DTO for assessment definition with dual-language fields.
+/// </summary>
+public record AdminAssessmentDefinitionDto(
+    Guid Id,
+    string Key,
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl,
+    string SchemaJson,
+    bool IsPublished,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt,
+    DateTimeOffset? PublishedAt
 );
 
 /// <summary>

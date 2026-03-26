@@ -13,11 +13,17 @@ public class ModuleConfiguration : IEntityTypeConfiguration<Module>
     {
         builder.HasKey(m => m.Id);
 
-        builder.Property(m => m.Title)
+        builder.Property(m => m.TitleEn)
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(m => m.Description)
+        builder.Property(m => m.TitleEl)
+            .HasMaxLength(200);
+
+        builder.Property(m => m.DescriptionEn)
+            .HasMaxLength(2000);
+
+        builder.Property(m => m.DescriptionEl)
             .HasMaxLength(2000);
 
         // Relationship: Module belongs to exactly one Course

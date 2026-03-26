@@ -13,12 +13,18 @@ public class LessonConfiguration : IEntityTypeConfiguration<Lesson>
     {
         builder.HasKey(l => l.Id);
 
-        builder.Property(l => l.Title)
+        builder.Property(l => l.TitleEn)
             .IsRequired()
             .HasMaxLength(200);
 
+        builder.Property(l => l.TitleEl)
+            .HasMaxLength(200);
+
         // Content can be large (rich text / markdown)
-        builder.Property(l => l.Content)
+        builder.Property(l => l.ContentEn)
+            .HasMaxLength(50000);
+
+        builder.Property(l => l.ContentEl)
             .HasMaxLength(50000);
 
         // File paths for PDF and video

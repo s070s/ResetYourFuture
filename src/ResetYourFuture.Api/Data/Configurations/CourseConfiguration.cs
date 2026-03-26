@@ -13,11 +13,17 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
     {
         builder.HasKey(c => c.Id);
 
-        builder.Property(c => c.Title)
+        builder.Property(c => c.TitleEn)
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(c => c.Description)
+        builder.Property(c => c.TitleEl)
+            .HasMaxLength(200);
+
+        builder.Property(c => c.DescriptionEn)
+            .HasMaxLength(2000);
+
+        builder.Property(c => c.DescriptionEl)
             .HasMaxLength(2000);
 
         // RequiredTier stored as int

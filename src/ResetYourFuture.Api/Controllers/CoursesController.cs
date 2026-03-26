@@ -53,19 +53,21 @@ public class CoursesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<CourseListItemDto>>> GetCourses(
         [FromQuery] int page = 1 ,
-        [FromQuery] int pageSize = 10 )
+        [FromQuery] int pageSize = 10 ,
+        [FromQuery] string lang = "en" )
     {
         if ( page < 1 )
             page = 1;
         if ( pageSize < 1 || pageSize > 100 )
             pageSize = 10;
 
+        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
         var userId = UserId;
 
         var query = _db.Courses
             .AsNoTracking()
             .Where( c => c.IsPublished )
-            .OrderBy( c => c.Title );
+            .OrderBy( c => c.TitleEn );
 
         var totalCount = await query.CountAsync();
 
@@ -74,8 +76,8 @@ public class CoursesController : ControllerBase
             .Take( pageSize )
             .Select( c => new CourseListItemDto(
                 c.Id ,
-                c.Title ,
-                c.Description ,
+                isEl ? ( c.TitleEl ?? c.TitleEn ) : c.TitleEn ,
+                isEl ? ( c.DescriptionEl ?? c.DescriptionEn ) : c.DescriptionEn ,
                 c.Enrollments.Any( e => e.UserId == userId ) ,
                 c.Modules.SelectMany( m => m.Lessons ).Count() ,
                 c.RequiredTier
@@ -89,8 +91,9 @@ public class CoursesController : ControllerBase
     /// Get full course detail including modules, lessons, and progress.
     /// </summary>
     [HttpGet( "{courseId:guid}" )]
-    public async Task<ActionResult<CourseDetailDto>> GetCourse( Guid courseId )
+    public async Task<ActionResult<CourseDetailDto>> GetCourse( Guid courseId , [FromQuery] string lang = "en" )
     {
+        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
         var userId = UserId;
 
         var course = await _db.Courses
@@ -117,8 +120,8 @@ public class CoursesController : ControllerBase
 
         var dto = new CourseDetailDto(
             course.Id ,
-            course.Title ,
-            course.Description ,
+            isEl ? ( course.TitleEl ?? course.TitleEn ) : course.TitleEn ,
+            isEl ? ( course.DescriptionEl ?? course.DescriptionEn ) : course.DescriptionEn ,
             enrollment is not null ,
             enrollment?.Status == EnrollmentStatus.Completed ,
             completedLessons ,
@@ -126,12 +129,12 @@ public class CoursesController : ControllerBase
             progressPercent ,
             course.Modules.Select( m => new ModuleDto(
                 m.Id ,
-                m.Title ,
-                m.Description ,
+                isEl ? ( m.TitleEl ?? m.TitleEn ) : m.TitleEn ,
+                isEl ? ( m.DescriptionEl ?? m.DescriptionEn ) : m.DescriptionEn ,
                 m.SortOrder ,
                 m.Lessons.Select( l => new LessonSummaryDto(
                     l.Id ,
-                    l.Title ,
+                    isEl ? ( l.TitleEl ?? l.TitleEn ) : l.TitleEn ,
                     GetContentType( l ) ,
                     l.DurationMinutes ,
                     l.SortOrder ,
@@ -201,8 +204,9 @@ public class CoursesController : ControllerBase
     /// Get full lesson detail for the lesson viewer.
     /// </summary>
     [HttpGet( "lessons/{lessonId:guid}" )]
-    public async Task<ActionResult<LessonDetailDto>> GetLesson( Guid lessonId )
+    public async Task<ActionResult<LessonDetailDto>> GetLesson( Guid lessonId , [FromQuery] string lang = "en" )
     {
+        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
         var userId = UserId;
 
         var lesson = await _db.Lessons
@@ -244,20 +248,22 @@ public class CoursesController : ControllerBase
 
         // For video lessons, use VideoPath as the content for the viewer iframe.
         var contentType = GetContentType( lesson );
-        var displayContent = contentType == 2 ? lesson.VideoPath : lesson.Content;
+        var displayContent = contentType == 2
+            ? lesson.VideoPath
+            : ( isEl ? ( lesson.ContentEl ?? lesson.ContentEn ) : lesson.ContentEn );
 
         var dto = new LessonDetailDto(
             lesson.Id ,
-            lesson.Title ,
+            isEl ? ( lesson.TitleEl ?? lesson.TitleEn ) : lesson.TitleEn ,
             contentType ,
             displayContent ,
             lesson.PdfPath ,
             lesson.DurationMinutes ,
             isCompleted ,
             lesson.ModuleId ,
-            lesson.Module.Title ,
+            isEl ? ( lesson.Module.TitleEl ?? lesson.Module.TitleEn ) : lesson.Module.TitleEn ,
             course.Id ,
-            course.Title ,
+            isEl ? ( course.TitleEl ?? course.TitleEn ) : course.TitleEn ,
             previousLessonId ,
             nextLessonId
         );

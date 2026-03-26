@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Shared.DTOs;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -31,7 +32,8 @@ public partial class AssessmentForm
     {
         try
         {
-            assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{AssessmentId}" );
+            var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
+            assessment = await Http.GetFromJsonAsync<AssessmentDefinitionDto>( $"api/assessments/{AssessmentId}?lang={lang}" );
             if ( assessment != null )
             {
                 var schema = JsonSerializer.Deserialize<AssessmentSchema>( assessment.SchemaJson , JsonOptions );

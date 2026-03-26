@@ -56,7 +56,7 @@ public class AdminAssessmentsController : ControllerBase
             .Select( a => new AssessmentDefinitionListItemDto(
                 a.Id ,
                 a.Key ,
-                a.Title ,
+                a.TitleEn ,
                 a.IsPublished ,
                 a.Submissions.Count ,
                 a.CreatedAt
@@ -70,7 +70,7 @@ public class AdminAssessmentsController : ControllerBase
     /// Get a single assessment definition by id.
     /// </summary>
     [HttpGet( "{id:guid}" )]
-    public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessmentById( Guid id )
+    public async Task<ActionResult<AdminAssessmentDefinitionDto>> GetAssessmentById( Guid id )
     {
         var assessment = await _db.AssessmentDefinitions
             .AsNoTracking()
@@ -80,11 +80,13 @@ public class AdminAssessmentsController : ControllerBase
             return NotFound();
         }
 
-        var dto = new AssessmentDefinitionDto(
+        var dto = new AdminAssessmentDefinitionDto(
             assessment.Id ,
             assessment.Key ,
-            assessment.Title ,
-            assessment.Description ,
+            assessment.TitleEn ,
+            assessment.TitleEl ,
+            assessment.DescriptionEn ,
+            assessment.DescriptionEl ,
             assessment.SchemaJson ,
             assessment.IsPublished ,
             assessment.CreatedAt ,
@@ -112,8 +114,10 @@ public class AdminAssessmentsController : ControllerBase
         {
             Id = Guid.NewGuid() ,
             Key = request.Key ,
-            Title = request.Title ,
-            Description = request.Description ,
+            TitleEn = request.TitleEn ,
+            TitleEl = request.TitleEl ,
+            DescriptionEn = request.DescriptionEn ,
+            DescriptionEl = request.DescriptionEl ,
             SchemaJson = request.SchemaJson ,
             IsPublished = false ,
             UpdatedByUserId = UserId
@@ -124,11 +128,13 @@ public class AdminAssessmentsController : ControllerBase
         await _db.SaveChangesAsync();
 
         // Map persisted entity to DTO for response
-        var dto = new AssessmentDefinitionDto(
+        var dto = new AdminAssessmentDefinitionDto(
             assessment.Id ,
             assessment.Key ,
-            assessment.Title ,
-            assessment.Description ,
+            assessment.TitleEn ,
+            assessment.TitleEl ,
+            assessment.DescriptionEn ,
+            assessment.DescriptionEl ,
             assessment.SchemaJson ,
             assessment.IsPublished ,
             assessment.CreatedAt ,
@@ -164,8 +170,10 @@ public class AdminAssessmentsController : ControllerBase
 
         // Apply updates and metadata (updated time and user)
         assessment.Key = request.Key;
-        assessment.Title = request.Title;
-        assessment.Description = request.Description;
+        assessment.TitleEn = request.TitleEn;
+        assessment.TitleEl = request.TitleEl;
+        assessment.DescriptionEn = request.DescriptionEn;
+        assessment.DescriptionEl = request.DescriptionEl;
         assessment.SchemaJson = request.SchemaJson;
         assessment.UpdatedAt = DateTimeOffset.UtcNow;
         assessment.UpdatedByUserId = UserId;
@@ -174,11 +182,13 @@ public class AdminAssessmentsController : ControllerBase
         await _db.SaveChangesAsync();
 
         // Map updated entity to DTO and return 200 OK
-        var dto = new AssessmentDefinitionDto(
+        var dto = new AdminAssessmentDefinitionDto(
             assessment.Id ,
             assessment.Key ,
-            assessment.Title ,
-            assessment.Description ,
+            assessment.TitleEn ,
+            assessment.TitleEl ,
+            assessment.DescriptionEn ,
+            assessment.DescriptionEl ,
             assessment.SchemaJson ,
             assessment.IsPublished ,
             assessment.CreatedAt ,

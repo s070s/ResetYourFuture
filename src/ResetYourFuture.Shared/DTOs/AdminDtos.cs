@@ -34,8 +34,10 @@ public record AssessmentStatDto(
 /// </summary>
 public record AdminCourseDto(
     Guid Id,
-    string Title,
-    string? Description,
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl,
     bool IsPublished,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,
@@ -48,8 +50,10 @@ public record AdminCourseDto(
 /// Request to create/update a course.
 /// </summary>
 public record SaveCourseRequest(
-    string Title,
-    string? Description
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl
 );
 
 /// <summary>
@@ -57,8 +61,10 @@ public record SaveCourseRequest(
 /// </summary>
 public record AdminModuleDto(
     Guid Id,
-    string Title,
-    string? Description,
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl,
     int SortOrder,
     Guid CourseId,
     int LessonCount
@@ -68,8 +74,10 @@ public record AdminModuleDto(
 /// Request to create/update a module.
 /// </summary>
 public record SaveModuleRequest(
-    string Title,
-    string? Description,
+    string TitleEn,
+    string? TitleEl,
+    string? DescriptionEn,
+    string? DescriptionEl,
     int SortOrder,
     Guid CourseId
 );
@@ -79,8 +87,10 @@ public record SaveModuleRequest(
 /// </summary>
 public record AdminLessonDto(
     Guid Id,
-    string Title,
-    string? Content,
+    string TitleEn,
+    string? TitleEl,
+    string? ContentEn,
+    string? ContentEl,
     string? PdfPath,
     string? VideoPath,
     int? DurationMinutes,
@@ -93,8 +103,10 @@ public record AdminLessonDto(
 /// Request to create/update a lesson.
 /// </summary>
 public record SaveLessonRequest(
-    string Title,
-    string? Content,
+    string TitleEn,
+    string? TitleEl,
+    string? ContentEn,
+    string? ContentEl,
     string? VideoUrl,
     int? DurationMinutes,
     int SortOrder,

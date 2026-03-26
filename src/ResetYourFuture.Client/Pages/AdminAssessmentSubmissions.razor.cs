@@ -37,12 +37,12 @@ public partial class AdminAssessmentSubmissions
         try
         {
             // Load the assessment definition once to get schema + title
-            var definition = await Http.GetFromJsonAsync<AssessmentDefinitionDto>(
+            var definition = await Http.GetFromJsonAsync<AdminAssessmentDefinitionDto>(
                 $"api/admin/assessments/{AssessmentId}" );
 
             if ( definition != null )
             {
-                assessmentTitle = definition.Title;
+                assessmentTitle = definition.TitleEn;
                 BuildQuestionLabels( definition.SchemaJson );
             }
         }

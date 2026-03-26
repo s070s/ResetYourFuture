@@ -9,14 +9,24 @@ public class Lesson : AuditableEntity
     public Guid Id { get; set; }
 
     /// <summary>
-    /// Display title for the lesson.
+    /// Display title for the lesson (English).
     /// </summary>
-    public required string Title { get; set; }
+    public required string TitleEn { get; set; }
 
     /// <summary>
-    /// Text or markdown content for the lesson.
+    /// Display title for the lesson (Greek). Falls back to TitleEn when null.
     /// </summary>
-    public string? Content { get; set; }
+    public string? TitleEl { get; set; }
+
+    /// <summary>
+    /// Text or markdown content for the lesson (English).
+    /// </summary>
+    public string? ContentEn { get; set; }
+
+    /// <summary>
+    /// Text or markdown content for the lesson (Greek). Falls back to ContentEn when null.
+    /// </summary>
+    public string? ContentEl { get; set; }
 
     /// <summary>
     /// Path to PDF file (if lesson has PDF attachment).

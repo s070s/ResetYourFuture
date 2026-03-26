@@ -52,8 +52,10 @@ public class AdminCoursesController : ControllerBase
 
         var dto = new AdminCourseDto(
             course.Id ,
-            course.Title ,
-            course.Description ,
+            course.TitleEn ,
+            course.TitleEl ,
+            course.DescriptionEn ,
+            course.DescriptionEl ,
             course.IsPublished ,
             course.CreatedAt ,
             course.UpdatedAt ,
@@ -89,8 +91,10 @@ public class AdminCoursesController : ControllerBase
             .Take( pageSize )
             .Select( c => new AdminCourseDto(
                 c.Id ,
-                c.Title ,
-                c.Description ,
+                c.TitleEn ,
+                c.TitleEl ,
+                c.DescriptionEn ,
+                c.DescriptionEl ,
                 c.IsPublished ,
                 c.CreatedAt ,
                 c.UpdatedAt ,
@@ -113,8 +117,10 @@ public class AdminCoursesController : ControllerBase
         var course = new Course
         {
             Id = Guid.NewGuid() ,
-            Title = request.Title ,
-            Description = request.Description ,
+            TitleEn = request.TitleEn ,
+            TitleEl = request.TitleEl ,
+            DescriptionEn = request.DescriptionEn ,
+            DescriptionEl = request.DescriptionEl ,
             IsPublished = false ,
             UpdatedByUserId = UserId
         };
@@ -126,8 +132,10 @@ public class AdminCoursesController : ControllerBase
         // Map the persisted entity to the AdminCourseDto for the response.
         var dto = new AdminCourseDto(
             course.Id ,
-            course.Title ,
-            course.Description ,
+            course.TitleEn ,
+            course.TitleEl ,
+            course.DescriptionEn ,
+            course.DescriptionEl ,
             course.IsPublished ,
             course.CreatedAt ,
             course.UpdatedAt ,
@@ -161,8 +169,10 @@ public class AdminCoursesController : ControllerBase
         }
 
         // Apply updates to the entity and set audit metadata.
-        course.Title = request.Title;
-        course.Description = request.Description;
+        course.TitleEn = request.TitleEn;
+        course.TitleEl = request.TitleEl;
+        course.DescriptionEn = request.DescriptionEn;
+        course.DescriptionEl = request.DescriptionEl;
         course.UpdatedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = UserId;
 
@@ -172,8 +182,10 @@ public class AdminCoursesController : ControllerBase
         // Map the updated entity to DTO and return it to the caller.
         var dto = new AdminCourseDto(
             course.Id ,
-            course.Title ,
-            course.Description ,
+            course.TitleEn ,
+            course.TitleEl ,
+            course.DescriptionEn ,
+            course.DescriptionEl ,
             course.IsPublished ,
             course.CreatedAt ,
             course.UpdatedAt ,

@@ -84,7 +84,7 @@ public static class CourseSeeder
         db.Courses.Add( course );
 
         logger.LogInformation( "Loaded course '{Title}' from {FileName}" ,
-            course.Title , Path.GetFileName( filePath ) );
+            course.TitleEn , Path.GetFileName( filePath ) );
     }
 
     private static Course MapToCourse( CourseSeedDto dto )
@@ -92,8 +92,8 @@ public static class CourseSeeder
         return new Course
         {
             Id = Guid.NewGuid() ,
-            Title = dto.Title ,
-            Description = dto.Description ,
+            TitleEn = dto.Title ,
+            DescriptionEn = dto.Description ,
             IsPublished = dto.IsPublished ,
             Modules = dto.Modules.Select( MapToModule ).ToList()
         };
@@ -104,8 +104,8 @@ public static class CourseSeeder
         return new Module
         {
             Id = Guid.NewGuid() ,
-            Title = dto.Title ,
-            Description = dto.Description ,
+            TitleEn = dto.Title ,
+            DescriptionEn = dto.Description ,
             SortOrder = dto.SortOrder ,
             Lessons = dto.Lessons.Select( MapToLesson ).ToList()
         };
@@ -116,8 +116,8 @@ public static class CourseSeeder
         return new Lesson
         {
             Id = Guid.NewGuid() ,
-            Title = dto.Title ,
-            Content = dto.Content ,
+            TitleEn = dto.Title ,
+            ContentEn = dto.Content ,
             PdfPath = dto.PdfPath ,
             VideoPath = dto.VideoPath ,
             DurationMinutes = dto.DurationMinutes ,

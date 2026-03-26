@@ -19,11 +19,17 @@ public class AssessmentDefinitionConfiguration : IEntityTypeConfiguration<Assess
 
         builder.HasIndex(a => a.IsPublished);
 
-        builder.Property(a => a.Title)
+        builder.Property(a => a.TitleEn)
             .IsRequired()
             .HasMaxLength(200);
 
-        builder.Property(a => a.Description)
+        builder.Property(a => a.TitleEl)
+            .HasMaxLength(200);
+
+        builder.Property(a => a.DescriptionEn)
+            .HasMaxLength(1000);
+
+        builder.Property(a => a.DescriptionEl)
             .HasMaxLength(1000);
 
         builder.Property(a => a.SchemaJson)
