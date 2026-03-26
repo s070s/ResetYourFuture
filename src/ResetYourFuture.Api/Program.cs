@@ -141,15 +141,32 @@ builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
-// --- CORS (fully permissive – demo only, restrict in production) ---
+// --- CORS ---
+var clientOrigin = config [ "AllowedClientOrigins" ]
+    ?? throw new InvalidOperationException( "AllowedClientOrigins not configured." );
+
 builder.Services.AddCors( options =>
 {
-    options.AddPolicy( "BlazorClient" , p => p
-        .SetIsOriginAllowed( _ => true )
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials()
-        .WithExposedHeaders( "X-User-Disabled" ) );
+    options.AddPolicy( "BlazorClient" , p =>
+    {
+        p.AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials() // Required for auth headers
+         .WithExposedHeaders( "X-User-Disabled" );
+
+        if ( builder.Environment.IsDevelopment() )
+        {
+            // Allow localhost and any VS dev-tunnel origin (*.devtunnels.ms) in development
+            p.SetIsOriginAllowed( origin =>
+                origin == clientOrigin ||
+                ( Uri.TryCreate( origin , UriKind.Absolute , out var uri ) &&
+                  uri.Host.EndsWith( ".devtunnels.ms" , StringComparison.OrdinalIgnoreCase ) ) );
+        }
+        else
+        {
+            p.WithOrigins( clientOrigin );
+        }
+    } );
 } );
 
 var app = builder.Build();
