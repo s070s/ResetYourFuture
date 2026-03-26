@@ -285,6 +285,31 @@ public class ChatController : ControllerBase
     }
 
     /// <summary>
+    /// Delete a conversation and all its messages. Only a participant may delete.
+    /// </summary>
+    [HttpDelete( "conversations/{conversationId:guid}" )]
+    public async Task<IActionResult> DeleteConversation(
+        Guid conversationId ,
+        CancellationToken cancellationToken = default )
+    {
+        var userId = UserId;
+
+        var conversation = await _db.ChatConversations
+            .FirstOrDefaultAsync( c => c.Id == conversationId , cancellationToken );
+
+        if ( conversation is null )
+            return NotFound();
+
+        if ( conversation.CreatorId != userId && conversation.ParticipantId != userId )
+            return Forbid();
+
+        _db.ChatConversations.Remove( conversation );
+        await _db.SaveChangesAsync( cancellationToken );
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Get total unread count for the current user (for badge display).
     /// </summary>
     [HttpGet( "unread-count" )]

@@ -72,4 +72,16 @@
 	<data name="NoUsersFound" xml:space="preserve">
 		<value>Δεν βρέθηκαν χρήστες.</value>
 	</data>
+	<data name="DeleteConversation" xml:space="preserve">
+		<value>Διαγραφή Συνομιλίας</value>
+	</data>
+	<data name="DeleteConfirm" xml:space="preserve">
+		<value>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή τη συνομιλία; Όλα τα μηνύματα θα διαγραφούν οριστικά.</value>
+	</data>
+	<data name="Delete" xml:space="preserve">
+		<value>Διαγραφή</value>
+	</data>
+	<data name="Cancel" xml:space="preserve">
+		<value>Ακύρωση</value>
+	</data>
 </root>

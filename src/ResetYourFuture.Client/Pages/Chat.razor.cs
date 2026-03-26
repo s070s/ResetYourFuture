@@ -39,6 +39,10 @@ public partial class Chat : IAsyncDisposable
     private bool _isSearching;
     private CancellationTokenSource? _searchCts;
 
+    // --- Delete Conversation ---
+    private ChatConversationDto? _conversationToDelete;
+    private bool _isDeleting;
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
@@ -329,6 +333,46 @@ public partial class Chat : IAsyncDisposable
         {
             UnreadCount = newCount
         };
+    }
+
+    // --- Delete Conversation ---
+
+    private void ConfirmDeleteConversation( ChatConversationDto conversation )
+    {
+        _conversationToDelete = conversation;
+    }
+
+    private void CancelDeleteConversation()
+    {
+        _conversationToDelete = null;
+    }
+
+    private async Task ExecuteDeleteConversationAsync()
+    {
+        if ( _conversationToDelete is null ) return;
+
+        _isDeleting = true;
+        StateHasChanged();
+
+        var id = _conversationToDelete.Id;
+        var success = await ChatService.DeleteConversationAsync( id );
+
+        if ( success )
+        {
+            if ( _selectedConversation?.Id == id )
+            {
+                _selectedConversation = null;
+                _pagedMessages = null;
+                _resizeInitialized = false;
+            }
+
+            _conversationsPage = 1;
+            await LoadConversationsAsync();
+        }
+
+        _conversationToDelete = null;
+        _isDeleting = false;
+        StateHasChanged();
     }
 
     public async ValueTask DisposeAsync()

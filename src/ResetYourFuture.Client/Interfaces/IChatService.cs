@@ -35,4 +35,5 @@ public interface IChatService : IAsyncDisposable
     Task SendMessageAsync( Guid conversationId , string content );
     Task MarkAsReadAsync( Guid conversationId );
     Task<int> GetUnreadCountAsync();
+    Task<bool> DeleteConversationAsync( Guid conversationId );
 }

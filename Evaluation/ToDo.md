@@ -1,11 +1,8 @@
 PRIORITY FIX
--Video Player in Courses should not permit the user to
-Download the video or open it in a new tab.
-
-\-Section in the Home,Landing Page for
+-Section in the Home,Landing Page for
 Blog Type Articles
 
-\-Ability to Delete Chat Conversations
+\-API Consumers in Blazor Project (Consumers Folder)
 
 
 

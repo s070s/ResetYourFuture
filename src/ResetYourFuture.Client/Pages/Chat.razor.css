@@ -86,6 +86,27 @@
     font-size: 0.65rem;
 }
 
+.convo-delete-btn {
+    position: absolute;
+    bottom: 0.35rem;
+    right: 0.5rem;
+    padding: 0.15rem 0.35rem;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    color: var(--text-strong-normal);
+    background: transparent;
+    border: none;
+    line-height: 1;
+}
+
+.conversation-item:hover .convo-delete-btn {
+    opacity: 1;
+}
+
+.convo-delete-btn:hover {
+    color: var(--bs-danger, #dc3545);
+}
+
 /* --- Main Chat Area --- */
 .chat-main {
     flex: 1;

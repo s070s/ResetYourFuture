@@ -169,6 +169,17 @@ public class ChatService : IChatService
         return 0;
     }
 
+    public async Task<bool> DeleteConversationAsync( Guid conversationId )
+    {
+        try
+        {
+            var response = await _http.DeleteAsync( $"api/chat/conversations/{conversationId}" );
+            return response.IsSuccessStatusCode;
+        }
+        catch ( HttpRequestException ) { }
+        return false;
+    }
+
     public async ValueTask DisposeAsync()
     {
         await StopAsync();
