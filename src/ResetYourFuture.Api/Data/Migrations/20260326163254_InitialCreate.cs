@@ -67,8 +67,10 @@ namespace ResetYourFuture.Api.Data.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Key = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    TitleEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TitleEl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    DescriptionEn = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    DescriptionEl = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SchemaJson = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RequiredTier = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<string>(type: "nvarchar(48)", nullable: false),
@@ -87,8 +89,10 @@ namespace ResetYourFuture.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    TitleEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TitleEl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    DescriptionEn = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    DescriptionEl = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     RequiredTier = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<string>(type: "nvarchar(48)", nullable: false),
                     UpdatedAt = table.Column<string>(type: "nvarchar(48)", nullable: true),
@@ -355,8 +359,10 @@ namespace ResetYourFuture.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    TitleEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TitleEl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    DescriptionEn = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    DescriptionEl = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<string>(type: "nvarchar(48)", nullable: false),
@@ -469,8 +475,10 @@ namespace ResetYourFuture.Api.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", maxLength: 50000, nullable: true),
+                    TitleEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    TitleEl = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    ContentEn = table.Column<string>(type: "nvarchar(max)", maxLength: 50000, nullable: true),
+                    ContentEl = table.Column<string>(type: "nvarchar(max)", maxLength: 50000, nullable: true),
                     PdfPath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     VideoPath = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     DurationMinutes = table.Column<int>(type: "int", nullable: true),

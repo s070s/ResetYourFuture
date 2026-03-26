@@ -12,8 +12,8 @@ using ResetYourFuture.Api.Data;
 namespace ResetYourFuture.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326140534_AddContentLocalization")]
-    partial class AddContentLocalization
+    [Migration("20260326163254_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -468,7 +468,11 @@ namespace ResetYourFuture.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
+                    b.Property<string>("ContentEl")
+                        .HasMaxLength(50000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContentEn")
                         .HasMaxLength(50000)
                         .HasColumnType("nvarchar(max)");
 
@@ -495,7 +499,11 @@ namespace ResetYourFuture.Api.Data.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TitleEl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -558,7 +566,11 @@ namespace ResetYourFuture.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(48)");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("DescriptionEl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("DescriptionEn")
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
@@ -571,7 +583,11 @@ namespace ResetYourFuture.Api.Data.Migrations
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("TitleEl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TitleEn")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
