@@ -5,12 +5,28 @@ namespace ResetYourFuture.Shared.DTOs;
 /// </summary>
 public record AnalyticsSummaryDto(
     int TotalUsers,
-    int TotalStudents,
-    int TotalAdmins,
-    int TotalCourses,
-    int PublishedCourses,
-    int ActiveEnrollments,
-    int TotalAssessmentSubmissions
+    int ActiveUsers,
+    int TotalEnrollments,
+    int CompletedCourses,
+    List<CourseStatDto> CourseStats,
+    List<AssessmentStatDto> AssessmentStats
+);
+
+/// <summary>
+/// Per-course enrollment and completion stats.
+/// </summary>
+public record CourseStatDto(
+    string CourseTitle,
+    int EnrollmentCount,
+    int CompletionCount
+);
+
+/// <summary>
+/// Per-assessment submission stats.
+/// </summary>
+public record AssessmentStatDto(
+    string AssessmentTitle,
+    int SubmissionCount
 );
 
 /// <summary>

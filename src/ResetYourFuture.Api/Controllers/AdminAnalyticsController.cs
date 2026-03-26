@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
+using ResetYourFuture.Api.Domain.Enums;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Shared.DTOs;
 
@@ -36,28 +37,45 @@ public class AdminAnalyticsController : ControllerBase
     {
         var totalUsers = await _userManager.Users.CountAsync();
 
-        // Single JOIN + COUNT query — eliminates the N+1 GetRolesAsync loop
-        var totalAdmins = await (
-            from ur in _db.UserRoles
-            join r in _db.Roles on ur.RoleId equals r.Id
-            where r.NormalizedName == "ADMIN"
-            select ur.UserId
-        ).CountAsync();
+        var activeUsers = await _db.Enrollments
+            .Select( e => e.UserId )
+            .Distinct()
+            .CountAsync();
 
-        var totalStudents = totalUsers - totalAdmins;
-        var totalCourses = await _db.Courses.CountAsync();
-        var publishedCourses = await _db.Courses.CountAsync( c => c.IsPublished );
-        var activeEnrollments = await _db.Enrollments.CountAsync();
-        var totalAssessmentSubmissions = await _db.AssessmentSubmissions.CountAsync();
+        var totalEnrollments = await _db.Enrollments.CountAsync();
+
+        var completedCourses = await _db.Enrollments
+            .CountAsync( e => e.Status == EnrollmentStatus.Completed );
+
+        var enrollmentData = await _db.Enrollments
+            .Select( e => new { e.CourseId, CourseTitle = e.Course.Title, e.Status } )
+            .ToListAsync();
+
+        var courseStats = enrollmentData
+            .GroupBy( e => new { e.CourseId, e.CourseTitle } )
+            .Select( g => new CourseStatDto(
+                g.Key.CourseTitle,
+                g.Count(),
+                g.Count( e => e.Status == EnrollmentStatus.Completed )
+            ) )
+            .ToList();
+
+        var submissionData = await _db.AssessmentSubmissions
+            .Select( s => new { s.AssessmentDefinitionId, AssessmentTitle = s.AssessmentDefinition.Title } )
+            .ToListAsync();
+
+        var assessmentStats = submissionData
+            .GroupBy( s => new { s.AssessmentDefinitionId, s.AssessmentTitle } )
+            .Select( g => new AssessmentStatDto( g.Key.AssessmentTitle, g.Count() ) )
+            .ToList();
 
         var dto = new AnalyticsSummaryDto(
             totalUsers,
-            totalStudents,
-            totalAdmins,
-            totalCourses,
-            publishedCourses,
-            activeEnrollments,
-            totalAssessmentSubmissions
+            activeUsers,
+            totalEnrollments,
+            completedCourses,
+            courseStats,
+            assessmentStats
         );
 
         return Ok( dto );
