@@ -47,7 +47,7 @@ else
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">@assessment.Title</h5>
-                        <p class="card-text">@assessment.Description</p>
+                        <div class="card-text">@((MarkupString)(assessment.Description ?? ""))</div>
                         <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">Start</button>
                     </div>
                 </div>

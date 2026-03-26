@@ -1,10 +1,11 @@
 PRIORITY FIX
-Video Player in Courses should not permit the user to
+-Video Player in Courses should not permit the user to
 Download the video or open it in a new tab.
 
-Section in the Home,Landing Page for
+\-Section in the Home,Landing Page for
 Blog Type Articles
 
+\-Ability to Delete Chat Conversations
 
 
 
@@ -102,6 +103,7 @@ Home.razor
 AvatarDropdown.razor
 
 
+
 WHAT IS INTENTIONALLY NOT BUILT (YET)
 
 Explicitly postponed to protect April deadline:
@@ -113,3 +115,4 @@ Explicitly postponed to protect April deadline:
 • Full payment enforcement
 • Admin Course Creator feature,Courses,Lectures Stored in json files
 • AI features using slm like ollama
+

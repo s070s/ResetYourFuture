@@ -17,7 +17,7 @@ else if (submitted)
 }
 else
 {
-    <p>@assessment.Description</p>
+    <div class="assessment-description">@((MarkupString)(assessment.Description ?? ""))</div>
 
     <EditForm Model="@answers" OnValidSubmit="@HandleSubmit">
         @if (questions != null)

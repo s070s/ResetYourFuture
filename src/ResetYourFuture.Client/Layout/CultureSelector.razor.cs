@@ -8,11 +8,17 @@ public partial class CultureSelector
 
     private void SetCulture(string culture)
     {
-        //Refactor this to use a dedicated endpoint
-        // Always route to home page after language change.
-        // Navigate to the client root with ?culture=... and force a full reload so Program.cs reads the query on startup.
-        var redirectUri = "/";
-        var target = $"{redirectUri}?culture={culture}";
+        var currentUri = new Uri(Nav.Uri);
+
+        // Preserve existing query params except any stale 'culture' entry
+        var existingParts = currentUri.Query.TrimStart('?')
+            .Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Where(p => !p.StartsWith("culture=", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        existingParts.Add($"culture={culture}");
+
+        var target = currentUri.AbsolutePath + "?" + string.Join("&", existingParts);
         Nav.NavigateTo(target, forceLoad: true);
     }
 }
