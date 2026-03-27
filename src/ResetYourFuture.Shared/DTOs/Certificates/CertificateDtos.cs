@@ -9,8 +9,7 @@ public record CertificateDto(
     string RecipientName,
     string CourseTitle,
     DateTime IssuedAt,
-    string Status,
-    string VerificationUrl
+    string Status
 );
 
 /// <summary>

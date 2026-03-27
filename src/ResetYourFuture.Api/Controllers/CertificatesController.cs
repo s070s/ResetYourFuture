@@ -50,7 +50,6 @@ public class CertificatesController : ControllerBase
     {
         var userId = UserId;
         var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
-        var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
         var certificates = await _db.Certificates
             .AsNoTracking()
@@ -62,8 +61,7 @@ public class CertificatesController : ControllerBase
                 c.RecipientName ,
                 isEl ? ( c.CourseTitleEl ?? c.CourseTitleEn ) : c.CourseTitleEn ,
                 c.IssuedAt ,
-                c.Status.ToString() ,
-                $"{baseUrl}/certificate/{c.VerificationId}"
+                c.Status.ToString()
             ) )
             .ToListAsync();
 
@@ -80,7 +78,6 @@ public class CertificatesController : ControllerBase
     {
         var userId = UserId;
         var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
-        var baseUrl = $"{Request.Scheme}://{Request.Host}";
 
         try
         {
@@ -95,8 +92,7 @@ public class CertificatesController : ControllerBase
                 certificate.RecipientName ,
                 courseTitle ,
                 certificate.IssuedAt ,
-                certificate.Status.ToString() ,
-                $"{baseUrl}/certificate/{certificate.VerificationId}"
+                certificate.Status.ToString()
             ) );
         }
         catch ( InvalidOperationException ex )
