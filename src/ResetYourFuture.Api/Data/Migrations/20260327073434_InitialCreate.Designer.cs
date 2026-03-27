@@ -12,7 +12,7 @@ using ResetYourFuture.Api.Data;
 namespace ResetYourFuture.Api.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326163254_InitialCreate")]
+    [Migration("20260327073434_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

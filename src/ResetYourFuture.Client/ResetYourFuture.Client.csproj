@@ -1,14 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
     <!-- Workaround for SDK bug with static assets compression in paths with special characters -->
     <CompressionEnabled>false</CompressionEnabled>
-    <!-- Ensure cultures are available at runtime in WASM -->
+    <!-- Ensure cultures are available at runtime in WASM (.NET 9 HybridGlobalization
+         delegates to browser Intl APIs, so the full ICU dataset is NOT needed) -->
     <InvariantGlobalization>false</InvariantGlobalization>
-    <!-- Load all globalization data so culture can be changed at startup -->
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
   </PropertyGroup>
 

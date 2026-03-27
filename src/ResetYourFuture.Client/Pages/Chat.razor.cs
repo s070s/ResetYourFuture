@@ -16,7 +16,8 @@ public partial class Chat : IAsyncDisposable
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    private bool _chatAccess = false;
+    private bool _chatAccess;
+    private bool _accessChecked;
     private PagedResult<ChatConversationDto>? _conversations;
     private int _conversationsPage = 1;
     private int _conversationsPageSize = 10;
@@ -62,6 +63,8 @@ public partial class Chat : IAsyncDisposable
             var status = await SubscriptionService.GetStatusAsync();
             _chatAccess = status?.Features?.PrioritySupport == true;
         }
+
+        _accessChecked = true;
 
         if ( !_chatAccess )
             return;
@@ -402,5 +405,7 @@ public partial class Chat : IAsyncDisposable
             ChatService.OnNotificationReceived -= HandleNotification;
             await ChatService.DisposeAsync();
         }
+
+        GC.SuppressFinalize(this);
     }
 }

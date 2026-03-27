@@ -3,5 +3,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Build speed: skip recompiling downstream projects when only method bodies change -->
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <!-- Build speed: enable VS-specific incremental-build optimizations -->
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
   </PropertyGroup>
 </Project>
