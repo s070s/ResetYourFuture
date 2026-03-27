@@ -165,4 +165,7 @@
   <data name="Chat" xml:space="preserve">
     <value>Συνομιλία</value>
   </data>
+  <data name="Certificates" xml:space="preserve">
+    <value>Πιστοποιητικά</value>
+  </data>
 </root>

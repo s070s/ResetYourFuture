@@ -39,6 +39,12 @@
     --button-regular: #c4bcea;
 }
 
+/* Utility class — readable secondary text on the dark theme. */
+/* Replaces Bootstrap's .text-muted which has insufficient contrast at --bg-surface. */
+.text-light-muted {
+    color: var(--text-light-muted);
+}
+
 html,
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

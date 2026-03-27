@@ -1,0 +1,45 @@
+@page "/certificate/{VerificationId:guid}"
+
+<PageTitle>Certificate Verification</PageTitle>
+
+<div class="container mt-5" style="max-width: 600px">
+    <h2 class="mb-4 text-center">Certificate Verification</h2>
+
+    @if (_loading)
+    {
+        <p class="text-center">Checking certificate…</p>
+    }
+    else if (_result is null)
+    {
+        <div class="alert alert-danger text-center">
+            <span class="bi bi-x-circle-fill fs-2 d-block mb-2" aria-hidden="true"></span>
+            Unable to reach the verification service. Please try again later.
+        </div>
+    }
+    else if (_result.IsValid)
+    {
+        <div class="alert alert-success">
+            <span class="bi bi-patch-check-fill fs-2 d-block mb-2 text-center" aria-hidden="true"></span>
+            <h5 class="text-center mb-3">Valid Certificate</h5>
+            <hr />
+            <dl class="row mb-0">
+                <dt class="col-5">Recipient</dt>
+                <dd class="col-7">@_result.RecipientName</dd>
+
+                <dt class="col-5">Course</dt>
+                <dd class="col-7">@_result.CourseTitle</dd>
+
+                <dt class="col-5">Issued on</dt>
+                <dd class="col-7">@_result.IssuedAt?.ToString("MMMM dd, yyyy")</dd>
+            </dl>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger text-center">
+            <span class="bi bi-x-circle-fill fs-2 d-block mb-2" aria-hidden="true"></span>
+            <h5 class="mb-2">Invalid or Revoked Certificate</h5>
+            <p class="mb-0">@_result.Message</p>
+        </div>
+    }
+</div>

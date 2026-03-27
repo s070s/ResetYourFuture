@@ -203,5 +203,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Chat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Certificates.
+        /// </summary>
+        public static string Certificates {
+            get {
+                return ResourceManager.GetString("Certificates", resourceCulture);
+            }
+        }
     }
 }

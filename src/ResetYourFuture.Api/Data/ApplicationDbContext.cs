@@ -30,6 +30,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<BillingTransaction> BillingTransactions => Set<BillingTransaction>();
     public DbSet<SiteSetting> SiteSettings => Set<SiteSetting>();
+    public DbSet<Certificate> Certificates => Set<Certificate>();
 
     // --- Chat ---
     public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();

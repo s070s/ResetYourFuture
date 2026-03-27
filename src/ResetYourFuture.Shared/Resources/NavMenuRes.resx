@@ -165,4 +165,7 @@
   <data name="Chat" xml:space="preserve">
     <value>Chat</value>
   </data>
+  <data name="Certificates" xml:space="preserve">
+    <value>Certificates</value>
+  </data>
 </root>

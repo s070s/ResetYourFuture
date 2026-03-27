@@ -125,6 +125,7 @@ builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
 builder.Services.AddScoped<IEmailService , StubEmailService>();
 builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
+builder.Services.AddScoped<ICertificateService , CertificateService>();
 
 // --- Localization ---
 builder.Services.AddLocalization();

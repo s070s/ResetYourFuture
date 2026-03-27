@@ -21,15 +21,18 @@ public class CoursesController : ControllerBase
 {
     private readonly ApplicationDbContext _db;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly ICertificateService _certificateService;
     private readonly ILogger<CoursesController> _logger;
 
     public CoursesController(
         ApplicationDbContext db ,
         ISubscriptionService subscriptionService ,
+        ICertificateService certificateService ,
         ILogger<CoursesController> logger )
     {
         _db = db;
         _subscriptionService = subscriptionService;
+        _certificateService = certificateService;
         _logger = logger;
     }
 
@@ -352,6 +355,23 @@ public class CoursesController : ControllerBase
         }
 
         await _db.SaveChangesAsync();
+
+        // Auto-issue certificate when the course is fully completed.
+        // Non-fatal: a PDF generation failure must not prevent the lesson completion
+        // from being recorded. The student can request the certificate manually.
+        if ( courseCompleted )
+        {
+            try
+            {
+                await _certificateService.GetOrGenerateAsync( userId , courseId );
+            }
+            catch ( Exception ex )
+            {
+                _logger.LogWarning( ex ,
+                    "Certificate auto-generation failed for user {UserId} on course {CourseId}." ,
+                    userId , courseId );
+            }
+        }
 
         return Ok( new LessonCompletionResultDto(
             true ,
