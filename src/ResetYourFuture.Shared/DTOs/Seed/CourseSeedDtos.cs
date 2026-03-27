@@ -5,7 +5,10 @@ namespace ResetYourFuture.Shared.DTOs;
 public sealed class CourseSeedDto
 {
     public required string Title { get; init; }
+    public string? TitleEl { get; init; }
     public string? Description { get; init; }
+    public string? DescriptionEl { get; init; }
+    public string RequiredTier { get; init; } = "Free";
     public bool IsPublished { get; init; }
     public List<ModuleSeedDto> Modules { get; init; } = [];
 }
@@ -16,7 +19,9 @@ public sealed class CourseSeedDto
 public sealed class ModuleSeedDto
 {
     public required string Title { get; init; }
+    public string? TitleEl { get; init; }
     public string? Description { get; init; }
+    public string? DescriptionEl { get; init; }
     public int SortOrder { get; init; }
     public List<LessonSeedDto> Lessons { get; init; } = [];
 }
@@ -27,7 +32,9 @@ public sealed class ModuleSeedDto
 public sealed class LessonSeedDto
 {
     public required string Title { get; init; }
+    public string? TitleEl { get; init; }
     public string? Content { get; init; }
+    public string? ContentEl { get; init; }
     public string? PdfPath { get; init; }
     public string? VideoPath { get; init; }
     public int? DurationMinutes { get; init; }

@@ -2,7 +2,13 @@ PRIORITY FIX
 -Section in the Home,Landing Page for
 Blog Type Articles
 
-\-Testimonials on landing page
+-Testimonials on landing page
+
+-SEO Optimization
+
+-Better Searching for First Last Names emails in one bar (if @ is present search prefix and suffix as email)
+
+-Sorting for Table Components both in  Backend and in FrontEnd
 
 
 

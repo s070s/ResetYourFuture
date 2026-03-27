@@ -1,43 +1,107 @@
 {
-  "title": "Reset Your Future: Career Discovery",
-  "description": "A comprehensive program to help you discover your career path and develop essential skills for the modern job market.",
+  "title": "Career Discovery",
+  "titleEl": "Ανακάλυψη Καριέρας",
+  "description": "Explore who you are, what you value, and which career paths align with your strengths and aspirations.",
+  "descriptionEl": "Εξερεύνησε ποιος είσαι, τι εκτιμάς και ποιες επαγγελματικές διαδρομές ταιριάζουν με τα δυνατά σου σημεία και τις φιλοδοξίες σου.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Introduction to Career Planning",
-      "description": "Learn the fundamentals of career planning and self-assessment.",
+      "titleEl": "Εισαγωγή στον Επαγγελματικό Σχεδιασμό",
+      "description": "Learn why intentional career planning matters and how to start.",
+      "descriptionEl": "Μάθε γιατί ο σκόπιμος επαγγελματικός σχεδιασμός έχει σημασία και πώς να ξεκινήσεις.",
       "sortOrder": 1,
       "lessons": [
         {
-          "title": "Welcome to the Course",
-          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-          "durationMinutes": 5,
+          "title": "Why Career Planning Matters",
+          "titleEl": "Γιατί Έχει Σημασία ο Επαγγελματικός Σχεδιασμός",
+          "content": "# Why Career Planning Matters\n\nMost people spend more time planning a holiday than planning their career — yet a career spans decades and shapes your daily wellbeing.\n\n## The Cost of Drifting\n\nWithout a plan you risk:\n- Taking jobs that pay the bills but drain your energy\n- Missing opportunities you didn't know existed\n- Feeling stuck without knowing why\n\n## What Career Planning Is NOT\n\nIt is not a rigid, once-in-a-lifetime decision. Modern careers are non-linear — planning is an ongoing conversation with yourself.\n\n## What You Will Gain From This Course\n\n1. **Self-awareness** — clarity on values, strengths, and interests\n2. **Market awareness** — knowing which paths are open to you\n3. **Action** — concrete next steps you can take this week\n\nBy the end of this module you will have your personal Career Compass ready.",
+          "contentEl": "# Γιατί Έχει Σημασία ο Επαγγελματικός Σχεδιασμός\n\nΟι περισσότεροι άνθρωποι αφιερώνουν περισσότερο χρόνο στον προγραμματισμό ενός ταξιδιού παρά στον επαγγελματικό τους σχεδιασμό — κι όμως η καριέρα διαρκεί δεκαετίες και διαμορφώνει την καθημερινή σου ευτυχία.\n\n## Το Κόστος της Έλλειψης Πλάνου\n\nΧωρίς σχέδιο κινδυνεύεις να:\n- Παίρνεις δουλειές που πληρώνουν τους λογαριασμούς αλλά σε εξαντλούν\n- Χάνεις ευκαιρίες που δεν ήξερες ότι υπάρχουν\n- Νιώθεις κολλημένος χωρίς να ξέρεις γιατί\n\n## Τι ΔΕΝ Είναι ο Επαγγελματικός Σχεδιασμός\n\nΔεν είναι μια άκαμπτη, εφάπαξ απόφαση. Οι σύγχρονες καριέρες δεν είναι γραμμικές — ο σχεδιασμός είναι μια συνεχής συνομιλία με τον εαυτό σου.\n\n## Τι Θα Κερδίσεις Από Αυτό το Μάθημα\n\n1. **Αυτογνωσία** — σαφήνεια για αξίες, δυνατά σημεία και ενδιαφέροντα\n2. **Γνώση της αγοράς** — ποιες επαγγελματικές διαδρομές είναι ανοιχτές για σένα\n3. **Δράση** — συγκεκριμένα επόμενα βήματα που μπορείς να κάνεις αυτή την εβδομάδα\n\nΣτο τέλος αυτής της ενότητας θα έχεις έτοιμη την προσωπική σου Επαγγελματική Πυξίδα.",
+          "durationMinutes": 8,
           "sortOrder": 1
         },
         {
           "title": "Understanding Your Values",
-          "content": "# Understanding Your Values\n\nYour values are the foundation of a fulfilling career. In this lesson, we'll explore:\n\n## What are Values?\n\nValues are the principles and beliefs that guide your decisions and behavior. They represent what's truly important to you.\n\n## Why Values Matter in Career Planning\n\n1. **Job Satisfaction**: When your work aligns with your values, you feel more fulfilled.\n2. **Decision Making**: Values help you make difficult career choices.\n3. **Motivation**: Working in alignment with your values increases intrinsic motivation.\n\n## Exercise: Identify Your Top 5 Values\n\nTake a moment to reflect on what matters most to you. Consider areas like:\n- Family and relationships\n- Financial security\n- Creativity and innovation\n- Helping others\n- Personal growth\n- Work-life balance",
+          "titleEl": "Κατανόηση των Αξιών Σου",
+          "content": "# Understanding Your Values\n\nYour values are the non-negotiables — the things that, when absent from your work, make even a well-paid job feel hollow.\n\n## Common Career Values\n\n| Value | What it means at work |\n|-------|----------------------|\n| Autonomy | Control over how you work |\n| Impact | Seeing the difference you make |\n| Security | Stable income and conditions |\n| Growth | Learning and advancement |\n| Connection | Meaningful relationships with colleagues |\n| Creativity | Space to innovate and express ideas |\n\n## Exercise: Values Ranking\n\n1. Write down 10 things that matter most to you in a job.\n2. Compare them in pairs: \"If I had to choose, which matters more?\"\n3. Your top 3–5 are your **Core Career Values**.\n\nKeep this list. You will use it in every career decision from here on.",
+          "contentEl": "# Κατανόηση των Αξιών Σου\n\nΟι αξίες σου είναι τα αδιαπραγμάτευτα — αυτά που, όταν απουσιάζουν από τη δουλειά σου, κάνουν ακόμα και μια καλά αμειβόμενη θέση να φαίνεται κενή νοήματος.\n\n## Κοινές Επαγγελματικές Αξίες\n\n| Αξία | Τι σημαίνει στη δουλειά |\n|------|------------------------|\n| Αυτονομία | Έλεγχος του τρόπου εργασίας |\n| Αντίκτυπος | Να βλέπεις τη διαφορά που κάνεις |\n| Ασφάλεια | Σταθερό εισόδημα και συνθήκες |\n| Ανάπτυξη | Μάθηση και εξέλιξη |\n| Σύνδεση | Ουσιαστικές σχέσεις με συναδέλφους |\n| Δημιουργικότητα | Χώρος για καινοτομία και έκφραση |\n\n## Άσκηση: Κατάταξη Αξιών\n\n1. Γράψε 10 πράγματα που σε νοιάζουν περισσότερο σε μια δουλειά.\n2. Σύγκρινέ τα ανά ζεύγη: «Αν έπρεπε να επιλέξω, ποιο έχει μεγαλύτερη σημασία;»\n3. Τα 3–5 κορυφαία είναι οι **Βασικές Επαγγελματικές Αξίες** σου.\n\nΚράτα αυτή τη λίστα. Θα τη χρησιμοποιείς σε κάθε επαγγελματική απόφαση από εδώ και πέρα.",
           "durationMinutes": 15,
           "sortOrder": 2
+        },
+        {
+          "title": "Setting Your Career Vision",
+          "titleEl": "Διαμόρφωση του Επαγγελματικού σου Οράματος",
+          "content": "# Setting Your Career Vision\n\nA career vision is a vivid, motivating picture of where you want to be in 3–5 years.\n\n## Why a Vision Beats a Goal\n\nGoals are specific targets. A vision is the *feeling* behind the target — it keeps you going when the target changes.\n\n## The 3-Question Framework\n\n1. **What does my ideal workday look like?** (environment, tasks, people)\n2. **What problem am I helping to solve?** (your contribution to the world)\n3. **How do people describe me professionally?** (your reputation)\n\n## Write Your Vision Statement\n\n> *\"In 3 years I am working as a [role] at a [type of organisation], helping [who] to [do what]. My colleagues describe me as [adjectives]. I feel [emotions] most days at work.\"*\n\nThis is a living document — revisit and revise it every 6 months.",
+          "contentEl": "# Διαμόρφωση του Επαγγελματικού σου Οράματος\n\nΤο επαγγελματικό όραμα είναι μια ζωντανή, παρακινητική εικόνα του πού θέλεις να βρίσκεσαι σε 3–5 χρόνια.\n\n## Γιατί το Όραμα Υπερτερεί του Στόχου\n\nΟι στόχοι είναι συγκεκριμένοι σκοποί. Το όραμα είναι το *συναίσθημα* πίσω από τον σκοπό — σε κρατά σε πορεία όταν ο στόχος αλλάζει.\n\n## Το Πλαίσιο των 3 Ερωτήσεων\n\n1. **Πώς μοιάζει η ιδανική μου εργάσιμη μέρα;** (περιβάλλον, καθήκοντα, άνθρωποι)\n2. **Ποιο πρόβλημα βοηθάω να λυθεί;** (η συνεισφορά σου στον κόσμο)\n3. **Πώς με περιγράφουν επαγγελματικά;** (η φήμη σου)\n\n## Γράψε τη Δήλωση Οράματός σου\n\n> *«Σε 3 χρόνια εργάζομαι ως [ρόλος] σε έναν [τύπο οργανισμού], βοηθώντας [ποιον] να [κάνει τι]. Οι συνάδελφοί μου με περιγράφουν ως [επίθετα]. Νιώθω [συναισθήματα] τις περισσότερες μέρες στη δουλειά μου.»*\n\nΑυτό είναι ένα ζωντανό κείμενο — επανεξέταζέ το και αναθεώρησέ το κάθε 6 μήνες.",
+          "durationMinutes": 12,
+          "sortOrder": 3
         }
       ]
     },
     {
       "title": "Skills Assessment",
-      "description": "Identify and evaluate your current skills and competencies.",
+      "titleEl": "Αξιολόγηση Δεξιοτήτων",
+      "description": "Map what you already have and identify what to build next.",
+      "descriptionEl": "Χαρτογράφησε αυτό που ήδη έχεις και εντόπισε τι να χτίσεις στη συνέχεια.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Hard Skills vs Soft Skills",
-          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "titleEl": "Τεχνικές vs Ήπιες Δεξιότητες",
+          "content": "# Hard Skills vs Soft Skills\n\n## Hard Skills\nThese are teachable, measurable abilities — specific to a role or industry.\n\nExamples: Python programming, financial modelling, operating a forklift, graphic design in Adobe Illustrator.\n\n## Soft Skills\nThese are interpersonal and self-management abilities that transfer across every role.\n\nExamples: communication, active listening, time management, resilience, empathy.\n\n## Why Both Matter\n\nEmployers hire for hard skills and fire for soft skills. The reverse is also increasingly true: automation is replacing many hard skills, making soft skills the durable competitive advantage.\n\n## Your Quick Audit\n\n- List 5 hard skills you are confident in.\n- List 5 soft skills colleagues or teachers have praised you for.\n- Star the ones you most enjoy using — these point toward fulfilling work.",
+          "contentEl": "# Τεχνικές vs Ήπιες Δεξιότητες\n\n## Τεχνικές Δεξιότητες\nΑυτές είναι μετρήσιμες, διδακτές ικανότητες — συγκεκριμένες για έναν ρόλο ή κλάδο.\n\nΠαραδείγματα: προγραμματισμός Python, χρηματοοικονομική μοντελοποίηση, χειρισμός κλαρκ, γραφικός σχεδιασμός στο Adobe Illustrator.\n\n## Ήπιες Δεξιότητες\nΑυτές είναι διαπροσωπικές και ικανότητες αυτοδιαχείρισης που μεταφέρονται σε κάθε ρόλο.\n\nΠαραδείγματα: επικοινωνία, ενεργητική ακρόαση, διαχείριση χρόνου, ανθεκτικότητα, ενσυναίσθηση.\n\n## Γιατί Και οι Δύο Έχουν Σημασία\n\nΟι εργοδότες προσλαμβάνουν για τεχνικές δεξιότητες και απολύουν για ήπιες. Το αντίστροφο ισχύει επίσης ολοένα και περισσότερο: η αυτοματοποίηση αντικαθιστά πολλές τεχνικές δεξιότητες, καθιστώντας τις ήπιες δεξιότητες το ανθεκτικό ανταγωνιστικό πλεονέκτημα.\n\n## Η Γρήγορη Αξιολόγησή σου\n\n- Κατέγραψε 5 τεχνικές δεξιότητες στις οποίες νιώθεις σίγουρος.\n- Κατέγραψε 5 ήπιες δεξιότητες για τις οποίες σε έχουν επαινέσει συνάδελφοι ή καθηγητές.\n- Βάλε αστέρι σε αυτές που απολαμβάνεις περισσότερο — αυτές δείχνουν τον δρόμο προς ικανοποιητική εργασία.",
           "durationMinutes": 10,
           "sortOrder": 1
         },
         {
           "title": "Transferable Skills",
-          "content": "# Transferable Skills\n\nTransferable skills are abilities you can use in any job or industry.\n\n## Common Transferable Skills\n\n- **Communication**: Writing, speaking, presenting\n- **Leadership**: Managing projects, mentoring others\n- **Problem Solving**: Analytical thinking, creativity\n- **Organization**: Time management, planning\n- **Technology**: Digital literacy, software proficiency\n\n## How to Identify Your Transferable Skills\n\n1. Review your past experiences (work, education, volunteering)\n2. List the tasks you performed\n3. Identify the underlying skills used\n4. Match these to potential career paths",
+          "titleEl": "Μεταφερόμενες Δεξιότητες",
+          "content": "# Transferable Skills\n\nTransferable skills are abilities you built in one context that work in many others.\n\n## Why They Matter\n\nIf you are changing industries or entering the workforce for the first time, transferable skills are your bridge.\n\n## The Top Transferable Skills Employers Want\n\n1. **Communication** — written, verbal, presentation\n2. **Collaboration** — working effectively in teams\n3. **Problem-solving** — diagnosing and resolving challenges\n4. **Adaptability** — thriving in changing environments\n5. **Digital literacy** — comfort with technology tools\n6. **Leadership** — influencing and organising others toward a goal\n\n## How to Surface Yours\n\n1. Think of 3 achievements you are proud of — school, work, volunteering, sport.\n2. For each, ask: *What did I actually do? What skills did that require?*\n3. Map those skills to the list above.\n\nYou now have evidence-based stories for each transferable skill.",
+          "contentEl": "# Μεταφερόμενες Δεξιότητες\n\nΟι μεταφερόμενες δεξιότητες είναι ικανότητες που ανέπτυξες σε ένα πλαίσιο και λειτουργούν σε πολλά άλλα.\n\n## Γιατί Έχουν Σημασία\n\nΑν αλλάζεις κλάδο ή μπαίνεις για πρώτη φορά στην αγορά εργασίας, οι μεταφερόμενες δεξιότητες είναι η γέφυρά σου.\n\n## Οι Κορυφαίες Μεταφερόμενες Δεξιότητες που Ζητούν οι Εργοδότες\n\n1. **Επικοινωνία** — γραπτή, προφορική, παρουσίαση\n2. **Συνεργασία** — αποτελεσματική εργασία σε ομάδες\n3. **Επίλυση προβλημάτων** — διάγνωση και αντιμετώπιση προκλήσεων\n4. **Προσαρμοστικότητα** — ευδοκίμηση σε μεταβαλλόμενα περιβάλλοντα\n5. **Ψηφιακή παιδεία** — άνεση με εργαλεία τεχνολογίας\n6. **Ηγεσία** — επιρροή και οργάνωση άλλων προς έναν στόχο\n\n## Πώς να τις Αναδείξεις\n\n1. Σκέψου 3 επιτεύγματα που σε κάνουν υπερήφανο — σχολείο, δουλειά, εθελοντισμός, αθλητισμός.\n2. Για καθένα ρώτησε: *Τι έκανα στην πραγματικότητα; Τι δεξιότητες απαιτούσε αυτό;*\n3. Αντιστοίχισε αυτές τις δεξιότητες με την παραπάνω λίστα.\n\nΤώρα έχεις ιστορίες βασισμένες σε αποδείξεις για κάθε μεταφερόμενη δεξιότητα.",
           "durationMinutes": 12,
           "sortOrder": 2
+        },
+        {
+          "title": "Identifying Your Skill Gaps",
+          "titleEl": "Εντοπισμός των Κενών Δεξιοτήτων σου",
+          "content": "# Identifying Your Skill Gaps\n\nKnowing what you lack is as powerful as knowing what you have.\n\n## The Gap Analysis Process\n\n1. **Choose a target role** you are interested in.\n2. **Find 5 job postings** for that role — note the skills required.\n3. **Compare** those requirements to your current skills inventory.\n4. **Gap = required skill you don't yet have** (or have at a lower level).\n\n## Prioritising Which Gaps to Close\n\nNot all gaps are equal. Ask:\n- Is this skill mentioned in most postings? (High priority)\n- Is it something I can learn in 3–6 months? (Feasible)\n- Do I actually enjoy this type of work? (Sustainable)\n\n## Building a Personal Development Plan\n\nFor each priority gap:\n- **What will I learn?** (specific skill)\n- **How?** (course, project, mentorship)\n- **By when?** (realistic deadline)\n- **How will I prove it?** (portfolio, certificate, work sample)\n\nThis becomes the backbone of your Career Action Plan.",
+          "contentEl": "# Εντοπισμός των Κενών Δεξιοτήτων σου\n\nΤο να γνωρίζεις τι σου λείπει είναι εξίσου ισχυρό με το να γνωρίζεις τι έχεις.\n\n## Η Διαδικασία Ανάλυσης Κενών\n\n1. **Επέλεξε έναν στοχευόμενο ρόλο** που σε ενδιαφέρει.\n2. **Βρες 5 αγγελίες εργασίας** για αυτόν τον ρόλο — σημείωσε τις απαιτούμενες δεξιότητες.\n3. **Σύγκρινε** αυτές τις απαιτήσεις με το τρέχον απόθεμα δεξιοτήτων σου.\n4. **Κενό = δεξιότητα που απαιτείται αλλά δεν έχεις ακόμα** (ή έχεις σε χαμηλότερο επίπεδο).\n\n## Ιεράρχηση Ποιων Κενών να Καλύψεις\n\nΔεν είναι όλα τα κενά ίσα. Ρώτησε:\n- Αναφέρεται αυτή η δεξιότητα στις περισσότερες αγγελίες; (Υψηλή προτεραιότητα)\n- Μπορώ να τη μάθω σε 3–6 μήνες; (Εφικτό)\n- Μου αρέσει πραγματικά αυτός ο τύπος εργασίας; (Βιώσιμο)\n\n## Δημιουργία Προσωπικού Σχεδίου Ανάπτυξης\n\nΓια κάθε κενό προτεραιότητας:\n- **Τι θα μάθω;** (συγκεκριμένη δεξιότητα)\n- **Πώς;** (μάθημα, project, mentoring)\n- **Μέχρι πότε;** (ρεαλιστική προθεσμία)\n- **Πώς θα το αποδείξω;** (portfolio, πιστοποιητικό, δείγμα εργασίας)\n\nΑυτό γίνεται η ραχοκοκαλιά του Σχεδίου Δράσης Καριέρας σου.",
+          "durationMinutes": 15,
+          "sortOrder": 3
+        }
+      ]
+    },
+    {
+      "title": "Career Pathways",
+      "titleEl": "Επαγγελματικές Διαδρομές",
+      "description": "Discover the range of career paths available to you and how to evaluate them.",
+      "descriptionEl": "Ανακάλυψε το εύρος των επαγγελματικών διαδρομών που έχεις στη διάθεσή σου και πώς να τις αξιολογείς.",
+      "sortOrder": 3,
+      "lessons": [
+        {
+          "title": "Mapping Career Options",
+          "titleEl": "Χαρτογράφηση Επαγγελματικών Επιλογών",
+          "content": "# Mapping Career Options\n\nMost people know 10–20 job titles. In reality there are thousands. This lesson opens the map.\n\n## Three Ways to Discover New Paths\n\n### 1. Follow Your Curiosity\nWhat topics do you read about voluntarily? What YouTube rabbit-holes do you fall down? Curiosity is a career compass.\n\n### 2. Talk to People\nInformational interviews — 20-minute conversations with professionals in roles that interest you — give you real-world data that no job description can.\n\n### 3. Use Career Mapping Tools\nO*NET (US), EURES (EU), and LinkedIn's Career Explorer map skill adjacencies — they show you which roles match your current skills.\n\n## The Adjacent Possible\n\nYou don't have to leap to a completely different career. Often the best move is *one step sideways* into a role that shares 70% of your current skills but opens new doors.\n\n## Exercise\n\nIdentify 3 roles you are curious about. For each: write one skill you already have that applies, and one skill you would need to develop.",
+          "contentEl": "# Χαρτογράφηση Επαγγελματικών Επιλογών\n\nΟι περισσότεροι άνθρωποι γνωρίζουν 10–20 τίτλους θέσεων εργασίας. Στην πραγματικότητα υπάρχουν χιλιάδες. Αυτό το μάθημα ανοίγει τον χάρτη.\n\n## Τρεις Τρόποι Ανακάλυψης Νέων Διαδρομών\n\n### 1. Ακολούθησε την Περιέργειά σου\nΓια ποια θέματα διαβάζεις εθελοντικά; Σε ποιες ψηφιακές «τρύπες» πέφτεις; Η περιέργεια είναι μια επαγγελματική πυξίδα.\n\n### 2. Μίλα με Ανθρώπους\nΟι πληροφοριακές συνεντεύξεις — συνομιλίες 20 λεπτών με επαγγελματίες σε ρόλους που σε ενδιαφέρουν — σου δίνουν πραγματικά δεδομένα που καμία αγγελία δεν μπορεί να δώσει.\n\n### 3. Χρησιμοποίησε Εργαλεία Χαρτογράφησης Καριέρας\nΟ O*NET (ΗΠΑ), το EURES (ΕΕ) και ο Career Explorer του LinkedIn χαρτογραφούν συνάφειες δεξιοτήτων — σου δείχνουν ποιοι ρόλοι ταιριάζουν με τις τρέχουσες δεξιότητές σου.\n\n## Το Γειτονικό Δυνατό\n\nΔεν χρειάζεται να κάνεις άλμα σε μια εντελώς διαφορετική καριέρα. Συχνά η καλύτερη κίνηση είναι *ένα βήμα πλάγια* σε έναν ρόλο που μοιράζεται το 70% των τρεχουσών δεξιοτήτων σου αλλά ανοίγει νέες πόρτες.\n\n## Άσκηση\n\nΕντόπισε 3 ρόλους για τους οποίους είσαι περίεργος. Για καθέναν: γράψε μία δεξιότητα που ήδη έχεις και που εφαρμόζεται, και μία δεξιότητα που θα χρειαζόσουν να αναπτύξεις.",
+          "durationMinutes": 14,
+          "sortOrder": 1
+        },
+        {
+          "title": "Evaluating Career Fit",
+          "titleEl": "Αξιολόγηση Επαγγελματικής Συμβατότητας",
+          "content": "# Evaluating Career Fit\n\nNot every interesting career is the right career *for you*. Fit has multiple dimensions.\n\n## The Four Dimensions of Career Fit\n\n### 1. Skills Fit\nCan you do this job? Do you enjoy the core tasks?\n\n### 2. Values Fit\nDoes this career let you live your Core Career Values?\n\n### 3. Lifestyle Fit\nDoes this career support the life you want — hours, income, location, travel?\n\n### 4. Growth Fit\nWill this career stretch you without breaking you? Does it have a future?\n\n## The Career Fit Matrix\n\nScore each option 1–5 on each dimension. Total = your preliminary fit score. This is not a perfect tool — but it forces honest reflection.\n\n## The Regret Minimisation Framework\n\nJeff Bezos asked: *\"When I am 80 years old, which choice will I regret more?\"* Use this when logic alone cannot decide.",
+          "contentEl": "# Αξιολόγηση Επαγγελματικής Συμβατότητας\n\nΔεν είναι κάθε ενδιαφέρουσα καριέρα η σωστή καριέρα *για σένα*. Η συμβατότητα έχει πολλαπλές διαστάσεις.\n\n## Οι Τέσσερις Διαστάσεις Επαγγελματικής Συμβατότητας\n\n### 1. Συμβατότητα Δεξιοτήτων\nΜπορείς να κάνεις αυτή τη δουλειά; Σου αρέσουν τα βασικά καθήκοντα;\n\n### 2. Συμβατότητα Αξιών\nΑυτή η καριέρα σού επιτρέπει να ζεις τις Βασικές Επαγγελματικές σου Αξίες;\n\n### 3. Συμβατότητα Τρόπου Ζωής\nΑυτή η καριέρα υποστηρίζει τη ζωή που θέλεις — ώρες, εισόδημα, τοποθεσία, ταξίδια;\n\n### 4. Συμβατότητα Ανάπτυξης\nΑυτή η καριέρα θα σε τεντώσει χωρίς να σε σπάσει; Έχει μέλλον;\n\n## Ο Πίνακας Επαγγελματικής Συμβατότητας\n\nΒαθμολόγησε κάθε επιλογή 1–5 σε κάθε διάσταση. Σύνολο = προκαταρκτική βαθμολογία συμβατότητας. Δεν είναι τέλειο εργαλείο — αλλά αναγκάζει σε ειλικρινή αναστοχασμό.\n\n## Το Πλαίσιο Ελαχιστοποίησης Τύψεων\n\nΟ Jeff Bezos ρωτούσε: *«Όταν είμαι 80 χρονών, ποια επιλογή θα με κάνει να μετανιώσω περισσότερο;»* Χρησιμοποίησε αυτό όταν η λογική μόνη της δεν μπορεί να αποφασίσει.",
+          "durationMinutes": 13,
+          "sortOrder": 2
+        },
+        {
+          "title": "Your Career Action Plan",
+          "titleEl": "Το Σχέδιο Δράσης Καριέρας σου",
+          "content": "# Your Career Action Plan\n\nEvery lesson in this course has been building toward this: a personalised, actionable plan.\n\n## The Plan Structure\n\n### Section 1 — Where I Am Now\n- Current role / status\n- Top 3 skills I have\n- Core Career Values\n\n### Section 2 — Where I Want to Be\n- Career Vision (from Module 1)\n- Target role(s) in 12 months\n- Target role(s) in 3 years\n\n### Section 3 — The Bridge\n- Top 2 skill gaps to close\n- Specific learning actions (course, project, mentor)\n- Network contacts to reach out to\n- Target application timeline\n\n### Section 4 — My Accountability System\n- Weekly review: 10 minutes every Sunday\n- Monthly check-in with a trusted friend or mentor\n- 6-month Vision review\n\n## Your First Action\n\nBefore closing this course, write one thing you will do **today** to move toward your Career Vision. Not tomorrow. Today.\n\nCongratulations on completing Career Discovery.",
+          "contentEl": "# Το Σχέδιο Δράσης Καριέρας σου\n\nΚάθε μάθημα αυτού του κύκλου έχει χτίσει προς αυτό: ένα εξατομικευμένο, εφαρμόσιμο σχέδιο.\n\n## Η Δομή του Σχεδίου\n\n### Τμήμα 1 — Πού Βρίσκομαι Τώρα\n- Τρέχον ρόλος / κατάσταση\n- Τα 3 κορυφαία δυνατά σημεία μου\n- Βασικές Επαγγελματικές Αξίες\n\n### Τμήμα 2 — Πού Θέλω να Φτάσω\n- Επαγγελματικό Όραμα (από την Ενότητα 1)\n- Στοχευόμενος ρόλος σε 12 μήνες\n- Στοχευόμενος ρόλος σε 3 χρόνια\n\n### Τμήμα 3 — Η Γέφυρα\n- Τα 2 κορυφαία κενά δεξιοτήτων που πρέπει να καλυφθούν\n- Συγκεκριμένες ενέργειες μάθησης (μάθημα, project, mentor)\n- Επαφές δικτύου για επικοινωνία\n- Στόχος χρονοδιαγράμματος αιτήσεων\n\n### Τμήμα 4 — Το Σύστημα Λογοδοσίας μου\n- Εβδομαδιαία επανεξέταση: 10 λεπτά κάθε Κυριακή\n- Μηνιαία συνάντηση με έναν αξιόπιστο φίλο ή σύμβουλο\n- Εξαμηνιαία επανεξέταση Οράματος\n\n## Η Πρώτη σου Ενέργεια\n\nΠριν κλείσεις αυτόν τον κύκλο, γράψε ένα πράγμα που θα κάνεις **σήμερα** για να προχωρήσεις προς το Επαγγελματικό σου Όραμα. Όχι αύριο. Σήμερα.\n\nΣυγχαρητήρια για την ολοκλήρωση της Ανακάλυψης Καριέρας.",
+          "durationMinutes": 18,
+          "sortOrder": 3
         }
       ]
     }

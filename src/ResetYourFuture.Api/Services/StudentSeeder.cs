@@ -41,6 +41,13 @@ public static class StudentSeeder
             return;
         }
 
+        // Skip entirely if students are already seeded — avoids N×4 Identity queries on every startup
+        if ( await userManager.GetUsersInRoleAsync( "Student" ) is { Count: > 0 } )
+        {
+            logger.LogDebug( "Student users already seeded. Skipping." );
+            return;
+        }
+
         var seededCount = 0;
 
         foreach ( var filePath in jsonFiles )

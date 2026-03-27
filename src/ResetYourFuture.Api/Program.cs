@@ -141,6 +141,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
+builder.Services.AddHostedService<BulkStudentSeedingService>();
 
 // --- CORS ---
 var clientOrigin = config [ "AllowedClientOrigins" ]
@@ -276,6 +277,9 @@ using ( var scope = app.Services.CreateScope() )
                               ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Students" );
         var studentPassword = config [ "SeedData:StudentPassword" ] ?? "Student123!";
         await StudentSeeder.SeedFromJsonAsync( userManager , studentJsonPath , studentPassword , startupLogger );
+
+        // Bulk student generation runs in BulkStudentSeedingService (background) so it
+        // does not delay app startup.
     }
 }
 

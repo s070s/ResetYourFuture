@@ -13,7 +13,15 @@ public sealed class AssessmentSeedDto
     {
         get; init;
     }
+    public string? TitleEl
+    {
+        get; init;
+    }
     public string? Description
+    {
+        get; init;
+    }
+    public string? DescriptionEl
     {
         get; init;
     }

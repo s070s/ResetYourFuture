@@ -93,7 +93,12 @@ public static class CourseSeeder
         {
             Id = Guid.NewGuid() ,
             TitleEn = dto.Title ,
+            TitleEl = dto.TitleEl ,
             DescriptionEn = dto.Description ,
+            DescriptionEl = dto.DescriptionEl ,
+            RequiredTier = Enum.TryParse<SubscriptionTierEnum>( dto.RequiredTier , ignoreCase: true , out var tier )
+                ? tier
+                : SubscriptionTierEnum.Free ,
             IsPublished = dto.IsPublished ,
             Modules = dto.Modules.Select( MapToModule ).ToList()
         };
@@ -105,7 +110,9 @@ public static class CourseSeeder
         {
             Id = Guid.NewGuid() ,
             TitleEn = dto.Title ,
+            TitleEl = dto.TitleEl ,
             DescriptionEn = dto.Description ,
+            DescriptionEl = dto.DescriptionEl ,
             SortOrder = dto.SortOrder ,
             Lessons = dto.Lessons.Select( MapToLesson ).ToList()
         };
@@ -117,7 +124,9 @@ public static class CourseSeeder
         {
             Id = Guid.NewGuid() ,
             TitleEn = dto.Title ,
+            TitleEl = dto.TitleEl ,
             ContentEn = dto.Content ,
+            ContentEl = dto.ContentEl ,
             PdfPath = dto.PdfPath ,
             VideoPath = dto.VideoPath ,
             DurationMinutes = dto.DurationMinutes ,
