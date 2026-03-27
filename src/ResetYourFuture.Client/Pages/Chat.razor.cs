@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
@@ -14,7 +12,6 @@ public partial class Chat : IAsyncDisposable
     [Inject] private IChatService ChatService { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
-    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private bool _chatAccess;
     private bool _accessChecked;
@@ -27,21 +24,12 @@ public partial class Chat : IAsyncDisposable
     private int _messagesPageSize = 20;
     private static readonly int[] MessagePageSizeOptions = [10, 20, 50];
     private ChatConversationDto? _selectedConversation;
-    private string _newMessage = string.Empty;
     private string _currentUserId = string.Empty;
     private bool _isLoadingMessages;
     private bool _isStarting;
-    private ElementReference _messageContainer;
-    private ElementReference _textareaRef;
-    private ElementReference _resizeHandleRef;
-    private bool _resizeInitialized;
 
     // --- User Picker ---
     private bool _showUserPicker;
-    private string _userSearchTerm = string.Empty;
-    private List<ChatUserDto> _availableUsers = [];
-    private bool _isSearching;
-    private CancellationTokenSource? _searchCts;
 
     // --- Delete Conversation ---
     private ChatConversationDto? _conversationToDelete;
@@ -74,15 +62,6 @@ public partial class Chat : IAsyncDisposable
 
         await ChatService.StartAsync();
         await LoadConversationsAsync();
-    }
-
-    protected override async Task OnAfterRenderAsync( bool firstRender )
-    {
-        if ( _selectedConversation is not null && !_resizeInitialized )
-        {
-            await JS.InvokeVoidAsync( "chatInterop.initTopResize" , _resizeHandleRef , _textareaRef );
-            _resizeInitialized = true;
-        }
     }
 
     private async Task SelectConversation( ChatConversationDto conversation )
@@ -141,21 +120,18 @@ public partial class Chat : IAsyncDisposable
             await GoToMessagePage( _messagesPage + 1 );
     }
 
-    private async Task OnMessagePageSizeChanged( ChangeEventArgs e )
+    private async Task OnMessagePageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        _messagesPageSize = size;
+        // Load page 1 to get the new TotalPages, then jump to last page.
+        _messagesPage = 1;
+        await LoadMessagesAsync();
+        if ( _pagedMessages is { TotalPages: > 1 } )
         {
-            _messagesPageSize = size;
-            // Load page 1 to get the new TotalPages, then jump to last page.
-            _messagesPage = 1;
+            _messagesPage = _pagedMessages.TotalPages;
             await LoadMessagesAsync();
-            if ( _pagedMessages is { TotalPages: > 1 } )
-            {
-                _messagesPage = _pagedMessages.TotalPages;
-                await LoadMessagesAsync();
-            }
-            StateHasChanged();
         }
+        StateHasChanged();
     }
 
     // --- Conversation Pagination ---
@@ -179,66 +155,20 @@ public partial class Chat : IAsyncDisposable
             await GoToConversationPage( _conversationsPage + 1 );
     }
 
-    private async Task OnConversationPageSizeChanged( ChangeEventArgs e )
+    private async Task OnConversationPageSizeChanged( int size )
     {
-        if ( int.TryParse( e.Value?.ToString() , out var size ) )
-        {
-            _conversationsPageSize = size;
-            _conversationsPage = 1;
-            await GoToConversationPage( 1 );
-        }
+        _conversationsPageSize = size;
+        _conversationsPage = 1;
+        await GoToConversationPage( 1 );
     }
 
     // --- User Picker ---
 
-    private async Task OpenUserPicker()
-    {
-        _showUserPicker = true;
-        _userSearchTerm = string.Empty;
-        _availableUsers = [];
-        StateHasChanged();
+    private void OpenUserPicker() => _showUserPicker = true;
 
-        // Load initial list.
-        await SearchUsersAsync();
-    }
+    private void CloseUserPicker() => _showUserPicker = false;
 
-    private void CloseUserPicker()
-    {
-        _showUserPicker = false;
-        _userSearchTerm = string.Empty;
-        _availableUsers = [];
-    }
-
-    private async Task HandleSearchKeyDown( KeyboardEventArgs e )
-    {
-        // Debounce: cancel previous search, start new one.
-        _searchCts?.Cancel();
-        _searchCts = new CancellationTokenSource();
-        var token = _searchCts.Token;
-
-        try
-        {
-            await Task.Delay( 300 , token );
-            await SearchUsersAsync();
-        }
-        catch ( TaskCanceledException )
-        {
-            // Expected when typing quickly.
-        }
-    }
-
-    private async Task SearchUsersAsync()
-    {
-        _isSearching = true;
-        StateHasChanged();
-
-        _availableUsers = await ChatService.GetAvailableUsersAsync( _userSearchTerm );
-
-        _isSearching = false;
-        StateHasChanged();
-    }
-
-    private async Task PickUser( ChatUserDto user )
+    private async Task HandleUserPicked( ChatUserDto user )
     {
         _showUserPicker = false;
         _isStarting = true;
@@ -263,21 +193,10 @@ public partial class Chat : IAsyncDisposable
 
     // --- Messaging ---
 
-    private async Task SendMessage()
+    private async Task HandleSendMessage( string message )
     {
-        if ( _selectedConversation is null || string.IsNullOrWhiteSpace( _newMessage ) )
-            return;
-
-        await ChatService.SendMessageAsync( _selectedConversation.Id , _newMessage );
-        _newMessage = string.Empty;
-    }
-
-    private async Task HandleKeyDown( KeyboardEventArgs e )
-    {
-        if ( e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace( _newMessage ) )
-        {
-            await SendMessage();
-        }
+        if ( _selectedConversation is null ) return;
+        await ChatService.SendMessageAsync( _selectedConversation.Id , message );
     }
 
     private void HandleMessageReceived( ChatMessageDto message )
@@ -349,10 +268,7 @@ public partial class Chat : IAsyncDisposable
 
         var old = _conversations.Items [ idx ];
         var newCount = explicitCount ?? ( old.UnreadCount + 1 );
-        _conversations.Items [ idx ] = old with
-        {
-            UnreadCount = newCount
-        };
+        _conversations.Items [ idx ] = old with { UnreadCount = newCount };
     }
 
     // --- Delete Conversation ---
@@ -383,7 +299,6 @@ public partial class Chat : IAsyncDisposable
             {
                 _selectedConversation = null;
                 _pagedMessages = null;
-                _resizeInitialized = false;
             }
 
             _conversationsPage = 1;
@@ -397,8 +312,6 @@ public partial class Chat : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _searchCts?.Cancel();
-        _searchCts?.Dispose();
         if ( _chatAccess )
         {
             ChatService.OnMessageReceived -= HandleMessageReceived;
@@ -406,6 +319,6 @@ public partial class Chat : IAsyncDisposable
             await ChatService.DisposeAsync();
         }
 
-        GC.SuppressFinalize(this);
+        GC.SuppressFinalize( this );
     }
 }

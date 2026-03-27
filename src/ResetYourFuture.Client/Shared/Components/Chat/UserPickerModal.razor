@@ -1,0 +1,40 @@
+@* User search modal for starting a new conversation. *@
+
+<FormModal IsVisible="IsVisible"
+           Title="@ChatRes.StartConversation"
+           OnClose="OnClose">
+    <Body>
+        <input type="text" class="form-control mb-3" placeholder="@ChatRes.SearchUsers"
+               @bind="_searchTerm" @bind:event="oninput"
+               @onkeydown="HandleSearchKeyDown" />
+
+        @if ( _isSearching )
+        {
+            <div class="text-center p-3">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+            </div>
+        }
+        else if ( _availableUsers.Count == 0 )
+        {
+            <div class="text-light-muted p-2 small">
+                @( string.IsNullOrWhiteSpace( _searchTerm )
+                    ? ChatRes.TypeToSearch
+                    : ChatRes.NoUsersFound )
+            </div>
+        }
+        else
+        {
+            <div class="user-picker-list">
+                @foreach ( var user in _availableUsers )
+                {
+                    <div class="user-picker-item" @onclick="() => PickUser( user )"
+                         @key="user.Id">
+                        <span class="bi bi-person-circle me-2"></span>
+                        <span class="user-picker-name">@user.FullName</span>
+                        <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
+                    </div>
+                }
+            </div>
+        }
+    </Body>
+</FormModal>

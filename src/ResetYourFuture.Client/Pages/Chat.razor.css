@@ -11,14 +11,6 @@
     background: var(--bg-surface);
 }
 
-/* --- Sidebar --- */
-.chat-sidebar {
-    width: 280px;
-    min-width: 240px;
-    border-right: 1px solid var(--border-subtle);
-    display: flex;
-    flex-direction: column;
-}
 
 .sidebar-header {
     display: flex;

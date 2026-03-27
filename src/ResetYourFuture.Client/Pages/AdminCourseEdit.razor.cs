@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Shared;
 using ResetYourFuture.Shared.DTOs;
+
 namespace ResetYourFuture.Client.Pages;
 
 public partial class AdminCourseEdit
@@ -26,13 +26,13 @@ public partial class AdminCourseEdit
     private bool isSaving;
     private string message = string.Empty;
 
-    // ConfirmModal state for module/lesson deletion
+    // Delete confirmation state
     private Guid? _pendingDeleteModuleId;
     private Guid? _pendingDeleteLessonId;
     private Guid? _pendingDeleteLessonModuleId;
     private string _pendingDeleteMessage = string.Empty;
 
-    // Course fields
+    // Course form fields
     private string courseTitleEn = string.Empty;
     private string? courseTitleEl;
     private string? courseDescriptionEn;
@@ -40,33 +40,16 @@ public partial class AdminCourseEdit
     private QuillEditor? descriptionEditorEn;
     private QuillEditor? descriptionEditorEl;
 
-    // Module modal fields
-    private bool showModuleModal;
-    private Guid? editingModuleId;
-    private string moduleTitleEn = string.Empty;
-    private string? moduleTitleEl;
-    private string? moduleDescriptionEn;
-    private string? moduleDescriptionEl;
-    private int moduleSortOrder;
+    // Module modal state
+    private bool _showModuleModal;
+    private AdminModuleDto? _editingModule;
 
-    // Lesson modal fields
-    private bool showLessonModal;
-    private Guid? editingLessonId;
-    private Guid lessonModuleId;
-    private string lessonTitleEn = string.Empty;
-    private string? lessonTitleEl;
-    private string? lessonContentEn;
-    private string? lessonContentEl;
-    private string? lessonVideoUrl;
-    private int lessonSortOrder;
-    private int? lessonDuration;
-    private string? lessonPdfPath;
-    private string? lessonVideoFilePath;
-    private QuillEditor? lessonContentEditorEn;
-    private QuillEditor? lessonContentEditorEl;
-    private IBrowserFile? pendingPdf;
-    private IBrowserFile? pendingVideo;
-    private bool isLessonSaving;
+    // Lesson modal state
+    private bool _showLessonModal;
+    private AdminLessonDto? _editingLesson;
+    private Guid _lessonModalModuleId;
+    private int _lessonModalDefaultSortOrder;
+
     private Guid _lastLoadedCourseId;
 
     protected override async Task OnParametersSetAsync()
@@ -203,208 +186,63 @@ public partial class AdminCourseEdit
         }
     }
 
-    private void Cancel()
-    {
-        Nav.NavigateTo( "/admin/courses" );
-    }
+    private void Cancel() => Nav.NavigateTo( "/admin/courses" );
 
     // ── Module modal ──
 
     private void ShowAddModule()
     {
-        editingModuleId = null;
-        moduleTitleEn = string.Empty;
-        moduleTitleEl = null;
-        moduleDescriptionEn = null;
-        moduleDescriptionEl = null;
-        moduleSortOrder = ( modules?.Count ?? 0 ) + 1;
-        showModuleModal = true;
+        _editingModule = null;
+        _showModuleModal = true;
     }
 
     private void ShowEditModule( AdminModuleDto module )
     {
-        editingModuleId = module.Id;
-        moduleTitleEn = module.TitleEn;
-        moduleTitleEl = module.TitleEl;
-        moduleDescriptionEn = module.DescriptionEn;
-        moduleDescriptionEl = module.DescriptionEl;
-        moduleSortOrder = module.SortOrder;
-        showModuleModal = true;
+        _editingModule = module;
+        _showModuleModal = true;
     }
 
-    private void CloseModuleModal()
+    private void CloseModuleModal() => _showModuleModal = false;
+
+    private async Task OnModuleSaved()
     {
-        showModuleModal = false;
-    }
-
-    private async Task SaveModule()
-    {
-        try
-        {
-            var request = new SaveModuleRequest( moduleTitleEn , moduleTitleEl , moduleDescriptionEn , moduleDescriptionEl , moduleSortOrder , CourseId );
-
-            var result = editingModuleId == null
-                ? await ModuleConsumer.CreateModuleAsync( request )
-                : await ModuleConsumer.UpdateModuleAsync( editingModuleId.Value , request );
-
-            if ( result is not null )
-            {
-                await LoadModulesAndLessons();
-                CloseModuleModal();
-                message = "Module saved";
-            }
-            else
-            {
-                message = "Error saving module";
-            }
-        }
-        catch ( Exception ex )
-        {
-            message = $"Error: {ex.Message}";
-        }
-    }
-
-    private void DeleteModule( Guid moduleId )
-    {
-        _pendingDeleteModuleId = moduleId;
-        _pendingDeleteMessage = "Delete this module and all its lessons?";
+        _showModuleModal = false;
+        await LoadModulesAndLessons();
+        message = "Module saved";
     }
 
     // ── Lesson modal ──
 
     private void ShowAddLesson( Guid moduleId )
     {
-        editingLessonId = null;
-        lessonModuleId = moduleId;
-        lessonTitleEn = string.Empty;
-        lessonTitleEl = null;
-        lessonContentEn = null;
-        lessonContentEl = null;
-        lessonVideoUrl = null;
-        lessonSortOrder = ( lessonsMap.GetValueOrDefault( moduleId )?.Count ?? 0 ) + 1;
-        lessonDuration = null;
-        lessonPdfPath = null;
-        lessonVideoFilePath = null;
-        pendingPdf = null;
-        pendingVideo = null;
-        showLessonModal = true;
+        _editingLesson = null;
+        _lessonModalModuleId = moduleId;
+        _lessonModalDefaultSortOrder = ( lessonsMap.GetValueOrDefault( moduleId )?.Count ?? 0 ) + 1;
+        _showLessonModal = true;
     }
 
     private void ShowEditLesson( AdminLessonDto lesson )
     {
-        editingLessonId = lesson.Id;
-        lessonModuleId = lesson.ModuleId;
-        lessonTitleEn = lesson.TitleEn;
-        lessonTitleEl = lesson.TitleEl;
-        lessonContentEn = lesson.ContentEn;
-        lessonContentEl = lesson.ContentEl;
-        lessonVideoUrl = lesson.VideoPath;
-        lessonSortOrder = lesson.SortOrder;
-        lessonDuration = lesson.DurationMinutes;
-        lessonPdfPath = lesson.PdfPath;
-        lessonVideoFilePath = lesson.VideoPath;
-        pendingPdf = null;
-        pendingVideo = null;
-        showLessonModal = true;
+        _editingLesson = lesson;
+        _lessonModalModuleId = lesson.ModuleId;
+        _showLessonModal = true;
     }
 
-    private void CloseLessonModal()
+    private void CloseLessonModal() => _showLessonModal = false;
+
+    private async Task OnLessonSaved()
     {
-        showLessonModal = false;
+        _showLessonModal = false;
+        await LoadModulesAndLessons();
+        message = "Lesson saved";
     }
 
-    private void OnPdfSelected( InputFileChangeEventArgs e )
+    // ── Delete ──
+
+    private void DeleteModule( Guid moduleId )
     {
-        pendingPdf = e.File;
-    }
-
-    private void OnVideoSelected( InputFileChangeEventArgs e )
-    {
-        pendingVideo = e.File;
-    }
-
-    private async Task SaveLesson()
-    {
-        if ( string.IsNullOrWhiteSpace( lessonTitleEn ) )
-        {
-            message = "Lesson title is required.";
-            return;
-        }
-
-        isLessonSaving = true;
-        message = string.Empty;
-        try
-        {
-            var contentEn = lessonContentEditorEn != null
-                ? await lessonContentEditorEn.GetContentAsync()
-                : lessonContentEn;
-
-            var contentEl = lessonContentEditorEl != null
-                ? await lessonContentEditorEl.GetContentAsync()
-                : lessonContentEl;
-
-            var request = new SaveLessonRequest(
-                lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , lessonModuleId );
-
-            Guid lessonId;
-
-            if ( editingLessonId == null )
-            {
-                var created = await LessonConsumer.CreateLessonAsync( request );
-                if ( created is not null )
-                {
-                    lessonId = created.Id;
-                }
-                else
-                {
-                    message = "Error creating lesson";
-                    return;
-                }
-            }
-            else
-            {
-                lessonId = editingLessonId.Value;
-                var updated = await LessonConsumer.UpdateLessonAsync( lessonId , request );
-                if ( updated is null )
-                {
-                    message = "Error updating lesson";
-                    return;
-                }
-            }
-
-            // Upload files if selected; collect errors so they are visible to the admin.
-            var uploadErrors = new System.Text.StringBuilder();
-            if ( pendingPdf != null )
-            {
-                var err = await UploadFileAsync( lessonId , pendingPdf , "pdf" );
-                if ( err is not null ) uploadErrors.AppendLine( err );
-            }
-            if ( pendingVideo != null )
-            {
-                var err = await UploadFileAsync( lessonId , pendingVideo , "video" );
-                if ( err is not null ) uploadErrors.AppendLine( err );
-            }
-
-            await LoadModulesAndLessons();
-            CloseLessonModal();
-            message = uploadErrors.Length > 0 ? uploadErrors.ToString().Trim() : "Lesson saved";
-        }
-        catch ( Exception ex )
-        {
-            message = $"Error: {ex.Message}";
-        }
-        finally
-        {
-            isLessonSaving = false;
-        }
-    }
-
-    private async Task<string?> UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
-    {
-        var result = type == "pdf"
-            ? await LessonConsumer.UploadPdfAsync( lessonId , file )
-            : await LessonConsumer.UploadVideoAsync( lessonId , file );
-        return result is not null ? null : $"Error uploading {type}";
+        _pendingDeleteModuleId = moduleId;
+        _pendingDeleteMessage = "Delete this module and all its lessons?";
     }
 
     private void DeleteLesson( Guid lessonId , Guid moduleId )

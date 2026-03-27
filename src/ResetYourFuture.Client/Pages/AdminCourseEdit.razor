@@ -192,107 +192,19 @@ else
     }
 }
 
-@* ── Module Create/Edit Modal ── *@
-<FormModal IsVisible="showModuleModal"
-           Title="@(editingModuleId == null ? AdminRes.AddModule : AdminRes.EditModule)"
-           OnClose="CloseModuleModal">
-    <Body>
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                <input class="form-control" @bind="moduleTitleEn" />
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                <input class="form-control" @bind="moduleTitleEl" />
-            </div>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.FieldDescription (EN)</label>
-            <textarea class="form-control" @bind="moduleDescriptionEn" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.FieldDescription (EL)</label>
-            <textarea class="form-control" @bind="moduleDescriptionEl" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.SortOrder</label>
-            <input type="number" class="form-control" @bind="moduleSortOrder" />
-        </div>
-    </Body>
-    <Footer>
-        <button class="btn btn-primary" @onclick="SaveModule">@AdminRes.Save</button>
-        <button class="btn btn-secondary" @onclick="CloseModuleModal">@AdminRes.Cancel</button>
-    </Footer>
-</FormModal>
+<ModuleEditorModal IsVisible="_showModuleModal"
+                   EditingModule="_editingModule"
+                   CourseId="CourseId"
+                   DefaultSortOrder="@(modules?.Count + 1 ?? 1)"
+                   OnClose="CloseModuleModal"
+                   OnSaved="OnModuleSaved" />
 
-@* ── Lesson Create/Edit Modal ── *@
-<FormModal IsVisible="showLessonModal"
-           Title="@(editingLessonId == null ? AdminRes.AddLesson : AdminRes.EditLesson)"
-           Size="modal-xl"
-           OnClose="CloseLessonModal">
-    <Body>
-        <div class="row">
-            <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                <input class="form-control" @bind="lessonTitleEn" />
-            </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                <input class="form-control" @bind="lessonTitleEl" />
-            </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.SortOrder</label>
-                <input type="number" class="form-control" @bind="lessonSortOrder" />
-            </div>
-            <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.DurationMinutes</label>
-                <input type="number" class="form-control" @bind="lessonDuration" />
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.FieldContent (EN)</label>
-            <QuillEditor @ref="lessonContentEditorEn" Content="@lessonContentEn" MinHeight="300px" />
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.FieldContent (EL)</label>
-            <QuillEditor @ref="lessonContentEditorEl" Content="@lessonContentEl" MinHeight="300px" />
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">@AdminRes.VideoUrlLabel</label>
-            <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
-            <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadPdf</label>
-                <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
-                @if (!string.IsNullOrEmpty(lessonPdfPath))
-                {
-                    <small class="text-success">@AdminRes.Current @lessonPdfPath</small>
-                }
-            </div>
-            <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadVideo</label>
-                <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
-                @if (!string.IsNullOrEmpty(lessonVideoFilePath))
-                {
-                    <small class="text-success">@AdminRes.Current @lessonVideoFilePath</small>
-                }
-            </div>
-        </div>
-    </Body>
-    <Footer>
-        <button class="btn btn-primary" @onclick="SaveLesson" disabled="@isLessonSaving">
-            @(isLessonSaving ? AdminRes.Saving : AdminRes.SaveLesson)
-        </button>
-        <button class="btn btn-secondary" @onclick="CloseLessonModal">@AdminRes.Cancel</button>
-    </Footer>
-</FormModal>
+<LessonEditorModal IsVisible="_showLessonModal"
+                   EditingLesson="_editingLesson"
+                   ModuleId="_lessonModalModuleId"
+                   DefaultSortOrder="_lessonModalDefaultSortOrder"
+                   OnClose="CloseLessonModal"
+                   OnSaved="OnLessonSaved" />
 
 <ConfirmModal IsVisible="@(_pendingDeleteModuleId.HasValue || _pendingDeleteLessonId.HasValue)"
               Title="Confirm"

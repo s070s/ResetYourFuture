@@ -4,13 +4,13 @@
 
 <PageTitle>@ChatRes.PageTitle</PageTitle>
 
-@if (!_accessChecked)
+@if ( !_accessChecked )
 {
     <div class="text-center p-5">
         <div class="spinner-border" role="status"></div>
     </div>
 }
-else if (!_chatAccess)
+else if ( !_chatAccess )
 {
     <UpgradePrompt PlanName="Pro"
                    FeatureName="Chat"
@@ -18,199 +18,37 @@ else if (!_chatAccess)
 }
 else
 {
-<div class="chat-container">
-    @* --- Conversation List Sidebar --- *@
-    <div class="chat-sidebar">
-        <div class="sidebar-header">
-            <h5>@ChatRes.Conversations</h5>
-            <button class="btn btn-sm btn-primary" @onclick="OpenUserPicker"
-                    disabled="@_isStarting">
-                <span class="bi bi-plus-circle"></span> @ChatRes.NewButton
-            </button>
-        </div>
+    <div class="chat-container">
+        <ConversationSidebar Conversations="_conversations"
+                             SelectedConversationId="_selectedConversation?.Id"
+                             IsStarting="_isStarting"
+                             PageSize="_conversationsPageSize"
+                             PageSizeOptions="ConversationPageSizeOptions"
+                             OnNewConversation="OpenUserPicker"
+                             OnConversationSelected="SelectConversation"
+                             OnDeleteRequested="ConfirmDeleteConversation"
+                             OnPageSizeChanged="OnConversationPageSizeChanged"
+                             OnPreviousPage="PreviousConversationPage"
+                             OnNextPage="NextConversationPage" />
 
-        @if ( _conversations is null )
-        {
-            <div class="text-center p-3">
-                <div class="spinner-border spinner-border-sm" role="status"></div>
-            </div>
-        }
-        else if ( _conversations.Items.Count == 0 )
-        {
-            <div class="text-light-muted p-3 small">@ChatRes.NoConversations</div>
-        }
-        else
-        {
-            <div class="conversation-list" style="max-height:60vh; overflow-y:auto">
-                    <Virtualize Items="_conversations.Items" Context="convo" OverscanCount="10">
-                        @{ var isActive = _selectedConversation?.Id == convo.Id; }
-                        <div class="conversation-item @(isActive ? "active" : "")"
-                             @onclick="() => SelectConversation( convo )"
-                             @key="convo.Id">
-                            <div class="convo-name">
-                                @convo.OtherUserName
-                                <span class="convo-role">@convo.OtherUserRole</span>
-                            </div>
-                            <div class="convo-preview">@( convo.LastMessageContent ?? ChatRes.NoMessages )</div>
-                            @if ( convo.UnreadCount > 0 )
-                            {
-                                <span class="badge bg-danger">@convo.UnreadCount</span>
-                            }
-                            <button class="btn btn-sm convo-delete-btn"
-                                    @onclick:stopPropagation="true"
-                                    @onclick="() => ConfirmDeleteConversation( convo )"
-                                    title="@ChatRes.DeleteConversation">
-                                <span class="bi bi-trash"></span>
-                            </button>
-                        </div>
-                    </Virtualize>
-                </div>
-                <div class="d-flex justify-content-between align-items-center px-2 py-1 sidebar-pagination">
-                    <small class="text-light-muted">@_conversations.TotalCount</small>
-                    <div class="d-flex align-items-center gap-1">
-                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
-                        <select class="page-size-select" value="@_conversationsPageSize" @onchange="OnConversationPageSizeChanged">
-                            @foreach ( var opt in ConversationPageSizeOptions )
-                            {
-                                <option value="@opt">@opt</option>
-                            }
-                        </select>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="PreviousConversationPage"
-                                disabled="@(!_conversations.HasPreviousPage)">‹</button>
-                        <span class="small">@_conversations.Page/@_conversations.TotalPages</span>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="NextConversationPage"
-                                disabled="@(!_conversations.HasNextPage)">›</button>
-                    </div>
-                </div>
-        }
+        <MessagePane Conversation="_selectedConversation"
+                     Messages="_pagedMessages"
+                     CurrentUserId="_currentUserId"
+                     IsLoading="_isLoadingMessages"
+                     IsConnected="ChatService.IsConnected"
+                     PageSize="_messagesPageSize"
+                     PageSizeOptions="MessagePageSizeOptions"
+                     OnSendMessage="HandleSendMessage"
+                     OnPageSizeChanged="OnMessagePageSizeChanged"
+                     OnPreviousPage="PreviousMessagePage"
+                     OnNextPage="NextMessagePage" />
     </div>
-
-    @* --- Message Area --- *@
-    <div class="chat-main">
-        @if ( _selectedConversation is null )
-        {
-            <div class="chat-placeholder">
-                <span class="bi bi-chat-dots" style="font-size: 3rem;"></span>
-                <p>@ChatRes.SelectConversation</p>
-            </div>
-        }
-        else
-        {
-            <div class="chat-header">
-                <h6>
-                    <span class="bi bi-person"></span> @_selectedConversation.OtherUserName
-                    <span class="chat-header-role">(@_selectedConversation.OtherUserRole)</span>
-                </h6>
-            </div>
-
-            @if ( _pagedMessages is not null )
-            {
-                <div class="d-flex justify-content-between align-items-center px-3 py-1 chat-pagination">
-                    <small class="text-light-muted">@_pagedMessages.TotalCount messages</small>
-                    <div class="d-flex align-items-center gap-2">
-                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
-                        <select class="page-size-select" value="@_messagesPageSize" @onchange="OnMessagePageSizeChanged">
-                            @foreach ( var opt in MessagePageSizeOptions )
-                            {
-                                <option value="@opt">@opt</option>
-                            }
-                        </select>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="PreviousMessagePage"
-                                disabled="@(!_pagedMessages.HasPreviousPage)">‹ Older</button>
-                        <span class="small">Page @_pagedMessages.Page of @_pagedMessages.TotalPages</span>
-                        <button class="btn btn-sm btn-outline-secondary"
-                                @onclick="NextMessagePage"
-                                disabled="@(!_pagedMessages.HasNextPage)">Newer ›</button>
-                    </div>
-                </div>
-            }
-
-            <div class="chat-messages" @ref="_messageContainer">
-                @if ( _isLoadingMessages )
-                {
-                    <div class="text-center p-3">
-                        <div class="spinner-border spinner-border-sm" role="status"></div>
-                    </div>
-                }
-                else
-                {
-                    <Virtualize Items="_pagedMessages?.Items ?? new()" Context="msg" OverscanCount="10">
-                        @{ var isMine = msg.SenderId == _currentUserId; }
-                        <div class="message-bubble @(isMine ? "mine" : "theirs")" @key="msg.Id">
-                            <div class="message-sender">
-                                @msg.SenderName
-                                <span class="message-role">(@msg.SenderRole)</span>
-                            </div>
-                            <div class="message-content">@msg.Content</div>
-                            <div class="message-time">@msg.SentAt.ToLocalTime().ToString( "HH:mm" )</div>
-                        </div>
-                    </Virtualize>
-                }
-            </div>
-
-            <div class="chat-input">
-                <div class="textarea-wrapper">
-                    <div class="resize-handle-top" @ref="_resizeHandleRef"></div>
-                    <textarea class="form-control" placeholder="@ChatRes.TypeMessage"
-                              rows="1"
-                              @ref="_textareaRef"
-                              @bind="_newMessage" @bind:event="oninput"
-                              @onkeydown="HandleKeyDown" disabled="@(!ChatService.IsConnected)"></textarea>
-                </div>
-                <button class="btn btn-primary" @onclick="SendMessage"
-                        disabled="@(string.IsNullOrWhiteSpace( _newMessage ) || !ChatService.IsConnected)">
-                    <span class="bi bi-send"></span>
-                </button>
-            </div>
-        }
-    </div>
-</div>
 }
 
-@* --- User Picker Modal --- *@
-<FormModal IsVisible="_showUserPicker"
-           Title="@ChatRes.StartConversation"
-           OnClose="CloseUserPicker">
-    <Body>
-        <input type="text" class="form-control mb-3" placeholder="@ChatRes.SearchUsers"
-               @bind="_userSearchTerm" @bind:event="oninput"
-               @onkeydown="HandleSearchKeyDown" />
+<UserPickerModal IsVisible="_showUserPicker"
+                 OnClose="CloseUserPicker"
+                 OnUserPicked="HandleUserPicked" />
 
-        @if ( _isSearching )
-        {
-            <div class="text-center p-3">
-                <div class="spinner-border spinner-border-sm" role="status"></div>
-            </div>
-        }
-        else if ( _availableUsers.Count == 0 )
-        {
-            <div class="text-light-muted p-2 small">
-                @( string.IsNullOrWhiteSpace( _userSearchTerm )
-                    ? ChatRes.TypeToSearch
-                    : ChatRes.NoUsersFound )
-            </div>
-        }
-        else
-        {
-            <div class="user-picker-list">
-                @foreach ( var user in _availableUsers )
-                {
-                    <div class="user-picker-item" @onclick="() => PickUser( user )"
-                         @key="user.Id">
-                        <span class="bi bi-person-circle me-2"></span>
-                        <span class="user-picker-name">@user.FullName</span>
-                        <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
-                    </div>
-                }
-            </div>
-        }
-    </Body>
-</FormModal>
-
-@* --- Delete Confirmation Modal --- *@
 <ConfirmModal IsVisible="@(_conversationToDelete is not null)"
               Title="@ChatRes.DeleteConversation"
               ConfirmLabel="@ChatRes.Delete"
