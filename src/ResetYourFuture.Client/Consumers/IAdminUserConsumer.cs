@@ -13,6 +13,7 @@ public interface IAdminUserConsumer
     Task<bool?> ToggleEnableAsync( string userId );
     Task<bool> DeleteUserAsync( string userId );
     Task<string?> ForcePasswordResetAsync( string userId );
+    Task<bool> SetPasswordAsync( string userId , string newPassword );
     Task<bool> DisableUserAsync( string userId );
     Task<bool> EnableUserAsync( string userId );
     Task<bool> AssignRoleAsync( string userId , string roleName );

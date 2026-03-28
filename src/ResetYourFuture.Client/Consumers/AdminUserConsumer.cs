@@ -67,6 +67,14 @@ public class AdminUserConsumer : IAdminUserConsumer
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<bool> SetPasswordAsync( string userId , string newPassword )
+    {
+        var response = await _http.PostAsJsonAsync(
+            $"api/admin/users/{userId}/set-password" ,
+            new AdminSetPasswordDto { NewPassword = newPassword } );
+        return response.IsSuccessStatusCode;
+    }
+
     public async Task<bool> EnableUserAsync( string userId )
     {
         var response = await _http.PostAsync( $"api/admin/users/{userId}/enable" , null );

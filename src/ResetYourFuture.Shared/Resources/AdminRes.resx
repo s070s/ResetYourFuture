@@ -449,6 +449,24 @@
 	<data name="ResetPassword" xml:space="preserve">
 		<value>Reset Password</value>
 	</data>
+	<data name="ResetPasswordFor" xml:space="preserve">
+		<value>Reset password for {0}</value>
+	</data>
+	<data name="NewPassword" xml:space="preserve">
+		<value>New Password</value>
+	</data>
+	<data name="ConfirmPasswordLabel" xml:space="preserve">
+		<value>Confirm Password</value>
+	</data>
+	<data name="SetPassword" xml:space="preserve">
+		<value>Set Password</value>
+	</data>
+	<data name="PasswordUpdated" xml:space="preserve">
+		<value>Password updated successfully</value>
+	</data>
+	<data name="PasswordMismatch" xml:space="preserve">
+		<value>Passwords do not match</value>
+	</data>
 	<data name="DisableUser" xml:space="preserve">
 		<value>Disable</value>
 	</data>

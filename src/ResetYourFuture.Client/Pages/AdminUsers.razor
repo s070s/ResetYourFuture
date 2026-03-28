@@ -1,5 +1,6 @@
 @page "/admin/users"
 @attribute [Authorize(Roles = "Admin")]
+@using ResetYourFuture.Client.Shared.Components.Data
 
 <PageTitle>@AdminRes.UserManagement</PageTitle>
 
@@ -44,7 +45,10 @@
                                 {
                                     <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
                                 }
-                                <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">@AdminRes.ResetPassword</button>
+                                @if (!user.Roles.Contains("Admin"))
+                                {
+                                    <button class="btn btn-sm btn-warning" @onclick="() => OpenResetPasswordModal(user)">@AdminRes.ResetPassword</button>
+                                }
                                 @if (!user.Roles.Contains("Admin"))
                                 {
                                     @if (user.IsEnabled)
@@ -95,3 +99,34 @@
         </NotAuthorized>
     </AuthorizeView>
 </div>
+
+<FormModal IsVisible="_resetPwdModalVisible"
+           Title="@(string.Format(AdminRes.ResetPasswordFor, _resetPwdEmail))"
+           OnClose="CloseResetPasswordModal">
+    <Body>
+        @if (_resetPwdError is not null)
+        {
+            <div class="alert alert-danger py-1">@_resetPwdError</div>
+        }
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.NewPassword</label>
+            <input type="password" class="form-control" @bind="_resetPwdNew" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.ConfirmPasswordLabel</label>
+            <input type="password" class="form-control" @bind="_resetPwdConfirm" />
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-secondary" @onclick="CloseResetPasswordModal" disabled="@_resetPwdBusy">
+            @AdminRes.Cancel
+        </button>
+        <button class="btn btn-warning" @onclick="SubmitResetPassword" disabled="@_resetPwdBusy">
+            @if (_resetPwdBusy)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            @AdminRes.SetPassword
+        </button>
+    </Footer>
+</FormModal>

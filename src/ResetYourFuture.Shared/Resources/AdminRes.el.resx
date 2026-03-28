@@ -449,6 +449,24 @@
 	<data name="ResetPassword" xml:space="preserve">
 		<value>Επαναφορά Κωδικού</value>
 	</data>
+	<data name="ResetPasswordFor" xml:space="preserve">
+		<value>Επαναφορά κωδικού για {0}</value>
+	</data>
+	<data name="NewPassword" xml:space="preserve">
+		<value>Νέος Κωδικός</value>
+	</data>
+	<data name="ConfirmPasswordLabel" xml:space="preserve">
+		<value>Επιβεβαίωση Κωδικού</value>
+	</data>
+	<data name="SetPassword" xml:space="preserve">
+		<value>Ορισμός Κωδικού</value>
+	</data>
+	<data name="PasswordUpdated" xml:space="preserve">
+		<value>Ο κωδικός ενημερώθηκε επιτυχώς</value>
+	</data>
+	<data name="PasswordMismatch" xml:space="preserve">
+		<value>Οι κωδικοί δεν ταιριάζουν</value>
+	</data>
 	<data name="DisableUser" xml:space="preserve">
 		<value>Απενεργοποίηση</value>
 	</data>

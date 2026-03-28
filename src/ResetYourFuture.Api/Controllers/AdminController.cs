@@ -410,4 +410,27 @@ public class AdminController : ControllerBase
             Expiration = expiration
         } );
     }
+
+    /// <summary>
+    /// Directly set a new password for any user (admin override, no token email required).
+    /// </summary>
+    [HttpPost( "users/{userId}/set-password" )]
+    public async Task<IActionResult> SetPassword( string userId , [FromBody] AdminSetPasswordDto dto )
+    {
+        var user = await _userManager.FindByIdAsync( userId );
+        if ( user == null )
+            return NotFound( "User not found." );
+
+        if ( await _userManager.IsInRoleAsync( user , "Admin" ) )
+            return BadRequest( "Admin account passwords cannot be changed from the user table." );
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync( user );
+        var result = await _userManager.ResetPasswordAsync( user , token , dto.NewPassword );
+
+        if ( !result.Succeeded )
+            return BadRequest( result.Errors.Select( e => e.Description ) );
+
+        _logger.LogInformation( "Admin set new password for user {UserId}" , userId );
+        return Ok();
+    }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Client.Consumers;
 using ResetYourFuture.Client.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Client.Pages;
 
@@ -19,6 +20,14 @@ public partial class AdminUsers : IAsyncDisposable
     private string message = string.Empty;
     private string? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
+
+    private bool _resetPwdModalVisible;
+    private string? _resetPwdUserId;
+    private string _resetPwdEmail = string.Empty;
+    private string _resetPwdNew = string.Empty;
+    private string _resetPwdConfirm = string.Empty;
+    private bool _resetPwdBusy;
+    private string? _resetPwdError;
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,19 +111,62 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private async Task ForcePasswordReset( string userId )
+    private void OpenResetPasswordModal( AdminUserDto user )
     {
+        _resetPwdUserId = user.Id;
+        _resetPwdEmail = user.Email;
+        _resetPwdNew = string.Empty;
+        _resetPwdConfirm = string.Empty;
+        _resetPwdError = null;
+        _resetPwdModalVisible = true;
+    }
+
+    private void CloseResetPasswordModal()
+    {
+        _resetPwdModalVisible = false;
+        _resetPwdUserId = null;
+        _resetPwdNew = string.Empty;
+        _resetPwdConfirm = string.Empty;
+        _resetPwdError = null;
+    }
+
+    private async Task SubmitResetPassword()
+    {
+        if ( string.IsNullOrWhiteSpace( _resetPwdNew ) || _resetPwdNew.Length < 8 )
+        {
+            _resetPwdError = "Password must be at least 8 characters.";
+            return;
+        }
+
+        if ( _resetPwdNew != _resetPwdConfirm )
+        {
+            _resetPwdError = AdminRes.PasswordMismatch;
+            return;
+        }
+
+        _resetPwdBusy = true;
+        _resetPwdError = null;
+
         try
         {
-            var token = await UserConsumer.ForcePasswordResetAsync( userId );
-            if ( token is not null )
-                message = "Password reset initiated for user";
+            var success = await UserConsumer.SetPasswordAsync( _resetPwdUserId! , _resetPwdNew );
+            if ( success )
+            {
+                message = AdminRes.PasswordUpdated;
+                CloseResetPasswordModal();
+            }
             else
-                message = "Error initiating password reset";
+            {
+                _resetPwdError = "Failed to update password. Check password requirements.";
+            }
         }
         catch ( Exception ex )
         {
-            message = $"Error: {ex.Message}";
+            _resetPwdError = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _resetPwdBusy = false;
         }
     }
 

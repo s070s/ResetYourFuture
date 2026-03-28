@@ -6,7 +6,6 @@
 
 - Suggestions for collapsable UI Elements
 - Sorting for Table Components both in Backend and in FrontEnd
-
 - Like/reaction system for chat messages
 
 ---
