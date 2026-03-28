@@ -1042,7 +1042,7 @@ namespace ResetYourFuture.Shared.Resources {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Search by email or name...
+        ///   Looks up a localized string similar to Search by name or email (e.g. john@gmail.com)...
         /// </summary>
         public static string SearchByEmailOrName {
             get {

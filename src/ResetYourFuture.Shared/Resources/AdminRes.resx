@@ -426,7 +426,7 @@
 		<value>User Management</value>
 	</data>
 	<data name="SearchByEmailOrName" xml:space="preserve">
-		<value>Search by email or name...</value>
+		<value>Search by name or email (e.g. john@gmail.com)...</value>
 	</data>
 	<data name="LoadingUsers" xml:space="preserve">
 		<value>Loading users...</value>

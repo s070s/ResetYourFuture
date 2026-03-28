@@ -64,7 +64,7 @@
 		<value>Start a conversation</value>
 	</data>
 	<data name="SearchUsers" xml:space="preserve">
-		<value>Search users...</value>
+		<value>Search by name or email (e.g. john@)...</value>
 	</data>
 	<data name="TypeToSearch" xml:space="preserve">
 		<value>Type to search for users.</value>

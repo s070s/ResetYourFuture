@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
+using ResetYourFuture.Api.Extensions;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
@@ -58,11 +59,7 @@ public class AdminController : ControllerBase
 
         if ( !string.IsNullOrWhiteSpace( search ) )
         {
-            var term = search.Trim();
-            query = query.Where( u =>
-                u.Email!.Contains( term ) ||
-                u.FirstName.Contains( term ) ||
-                u.LastName.Contains( term ) );
+            query = query.ApplySearch( search.Trim() );
         }
 
         var totalCount = await query.CountAsync( cancellationToken );
@@ -233,6 +230,10 @@ public class AdminController : ControllerBase
         if ( user == null )
             return NotFound( "User not found." );
 
+        // Prevent disabling Admin-role users.
+        if ( await _userManager.IsInRoleAsync( user, "Admin" ) )
+            return BadRequest( "Admin accounts cannot be disabled." );
+
         user.IsEnabled = !user.IsEnabled;
         var result = await _userManager.UpdateAsync( user );
         if ( !result.Succeeded )
@@ -255,6 +256,10 @@ public class AdminController : ControllerBase
         var user = await _userManager.FindByIdAsync( userId );
         if ( user == null )
             return NotFound( "User not found." );
+
+        // Prevent deletion of Admin-role users.
+        if ( await _userManager.IsInRoleAsync( user, "Admin" ) )
+            return BadRequest( "Admin accounts cannot be deleted." );
 
         // Hard delete for now; prefer soft-delete in production.
         var result = await _userManager.DeleteAsync( user );
@@ -281,9 +286,7 @@ public class AdminController : ControllerBase
         // Query the Identity store for matching users (limit to 50).
         var users = await _userManager.Users
             .AsNoTracking()
-            .Where( u => u.Email!.Contains( query ) ||
-                       u.FirstName.Contains( query ) ||
-                       u.LastName.Contains( query ) )
+            .ApplySearch( query.Trim() )
             .Take( 50 )
             .ToListAsync();
 

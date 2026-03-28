@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Api.Data;
 using ResetYourFuture.Api.Domain.Entities;
+using ResetYourFuture.Api.Extensions;
 using ResetYourFuture.Api.Identity;
 using ResetYourFuture.Api.Interfaces;
 using ResetYourFuture.Shared.DTOs;
@@ -270,11 +271,7 @@ public class ChatController : ControllerBase
 
         if ( !string.IsNullOrWhiteSpace( search ) )
         {
-            var term = search.Trim().ToLower();
-            query = query.Where( u =>
-                u.FirstName.ToLower().Contains( term ) ||
-                u.LastName.ToLower().Contains( term ) ||
-                ( u.Email != null && u.Email.ToLower().Contains( term ) ) );
+            query = query.ApplySearch( search.Trim() );
         }
 
         var users = await query

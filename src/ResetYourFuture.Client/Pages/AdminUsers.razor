@@ -45,22 +45,28 @@
                                     <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
                                 }
                                 <button class="btn btn-sm btn-warning" @onclick="() => ForcePasswordReset(user.Id)">@AdminRes.ResetPassword</button>
-                                @if (user.IsEnabled)
+                                @if (!user.Roles.Contains("Admin"))
                                 {
-                                    <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
+                                    @if (user.IsEnabled)
+                                    {
+                                        <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
+                                    }
                                 }
-                                else
+                                @if (!user.Roles.Contains("Admin"))
                                 {
-                                    <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
-                                }
-                                @if (confirmDeleteId == user.Id)
-                                {
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
-                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
+                                    @if (confirmDeleteId == user.Id)
+                                    {
+                                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
+                                    }
                                 }
                             </td>
                         </tr>
