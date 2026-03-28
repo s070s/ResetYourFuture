@@ -1,16 +1,44 @@
 PRIORITY FIX
+
 -Section in the Home,Landing Page for
-Blog Type Articles
+Blog Type Articles editable from the Admin Panel
 
--Testimonials on landing page
+-Testimonials on landing page editable from the Admin Panel
 
--SEO Optimization
+-For Logged Users Timeline like Facebook 
+where people can post their progress,post text images and videos,share their thoughts,ask questions and interact with each other,with comments
+Include a like/reaction system for posts and comments to increase engagement
+
+-Include a F.A.Q page with common questions and answers about the platform, courses, assessments, and account management editable from the admin panel
+
+-Like/reaction system for chat messages
+
+-Sending Videos,Screenshots and Images in the Chat
+
+-Admin Moderation Features for the Community Timeline and Chat (Delete/Disable Posts,Comments,Messages)
+
+-Admin controllable pop up for
+Announcements and News that can be shown to all users or specific groups of users
+
+-Assessments can be attached to courses as Lessons and can be taken at the end of the course
+
+- Popup for feedback collection from courses,assessments.Results visible on the Admin Analytics Page
+
+- Admin controllable profanity filter for the Community Timeline and Chat
+
+- SEO Optimization
 
 -Better Searching for First Last Names emails in one bar (if @ is present search prefix and suffix as email)
 
 -Sorting for Table Components both in  Backend and in FrontEnd
 
+-Change to .NET 10
 
+-Change to Blazor Server for better SEO and performance
+
+-Suggestions for collapsable UI Elements
+
+-Make the Profile Page similar to Instagram
 
 
 
