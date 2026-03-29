@@ -53,40 +53,52 @@ else
     <div class="modules-list">
         @foreach (var module in _course.Modules.OrderBy(m => m.SortOrder))
         {
-            <div class="module-card">
-                <h3>@module.SortOrder. @module.Title</h3>
-                @if (!string.IsNullOrEmpty(module.Description))
-                {
-                    <div class="module-description">@((MarkupString)module.Description)</div>
-                }
-
-                <ul class="lessons-list">
-                    @foreach (var lesson in module.Lessons.OrderBy(l => l.SortOrder))
-                    {
-                        <li class="lesson-item @(lesson.IsCompleted ? "completed" : "")" 
-                            @onclick="() => ViewLesson(lesson.Id)">
-                            <span class="lesson-icon">
-                                @if (lesson.IsCompleted)
-                                {
-                                    <text>✓</text>
-                                }
-                                else if (lesson.ContentType == 2)
-                                {
-                                    <text>▶</text>
-                                }
-                                else
-                                {
-                                    <text>📄</text>
-                                }
-                            </span>
-                            <span class="lesson-title">@lesson.Title</span>
-                            @if (lesson.DurationMinutes.HasValue)
+            var isExpanded = _expandedModules.Contains(module.Id);
+            <div class="card mb-3" @key="module.Id">
+                <div class="card-header d-flex justify-content-between align-items-center collapsible-header"
+                     role="button"
+                     aria-expanded="@isExpanded.ToString().ToLowerInvariant()"
+                     @onclick="() => ToggleModule(module.Id)">
+                    <span class="fw-semibold">@module.SortOrder. @module.Title</span>
+                    <i class="bi bi-chevron-down chevron-icon @(isExpanded ? "expanded" : "")"></i>
+                </div>
+                <div class="collapsible-body-wrapper @(isExpanded ? "expanded" : "collapsed")">
+                    <div class="collapsible-body-inner">
+                        <div class="card-body">
+                            @if (!string.IsNullOrEmpty(module.Description))
                             {
-                                <span class="lesson-duration">@lesson.DurationMinutes @CourseRes.MinutesShort</span>
+                                <div class="module-description">@((MarkupString)module.Description)</div>
                             }
-                        </li>
-                    }
-                </ul>
+                            <ul class="lessons-list">
+                                @foreach (var lesson in module.Lessons.OrderBy(l => l.SortOrder))
+                                {
+                                    <li class="lesson-item @(lesson.IsCompleted ? "completed" : "")"
+                                        @onclick="() => ViewLesson(lesson.Id)">
+                                        <span class="lesson-icon">
+                                            @if (lesson.IsCompleted)
+                                            {
+                                                <text>✓</text>
+                                            }
+                                            else if (lesson.ContentType == 2)
+                                            {
+                                                <text>▶</text>
+                                            }
+                                            else
+                                            {
+                                                <text>📄</text>
+                                            }
+                                        </span>
+                                        <span class="lesson-title">@lesson.Title</span>
+                                        @if (lesson.DurationMinutes.HasValue)
+                                        {
+                                            <span class="lesson-duration">@lesson.DurationMinutes @CourseRes.MinutesShort</span>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
     </div>

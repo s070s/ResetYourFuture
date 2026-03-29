@@ -30,6 +30,7 @@ public partial class AdminAssessmentEdit
     private QuillEditor? descriptionEditorEn;
     private QuillEditor? descriptionEditorEl;
     private List<QuestionModel> questions = new();
+    private HashSet<string> _expandedQuestions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,15 +129,24 @@ public partial class AdminAssessmentEdit
     private void AddQuestion()
     {
         var nextNum = questions.Count + 1;
-        questions.Add( new QuestionModel { Id = $"q{nextNum}" } );
+        var q = new QuestionModel { Id = $"q{nextNum}" };
+        questions.Add( q );
+        _expandedQuestions.Add( q.TempId );
     }
 
     private void RemoveQuestion( int index )
     {
         if ( index >= 0 && index < questions.Count )
         {
+            _expandedQuestions.Remove( questions [ index ].TempId );
             questions.RemoveAt( index );
         }
+    }
+
+    private void ToggleQuestion( string tempId )
+    {
+        if ( !_expandedQuestions.Remove( tempId ) )
+            _expandedQuestions.Add( tempId );
     }
 
     private void MoveQuestion( int index , int direction )

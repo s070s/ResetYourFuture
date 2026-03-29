@@ -7,7 +7,8 @@
       "Bash(done)",
       "Bash(xargs grep:*)",
       "Bash(grep -A 5 \"RequiredTier\" /c/Users/gsoti/Desktop/Projects/s070s/ResetYourFuture/src/ResetYourFuture.Api/Domain/Entities/*.cs)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(dotnet build:*)"
     ]
   }
 }

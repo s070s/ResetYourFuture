@@ -1,16 +1,42 @@
-@* Renders a card section with header and optional header actions slot. *@
+@* Renders a card section with header and optional header actions slot.
+   Set IsCollapsible=true to make the header a toggle. *@
 
 <div class="@CssClass">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header d-flex justify-content-between align-items-center @(IsCollapsible ? "collapsible-header" : "")"
+         role="@(IsCollapsible ? "button" : null)"
+         aria-expanded="@(IsCollapsible ? _isExpanded.ToString().ToLowerInvariant() : null)"
+         @onclick="HandleHeaderClick">
         <span>@Title</span>
-        @if (HeaderActions is not null)
-        {
-            @HeaderActions
-        }
+        <div class="d-flex align-items-center gap-2">
+            @if (HeaderActions is not null)
+            {
+                <span @onclick:stopPropagation="true">
+                    @HeaderActions
+                </span>
+            }
+            @if (IsCollapsible)
+            {
+                <i class="bi bi-chevron-down chevron-icon @(_isExpanded ? "expanded" : "")"></i>
+            }
+        </div>
     </div>
-    <div class="card-body">
-        @ChildContent
-    </div>
+
+    @if (IsCollapsible)
+    {
+        <div class="collapsible-body-wrapper @(_isExpanded ? "expanded" : "collapsed")">
+            <div class="collapsible-body-inner">
+                <div class="card-body">
+                    @ChildContent
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card-body">
+            @ChildContent
+        </div>
+    }
 </div>
 
 @code {
@@ -18,4 +44,15 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public RenderFragment? HeaderActions { get; set; }
     [Parameter] public string CssClass { get; set; } = "card mb-4";
+    [Parameter] public bool IsCollapsible { get; set; } = false;
+    [Parameter] public bool InitiallyExpanded { get; set; } = true;
+
+    private bool _isExpanded;
+
+    protected override void OnInitialized() => _isExpanded = InitiallyExpanded;
+
+    private void HandleHeaderClick()
+    {
+        if (IsCollapsible) _isExpanded = !_isExpanded;
+    }
 }

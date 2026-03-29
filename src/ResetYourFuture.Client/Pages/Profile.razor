@@ -14,9 +14,11 @@
             }
             else
             {
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5>@ProfileRes.BasicInformation</h5>
+                <FormCardSection Title="@ProfileRes.BasicInformation"
+                                 IsCollapsible="true"
+                                 InitiallyExpanded="true"
+                                 CssClass="card mb-3">
+                    <ChildContent>
                         <div class="mb-3">
                             <label class="form-label">@ProfileRes.LabelAvatar</label>
                             <div>
@@ -38,12 +40,14 @@
                         <p><strong>@ProfileRes.LabelDateOfBirth</strong> @(profile.DateOfBirth?.ToString("dd/MM/yyyy") ?? ProfileRes.NotSpecified)</p>
 
                         <button class="btn btn-primary" @onclick="UpdateProfile" disabled="@isSaving">@ProfileRes.BtnSaveProfile</button>
-                    </div>
-                </div>
+                    </ChildContent>
+                </FormCardSection>
 
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5>@ProfileRes.ChangePassword</h5>
+                <FormCardSection Title="@ProfileRes.ChangePassword"
+                                 IsCollapsible="true"
+                                 InitiallyExpanded="false"
+                                 CssClass="card mb-3">
+                    <ChildContent>
                         <div class="mb-3">
                             <label class="form-label">@ProfileRes.LabelCurrentPassword</label>
                             <input type="password" class="form-control" @bind="currentPassword" />
@@ -57,8 +61,8 @@
                             <input type="password" class="form-control" @bind="confirmPassword" />
                         </div>
                         <button class="btn btn-warning" @onclick="ChangePassword" disabled="@isChangingPassword">@ProfileRes.ChangePassword</button>
-                    </div>
-                </div>
+                    </ChildContent>
+                </FormCardSection>
 
                 @if (!string.IsNullOrEmpty(message))
                 {

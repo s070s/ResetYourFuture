@@ -42,6 +42,50 @@
     color: var(--text-accent);
 }
 
+/* ================================================
+   Collapsible sections
+   ================================================ */
+
+.collapsible-header {
+    cursor: pointer;
+    min-height: 44px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.collapsible-header:hover {
+    background-color: var(--bg-table-header-hover);
+}
+
+.chevron-icon {
+    color: var(--text-strong-accent);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.chevron-icon.expanded {
+    transform: rotate(180deg);
+}
+
+/* CSS grid trick: animates height smoothly without knowing content size */
+.collapsible-body-wrapper {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.25s ease;
+    overflow: hidden;
+}
+
+.collapsible-body-wrapper.collapsed {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
+}
+
+/* min-height: 0 is required for the grid trick */
+.collapsible-body-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
 /* Table responsive wrapper */
 .table-responsive {
     overflow-x: auto;

@@ -20,6 +20,7 @@ public partial class CourseDetail
     private bool _loading = true;
     private bool _enrolling;
     private string? _error;
+    private HashSet<Guid> _expandedModules = new();
 
     private static string CurrentLang =>
         CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
@@ -33,6 +34,7 @@ public partial class CourseDetail
     {
         _loading = true;
         _error = null;
+        _expandedModules = new();
 
         try
         {
@@ -40,6 +42,12 @@ public partial class CourseDetail
             if ( _course is null )
             {
                 _error = "Course not found.";
+            }
+            else
+            {
+                var firstModule = _course.Modules.OrderBy( m => m.SortOrder ).FirstOrDefault();
+                if ( firstModule is not null )
+                    _expandedModules.Add( firstModule.Id );
             }
         }
         catch ( Exception ex )
@@ -51,6 +59,12 @@ public partial class CourseDetail
         {
             _loading = false;
         }
+    }
+
+    private void ToggleModule( Guid moduleId )
+    {
+        if ( !_expandedModules.Remove( moduleId ) )
+            _expandedModules.Add( moduleId );
     }
 
     private async Task EnrollInCourse()
