@@ -13,6 +13,17 @@ using System.Text.RegularExpressions;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7003";
 
+// When accessed via DevTunnel, derive the API URL from the client's own tunnel URL.
+// DevTunnel pattern: https://{id}-{port}.{region}.devtunnels.ms
+// Swap the client port (7083) with the API port (7003) to get the API tunnel URL.
+var baseUri = new Uri(builder.HostEnvironment.BaseAddress);
+if (baseUri.Host.EndsWith(".devtunnels.ms", StringComparison.OrdinalIgnoreCase))
+{
+    var apiHost = baseUri.Host.Replace("-7083.", "-7003.");
+    apiBase = $"https://{apiHost}";
+    builder.Configuration["ApiBaseUrl"] = apiBase;
+}
+
 // Suppress noisy info-level authorization logs that fire for every
 // AuthorizeView evaluation on anonymous users (expected behaviour).
 builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization", LogLevel.Warning);
