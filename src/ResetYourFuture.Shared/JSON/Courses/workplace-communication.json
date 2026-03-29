@@ -1,21 +1,29 @@
 {
   "title": "Workplace Communication",
+  "titleEl": "Επικοινωνία στο Χώρο Εργασίας",
   "description": "Master written, verbal, and non-verbal communication to build credibility and advance your career.",
+  "descriptionEl": "Κατακτήστε τη γραπτή, προφορική και μη λεκτική επικοινωνία για να οικοδομήσετε αξιοπιστία και να προοδεύσετε στην καριέρα σας.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Written Communication",
+      "titleEl": "Γραπτή Επικοινωνία",
       "description": "Write emails and messages that get read and acted on.",
+      "descriptionEl": "Γράψτε emails και μηνύματα που διαβάζονται και οδηγούν σε δράση.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Email Essentials: Clarity and Action",
+          "titleEl": "Βασικά Email: Σαφήνεια και Δράση",
           "content": "# Email Essentials: Clarity and Action\n\nPoor emails waste time and damage your professional reputation.\n\n## The BLUF Principle\n**Bottom Line Up Front** — state your point or request in the first sentence.\n\n**Weak:** \"Hi John, I hope you are well. I wanted to touch base about the upcoming project timeline and was wondering if you might have a moment to discuss...\"\n\n**Strong:** \"Hi John, I need your sign-off on the project timeline by Thursday. Details below.\"\n\n## Email Structure\n1. **Subject line** — specific and actionable (\"Approval needed: Q3 budget by Friday\")\n2. **Opening line** — the ask or key point\n3. **Context** — only as much as needed\n4. **Clear next step** — who does what by when\n\n## Rules\n- One topic per email.\n- Reply within 24 hours; even a brief acknowledgement counts.\n- Re-read before sending — would you be comfortable if this were forwarded?",
+          "contentEl": "# Βασικά Email: Σαφήνεια και Δράση\n\nΤα κακά emails σπαταλούν χρόνο και βλάπτουν την επαγγελματική σας φήμη.\n\n## Η Αρχή BLUF\n**Bottom Line Up Front** (Κύριο Σημείο Πρώτα) — δηλώστε το θέμα ή το αίτημά σας στην πρώτη πρόταση.\n\n**Αδύναμο:** «Γεια Γιώργη, ελπίζω να είσαι καλά. Ήθελα να έρθω σε επαφή σχετικά με το επερχόμενο χρονοδιάγραμμα έργου και αναρωτιόμουν αν θα είχες μια στιγμή να συζητήσουμε...»\n\n**Ισχυρό:** «Γεια Γιώργη, χρειάζομαι την έγκρισή σου στο χρονοδιάγραμμα έργου έως την Πέμπτη. Λεπτομέρειες παρακάτω.»\n\n## Δομή Email\n1. **Θέμα** — συγκεκριμένο και με δυνατότητα δράσης («Απαιτείται έγκριση: Προϋπολογισμός Γ΄ τριμήνου έως Παρασκευή»)\n2. **Εναρκτήρια γραμμή** — το αίτημα ή το κύριο σημείο\n3. **Πλαίσιο** — μόνο όσο χρειάζεται\n4. **Σαφές επόμενο βήμα** — ποιος κάνει τι και πότε\n\n## Κανόνες\n- Ένα θέμα ανά email.\n- Απαντήστε εντός 24 ωρών· ακόμα και μια σύντομη επιβεβαίωση μετράει.\n- Ξαναδιαβάστε πριν στείλετε — θα νιώθατε άνετα αν αυτό προωθούνταν;",
           "durationMinutes": 10,
           "sortOrder": 1
         },
         {
           "title": "Slack and Messaging Etiquette",
+          "titleEl": "Εθιμοτυπία Slack και Μηνυμάτων",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 7,
           "sortOrder": 2
@@ -24,20 +32,33 @@
     },
     {
       "title": "Verbal and Presentation Skills",
+      "titleEl": "Προφορικές Δεξιότητες και Παρουσιάσεις",
       "description": "Speak with clarity and confidence in meetings, presentations, and one-on-ones.",
+      "descriptionEl": "Μιλάτε με σαφήνεια και αυτοπεποίθηση σε συναντήσεις, παρουσιάσεις και ατομικές συνομιλίες.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Speaking Up in Meetings",
+          "titleEl": "Πώς να Μιλάτε στις Συναντήσεις",
           "content": "# Speaking Up in Meetings\n\nBeing present in a meeting is not the same as contributing. Here is how to make your voice heard.\n\n## Prepare One Contribution\nBefore every meeting, prepare at least one question or comment. This removes the blank-page anxiety.\n\n## The ADD Framework\n- **A**gree or acknowledge what was just said\n- **D**evelop — add a new angle or data point\n- **D**irect — suggest a next step or decision\n\n## Managing Interruptions\n- \"I would like to finish my thought\" — calm, clear, professional.\n- Maintain eye contact and continue speaking at the same volume.\n\n## For Video Calls\n- Use your camera to signal engagement.\n- Mute when not speaking.\n- Use the raise-hand feature to avoid talking over others.",
+          "contentEl": "# Πώς να Μιλάτε στις Συναντήσεις\n\nΗ παρουσία σε μια συνάντηση δεν είναι το ίδιο με το να συνεισφέρετε. Εδώ είναι πώς να ακουστεί η φωνή σας.\n\n## Προετοιμάστε Μία Συνεισφορά\nΠριν από κάθε συνάντηση, προετοιμάστε τουλάχιστον μία ερώτηση ή σχόλιο. Αυτό αφαιρεί το άγχος της κενής σελίδας.\n\n## Το Πλαίσιο ADD\n- **Σ**υμφωνήστε ή αναγνωρίστε αυτό που μόλις ειπώθηκε\n- **Α**ναπτύξτε — προσθέστε μια νέα οπτική γωνία ή δεδομένα\n- **Κ**ατευθύνετε — προτείνετε επόμενο βήμα ή απόφαση\n\n## Διαχείριση Διακοπών\n- «Θα ήθελα να ολοκληρώσω τη σκέψη μου» — ήρεμο, σαφές, επαγγελματικό.\n- Διατηρήστε οπτική επαφή και συνεχίστε να μιλάτε στην ίδια ένταση.\n\n## Για Βιντεοκλήσεις\n- Χρησιμοποιήστε την κάμερά σας για να σηματοδοτήσετε εμπλοκή.\n- Σιγάστε τον ήχο όταν δεν μιλάτε.\n- Χρησιμοποιήστε τη δυνατότητα ανύψωσης χεριού για να αποφύγετε τις επικαλύψεις ομιλίας.",
           "durationMinutes": 11,
           "sortOrder": 1
         },
         {
           "title": "Structuring Presentations That Persuade",
+          "titleEl": "Δομή Παρουσιάσεων που Πείθουν",
           "content": "# Structuring Presentations That Persuade\n\n## The Problem–Solution–Benefit Arc\n1. **Problem** — What challenge does the audience face? Make them feel it.\n2. **Solution** — What are you proposing? Keep it simple.\n3. **Benefit** — What changes for them if they act? Be specific.\n\n## Slide Design Principles\n- One idea per slide.\n- Visuals over bullet lists — a chart says more than five bullets.\n- No font smaller than 24pt.\n- Limit colour palette to three colours.\n\n## Opening Strong\nDo not start with who you are. Start with a question, a surprising statistic, or a short story. Then introduce yourself.\n\n## Closing Strong\nEnd with a clear call to action: \"I am asking for your approval to proceed by end of week.\"",
+          "contentEl": "# Δομή Παρουσιάσεων που Πείθουν\n\n## Η Καμπύλη Πρόβλημα–Λύση–Όφελος\n1. **Πρόβλημα** — Ποια πρόκληση αντιμετωπίζει το κοινό; Κάντε το να το νιώσει.\n2. **Λύση** — Τι προτείνετε; Κρατήστε το απλό.\n3. **Όφελος** — Τι αλλάζει για αυτούς αν δράσουν; Να είστε συγκεκριμένοι.\n\n## Αρχές Σχεδιασμού Διαφανειών\n- Μία ιδέα ανά διαφάνεια.\n- Οπτικά στοιχεία αντί για λίστες bullet — ένα γράφημα λέει περισσότερα από πέντε bullets.\n- Γραμματοσειρά τουλάχιστον 24pt.\n- Περιορίστε την παλέτα χρωμάτων σε τρία χρώματα.\n\n## Δυνατή Εκκίνηση\nΜην ξεκινάτε με το ποιοι είστε. Ξεκινήστε με μια ερώτηση, μια εκπληκτική στατιστική ή μια σύντομη ιστορία. Έπειτα συστηθείτε.\n\n## Δυνατό Κλείσιμο\nΚλείστε με σαφή έκκληση για δράση: «Ζητώ την έγκρισή σας για να προχωρήσουμε έως το τέλος της εβδομάδας.»",
           "durationMinutes": 13,
           "sortOrder": 2
+        },
+        {
+          "title": "Confident Public Speaking",
+          "titleEl": "Αυτοπεποίθηση στη Δημόσια Ομιλία",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 10,
+          "sortOrder": 3
         }
       ]
     }

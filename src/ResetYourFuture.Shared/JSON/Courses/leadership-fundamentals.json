@@ -1,21 +1,29 @@
 {
   "title": "Leadership Fundamentals",
+  "titleEl": "Βασικές Αρχές Ηγεσίας",
   "description": "Develop the core leadership skills needed to inspire teams, drive results, and grow into senior roles.",
+  "descriptionEl": "Ανάπτυξε τις βασικές δεξιότητες ηγεσίας που χρειάζονται για να εμπνέεις ομάδες, να επιτυγχάνεις αποτελέσματα και να αναπτύσσεσαι σε ανώτερες θέσεις.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "Leadership vs. Management",
+      "titleEl": "Ηγεσία vs. Διοίκηση",
       "description": "Understand the critical difference and why both matter.",
+      "descriptionEl": "Κατανόησε την κρίσιμη διαφορά και γιατί και τα δύο έχουν σημασία.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "What Leadership Really Means",
+          "titleEl": "Τι Σημαίνει Πραγματικά η Ηγεσία",
           "content": "# What Leadership Really Means\n\nLeadership is not a title — it is a behaviour you can practise at any level.\n\n## Leadership vs. Management\n\n| Leadership | Management |\n|---|---|\n| Sets direction and vision | Plans and organises tasks |\n| Inspires and motivates | Monitors and controls |\n| Asks \"Why?\" and \"What if?\" | Asks \"How?\" and \"When?\" |\n| Focuses on people | Focuses on systems and processes |\n\nGreat professionals develop both skill sets.\n\n## You Do Not Need a Title to Lead\n- Volunteer to run a project.\n- Mentor a newer colleague.\n- Propose a solution instead of just naming a problem.\n- Model the behaviour you want to see in your team.\n\n## Leadership Styles\n- **Transformational** — inspires change through vision.\n- **Servant** — puts the team's needs first.\n- **Coaching** — develops individuals through questions and feedback.\n- **Democratic** — involves the team in decisions.\n\nSituational leaders adapt their style to the person and context.",
+          "contentEl": "# Τι Σημαίνει Πραγματικά η Ηγεσία\n\nΗ ηγεσία δεν είναι τίτλος — είναι συμπεριφορά που μπορείς να εξασκείς σε οποιοδήποτε επίπεδο.\n\n## Ηγεσία vs. Διοίκηση\n\n| Ηγεσία | Διοίκηση |\n|---|---|\n| Ορίζει κατεύθυνση και όραμα | Σχεδιάζει και οργανώνει εργασίες |\n| Εμπνέει και παρακινεί | Παρακολουθεί και ελέγχει |\n| Ρωτά «Γιατί;» και «Τι θα γινόταν αν;» | Ρωτά «Πώς;» και «Πότε;» |\n| Εστιάζει στους ανθρώπους | Εστιάζει στα συστήματα και τις διαδικασίες |\n\nΟι εξαιρετικοί επαγγελματίες αναπτύσσουν και τα δύο σύνολα δεξιοτήτων.\n\n## Δεν Χρειάζεσαι Τίτλο για να Ηγηθείς\n- Εθελοντικά ανάλαβε τη διεξαγωγή ενός έργου.\n- Γίνε μέντορας σε έναν νεότερο συνάδελφο.\n- Πρότεινε λύση αντί να αναφέρεις απλώς ένα πρόβλημα.\n- Πρότυπε τη συμπεριφορά που θέλεις να βλέπεις στην ομάδα σου.\n\n## Στυλ Ηγεσίας\n- **Μετασχηματιστική** — εμπνέει αλλαγή μέσα από όραμα.\n- **Υπηρετική** — βάζει τις ανάγκες της ομάδας πρώτα.\n- **Coaching** — αναπτύσσει άτομα μέσα από ερωτήσεις και ανατροφοδότηση.\n- **Δημοκρατική** — εμπλέκει την ομάδα στις αποφάσεις.\n\nΟι καταστασιακοί ηγέτες προσαρμόζουν το στυλ τους στο άτομο και το πλαίσιο.",
           "durationMinutes": 13,
           "sortOrder": 1
         },
         {
           "title": "Developing Your Leadership Identity",
+          "titleEl": "Ανάπτυξη της Ηγετικής σου Ταυτότητας",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 2
@@ -24,18 +32,24 @@
     },
     {
       "title": "Motivating and Developing Others",
+      "titleEl": "Παρακίνηση και Ανάπτυξη Άλλων",
       "description": "Create an environment where people do their best work.",
+      "descriptionEl": "Δημιούργησε ένα περιβάλλον όπου οι άνθρωποι κάνουν το καλύτερό τους.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Giving Effective Feedback",
+          "titleEl": "Παροχή Αποτελεσματικής Ανατροφοδότησης",
           "content": "# Giving Effective Feedback\n\nFeedback is the most powerful development tool available to a leader — and the most underused.\n\n## The SBI Model\n- **S**ituation — describe the specific context.\n- **B**ehaviour — describe the observable behaviour (not the person).\n- **I**mpact — explain the effect it had.\n\n**Example:** \"In the client meeting yesterday (Situation), you interrupted the client twice before they finished their point (Behaviour). They seemed frustrated and became less talkative for the rest of the meeting (Impact).\"\n\n## Delivering Feedback\n- Do it promptly — within 24–48 hours of the event.\n- Do it privately for corrective feedback; publicly for praise.\n- Focus on behaviour, not character.\n- Ask: \"What are your thoughts?\" — make it a dialogue.\n\n## Receiving Feedback\n- Listen without defending.\n- Ask clarifying questions.\n- Thank the person, regardless of your reaction.",
+          "contentEl": "# Παροχή Αποτελεσματικής Ανατροφοδότησης\n\nΗ ανατροφοδότηση είναι το πιο ισχυρό εργαλείο ανάπτυξης που διαθέτει ένας ηγέτης — και το πιο υποχρησιμοποιημένο.\n\n## Το Μοντέλο SBI\n- **Κ**ατάσταση — περίγραψε το συγκεκριμένο πλαίσιο.\n- **Σ**υμπεριφορά — περίγραψε την παρατηρήσιμη συμπεριφορά (όχι το άτομο).\n- **Α**ντίκτυπος — εξήγησε την επίδραση που είχε.\n\n**Παράδειγμα:** «Στη συνάντηση με τον πελάτη χθες (Κατάσταση), διέκοψες τον πελάτη δύο φορές πριν ολοκληρώσει την άποψή του (Συμπεριφορά). Φάνηκε απογοητευμένος και έγινε λιγότερο ομιλητικός για το υπόλοιπο της συνάντησης (Αντίκτυπος).»\n\n## Παροχή Ανατροφοδότησης\n- Κάνε το αμέσως — εντός 24–48 ωρών από το συμβάν.\n- Κάνε το ιδιωτικά για διορθωτική ανατροφοδότηση· δημόσια για επαίνους.\n- Εστίασε στη συμπεριφορά, όχι στον χαρακτήρα.\n- Ρώτησε: «Ποιες είναι οι σκέψεις σου;» — κάνε το διάλογο.\n\n## Λήψη Ανατροφοδότησης\n- Άκου χωρίς να υπερασπίζεσαι.\n- Κάνε διευκρινιστικές ερωτήσεις.\n- Ευχαρίστησε το άτομο, ανεξάρτητα από την αντίδρασή σου.",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Delegating for Growth",
+          "titleEl": "Ανάθεση για Ανάπτυξη",
           "content": "# Delegating for Growth\n\nDelegation is not just offloading work — it is one of the most powerful ways to develop your team.\n\n## Why Leaders Avoid Delegating\n- \"It is faster if I do it myself.\"\n- Fear of losing control or credit.\n- Not trusting the other person's ability.\n\n## The Delegation Framework\n1. **Choose the right task** — something that stretches the person but is achievable.\n2. **Choose the right person** — match the task to their developmental goals.\n3. **Communicate clearly** — explain the outcome, constraints, and deadline (not the method).\n4. **Give authority** — ensure they have the resources and decision-making power to succeed.\n5. **Check in, not up** — scheduled touchpoints, not micromanagement.\n6. **Debrief** — what worked? What would they do differently?\n\n## The Two Mistakes\n- **Under-delegating** — creates a bottleneck and stunts team growth.\n- **Abdicating** — dumping work with no context, support, or follow-up.",
+          "contentEl": "# Ανάθεση για Ανάπτυξη\n\nΗ ανάθεση δεν είναι απλώς μεταφορά εργασίας — είναι ένας από τους πιο ισχυρούς τρόπους ανάπτυξης της ομάδας σου.\n\n## Γιατί οι Ηγέτες Αποφεύγουν την Ανάθεση\n- «Είναι πιο γρήγορο αν το κάνω μόνος μου.»\n- Φόβος απώλειας ελέγχου ή αναγνώρισης.\n- Έλλειψη εμπιστοσύνης στις δυνατότητες του άλλου.\n\n## Το Πλαίσιο Ανάθεσης\n1. **Επέλεξε τη σωστή εργασία** — κάτι που τεντώνει το άτομο αλλά είναι εφικτό.\n2. **Επέλεξε το σωστό άτομο** — αντιστοίχισε την εργασία με τους αναπτυξιακούς στόχους του.\n3. **Επικοινώνησε ξεκάθαρα** — εξήγησε το αποτέλεσμα, τους περιορισμούς και την προθεσμία (όχι τη μέθοδο).\n4. **Δώσε εξουσιοδότηση** — βεβαιώσου ότι έχουν τους πόρους και τη διαδικασία λήψης αποφάσεων για να επιτύχουν.\n5. **Έλεγξε μαζί, όχι από πάνω** — προγραμματισμένα σημεία επαφής, όχι μικροδιαχείριση.\n6. **Απολόγισε** — τι λειτούργησε; Τι θα έκαναν διαφορετικά;\n\n## Τα Δύο Λάθη\n- **Υπο-ανάθεση** — δημιουργεί εμπόδιο και αναχαιτίζει την ανάπτυξη της ομάδας.\n- **Εγκατάλειψη** — μεταφορά εργασίας χωρίς πλαίσιο, υποστήριξη ή παρακολούθηση.",
           "durationMinutes": 14,
           "sortOrder": 2
         }

@@ -1,18 +1,32 @@
 {
   "title": "Building Your Personal Brand",
+  "titleEl": "Χτίζοντας το Προσωπικό σου Brand",
   "description": "Learn how to create and maintain a professional personal brand that opens doors to new opportunities.",
+  "descriptionEl": "Μάθε πώς να δημιουργείς και να διατηρείς ένα επαγγελματικό προσωπικό brand που ανοίγει πόρτες σε νέες ευκαιρίες.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "Personal Branding Basics",
+      "titleEl": "Βασικές Αρχές Προσωπικού Branding",
       "description": "Understanding the fundamentals of personal branding.",
+      "descriptionEl": "Κατανόηση των βασικών αρχών του προσωπικού branding.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "What is Personal Branding?",
+          "titleEl": "Τι είναι το Προσωπικό Branding;",
           "content": "# What is Personal Branding?\n\nPersonal branding is the practice of defining and promoting what you stand for.\n\n## Key Elements\n\n- **Identity**: Who you are and what makes you unique\n- **Value Proposition**: What you offer to employers or clients\n- **Visibility**: How you present yourself online and offline\n\n## Why It Matters\n\nIn today's competitive job market, a strong personal brand can:\n- Differentiate you from other candidates\n- Attract opportunities to you\n- Build trust and credibility",
+          "contentEl": "# Τι είναι το Προσωπικό Branding;\n\nΤο προσωπικό branding είναι η πρακτική ορισμού και προώθησης αυτού που εκπροσωπείς.\n\n## Βασικά Στοιχεία\n\n- **Ταυτότητα**: Ποιος είσαι και τι σε κάνει μοναδικό\n- **Πρόταση Αξίας**: Τι προσφέρεις σε εργοδότες ή πελάτες\n- **Ορατότητα**: Πώς παρουσιάζεσαι διαδικτυακά και εκτός διαδικτύου\n\n## Γιατί Έχει Σημασία\n\nΣτη σημερινή ανταγωνιστική αγορά εργασίας, ένα ισχυρό προσωπικό brand μπορεί να:\n- Σε διαφοροποιήσει από άλλους υποψηφίους\n- Προσελκύσει ευκαιρίες προς εσένα\n- Χτίσει εμπιστοσύνη και αξιοπιστία",
           "durationMinutes": 10,
           "sortOrder": 1
+        },
+        {
+          "title": "Building Your Brand Online",
+          "titleEl": "Χτίζοντας το Brand σου Διαδικτυακά",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 8,
+          "sortOrder": 2
         }
       ]
     }

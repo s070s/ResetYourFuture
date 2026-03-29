@@ -1,21 +1,29 @@
 {
   "title": "Essential Digital Skills",
+  "titleEl": "Βασικές Ψηφιακές Δεξιότητες",
   "description": "Build the foundational digital literacy every professional needs — from data tools to online collaboration.",
+  "descriptionEl": "Αναπτύξτε τον ψηφιακό γραμματισμό-βάση που κάθε επαγγελματίας χρειάζεται — από εργαλεία δεδομένων έως διαδικτυακή συνεργασία.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Productivity Software Mastery",
+      "titleEl": "Κατάκτηση Λογισμικού Παραγωγικότητας",
       "description": "Work faster and smarter with the tools everyone uses.",
+      "descriptionEl": "Εργαστείτε πιο γρήγορα και έξυπνα με τα εργαλεία που χρησιμοποιούν όλοι.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Excel and Google Sheets Essentials",
+          "titleEl": "Βασικά Excel και Google Sheets",
           "content": "# Excel and Google Sheets Essentials\n\nSpreadsheet fluency is one of the most universally valued workplace skills.\n\n## The 10 Functions Every Professional Should Know\n\n| Function | What It Does |\n|---|---|\n| `SUM` | Adds a range of numbers |\n| `AVERAGE` | Calculates the mean |\n| `COUNT / COUNTA` | Counts cells with numbers / any content |\n| `IF` | Returns one of two values based on a condition |\n| `VLOOKUP / XLOOKUP` | Finds a value in a table by lookup key |\n| `SUMIF / COUNTIF` | Sum or count based on a condition |\n| `TEXT` | Formats numbers as text |\n| `TRIM` | Removes extra spaces from text |\n| `IFERROR` | Handles errors gracefully |\n| Pivot Table | Summarises and analyses large data sets |\n\n## Keyboard Shortcuts That Save Hours\n- `Ctrl + T` — Convert range to table\n- `Ctrl + Shift + L` — Toggle filters\n- `Alt + =` — AutoSum selected range\n- `Ctrl + ;` — Insert today's date\n- `F4` — Toggle absolute/relative references in a formula",
+          "contentEl": "# Βασικά Excel και Google Sheets\n\nΗ άνεση με τα υπολογιστικά φύλλα είναι μία από τις πιο καθολικά εκτιμώμενες επαγγελματικές δεξιότητες.\n\n## Οι 10 Συναρτήσεις που Κάθε Επαγγελματίας Πρέπει να Γνωρίζει\n\n| Συνάρτηση | Τι Κάνει |\n|---|---|\n| `SUM` | Αθροίζει ένα εύρος αριθμών |\n| `AVERAGE` | Υπολογίζει τον μέσο όρο |\n| `COUNT / COUNTA` | Μετράει κελιά με αριθμούς / οποιοδήποτε περιεχόμενο |\n| `IF` | Επιστρέφει μία από δύο τιμές βάσει συνθήκης |\n| `VLOOKUP / XLOOKUP` | Βρίσκει τιμή σε πίνακα με κλειδί αναζήτησης |\n| `SUMIF / COUNTIF` | Άθροισμα ή καταμέτρηση βάσει συνθήκης |\n| `TEXT` | Μορφοποιεί αριθμούς ως κείμενο |\n| `TRIM` | Αφαιρεί επιπλέον κενά από κείμενο |\n| `IFERROR` | Χειρίζεται σφάλματα κομψά |\n| Συγκεντρωτικός Πίνακας | Συνοψίζει και αναλύει μεγάλα σύνολα δεδομένων |\n\n## Συντομεύσεις Πληκτρολογίου που Εξοικονομούν Ώρες\n- `Ctrl + T` — Μετατροπή εύρους σε πίνακα\n- `Ctrl + Shift + L` — Εναλλαγή φίλτρων\n- `Alt + =` — Αυτόματο άθροισμα επιλεγμένου εύρους\n- `Ctrl + ;` — Εισαγωγή σημερινής ημερομηνίας\n- `F4` — Εναλλαγή απόλυτων/σχετικών αναφορών σε τύπο",
           "durationMinutes": 14,
           "sortOrder": 1
         },
         {
           "title": "Microsoft 365 and Google Workspace Collaboration Tools",
+          "titleEl": "Εργαλεία Συνεργασίας Microsoft 365 και Google Workspace",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 2
@@ -24,18 +32,24 @@
     },
     {
       "title": "Data Literacy and Online Security",
+      "titleEl": "Γραμματισμός Δεδομένων και Ασφάλεια στο Διαδίκτυο",
       "description": "Understand data and protect yourself online.",
+      "descriptionEl": "Κατανοήστε τα δεδομένα και προστατευτείτε στο διαδίκτυο.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Reading Data and Charts",
+          "titleEl": "Ανάγνωση Δεδομένων και Γραφημάτων",
           "content": "# Reading Data and Charts\n\nData literacy means being able to read, interpret, and question data — not just produce it.\n\n## Types of Charts and When to Use Them\n\n| Chart Type | Best For |\n|---|---|\n| Bar / Column | Comparing categories |\n| Line | Showing trends over time |\n| Pie / Donut | Showing parts of a whole (use sparingly) |\n| Scatter | Showing relationships between two variables |\n| Heatmap | Showing density or frequency patterns |\n\n## Questions to Ask When Reading Data\n1. What is the source? Is it reliable and current?\n2. What is the sample size? Is it large enough to be meaningful?\n3. What is being measured — correlation or causation?\n4. Are the axes starting at zero? (A truncated axis exaggerates change.)\n5. Who commissioned the research and why?\n\n## Beware of These Tricks\n- Cherry-picked date ranges.\n- Percentages without absolute numbers.\n- \"Up to\" claims (\"save up to 80 %\").",
+          "contentEl": "# Ανάγνωση Δεδομένων και Γραφημάτων\n\nΟ γραμματισμός δεδομένων σημαίνει ότι μπορείτε να διαβάσετε, να ερμηνεύσετε και να αμφισβητήσετε δεδομένα — όχι μόνο να τα παράγετε.\n\n## Τύποι Γραφημάτων και Πότε να τα Χρησιμοποιείτε\n\n| Τύπος Γραφήματος | Καλύτερο Για |\n|---|---|\n| Ράβδος / Στήλη | Σύγκριση κατηγοριών |\n| Γραμμή | Εμφάνιση τάσεων με την πάροδο του χρόνου |\n| Πίτα / Ντόνατ | Εμφάνιση μερών ενός συνόλου (χρησιμοποιείτε με μέτρο) |\n| Διασπορά | Εμφάνιση σχέσεων μεταξύ δύο μεταβλητών |\n| Χάρτης Θερμότητας | Εμφάνιση μοτίβων πυκνότητας ή συχνότητας |\n\n## Ερωτήσεις που να Κάνετε Κατά την Ανάγνωση Δεδομένων\n1. Ποια είναι η πηγή; Είναι αξιόπιστη και ενημερωμένη;\n2. Ποιο είναι το μέγεθος δείγματος; Είναι αρκετά μεγάλο για να είναι σημαντικό;\n3. Τι μετριέται — συσχέτιση ή αιτιότητα;\n4. Ξεκινούν οι άξονες από το μηδέν; (Ένας κολοβωμένος άξονας υπερβάλλει την αλλαγή.)\n5. Ποιος ανέθεσε την έρευνα και γιατί;\n\n## Προσοχή σε Αυτά τα Τεχνάσματα\n- Επιλεγμένα εύρη ημερομηνιών.\n- Ποσοστά χωρίς απόλυτους αριθμούς.\n- Ισχυρισμοί «έως» («εξοικονόμηση έως 80%»).",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Cybersecurity Basics for Professionals",
+          "titleEl": "Βασικές Αρχές Κυβερνοασφάλειας για Επαγγελματίες",
           "content": "# Cybersecurity Basics for Professionals\n\nMost data breaches start with human error. These habits protect you and your employer.\n\n## Password Hygiene\n- Use a password manager (Bitwarden, 1Password, LastPass).\n- Every account should have a unique, randomly generated password.\n- Minimum 16 characters for important accounts.\n\n## Multi-Factor Authentication (MFA)\nEnable MFA on every account that supports it. An authenticator app (Google Authenticator, Authy) is more secure than SMS.\n\n## Phishing Awareness\n- Check the sender's actual email address, not just the display name.\n- Hover over links before clicking — does the URL match where it claims to go?\n- Treat urgency as a red flag: \"Your account will be closed in 24 hours.\"\n- When in doubt, go directly to the website rather than clicking a link.\n\n## Safe Habits\n- Lock your screen when stepping away (`Win + L`).\n- Never use public Wi-Fi without a VPN.\n- Keep software and operating system up to date.",
+          "contentEl": "# Βασικές Αρχές Κυβερνοασφάλειας για Επαγγελματίες\n\nΟι περισσότερες παραβιάσεις δεδομένων ξεκινούν από ανθρώπινο λάθος. Αυτές οι συνήθειες σας προστατεύουν εσάς και τον εργοδότη σας.\n\n## Υγιεινή Κωδικών Πρόσβασης\n- Χρησιμοποιήστε έναν διαχειριστή κωδικών (Bitwarden, 1Password, LastPass).\n- Κάθε λογαριασμός πρέπει να έχει μοναδικό, τυχαία δημιουργημένο κωδικό.\n- Ελάχιστα 16 χαρακτήρες για σημαντικούς λογαριασμούς.\n\n## Έλεγχος Ταυτότητας Πολλαπλών Παραγόντων (MFA)\nΕνεργοποιήστε το MFA σε κάθε λογαριασμό που το υποστηρίζει. Μια εφαρμογή ελέγχου ταυτότητας (Google Authenticator, Authy) είναι πιο ασφαλής από το SMS.\n\n## Ευαισθητοποίηση για Ηλεκτρονικό Ψάρεμα\n- Ελέγχετε την πραγματική διεύθυνση email αποστολέα, όχι μόνο το εμφανιζόμενο όνομα.\n- Τοποθετήστε το ποντίκι πάνω από συνδέσμους πριν κάνετε κλικ — ταιριάζει το URL με όπου ισχυρίζεται ότι πηγαίνει;\n- Αντιμετωπίστε την επείγουσα γλώσσα ως κόκκινη σημαία: «Ο λογαριασμός σας θα κλείσει σε 24 ώρες.»\n- Σε αμφιβολία, πηγαίνετε απευθείας στον ιστότοπο αντί να κάνετε κλικ σε σύνδεσμο.\n\n## Ασφαλείς Συνήθειες\n- Κλειδώνετε την οθόνη σας όταν απομακρύνεστε (`Win + L`).\n- Ποτέ μη χρησιμοποιείτε δημόσιο Wi-Fi χωρίς VPN.\n- Διατηρείτε το λογισμικό και το λειτουργικό σύστημα ενημερωμένα.",
           "durationMinutes": 11,
           "sortOrder": 2
         }

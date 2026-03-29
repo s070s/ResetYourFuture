@@ -1,21 +1,29 @@
 {
   "title": "Strategic Job Search",
+  "titleEl": "Στρατηγική Αναζήτηση Εργασίας",
   "description": "Stop applying randomly and build a focused job search system that delivers consistent results.",
+  "descriptionEl": "Σταματήστε να κάνετε τυχαίες αιτήσεις και δημιουργήστε ένα εστιασμένο σύστημα αναζήτησης εργασίας που αποφέρει σταθερά αποτελέσματα.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Defining Your Target",
+      "titleEl": "Ορισμός του Στόχου σας",
       "description": "Clarify what you are looking for before you start searching.",
+      "descriptionEl": "Διευκρινίστε τι ψάχνετε πριν ξεκινήσετε την αναζήτηση.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Building Your Target Company List",
+          "titleEl": "Δημιουργία Λίστας Εταιρειών-Στόχων",
           "content": "# Building Your Target Company List\n\nApplying to every open role is exhausting and ineffective. A targeted list of 20–30 companies is far more powerful.\n\n## How to Build Your List\n\n### Criteria to Consider\n- Industry and sector alignment with your interests\n- Company size (startup vs. enterprise vs. mid-market)\n- Location or remote-work policy\n- Culture and values fit\n- Growth trajectory (hiring signal)\n\n### Research Sources\n- LinkedIn company pages\n- Glassdoor employer reviews\n- Crunchbase (for startups and funding rounds)\n- Industry trade publications and \"Best Places to Work\" lists\n- Your own professional network\n\n## Working Your List\n- Monitor each company's careers page weekly.\n- Follow them on LinkedIn to catch new postings early.\n- Identify internal contacts through mutual connections.",
+          "contentEl": "# Δημιουργία Λίστας Εταιρειών-Στόχων\n\nΤο να κάνετε αίτηση για κάθε ανοιχτή θέση είναι εξαντλητικό και αναποτελεσματικό. Μια στοχευμένη λίστα 20–30 εταιρειών είναι πολύ πιο ισχυρή.\n\n## Πώς να Δημιουργήσετε τη Λίστα σας\n\n### Κριτήρια που Πρέπει να Λάβετε Υπόψη\n- Ευθυγράμμιση κλάδου και τομέα με τα ενδιαφέροντά σας\n- Μέγεθος εταιρείας (startup έναντι μεγάλης εταιρείας έναντι μεσαίας αγοράς)\n- Τοποθεσία ή πολιτική τηλεργασίας\n- Συμβατότητα κουλτούρας και αξιών\n- Αναπτυξιακή τροχιά (σήμα πρόσληψης)\n\n### Πηγές Έρευνας\n- Σελίδες εταιρειών στο LinkedIn\n- Κριτικές εργοδοτών στο Glassdoor\n- Crunchbase (για startups και γύρους χρηματοδότησης)\n- Επαγγελματικές δημοσιεύσεις κλάδου και λίστες «Καλύτερων Εργοδοτών»\n- Το δικό σας επαγγελματικό δίκτυο\n\n## Δουλεύοντας με τη Λίστα σας\n- Παρακολουθείτε τη σελίδα καριέρας κάθε εταιρείας εβδομαδιαία.\n- Ακολουθήστε τις στο LinkedIn για να εντοπίζετε νέες αγγελίες νωρίς.\n- Εντοπίστε εσωτερικές επαφές μέσω κοινών γνωστών.",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Understanding the Hidden Job Market",
+          "titleEl": "Κατανόηση της Κρυφής Αγοράς Εργασίας",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 2
@@ -24,20 +32,33 @@
     },
     {
       "title": "Application Strategy",
+      "titleEl": "Στρατηγική Αιτήσεων",
       "description": "Apply smarter, not harder.",
+      "descriptionEl": "Κάντε αιτήσεις εξυπνότερα, όχι σκληρότερα.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Tailoring Applications Without Starting From Scratch",
+          "titleEl": "Εξατομίκευση Αιτήσεων Χωρίς να Ξεκινάτε από το Μηδέν",
           "content": "# Tailoring Applications Without Starting From Scratch\n\nCustomising every application sounds exhausting — here is a system that makes it fast.\n\n## The Master Resume Method\n1. Create a single master resume with every bullet point, project, and skill you have.\n2. For each application, copy the master and delete or reorder bullets to match the job description.\n3. Adjust your summary to mirror the language in the posting.\n\n## The 80/20 Rule for Cover Letters\n- 80 % of your cover letter template stays the same.\n- 20 % is tailored: company name, role, one specific reason you want *that* job.\n\n## Tools That Speed Up Tailoring\n- Teal (free job tracker with resume tailor)\n- Jobscan for keyword match scoring\n- ChatGPT to draft a tailored first paragraph quickly",
+          "contentEl": "# Εξατομίκευση Αιτήσεων Χωρίς να Ξεκινάτε από το Μηδέν\n\nΗ προσαρμογή κάθε αίτησης ακούγεται εξαντλητική — εδώ είναι ένα σύστημα που το κάνει γρήγορο.\n\n## Η Μέθοδος του Κεντρικού Βιογραφικού\n1. Δημιουργήστε ένα μοναδικό κεντρικό βιογραφικό με κάθε bullet, έργο και δεξιότητα που έχετε.\n2. Για κάθε αίτηση, αντιγράψτε το κεντρικό και διαγράψτε ή αναδιατάξτε τα bullets ώστε να ταιριάζουν με την περιγραφή θέσης.\n3. Προσαρμόστε την περίληψή σας ώστε να αντικατοπτρίζει τη γλώσσα της αγγελίας.\n\n## Ο Κανόνας 80/20 για τις Συνοδευτικές Επιστολές\n- Το 80% του προτύπου συνοδευτικής επιστολής σας παραμένει το ίδιο.\n- Το 20% είναι εξατομικευμένο: όνομα εταιρείας, θέση, ένας συγκεκριμένος λόγος που θέλετε *αυτή* τη δουλειά.\n\n## Εργαλεία που Επιταχύνουν την Εξατομίκευση\n- Teal (δωρεάν παρακολουθητής εργασίας με εξατομίκευση βιογραφικού)\n- Jobscan για βαθμολόγηση αντιστοίχισης λέξεων-κλειδιών\n- ChatGPT για γρήγορη σύνταξη εξατομικευμένης πρώτης παραγράφου",
           "durationMinutes": 14,
           "sortOrder": 1
         },
         {
           "title": "Tracking Your Job Search",
+          "titleEl": "Παρακολούθηση της Αναζήτησης Εργασίας σας",
           "content": "# Tracking Your Job Search\n\nWithout a tracker, you will lose track of where you applied, what stage you are at, and what to follow up on.\n\n## What to Track\n| Column | Purpose |\n|---|---|\n| Company | Name of the employer |\n| Role | Job title |\n| Date Applied | When you submitted |\n| Source | Where you found it |\n| Status | Applied / Phone Screen / Interview / Offer / Rejected |\n| Follow-up Date | When to send a check-in |\n| Notes | Contacts, interview feedback, salary range |\n\n## Tools\n- Simple spreadsheet (Google Sheets / Excel)\n- Teal or Huntr (free job search CRMs)\n- Notion database\n\n## Weekly Review Habit\nSpend 30 minutes every Friday reviewing your tracker, updating statuses, and scheduling follow-ups.",
+          "contentEl": "# Παρακολούθηση της Αναζήτησης Εργασίας σας\n\nΧωρίς παρακολούθηση, θα χάσετε τον έλεγχο για πού κάνατε αίτηση, σε ποιο στάδιο βρίσκεστε και τι χρειάζεται παρακολούθηση.\n\n## Τι να Παρακολουθείτε\n| Στήλη | Σκοπός |\n|---|---|\n| Εταιρεία | Όνομα του εργοδότη |\n| Θέση | Τίτλος εργασίας |\n| Ημερομηνία Αίτησης | Πότε υποβάλατε |\n| Πηγή | Πού το βρήκατε |\n| Κατάσταση | Αίτηση / Τηλεφωνική Προκριματική / Συνέντευξη / Προσφορά / Απόρριψη |\n| Ημερομηνία Παρακολούθησης | Πότε να στείλετε ενημέρωση |\n| Σημειώσεις | Επαφές, ανατροφοδότηση συνέντευξης, εύρος μισθού |\n\n## Εργαλεία\n- Απλό υπολογιστικό φύλλο (Google Sheets / Excel)\n- Teal ή Huntr (δωρεάν CRM αναζήτησης εργασίας)\n- Βάση δεδομένων Notion\n\n## Εβδομαδιαία Συνήθεια Ανασκόπησης\nΑφιερώστε 30 λεπτά κάθε Παρασκευή για ανασκόπηση του tracker σας, ενημέρωση καταστάσεων και προγραμματισμό παρακολούθησης.",
           "durationMinutes": 10,
           "sortOrder": 2
+        },
+        {
+          "title": "Job Search Strategy Masterclass",
+          "titleEl": "Masterclass Στρατηγικής Αναζήτησης Εργασίας",
+          "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+          "durationMinutes": 11,
+          "sortOrder": 3
         }
       ]
     }

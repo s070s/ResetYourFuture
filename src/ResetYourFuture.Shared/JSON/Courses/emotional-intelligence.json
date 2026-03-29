@@ -1,22 +1,30 @@
 {
   "title": "Emotional Intelligence at Work",
+  "titleEl": "Συναισθηματική Νοημοσύνη στην Εργασία",
   "description": "Develop the self-awareness and interpersonal skills that drive leadership, collaboration, and career resilience.",
+  "descriptionEl": "Αναπτύξτε την αυτογνωσία και τις διαπροσωπικές δεξιότητες που οδηγούν την ηγεσία, τη συνεργασία και την επαγγελματική ανθεκτικότητα.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "Understanding Emotional Intelligence",
+      "titleEl": "Κατανόηση της Συναισθηματικής Νοημοσύνης",
       "description": "Learn the five components of EQ and why they matter more than IQ in most careers.",
+      "descriptionEl": "Μάθετε τα πέντε συστατικά της ΣΝ και γιατί έχουν μεγαλύτερη σημασία από το IQ στις περισσότερες καριέρες.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "The Five Components of EQ",
+          "titleEl": "Τα Πέντε Συστατικά της ΣΝ",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 10,
           "sortOrder": 1
         },
         {
           "title": "Self-Awareness: The Foundation",
+          "titleEl": "Αυτογνωσία: Το Θεμέλιο",
           "content": "# Self-Awareness: The Foundation of EQ\n\nSelf-awareness means knowing your emotions, strengths, weaknesses, values, and the impact you have on others.\n\n## Why It Matters\nPeople with high self-awareness make better decisions, handle feedback more effectively, and are more authentic leaders.\n\n## Building Self-Awareness\n\n### Daily Practices\n- **Journalling** — write 5 minutes about your emotional state and triggers each evening.\n- **The pause** — before reacting, take one breath and name the emotion you are feeling.\n- **Feedback seeking** — regularly ask trusted colleagues: \"What is one thing I could do differently?\"\n\n### Formal Tools\n- 360-degree feedback surveys\n- Personality assessments (MBTI, DiSC, StrengthsFinder) — use as conversation starters, not labels\n- Coaching or mentoring\n\n## Warning Signs of Low Self-Awareness\n- Frequently surprised by how others react to you.\n- Difficulty explaining why you made a decision.\n- Others seem to avoid giving you honest feedback.",
+          "contentEl": "# Αυτογνωσία: Το Θεμέλιο της ΣΝ\n\nΗ αυτογνωσία σημαίνει γνώση των συναισθημάτων, των δυνατών σημείων, των αδυναμιών, των αξιών σας και της επίδρασης που έχετε στους άλλους.\n\n## Γιατί Έχει Σημασία\nΟι άνθρωποι με υψηλή αυτογνωσία λαμβάνουν καλύτερες αποφάσεις, χειρίζονται την ανατροφοδότηση πιο αποτελεσματικά και είναι πιο αυθεντικοί ηγέτες.\n\n## Ανάπτυξη Αυτογνωσίας\n\n### Καθημερινές Πρακτικές\n- **Ημερολόγιο** — γράψτε 5 λεπτά για τη συναισθηματική σας κατάσταση και τα ερεθίσματα κάθε βράδυ.\n- **Η παύση** — πριν αντιδράσετε, πάρτε μια ανάσα και ονομάστε το συναίσθημα που νιώθετε.\n- **Αναζήτηση ανατροφοδότησης** — ρωτήστε τακτικά αξιόπιστους συναδέλφους: «Τι ένα πράγμα θα μπορούσα να κάνω διαφορετικά;\"\n\n### Επίσημα Εργαλεία\n- Έρευνες ανατροφοδότησης 360 μοιρών\n- Αξιολογήσεις προσωπικότητας (MBTI, DiSC, StrengthsFinder) — χρησιμοποιήστε ως αφετηρίες συνομιλίας, όχι ως ετικέτες\n- Coaching ή καθοδήγηση\n\n## Προειδοποιητικά Σημεία Χαμηλής Αυτογνωσίας\n- Συχνά εκπλήσσεστε από τον τρόπο που αντιδρούν οι άλλοι σε εσάς.\n- Δυσκολία στο να εξηγήσετε γιατί πήρατε μια απόφαση.\n- Οι άλλοι φαίνεται να αποφεύγουν να σας δίνουν ειλικρινή ανατροφοδότηση.",
           "durationMinutes": 14,
           "sortOrder": 2
         }
@@ -24,17 +32,22 @@
     },
     {
       "title": "Managing Emotions Under Pressure",
+      "titleEl": "Διαχείριση Συναισθημάτων υπό Πίεση",
       "description": "Regulate your responses in difficult workplace situations.",
+      "descriptionEl": "Ρυθμίστε τις αντιδράσεις σας σε δύσκολες εργασιακές καταστάσεις.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "The Emotion Regulation Toolkit",
+          "titleEl": "Η Εργαλειοθήκη Ρύθμισης Συναισθημάτων",
           "content": "# The Emotion Regulation Toolkit\n\nEmotion regulation is not suppression — it is choosing your response rather than reacting automatically.\n\n## The STOP Technique\n- **S**top what you are doing.\n- **T**ake a breath.\n- **O**bserve what you are feeling and thinking.\n- **P**roceed with intention.\n\n## Reframing\nAsk: \"What is another way to interpret this situation?\"\nA critical email is not necessarily an attack — it might be a rushed message from a stressed colleague.\n\n## Physical Regulation\n- Box breathing: inhale 4 counts, hold 4, exhale 4, hold 4.\n- A short walk resets cortisol levels faster than sitting with the stress.\n\n## The 24-Hour Rule\nNever send an angry email. Write it, save it as a draft, re-read it tomorrow.",
+          "contentEl": "# Η Εργαλειοθήκη Ρύθμισης Συναισθημάτων\n\nΗ ρύθμιση συναισθημάτων δεν είναι καταστολή — είναι η επιλογή της απόκρισής σας αντί της αυτόματης αντίδρασης.\n\n## Η Τεχνική STOP\n- **Σ**ταματήστε αυτό που κάνετε.\n- **Π**άρτε μια ανάσα.\n- **Π**αρατηρήστε τι νιώθετε και σκέφτεστε.\n- **Π**ροχωρήστε με πρόθεση.\n\n## Επαναπλαισίωση\nΡωτήστε: «Ποιος είναι ένας άλλος τρόπος ερμηνείας αυτής της κατάστασης;\"\nΈνα κριτικό email δεν είναι απαραίτητα επίθεση — μπορεί να είναι ένα βιαστικό μήνυμα από έναν αγχωμένο συνάδελφο.\n\n## Φυσική Ρύθμιση\n- Αναπνοή κουτιού: εισπνοή 4 μετρήσεις, κράτηση 4, εκπνοή 4, κράτηση 4.\n- Μια σύντομη βόλτα επαναφέρει τα επίπεδα κορτιζόλης πιο γρήγορα από το να κάθεστε με το άγχος.\n\n## Ο Κανόνας 24 Ωρών\nΠοτέ μη στέλνετε ένα θυμωμένο email. Γράψτε το, αποθηκεύστε το ως πρόχειρο, ξαναδιαβάστε το αύριο.",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Navigating Difficult Conversations",
+          "titleEl": "Πλοήγηση σε Δύσκολες Συνομιλίες",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 2

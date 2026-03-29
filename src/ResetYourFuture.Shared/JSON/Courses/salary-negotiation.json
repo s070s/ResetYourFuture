@@ -1,21 +1,29 @@
 {
   "title": "Salary Negotiation Skills",
+  "titleEl": "Δεξιότητες Διαπραγμάτευσης Μισθού",
   "description": "Learn to confidently negotiate your salary and total compensation package at every stage of your career.",
+  "descriptionEl": "Μάθετε να διαπραγματεύεστε με αυτοπεποίθηση τον μισθό και το συνολικό πακέτο αποδοχών σας σε κάθε στάδιο της καριέρας σας.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "Know Your Worth",
+      "titleEl": "Γνωρίστε την Αξία σας",
       "description": "Research the market so you negotiate from a position of knowledge.",
+      "descriptionEl": "Ερευνήστε την αγορά ώστε να διαπραγματεύεστε από θέση γνώσης.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "How to Research Your Market Value",
+          "titleEl": "Πώς να Ερευνήσετε την Αγοραία Αξία σας",
           "content": "# How to Research Your Market Value\n\nNegotiating without data is guessing. Use multiple sources to triangulate a realistic range.\n\n## Data Sources\n\n- **LinkedIn Salary** — shows ranges by title, location, and experience\n- **Glassdoor** — self-reported salaries with company-specific data\n- **Levels.fyi** — especially useful for tech roles\n- **Bureau of Labor Statistics (BLS)** — official government data by occupation\n- **Industry associations** — many publish annual salary surveys\n- **Recruiters** — ask what the market is paying; they share freely\n\n## Building Your Range\n1. Gather 10–15 data points for your target role and location.\n2. Calculate the 25th, 50th, and 75th percentile.\n3. Your target should be the 75th percentile — you can always come down.\n\n## Factor In Total Comp\nBase salary is only part of the picture. Also research:\n- Bonuses and commissions\n- Equity / stock options\n- Benefits value (health, pension, PTO)\n- Remote flexibility",
+          "contentEl": "# Πώς να Ερευνήσετε την Αγοραία Αξία σας\n\nΗ διαπραγμάτευση χωρίς δεδομένα είναι εικασία. Χρησιμοποιήστε πολλαπλές πηγές για να τριγωνομετρήσετε ένα ρεαλιστικό εύρος.\n\n## Πηγές Δεδομένων\n\n- **LinkedIn Salary** — εμφανίζει εύρη ανά τίτλο, τοποθεσία και εμπειρία\n- **Glassdoor** — αυτοαναφερόμενοι μισθοί με δεδομένα ανά εταιρεία\n- **Levels.fyi** — ιδιαίτερα χρήσιμο για θέσεις τεχνολογίας\n- **Bureau of Labor Statistics (BLS)** — επίσημα κυβερνητικά δεδομένα ανά επάγγελμα\n- **Κλαδικές ενώσεις** — πολλές δημοσιεύουν ετήσιες έρευνες μισθών\n- **Στρατολόγοι** — ρωτήστε τι πληρώνει η αγορά· μοιράζονται ελεύθερα\n\n## Δημιουργία του Εύρους σας\n1. Συγκεντρώστε 10–15 σημεία δεδομένων για τον στόχο σας ρόλο και τοποθεσία.\n2. Υπολογίστε το 25ο, 50ο και 75ο εκατοστημόριο.\n3. Ο στόχος σας πρέπει να είναι το 75ο εκατοστημόριο — μπορείτε πάντα να κατεβείτε.\n\n## Λάβετε Υπόψη τη Συνολική Αμοιβή\nΟ βασικός μισθός είναι μόνο μέρος της εικόνας. Ερευνήστε επίσης:\n- Μπόνους και προμήθειες\n- Μετοχές / δικαιώματα αγοράς μετοχών\n- Αξία παροχών (υγεία, σύνταξη, άδεια)\n- Ευελιξία τηλεργασίας",
           "durationMinutes": 13,
           "sortOrder": 1
         },
         {
           "title": "Anchoring and the First Number Rule",
+          "titleEl": "Αγκύρωση και ο Κανόνας του Πρώτου Αριθμού",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 8,
           "sortOrder": 2
@@ -24,18 +32,24 @@
     },
     {
       "title": "The Negotiation Conversation",
+      "titleEl": "Η Συνομιλία Διαπραγμάτευσης",
       "description": "Scripts and tactics for negotiating with confidence.",
+      "descriptionEl": "Σενάρια και τακτικές για διαπραγμάτευση με αυτοπεποίθηση.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Responding to the Salary Question",
+          "titleEl": "Απάντηση στην Ερώτηση Μισθού",
           "content": "# Responding to the Salary Question\n\nWhen asked \"What are your salary expectations?\" most candidates panic and either undersell or overshoot.\n\n## Option 1: Deflect Early in the Process\n> \"I would love to learn more about the full scope of the role before discussing compensation. Could you share the budgeted range?\"\n\n## Option 2: Give a Range (When You Must)\n- Set the bottom of your range at your actual target number.\n- Top of range should be 15–20 % above target.\n- This way, any point in the range works for you.\n\n**Example:** If you want $85,000, say: \"Based on my research and experience, I am targeting a range of $85,000 to $100,000, depending on the full package.\"\n\n## Never Say Your Current Salary\nIn many places it is illegal to ask. If pressed:\n> \"I prefer to focus on the value I bring to this role rather than what I earned elsewhere.\"",
+          "contentEl": "# Απάντηση στην Ερώτηση Μισθού\n\nΌταν ρωτιέστε «Ποιες είναι οι μισθολογικές σας προσδοκίες;» οι περισσότεροι υποψήφιοι πανικοβάλλονται και είτε υποτιμούν είτε υπερβάλλουν.\n\n## Επιλογή 1: Αποτροπή Νωρίς στη Διαδικασία\n> «Θα ήθελα πολύ να μάθω περισσότερα για το πλήρες εύρος του ρόλου πριν συζητήσουμε τις αποδοχές. Θα μπορούσατε να μοιραστείτε το εύρος του προϋπολογισμού;\"\n\n## Επιλογή 2: Δώστε Εύρος (Όταν Πρέπει)\n- Ορίστε το κατώτατο εύρος σας στον πραγματικό αριθμό-στόχο σας.\n- Το ανώτατο εύρος πρέπει να είναι 15–20% πάνω από τον στόχο.\n- Με αυτόν τον τρόπο, οποιοδήποτε σημείο στο εύρος λειτουργεί για εσάς.\n\n**Παράδειγμα:** Αν θέλετε $85.000, πείτε: «Βάσει της έρευνάς μου και εμπειρίας, στοχεύω σε εύρος $85.000 έως $100.000, ανάλογα με το πλήρες πακέτο.»\n\n## Ποτέ Μην Πείτε τον Τρέχοντα Μισθό σας\nΣε πολλά μέρη είναι παράνομο να ρωτούν. Αν πιεστείτε:\n> «Προτιμώ να επικεντρωθώ στην αξία που φέρνω σε αυτόν τον ρόλο παρά στο τι κέρδισα αλλού.»",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Negotiating the Full Package",
+          "titleEl": "Διαπραγμάτευση Ολόκληρου του Πακέτου",
           "content": "# Negotiating the Full Package\n\nIf they cannot move on base salary, there is almost always room elsewhere.\n\n## What Else to Negotiate\n\n| Element | Example Ask |\n|---|---|\n| Sign-on bonus | \"Could you include a sign-on to bridge the gap?\" |\n| Extra PTO | \"I currently have 25 days — could we match that?\" |\n| Remote days | \"Could we agree on 3 remote days per week?\" |\n| Review timeline | \"Could we schedule a 6-month review with a raise tied to performance?\" |\n| Professional development | \"I would love a $2,000 annual learning budget.\" |\n\n## The Silence Tactic\nAfter making your ask, stop talking. The first person to speak after a number is named tends to concede ground.",
+          "contentEl": "# Διαπραγμάτευση Ολόκληρου του Πακέτου\n\nΑν δεν μπορούν να κινηθούν στον βασικό μισθό, υπάρχει σχεδόν πάντα χώρος αλλού.\n\n## Τι Άλλο να Διαπραγματευτείτε\n\n| Στοιχείο | Παράδειγμα Αιτήματος |\n|---|---|\n| Μπόνους εισδοχής | «Θα μπορούσατε να συμπεριλάβετε ένα μπόνους εισδοχής για να γεφυρώσετε το χάσμα;» |\n| Επιπλέον άδεια | «Έχω αυτήν τη στιγμή 25 μέρες — θα μπορούσαμε να το αντιστοιχίσουμε;» |\n| Μέρες τηλεργασίας | «Θα μπορούσαμε να συμφωνήσουμε σε 3 μέρες τηλεργασίας την εβδομάδα;» |\n| Χρονοδιάγραμμα αξιολόγησης | «Θα μπορούσαμε να προγραμματίσουμε 6μηνη αξιολόγηση με αύξηση βάσει απόδοσης;» |\n| Επαγγελματική ανάπτυξη | «Θα ήθελα πολύ έναν ετήσιο προϋπολογισμό μάθησης $2.000.» |\n\n## Η Τακτική της Σιωπής\nΑφού κάνετε το αίτημά σας, σταματήστε να μιλάτε. Το πρώτο άτομο που μιλά μετά από ονομασία αριθμού τείνει να υποχωρεί.",
           "durationMinutes": 11,
           "sortOrder": 2
         }

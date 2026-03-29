@@ -1,22 +1,30 @@
 {
   "title": "Remote Work Success",
+  "titleEl": "Επιτυχία στην Εξ Αποστάσεως Εργασία",
   "description": "Thrive in a remote or hybrid environment — staying productive, connected, and visible from anywhere.",
+  "descriptionEl": "Ευδοκίμησε σε ένα απομακρυσμένο ή υβριδικό περιβάλλον — παραμένοντας παραγωγικός, συνδεδεμένος και ορατός από οπουδήποτε.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "Designing Your Remote Setup",
+      "titleEl": "Σχεδιασμός του Απομακρυσμένου Χώρου Εργασίας σου",
       "description": "Build a workspace and routine that maximises focus and wellbeing.",
+      "descriptionEl": "Δημιούργησε έναν χώρο εργασίας και ρουτίνα που μεγιστοποιεί την εστίαση και την ευημερία.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "The Ideal Home Office Setup",
+          "titleEl": "Η Ιδανική Διαμόρφωση Γραφείου στο Σπίτι",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 1
         },
         {
           "title": "Creating Boundaries Between Work and Home",
+          "titleEl": "Δημιουργία Ορίων Μεταξύ Εργασίας και Σπιτιού",
           "content": "# Creating Boundaries Between Work and Home\n\nThe biggest remote work challenge is not productivity — it is switching off.\n\n## Physical Boundaries\n- Dedicate a specific space to work, even if it is a corner of a room.\n- At the end of the day, close the laptop and physically leave the space.\n- Keep work equipment out of sight when not working if possible.\n\n## Time Boundaries\n- Set a consistent start and finish time and communicate it to your team.\n- Use calendar blocking to make your availability visible.\n- Turn off Slack and email notifications outside your working hours.\n\n## Psychological Boundaries\n- Create a start-of-day ritual (a short walk, coffee, reviewing your plan) to signal your brain that work has begun.\n- Create an end-of-day ritual (a walk, writing tomorrow's to-do list, closing apps) to signal it is over.\n- The commute served a psychological purpose — replace it deliberately.",
+          "contentEl": "# Δημιουργία Ορίων Μεταξύ Εργασίας και Σπιτιού\n\nΗ μεγαλύτερη πρόκληση της εξ αποστάσεως εργασίας δεν είναι η παραγωγικότητα — είναι το να «κλείνεις».\n\n## Φυσικά Όρια\n- Αφιέρωσε έναν συγκεκριμένο χώρο στην εργασία, ακόμα και αν είναι μια γωνιά ενός δωματίου.\n- Στο τέλος της ημέρας, κλείσε το laptop και φυσικά φύγε από τον χώρο.\n- Κράτα τον εξοπλισμό εργασίας εκτός οπτικού πεδίου όταν δεν εργάζεσαι αν είναι δυνατό.\n\n## Χρονικά Όρια\n- Ορίσε συνεπή ώρα έναρξης και λήξης και επικοινώνησέ την στην ομάδα σου.\n- Χρησιμοποίησε αποκλεισμό ημερολογίου για να κάνεις ορατή τη διαθεσιμότητά σου.\n- Απενεργοποίησε τις ειδοποιήσεις Slack και email εκτός των ωρών εργασίας σου.\n\n## Ψυχολογικά Όρια\n- Δημιούργησε μια τελετουργία έναρξης ημέρας (μια σύντομη βόλτα, καφές, επισκόπηση του πλάνου σου) για να σηματοδοτήσεις στον εγκέφαλό σου ότι η εργασία ξεκίνησε.\n- Δημιούργησε μια τελετουργία λήξης ημέρας (βόλτα, γράψιμο της λίστας εργασιών του αύριο, κλείσιμο εφαρμογών) για να σηματοδοτήσεις ότι τελείωσε.\n- Η μετακίνηση εξυπηρετούσε ψυχολογικό σκοπό — αντικατέστησέ την σκόπιμα.",
           "durationMinutes": 12,
           "sortOrder": 2
         }
@@ -24,18 +32,24 @@
     },
     {
       "title": "Communication and Visibility in Remote Teams",
+      "titleEl": "Επικοινωνία και Ορατότητα σε Απομακρυσμένες Ομάδες",
       "description": "Stay connected, build relationships, and remain visible without being in the office.",
+      "descriptionEl": "Παράμεινε συνδεδεμένος, χτίσε σχέσεις και παράμεινε ορατός χωρίς να βρίσκεσαι στο γραφείο.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Over-Communicating Intentionally",
+          "titleEl": "Σκόπιμη Υπερ-Επικοινωνία",
           "content": "# Over-Communicating Intentionally\n\nIn an office, people absorb your presence and effort passively. Remote work removes that. You need to make your work visible intentionally.\n\n## What to Communicate\n- Your priorities at the start of the week (in your team channel or 1-on-1 with your manager).\n- Progress updates — do not wait until the end to report.\n- Blockers early — waiting until a deadline to raise an issue damages trust.\n- Wins — share what you completed, not just what you are working on.\n\n## The Friday Update\nSend a brief end-of-week message to your manager:\n- What I completed this week.\n- What I am working on next week.\n- Any blockers or risks.\n\nThis single habit significantly increases your visibility and perceived reliability.\n\n## Choose the Right Channel\n- **Async, non-urgent** → Email or a project management tool.\n- **Async, team-wide** → Slack/Teams channel.\n- **Complex or sensitive** → Video call.\n- **Quick clarification** → Slack DM.",
+          "contentEl": "# Σκόπιμη Υπερ-Επικοινωνία\n\nΣε ένα γραφείο, οι άνθρωποι απορροφούν παθητικά την παρουσία και την προσπάθειά σου. Η εξ αποστάσεως εργασία αφαιρεί αυτό. Πρέπει να κάνεις την εργασία σου ορατή σκόπιμα.\n\n## Τι να Επικοινωνείς\n- Τις προτεραιότητές σου στην αρχή της εβδομάδας (στο κανάλι ομάδας σου ή 1-1 με τον διευθυντή σου).\n- Ενημερώσεις προόδου — μην περιμένεις μέχρι το τέλος για να αναφέρεις.\n- Εμπόδια νωρίς — το να περιμένεις μέχρι μια προθεσμία για να εγείρεις ένα ζήτημα καταστρέφει την εμπιστοσύνη.\n- Επιτυχίες — μοιράσου αυτό που ολοκλήρωσες, όχι μόνο αυτό που εργάζεσαι.\n\n## Η Εβδομαδιαία Ενημέρωση Παρασκευής\nΣτείλε ένα σύντομο μήνυμα τέλους εβδομάδας στον διευθυντή σου:\n- Τι ολοκλήρωσα αυτή την εβδομάδα.\n- Τι θα δουλέψω την επόμενη εβδομάδα.\n- Οποιαδήποτε εμπόδια ή κινδύνους.\n\nΑυτή η μοναδική συνήθεια αυξάνει σημαντικά την ορατότητά σου και την αντιληπτή αξιοπιστία σου.\n\n## Επέλεξε το Σωστό Κανάλι\n- **Async, μη επείγον** → Email ή εργαλείο διαχείρισης έργων.\n- **Async, σε επίπεδο ομάδας** → Κανάλι Slack/Teams.\n- **Σύνθετο ή ευαίσθητο** → Βιντεοκλήση.\n- **Γρήγορη διευκρίνιση** → Slack DM.",
           "durationMinutes": 11,
           "sortOrder": 1
         },
         {
           "title": "Avoiding Remote Work Isolation",
+          "titleEl": "Αποφυγή Απομόνωσης στην Εξ Αποστάσεως Εργασία",
           "content": "# Avoiding Remote Work Isolation\n\nLoneliness is the number-one reported challenge for remote workers. Left unaddressed, it affects wellbeing and performance.\n\n## Professional Connection\n- Schedule a weekly 15-minute informal video call with a colleague (no agenda).\n- Participate actively in team channels — respond to messages, celebrate wins.\n- Attend virtual team social events even when optional.\n- Ask your manager for regular 1-on-1s and use them to build the relationship, not just report status.\n\n## Social Connection Outside Work\n- Coworking spaces offer community 1–2 days a week.\n- Professional meetups and networking events provide real-world connection.\n- Online communities in your field (LinkedIn groups, Slack communities, Discord servers) connect you with peers.\n\n## Signals That Isolation Is Becoming a Problem\n- Dreading Monday more than usual.\n- Decreased motivation unrelated to workload.\n- Feeling invisible or undervalued despite good work.\n\nRaise this with your manager or use employee support resources — it is a structural issue, not a personal failure.",
+          "contentEl": "# Αποφυγή Απομόνωσης στην Εξ Αποστάσεως Εργασία\n\nΗ μοναξιά είναι η πρώτη αναφερόμενη πρόκληση για εξ αποστάσεως εργαζόμενους. Αν αφεθεί χωρίς αντιμετώπιση, επηρεάζει την ευημερία και την απόδοση.\n\n## Επαγγελματική Σύνδεση\n- Προγραμμάτισε μια εβδομαδιαία ανεπίσημη βιντεοκλήση 15 λεπτών με έναν συνάδελφο (χωρίς ατζέντα).\n- Συμμετέχεις ενεργά στα κανάλια ομάδας — απάντησε σε μηνύματα, γιόρτασε επιτυχίες.\n- Παρακολούθησε εικονικές κοινωνικές εκδηλώσεις ομάδας ακόμα και όταν είναι προαιρετικές.\n- Ζήτησε από τον διευθυντή σου τακτικές 1-1 και χρησιμοποίησέ τες για να χτίσεις τη σχέση, όχι μόνο να αναφέρεις κατάσταση.\n\n## Κοινωνική Σύνδεση Εκτός Εργασίας\n- Οι χώροι συν-εργασίας (coworking) προσφέρουν κοινότητα 1–2 ημέρες την εβδομάδα.\n- Επαγγελματικές συναντήσεις και εκδηλώσεις networking παρέχουν πραγματική σύνδεση.\n- Διαδικτυακές κοινότητες στον τομέα σου (ομάδες LinkedIn, κοινότητες Slack, διακομιστές Discord) σε συνδέουν με ομοτίμους.\n\n## Σήματα ότι η Απομόνωση Γίνεται Πρόβλημα\n- Φοβάσαι τη Δευτέρα περισσότερο από το συνηθισμένο.\n- Μειωμένα κίνητρα άσχετα με τον φόρτο εργασίας.\n- Αίσθηση αόρατου ή υποτιμημένου παρά καλή δουλειά.\n\nΘέσε αυτό στον διευθυντή σου ή χρησιμοποίησε πόρους υποστήριξης εργαζομένων — είναι δομικό ζήτημα, όχι προσωπική αποτυχία.",
           "durationMinutes": 13,
           "sortOrder": 2
         }

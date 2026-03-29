@@ -1,21 +1,29 @@
 {
   "title": "Interview Mastery",
+  "titleEl": "Κατάκτηση της Συνέντευξης",
   "description": "Prepare for every stage of the interview process — from phone screens to final-round panels.",
+  "descriptionEl": "Προετοιμαστείτε για κάθε στάδιο της διαδικασίας συνέντευξης — από τις τηλεφωνικές προκριματικές έως τα τελικά πάνελ.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Interview Preparation",
+      "titleEl": "Προετοιμασία για Συνέντευξη",
       "description": "Build the research and mindset habits that separate great candidates from average ones.",
+      "descriptionEl": "Αναπτύξτε τις συνήθειες έρευνας και νοοτροπίας που ξεχωρίζουν τους εξαιρετικούς υποψηφίους από τους μέτριους.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Researching the Company and Role",
+          "titleEl": "Έρευνα για την Εταιρεία και τη Θέση",
           "content": "# Researching the Company and Role\n\nWalking into an interview unprepared is the fastest way to disqualify yourself.\n\n## What to Research\n\n### The Company\n- Mission, vision, and core values\n- Recent news, product launches, or earnings reports\n- Culture cues from Glassdoor, LinkedIn, and the careers page\n\n### The Role\n- Re-read the job description and underline required skills\n- Understand how the role fits into the team structure\n- Look up the hiring manager on LinkedIn\n\n### The Industry\n- Key trends and challenges facing the sector\n- Main competitors\n\n## Using Your Research\n- Craft 2–3 tailored answers that reference company specifics.\n- Prepare questions that demonstrate genuine curiosity.",
+          "contentEl": "# Έρευνα για την Εταιρεία και τη Θέση\n\nΤο να πάτε σε συνέντευξη απροετοίμαστοι είναι ο πιο γρήγορος τρόπος να αποκλειστείτε.\n\n## Τι να Ερευνήσετε\n\n### Η Εταιρεία\n- Αποστολή, όραμα και βασικές αξίες\n- Πρόσφατες ειδήσεις, λανσαρίσματα προϊόντων ή αποτελέσματα\n- Στοιχεία κουλτούρας από Glassdoor, LinkedIn και τη σελίδα καριέρας\n\n### Η Θέση\n- Ξαναδιαβάστε την περιγραφή θέσης και υπογραμμίστε τις απαιτούμενες δεξιότητες\n- Κατανοήστε πώς η θέση εντάσσεται στη δομή της ομάδας\n- Αναζητήστε τον υπεύθυνο προσλήψεων στο LinkedIn\n\n### Ο Κλάδος\n- Βασικές τάσεις και προκλήσεις που αντιμετωπίζει ο τομέας\n- Κύριοι ανταγωνιστές\n\n## Χρήση της Έρευνάς σας\n- Διαμορφώστε 2–3 εξατομικευμένες απαντήσεις που αναφέρουν συγκεκριμένα στοιχεία της εταιρείας.\n- Ετοιμάστε ερωτήσεις που δείχνουν αληθινή περιέργεια.",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "The STAR Answer Framework",
+          "titleEl": "Το Πλαίσιο Απάντησης STAR",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 9,
           "sortOrder": 2
@@ -24,18 +32,24 @@
     },
     {
       "title": "Answering Tough Questions",
+      "titleEl": "Απάντηση σε Δύσκολες Ερωτήσεις",
       "description": "Master the most common and difficult interview questions.",
+      "descriptionEl": "Κατακτήστε τις πιο συχνές και δύσκολες ερωτήσεις συνέντευξης.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Tell Me About Yourself",
+          "titleEl": "Πείτε μου για εσάς",
           "content": "# Tell Me About Yourself\n\nThis is almost always the first question. It is your 90-second commercial.\n\n## The Past–Present–Future Structure\n\n1. **Past** — Briefly summarise your background and key experience.\n2. **Present** — What you are doing now and what you have achieved.\n3. **Future** — Why this specific role excites you.\n\n## Example\n\n> I spent four years in retail management, where I led a team of 12 and consistently hit top-quartile NPS scores. More recently I completed a data analytics bootcamp and have been applying those skills to optimise store scheduling. I am excited about this operations analyst role because it combines both sides of my experience in a data-driven environment.\n\n## Tips\n- Keep it to 90 seconds.\n- Practice out loud, not just in your head.\n- End with a bridge to the role.",
+          "contentEl": "# Πείτε μου για εσάς\n\nΑυτή είναι σχεδόν πάντα η πρώτη ερώτηση. Είναι η διαφήμιση 90 δευτερολέπτων σας.\n\n## Η Δομή Παρελθόν–Παρόν–Μέλλον\n\n1. **Παρελθόν** — Συνοψίστε σύντομα το υπόβαθρό σας και την κύρια εμπειρία σας.\n2. **Παρόν** — Τι κάνετε τώρα και τι έχετε επιτύχει.\n3. **Μέλλον** — Γιατί σας ενθουσιάζει συγκεκριμένα αυτή η θέση.\n\n## Παράδειγμα\n\n> Πέρασα τέσσερα χρόνια στη διαχείριση λιανικής, όπου ηγήθηκα ομάδας 12 ατόμων και σταθερά κατατασσόμουν στο ανώτατο τεταρτημόριο NPS. Πιο πρόσφατα ολοκλήρωσα ένα bootcamp ανάλυσης δεδομένων και εφαρμόζω αυτές τις δεξιότητες για τη βελτιστοποίηση προγραμματισμού καταστήματος. Με ενθουσιάζει αυτή η θέση αναλυτή λειτουργιών γιατί συνδυάζει και τις δύο πλευρές της εμπειρίας μου σε ένα περιβάλλον βασισμένο στα δεδομένα.\n\n## Συμβουλές\n- Κρατήστε το σε 90 δευτερόλεπτα.\n- Εξασκηθείτε φωναχτά, όχι μόνο στο μυαλό σας.\n- Κλείστε με μια γέφυρα προς τη θέση.",
           "durationMinutes": 11,
           "sortOrder": 1
         },
         {
           "title": "Handling Weakness and Failure Questions",
+          "titleEl": "Χειρισμός Ερωτήσεων για Αδυναμίες και Αποτυχίες",
           "content": "# Handling Weakness and Failure Questions\n\n## \"What Is Your Greatest Weakness?\"\n\nInterviewers want to see self-awareness and a growth mindset.\n\n### Framework\n1. Name a **genuine** weakness (not a strength in disguise).\n2. Show **what you did** to address it.\n3. Share the **progress** you have made.\n\n**Example:** \"I used to struggle with delegating — I preferred doing everything myself. I recognised it was limiting my team's growth so I started assigning stretch projects and scheduling weekly check-ins. My team's output has increased and two members were promoted last year.\"\n\n## \"Tell Me About a Failure\"\n\n1. Describe the situation honestly.\n2. Own your role in it.\n3. Explain what you learned and how you changed.",
+          "contentEl": "# Χειρισμός Ερωτήσεων για Αδυναμίες και Αποτυχίες\n\n## «Ποια είναι η μεγαλύτερη αδυναμία σας;»\n\nΟι συνεντευκτές θέλουν να δουν αυτογνωσία και νοοτροπία ανάπτυξης.\n\n### Πλαίσιο\n1. Ονομάστε μια **αληθινή** αδυναμία (όχι ένα δυνατό σημείο μεταμφιεσμένο).\n2. Δείξτε **τι κάνατε** για να την αντιμετωπίσετε.\n3. Μοιραστείτε την **πρόοδο** που έχετε κάνει.\n\n**Παράδειγμα:** «Δυσκολευόμουν με την ανάθεση καθηκόντων — προτιμούσα να κάνω τα πάντα μόνος μου. Συνειδητοποίησα ότι περιόριζε την ανάπτυξη της ομάδας μου, οπότε άρχισα να αναθέτω έργα ανάπτυξης και να προγραμματίζω εβδομαδιαίες συναντήσεις. Η απόδοση της ομάδας μου αυξήθηκε και δύο μέλη προήχθησαν πέρυσι.»\n\n## «Πείτε μου για μια Αποτυχία»\n\n1. Περιγράψτε την κατάσταση με ειλικρίνεια.\n2. Αναλάβετε τον ρόλο σας σε αυτήν.\n3. Εξηγήστε τι μάθατε και πώς αλλάξατε.",
           "durationMinutes": 13,
           "sortOrder": 2
         }
@@ -43,17 +57,22 @@
     },
     {
       "title": "Closing and Following Up",
+      "titleEl": "Κλείσιμο και Παρακολούθηση",
       "description": "Leave a lasting impression and stay top of mind after the interview.",
+      "descriptionEl": "Αφήστε μόνιμη εντύπωση και παραμείνετε στο μυαλό των συνεντευκτών μετά τη συνέντευξη.",
       "sortOrder": 3,
       "lessons": [
         {
           "title": "Questions to Ask the Interviewer",
+          "titleEl": "Ερωτήσεις για τον Συνεντευκτή",
           "content": "# Questions to Ask the Interviewer\n\nAlways have 3–5 questions ready. Not asking questions signals disinterest.\n\n## Strong Question Categories\n\n### Role Clarity\n- What does success look like in the first 90 days?\n- What are the biggest challenges the person in this role will face?\n\n### Team and Culture\n- How does the team typically collaborate day-to-day?\n- How would you describe the management style here?\n\n### Growth\n- What does career progression look like from this position?\n- Are there learning and development resources available?\n\n### Next Steps\n- What does the rest of the hiring process look like?\n- When can I expect to hear back?\n\n## Avoid\n- Questions answered on the website.\n- Salary or benefits in early rounds (unless they bring it up).",
+          "contentEl": "# Ερωτήσεις για τον Συνεντευκτή\n\nΝα έχετε πάντα 3–5 ερωτήσεις έτοιμες. Το να μην κάνετε ερωτήσεις σηματοδοτεί έλλειψη ενδιαφέροντος.\n\n## Κατηγορίες Ισχυρών Ερωτήσεων\n\n### Διευκρίνιση Ρόλου\n- Πώς μοιάζει η επιτυχία τις πρώτες 90 ημέρες;\n- Ποιες είναι οι μεγαλύτερες προκλήσεις που θα αντιμετωπίσει ο κάτοχος αυτής της θέσης;\n\n### Ομάδα και Κουλτούρα\n- Πώς συνεργάζεται συνήθως η ομάδα καθημερινά;\n- Πώς θα περιγράφατε το στυλ διοίκησης εδώ;\n\n### Ανάπτυξη\n- Πώς μοιάζει η εξέλιξη καριέρας από αυτή τη θέση;\n- Υπάρχουν διαθέσιμοι πόροι μάθησης και ανάπτυξης;\n\n### Επόμενα Βήματα\n- Πώς μοιάζει το υπόλοιπο της διαδικασίας πρόσληψης;\n- Πότε μπορώ να περιμένω να ακούσω;\n\n## Αποφύγετε\n- Ερωτήσεις που απαντώνται στον ιστότοπο.\n- Μισθό ή παροχές στους πρώτους γύρους (εκτός αν το αναφέρουν εκείνοι).",
           "durationMinutes": 8,
           "sortOrder": 1
         },
         {
           "title": "The Thank-You Note That Gets Remembered",
+          "titleEl": "Το Ευχαριστήριο Σημείωμα που Μένει στη Μνήμη",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 6,
           "sortOrder": 2

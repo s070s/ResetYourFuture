@@ -1,21 +1,29 @@
 {
   "title": "Career Change Blueprint",
+  "titleEl": "Σχέδιο Αλλαγής Καριέρας",
   "description": "Navigate a career pivot with clarity and confidence — from identifying the right direction to landing your first role in the new field.",
+  "descriptionEl": "Πλοηγήσου σε μια στροφή καριέρας με σαφήνεια και αυτοπεποίθηση — από τον εντοπισμό της σωστής κατεύθυνσης μέχρι την εξασφάλιση του πρώτου σου ρόλου στο νέο τομέα.",
+  "requiredTier": "Pro",
   "isPublished": true,
   "modules": [
     {
       "title": "Deciding to Make the Change",
+      "titleEl": "Απόφαση για την Αλλαγή",
       "description": "Validate that a career change is the right move and identify your true direction.",
+      "descriptionEl": "Επικύρωσε ότι η αλλαγή καριέρας είναι η σωστή κίνηση και εντόπισε την πραγματική σου κατεύθυνση.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Is It the Job or the Career?",
+          "titleEl": "Είναι η Δουλειά ή η Καριέρα;",
           "content": "# Is It the Job or the Career?\n\nBefore making a major pivot, it is worth asking: are you unhappy with the role, the industry, the company, or the whole career? The answer changes your plan entirely.\n\n## The Diagnostic Questions\n\n**If you changed companies but kept the same role:**\n- Would you be happier? → It might be the environment, not the career.\n\n**If you stayed at the same company but changed roles:**\n- Would you be happier? → It might be the role, not the industry.\n\n**If neither of the above sounds appealing:**\n→ A genuine career change might be warranted.\n\n## The Grass Is Always Greener Trap\nEvery career looks better from the outside. Before pivoting, speak to at least five people who do the job you are considering. Ask:\n- What is the worst part of this role?\n- What do most people get wrong about this career?\n- If you were starting over, would you choose it again?\n\n## Pivot vs. Adjacent Move\n- **Adjacent move** — same skills, different industry (e.g., finance analyst → operations analyst in healthcare).\n- **Pivot** — different skills, different industry (e.g., teacher → software developer).\nAdjacent moves are faster and lower risk. Full pivots require more time, retraining, and financial runway.",
+          "contentEl": "# Είναι η Δουλειά ή η Καριέρα;\n\nΠριν κάνεις μια μεγάλη στροφή, αξίζει να ρωτήσεις: είσαι δυσαρεστημένος με τον ρόλο, τον κλάδο, την εταιρεία ή ολόκληρη την καριέρα; Η απάντηση αλλάζει εντελώς το σχέδιό σου.\n\n## Οι Διαγνωστικές Ερωτήσεις\n\n**Αν άλλαζες εταιρείες αλλά κρατούσες τον ίδιο ρόλο:**\n- Θα ήσουν πιο ευτυχισμένος; → Μπορεί να είναι το περιβάλλον, όχι η καριέρα.\n\n**Αν έμενες στην ίδια εταιρεία αλλά άλλαζες ρόλο:**\n- Θα ήσουν πιο ευτυχισμένος; → Μπορεί να είναι ο ρόλος, όχι ο κλάδος.\n\n**Αν κανένα από τα παραπάνω δεν ακούγεται ελκυστικό:**\n→ Μια πραγματική αλλαγή καριέρας μπορεί να είναι δικαιολογημένη.\n\n## Η Παγίδα «Ο Κήπος του Γείτονα»\nΚάθε καριέρα φαίνεται καλύτερη από έξω. Πριν κάνεις στροφή, μίλησε με τουλάχιστον πέντε ανθρώπους που κάνουν τη δουλειά που εξετάζεις. Ρώτησε:\n- Ποιο είναι το χειρότερο μέρος αυτού του ρόλου;\n- Τι παρεξηγούν οι περισσότεροι για αυτή την καριέρα;\n- Αν ξεκινούσες από την αρχή, θα την επέλεγες ξανά;\n\n## Στροφή vs. Παρακείμενη Κίνηση\n- **Παρακείμενη κίνηση** — ίδιες δεξιότητες, διαφορετικός κλάδος (π.χ., αναλυτής χρηματοοικονομικών → αναλυτής λειτουργιών στην υγειονομική περίθαλψη).\n- **Στροφή** — διαφορετικές δεξιότητες, διαφορετικός κλάδος (π.χ., εκπαιδευτικός → προγραμματιστής λογισμικού).\nΟι παρακείμενες κινήσεις είναι πιο γρήγορες και χαμηλότερου κινδύνου. Οι πλήρεις στροφές απαιτούν περισσότερο χρόνο, επανεκπαίδευση και οικονομικό αποθεματικό.",
           "durationMinutes": 14,
           "sortOrder": 1
         },
         {
           "title": "Mapping Your Transferable Skills to a New Career",
+          "titleEl": "Χαρτογράφηση Μεταβιβάσιμων Δεξιοτήτων σε Νέα Καριέρα",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 10,
           "sortOrder": 2
@@ -24,14 +32,25 @@
     },
     {
       "title": "Making the Transition",
+      "titleEl": "Πραγματοποιώντας τη Μετάβαση",
       "description": "Practical steps to bridge the gap between where you are and where you want to be.",
+      "descriptionEl": "Πρακτικά βήματα για να γεφυρώσεις το χάσμα μεταξύ του που βρίσκεσαι και του που θέλεις να πας.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "Building a Bridge Portfolio",
+          "titleEl": "Δημιουργία Χαρτοφυλακίου Γέφυρας",
           "content": "# Building a Bridge Portfolio\n\nWhen you lack experience in a new field, you need to create evidence of your capability.\n\n## What a Bridge Portfolio Includes\n- **Projects** — build something relevant. If you want to move into data analysis, analyse a public dataset and publish your findings.\n- **Freelance or volunteer work** — take on small projects in the new field while still employed.\n- **Certifications** — choose recognised, role-relevant credentials (not just completion badges).\n- **Writing and content** — articles, LinkedIn posts, or a newsletter that show your knowledge and thinking.\n\n## The Side-Door Entry\nMany career changers enter a new field through:\n- Adjacent roles in the target industry\n- Internal transfers at their current employer\n- Internships or returnships\n- Apprenticeships\n\nThese often pay less short-term but build credibility far faster than cold applications.\n\n## Timeline Reality Check\nMost successful career changes take 12–24 months when done properly. Rushing increases the risk of ending up in the wrong place again.",
+          "contentEl": "# Δημιουργία Χαρτοφυλακίου Γέφυρας\n\nΌταν σου λείπει εμπειρία σε έναν νέο τομέα, πρέπει να δημιουργήσεις αποδείξεις της ικανότητάς σου.\n\n## Τι Περιλαμβάνει ένα Χαρτοφυλάκιο Γέφυρας\n- **Έργα** — φτιάξε κάτι σχετικό. Αν θέλεις να μεταβείς στην ανάλυση δεδομένων, ανάλυσε ένα δημόσιο σύνολο δεδομένων και δημοσίευσε τα ευρήματά σου.\n- **Ελεύθερη εργασία ή εθελοντισμός** — ανάλαβε μικρά έργα στον νέο τομέα ενώ είσαι ακόμα εργαζόμενος.\n- **Πιστοποιήσεις** — επέλεξε αναγνωρισμένα, σχετικά με τον ρόλο διαπιστευτήρια (όχι απλώς σήματα ολοκλήρωσης).\n- **Γραφή και περιεχόμενο** — άρθρα, αναρτήσεις LinkedIn ή ενημερωτικό δελτίο που δείχνουν τις γνώσεις και τη σκέψη σου.\n\n## Η Είσοδος από την Πλαϊνή Πόρτα\nΠολλοί αλλάζοντες καριέρα εισέρχονται σε έναν νέο τομέα μέσα από:\n- Παρακείμενους ρόλους στον στοχευόμενο κλάδο\n- Εσωτερικές μεταθέσεις στον τρέχοντα εργοδότη τους\n- Πρακτική ή επαναφορά στην αγορά εργασίας\n- Μαθητεία\n\nΑυτά συχνά πληρώνουν λιγότερο βραχυπρόθεσμα αλλά χτίζουν αξιοπιστία πολύ πιο γρήγορα από ψυχρές αιτήσεις.\n\n## Ρεαλιστικός Έλεγχος Χρονοδιαγράμματος\nΟι περισσότερες επιτυχημένες αλλαγές καριέρας διαρκούν 12–24 μήνες όταν γίνονται σωστά. Η βιασύνη αυξάνει τον κίνδυνο να καταλήξεις ξανά στο λάθος μέρος.",
           "durationMinutes": 13,
           "sortOrder": 1
+        },
+        {
+          "title": "Career Change Action Plan",
+          "titleEl": "Σχέδιο Δράσης Αλλαγής Καριέρας",
+          "pdfPath": "/docs/career-change-action-plan.pdf",
+          "durationMinutes": 5,
+          "sortOrder": 2
         }
       ]
     }

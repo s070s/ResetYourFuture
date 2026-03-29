@@ -3,7 +3,7 @@
   "titleEl": "Ετοιμότητα για Εργασία",
   "description": "Master the practical skills of the modern job search — from crafting your CV to negotiating your first offer.",
   "descriptionEl": "Κατάκτησε τις πρακτικές δεξιότητες της σύγχρονης αναζήτησης εργασίας — από τη σύνταξη του βιογραφικού σου έως τη διαπραγμάτευση της πρώτης σου προσφοράς.",
-  "requiredTier": "Pro",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {

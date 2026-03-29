@@ -1,22 +1,30 @@
 {
   "title": "Growth Mindset & Resilience",
+  "titleEl": "Αναπτυξιακή Νοοτροπία & Ανθεκτικότητα",
   "description": "Build the mental framework to embrace challenges, learn from setbacks, and sustain long-term career growth.",
+  "descriptionEl": "Αναπτύξτε το νοητικό πλαίσιο για να αγκαλιάζετε τις προκλήσεις, να μαθαίνετε από τα αποτυχήματα και να διατηρείτε μακροπρόθεσμη επαγγελματική ανάπτυξη.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Understanding Mindset",
+      "titleEl": "Κατανόηση της Νοοτροπίας",
       "description": "Learn the science behind fixed and growth mindsets and why it changes everything.",
+      "descriptionEl": "Μάθετε την επιστήμη πίσω από τις σταθερές και αναπτυξιακές νοοτροπίες και γιατί αλλάζει τα πάντα.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Fixed vs. Growth Mindset",
+          "titleEl": "Σταθερή vs. Αναπτυξιακή Νοοτροπία",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 10,
           "sortOrder": 1
         },
         {
           "title": "Recognising Your Fixed Mindset Triggers",
+          "titleEl": "Αναγνώριση των Ερεθισμάτων Σταθερής Νοοτροπίας",
           "content": "# Recognising Your Fixed Mindset Triggers\n\nEveryone has a fixed mindset voice — the inner critic that says \"I am not smart enough\" or \"I cannot do this.\" The goal is to recognise it, not silence it.\n\n## Common Fixed Mindset Triggers\n- Receiving critical feedback\n- Watching someone else succeed in an area you care about\n- Facing a challenge that feels beyond your current ability\n- Making a mistake in public\n\n## The Two-Step Shift\n1. **Name the trigger** — \"I am in fixed mindset right now because...\"\n2. **Reframe with a growth question** — \"What can I learn from this?\" / \"What is the next small step?\"\n\n## The Power of \"Yet\"\nInstead of: \"I cannot do this.\"\nSay: \"I cannot do this **yet**.\"\n\nThis single word shift signals to your brain that the situation is temporary and changeable.\n\n## Journal Prompt\nWrite about a recent fixed mindset moment. What triggered it? What would a growth mindset response have looked like?",
+          "contentEl": "# Αναγνώριση των Ερεθισμάτων Σταθερής Νοοτροπίας\n\nΌλοι έχουν μια φωνή σταθερής νοοτροπίας — τον εσωτερικό επικριτή που λέει «Δεν είμαι αρκετά έξυπνος» ή «Δεν μπορώ να το κάνω αυτό». Ο στόχος είναι να την αναγνωρίσετε, όχι να την σιωπήσετε.\n\n## Κοινά Ερεθίσματα Σταθερής Νοοτροπίας\n- Λήψη κριτικής ανατροφοδότησης\n- Παρακολούθηση άλλου να πετυχαίνει σε έναν τομέα που σας νοιάζει\n- Αντιμετώπιση πρόκλησης που φαίνεται πέρα από τις τρέχουσες ικανότητές σας\n- Κάνετε λάθος δημόσια\n\n## Η Μετατόπιση Δύο Βημάτων\n1. **Ονομάστε το ερέθισμα** — «Βρίσκομαι σε σταθερή νοοτροπία τώρα επειδή...»\n2. **Επαναπλαισιώστε με ερώτηση ανάπτυξης** — «Τι μπορώ να μάθω από αυτό;» / «Ποιο είναι το επόμενο μικρό βήμα;\"\n\n## Η Δύναμη του «Ακόμα»\nΑντί για: «Δεν μπορώ να το κάνω αυτό.»\nΠείτε: «Δεν μπορώ να το κάνω αυτό **ακόμα**.\"\n\nΑυτή η μοναδική αλλαγή λέξης σηματοδοτεί στον εγκέφαλό σας ότι η κατάσταση είναι προσωρινή και αλλάξιμη.\n\n## Προτροπή Ημερολογίου\nΓράψτε για μια πρόσφατη στιγμή σταθερής νοοτροπίας. Τι την πυροδότησε; Πώς θα έμοιαζε μια απόκριση αναπτυξιακής νοοτροπίας;",
           "durationMinutes": 13,
           "sortOrder": 2
         }
@@ -24,18 +32,24 @@
     },
     {
       "title": "Building Resilience",
+      "titleEl": "Ανάπτυξη Ανθεκτικότητας",
       "description": "Develop the capacity to bounce back stronger from setbacks.",
+      "descriptionEl": "Αναπτύξτε την ικανότητα να ανακάμπτετε πιο δυνατοί από τα αποτυχήματα.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "The Resilience Toolkit",
+          "titleEl": "Η Εργαλειοθήκη Ανθεκτικότητας",
           "content": "# The Resilience Toolkit\n\nResilience is not about never struggling — it is about recovering faster and growing stronger.\n\n## The Four Pillars of Resilience\n\n### 1. Meaning\nPeople who find meaning in difficulty recover faster. Ask: \"What is this teaching me? How will I use this?\"\n\n### 2. Connection\nIsolation amplifies adversity. Lean on trusted people. Asking for help is a strength, not a weakness.\n\n### 3. Perspective\nMost setbacks feel permanent in the moment. Ask: \"Will this matter in 5 years?\"\n\n### 4. Self-Care\nResilience runs on energy. Sleep, movement, and nutrition are not optional extras during hard times — they are the foundation.\n\n## Processing Setbacks\n1. Allow yourself to feel it — suppression delays recovery.\n2. Separate facts from interpretations (\"I did not get the job\" vs. \"I am a failure\").\n3. Identify one small action you can take today.\n4. Revisit and learn once the emotional intensity fades.",
+          "contentEl": "# Η Εργαλειοθήκη Ανθεκτικότητας\n\nΗ ανθεκτικότητα δεν αφορά το να μην αγωνίζεστε ποτέ — αφορά το να ανακάμπτετε πιο γρήγορα και να μεγαλώνετε πιο δυνατοί.\n\n## Οι Τέσσερις Πυλώνες Ανθεκτικότητας\n\n### 1. Νόημα\nΟι άνθρωποι που βρίσκουν νόημα στη δυσκολία ανακάμπτουν πιο γρήγορα. Ρωτήστε: «Τι μου διδάσκει αυτό; Πώς θα το χρησιμοποιήσω;\"\n\n### 2. Σύνδεση\nΗ απομόνωση ενισχύει την αντιξοότητα. Βασιστείτε σε αξιόπιστα άτομα. Η ζήτηση βοήθειας είναι δύναμη, όχι αδυναμία.\n\n### 3. Προοπτική\nΤα περισσότερα αποτυχήματα φαίνονται μόνιμα εκείνη τη στιγμή. Ρωτήστε: «Θα έχει σημασία αυτό σε 5 χρόνια;\"\n\n### 4. Αυτοφροντίδα\nΗ ανθεκτικότητα τρέχει με ενέργεια. Ο ύπνος, η κίνηση και η διατροφή δεν είναι προαιρετικά extras σε δύσκολους καιρούς — είναι το θεμέλιο.\n\n## Επεξεργασία Αποτυχημάτων\n1. Αφήστε τον εαυτό σας να το νιώσει — η καταστολή καθυστερεί την ανάκαμψη.\n2. Χωρίστε τα γεγονότα από τις ερμηνείες («Δεν πήρα τη δουλειά» vs. «Είμαι αποτυχημένος»).\n3. Εντοπίστε μια μικρή δράση που μπορείτε να κάνετε σήμερα.\n4. Επιστρέψτε και μάθετε μόλις η συναισθηματική ένταση υποχωρήσει.",
           "durationMinutes": 14,
           "sortOrder": 1
         },
         {
           "title": "Learning From Failure",
+          "titleEl": "Μάθηση από την Αποτυχία",
           "content": "# Learning From Failure\n\nFailure is data. The most successful professionals are not those who fail least — they are those who extract the most learning from it.\n\n## The After-Action Review\nUsed by military organisations and high-performance teams. Apply it to any significant setback.\n\n1. **What was supposed to happen?** (Your plan or expectation)\n2. **What actually happened?** (The outcome)\n3. **Why was there a gap?** (Honest root-cause analysis — avoid blaming others)\n4. **What will I do differently next time?** (Concrete behaviour change)\n\n## Normalise Failure in Your Narrative\n- Most career stories include visible failures — redundancy, rejection, wrong turns.\n- Reframing these as pivots or turning points makes them assets in interviews and conversations.\n\n## The Failure Résumé\nSome leaders maintain a \"failure résumé\" alongside their regular one — a record of their biggest setbacks and what they learned. It is a powerful exercise in normalising and owning your growth story.",
+          "contentEl": "# Μάθηση από την Αποτυχία\n\nΗ αποτυχία είναι δεδομένα. Οι πιο επιτυχημένοι επαγγελματίες δεν είναι αυτοί που αποτυγχάνουν λιγότερο — είναι αυτοί που αντλούν την περισσότερη μάθηση από αυτήν.\n\n## Η Ανασκόπηση Μετά τη Δράση\nΧρησιμοποιείται από στρατιωτικές οργανώσεις και ομάδες υψηλής απόδοσης. Εφαρμόστε την σε οποιοδήποτε σημαντικό αποτύχημα.\n\n1. **Τι έπρεπε να συμβεί;** (Το σχέδιο ή η προσδοκία σας)\n2. **Τι πραγματικά συνέβη;** (Το αποτέλεσμα)\n3. **Γιατί υπήρχε κενό;** (Ειλικρινής ανάλυση βαθύτερης αιτίας — αποφύγετε να κατηγορείτε άλλους)\n4. **Τι θα κάνω διαφορετικά την επόμενη φορά;** (Συγκεκριμένη αλλαγή συμπεριφοράς)\n\n## Κανονικοποιήστε την Αποτυχία στην Αφήγησή σας\n- Οι περισσότερες επαγγελματικές ιστορίες περιλαμβάνουν ορατές αποτυχίες — απολύσεις, απορρίψεις, λανθασμένες στροφές.\n- Η επαναπλαισίωσή τους ως στροφές ή σημεία καμπής τα κάνει πλεονεκτήματα σε συνεντεύξεις και συνομιλίες.\n\n## Το Βιογραφικό Αποτυχιών\nΜερικοί ηγέτες διατηρούν ένα «βιογραφικό αποτυχιών» παράλληλα με το κανονικό τους — μια καταγραφή των μεγαλύτερων αποτυχιών τους και τι έμαθαν. Είναι μια δυναμική άσκηση κανονικοποίησης και αναδοχής της ιστορίας ανάπτυξής σας.",
           "durationMinutes": 12,
           "sortOrder": 2
         }

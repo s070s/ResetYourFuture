@@ -1,22 +1,30 @@
 {
   "title": "Entrepreneurship Basics",
+  "titleEl": "Βασικές Αρχές Επιχειρηματικότητας",
   "description": "Validate and launch your business idea with confidence — without quitting your job before you are ready.",
+  "descriptionEl": "Επικύρωσε και λάνσαρε την επιχειρηματική σου ιδέα με αυτοπεποίθηση — χωρίς να εγκαταλείψεις τη δουλειά σου πριν είσαι έτοιμος.",
+  "requiredTier": "Plus",
   "isPublished": true,
   "modules": [
     {
       "title": "From Idea to Opportunity",
+      "titleEl": "Από Ιδέα σε Ευκαιρία",
       "description": "Learn to evaluate whether your idea is worth pursuing.",
+      "descriptionEl": "Μάθε να αξιολογείς αν η ιδέα σου αξίζει να τη συνεχίσεις.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Validating Your Business Idea",
+          "titleEl": "Επικύρωση της Επιχειρηματικής σου Ιδέας",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 11,
           "sortOrder": 1
         },
         {
           "title": "Problem–Solution Fit",
+          "titleEl": "Προσαρμογή Προβλήματος–Λύσης",
           "content": "# Problem–Solution Fit\n\nThe biggest reason startups fail is building something nobody wants. Problem–solution fit is how you avoid that.\n\n## Step 1: Define the Problem Precisely\n- Who has this problem? (Be specific — \"small restaurant owners in suburban areas\", not \"businesses\".)\n- How painful is it? (1–10 scale — is it a vitamin or a painkiller?)\n- How do they currently solve it?\n- What are the flaws in that current solution?\n\n## Step 2: Test Your Solution Hypothesis\nBefore building anything:\n- Conduct 10–15 customer discovery interviews.\n- Show a simple mockup or landing page — measure interest.\n- Offer to solve the problem manually first (the \"concierge MVP\").\n\n## What You Are Listening For\n- Do people get excited when you describe the solution?\n- Would they pay for it today?\n- Have they already tried to solve this themselves?\n\n## Red Flags\n- \"That is interesting\" (but they do not ask how to sign up).\n- No one has the problem except you.",
+          "contentEl": "# Προσαρμογή Προβλήματος–Λύσης\n\nΟ μεγαλύτερος λόγος αποτυχίας startups είναι το να φτιάχνεις κάτι που κανείς δεν θέλει. Η προσαρμογή προβλήματος–λύσης είναι ο τρόπος να το αποφύγεις αυτό.\n\n## Βήμα 1: Ορίσε Ακριβώς το Πρόβλημα\n- Ποιος έχει αυτό το πρόβλημα; (Να είσαι συγκεκριμένος — «ιδιοκτήτες μικρών εστιατορίων σε προαστιακές περιοχές», όχι «επιχειρήσεις».)\n- Πόσο επώδυνο είναι; (Κλίμακα 1–10 — είναι βιταμίνη ή παυσίπονο;)\n- Πώς το λύνουν αυτή τη στιγμή;\n- Ποια είναι τα ελαττώματα αυτής της τρέχουσας λύσης;\n\n## Βήμα 2: Δοκίμασε την Υπόθεση της Λύσης σου\nΠριν φτιάξεις οτιδήποτε:\n- Διεξάγαγε 10–15 συνεντεύξεις ανακάλυψης πελατών.\n- Δείξε ένα απλό mockup ή landing page — μέτρησε το ενδιαφέρον.\n- Προσφέρσου να λύσεις το πρόβλημα χειροκίνητα πρώτα (το «concierge MVP»).\n\n## Τι Ακούς\n- Ενθουσιάζονται οι άνθρωποι όταν περιγράφεις τη λύση;\n- Θα πλήρωναν για αυτή σήμερα;\n- Έχουν ήδη προσπαθήσει να το λύσουν μόνοι τους;\n\n## Κόκκινες Σημαίες\n- «Αυτό είναι ενδιαφέρον» (αλλά δεν ρωτούν πώς να εγγραφούν).\n- Κανείς δεν έχει το πρόβλημα εκτός από εσένα.",
           "durationMinutes": 14,
           "sortOrder": 2
         }
@@ -24,18 +32,24 @@
     },
     {
       "title": "Starting Lean",
+      "titleEl": "Ξεκινώντας Lean",
       "description": "Build the smallest version of your business that generates real learning.",
+      "descriptionEl": "Χτίσε τη μικρότερη έκδοση της επιχείρησής σου που παράγει πραγματική μάθηση.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "The Minimum Viable Product",
+          "titleEl": "Το Ελάχιστο Βιώσιμο Προϊόν",
           "content": "# The Minimum Viable Product (MVP)\n\nAn MVP is the smallest thing you can build to test your most important assumption.\n\n## What an MVP Is Not\n- A half-finished product.\n- A product with every feature you planned.\n\n## MVP Types\n\n| Type | Example |\n|---|---|\n| Landing page | Describe the product, collect emails, measure interest |\n| Concierge | Do the service manually before automating |\n| Wizard of Oz | Simulate the tech behind the scenes |\n| Pre-sale | Sell before building to validate demand |\n| Prototype | Clickable mockup tested with real users |\n\n## The Build–Measure–Learn Loop\n1. **Build** the smallest testable thing.\n2. **Measure** a specific metric (sign-ups, retention, revenue).\n3. **Learn** — does the data support your hypothesis? Pivot or persevere.\n\n## Speed Is the Goal\nThe faster you complete the loop, the faster you learn — and the less money you waste.",
+          "contentEl": "# Το Ελάχιστο Βιώσιμο Προϊόν (MVP)\n\nΈνα MVP είναι το μικρότερο πράγμα που μπορείς να φτιάξεις για να δοκιμάσεις την πιο σημαντική σου υπόθεση.\n\n## Τι Δεν Είναι ένα MVP\n- Ένα ημιτελές προϊόν.\n- Ένα προϊόν με κάθε χαρακτηριστικό που σχεδίαζες.\n\n## Τύποι MVP\n\n| Τύπος | Παράδειγμα |\n|---|---|\n| Landing page | Περίγραψε το προϊόν, συλλέξτε emails, μέτρησε το ενδιαφέρον |\n| Concierge | Κάνε την υπηρεσία χειροκίνητα πριν την αυτοματοποιήσεις |\n| Wizard of Oz | Προσομοίωσε την τεχνολογία πίσω από τα παρασκήνια |\n| Προπώληση | Πούλησε πριν φτιάξεις για να επικυρώσεις τη ζήτηση |\n| Πρωτότυπο | Κλικάρισμο mockup δοκιμασμένο με πραγματικούς χρήστες |\n\n## Ο Κύκλος Χτίσιμο–Μέτρηση–Μάθηση\n1. **Χτίσε** το μικρότερο δοκιμάσιμο πράγμα.\n2. **Μέτρησε** ένα συγκεκριμένο μέτρο (εγγραφές, διατήρηση, έσοδα).\n3. **Μάθε** — τα δεδομένα υποστηρίζουν την υπόθεσή σου; Κάνε pivot ή συνέχισε.\n\n## Ο Στόχος είναι η Ταχύτητα\nΌσο πιο γρήγορα ολοκληρώνεις τον κύκλο, τόσο πιο γρήγορα μαθαίνεις — και τόσο λιγότερα χρήματα χάνεις.",
           "durationMinutes": 13,
           "sortOrder": 1
         },
         {
           "title": "Basic Business Finance for Founders",
+          "titleEl": "Βασικά Επιχειρηματικά Οικονομικά για Ιδρυτές",
           "content": "# Basic Business Finance for Founders\n\nYou do not need an accounting degree, but you do need to understand these numbers.\n\n## The Three Core Metrics\n\n### Revenue\nMoney coming in. Know your monthly recurring revenue (MRR) if you have subscriptions.\n\n### Costs\n- **Fixed costs** — the same every month regardless of sales (rent, software subscriptions, salaries).\n- **Variable costs** — change with sales volume (materials, transaction fees, shipping).\n\n### Profit / Loss\n`Profit = Revenue − Total Costs`\nIf this number is negative, you are burning cash. How many months can you sustain that?\n\n## Break-Even Analysis\nAt what revenue level do your total costs equal your total revenue? This is your break-even point.\n\n## Cash Flow vs. Profit\nYou can be profitable on paper and still run out of cash. Understand *when* money arrives and *when* bills are due.\n\n## Key Rule\nPrice for profit from day one — raising prices later is far harder than setting them right at the start.",
+          "contentEl": "# Βασικά Επιχειρηματικά Οικονομικά για Ιδρυτές\n\nΔεν χρειάζεσαι πτυχίο λογιστικής, αλλά χρειάζεσαι να καταλαβαίνεις αυτούς τους αριθμούς.\n\n## Τα Τρία Βασικά Μέτρα\n\n### Έσοδα\nΧρήματα που εισρέουν. Γνώρισε τα μηνιαία επαναλαμβανόμενα έσοδά σου (MRR) αν έχεις συνδρομές.\n\n### Κόστη\n- **Σταθερά κόστη** — τα ίδια κάθε μήνα ανεξάρτητα από τις πωλήσεις (ενοίκιο, συνδρομές λογισμικού, μισθοί).\n- **Μεταβλητά κόστη** — αλλάζουν με τον όγκο πωλήσεων (υλικά, τέλη συναλλαγών, αποστολή).\n\n### Κέρδος / Ζημία\n`Κέρδος = Έσοδα − Συνολικά Κόστη`\nΑν αυτός ο αριθμός είναι αρνητικός, καίγεις μετρητά. Πόσους μήνες μπορείς να αντέξεις αυτό;\n\n## Ανάλυση Νεκρού Σημείου\nΣε ποιο επίπεδο εσόδων τα συνολικά κόστη σου ισούνται με τα συνολικά έσοδά σου; Αυτό είναι το νεκρό σου σημείο.\n\n## Ταμειακή Ροή vs. Κέρδος\nΜπορείς να είσαι κερδοφόρος στα χαρτιά και να μείνεις χωρίς μετρητά. Κατανόησε *πότε* φτάνουν τα χρήματα και *πότε* λήγουν οι λογαριασμοί.\n\n## Βασικός Κανόνας\nΤιμολόγησε για κέρδος από την πρώτη μέρα — η αύξηση τιμών αργότερα είναι πολύ πιο δύσκολη από το να τις ορίσεις σωστά στην αρχή.",
           "durationMinutes": 12,
           "sortOrder": 2
         }

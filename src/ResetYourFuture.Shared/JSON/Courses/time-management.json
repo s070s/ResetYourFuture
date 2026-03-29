@@ -1,21 +1,29 @@
 {
   "title": "Time Management & Productivity",
+  "titleEl": "Διαχείριση Χρόνου & Παραγωγικότητα",
   "description": "Reclaim your time, eliminate busy-work, and consistently do your most important work first.",
+  "descriptionEl": "Ανακτήστε τον χρόνο σας, εξαλείψτε τις άσκοπες ασχολίες και κάνετε πάντα πρώτα την πιο σημαντική δουλειά σας.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Understanding How You Work",
+      "titleEl": "Κατανόηση του Τρόπου που Εργάζεστε",
       "description": "Audit your time before trying to manage it.",
+      "descriptionEl": "Ελέγξτε τον χρόνο σας πριν προσπαθήσετε να τον διαχειριστείτε.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "The Time Audit",
+          "titleEl": "Ο Έλεγχος Χρόνου",
           "content": "# The Time Audit\n\nYou cannot manage time you do not understand. A time audit reveals where your hours actually go.\n\n## How to Run a Time Audit\n\n1. For one week, record every activity in 30-minute blocks.\n2. Use a spreadsheet, Toggl, or Clockify.\n3. Categorise each block: Deep Work, Shallow Work, Meetings, Admin, Personal.\n4. Calculate the percentage of time in each category.\n\n## What You Will Likely Find\n- Most people spend less than 2 hours per day on deep, high-value work.\n- Meetings and interruptions consume far more time than estimated.\n- Context-switching (email, Slack, browsing) is the hidden time thief.\n\n## The Goal\nDesign a schedule that protects and expands your deep work blocks based on what the audit reveals.",
+          "contentEl": "# Ο Έλεγχος Χρόνου\n\nΔεν μπορείτε να διαχειριστείτε χρόνο που δεν κατανοείτε. Ένας έλεγχος χρόνου αποκαλύπτει πού πηγαίνουν πραγματικά οι ώρες σας.\n\n## Πώς να Εκτελέσετε έναν Έλεγχο Χρόνου\n\n1. Για μία εβδομάδα, καταγράψτε κάθε δραστηριότητα σε μπλοκ 30 λεπτών.\n2. Χρησιμοποιήστε ένα υπολογιστικό φύλλο, το Toggl ή το Clockify.\n3. Κατηγοριοποιήστε κάθε μπλοκ: Βαθιά Εργασία, Επιφανειακή Εργασία, Συναντήσεις, Διοίκηση, Προσωπικό.\n4. Υπολογίστε το ποσοστό χρόνου σε κάθε κατηγορία.\n\n## Τι Πιθανώς θα Ανακαλύψετε\n- Οι περισσότεροι άνθρωποι αφιερώνουν λιγότερο από 2 ώρες την ημέρα σε βαθιά, υψηλής αξίας εργασία.\n- Οι συναντήσεις και οι διακοπές καταναλώνουν πολύ περισσότερο χρόνο από ό,τι εκτιμάται.\n- Η εναλλαγή πλαισίου (email, Slack, περιήγηση) είναι ο κρυφός κλέφτης χρόνου.\n\n## Ο Στόχος\nΣχεδιάστε ένα πρόγραμμα που προστατεύει και επεκτείνει τα μπλοκ βαθιάς εργασίας σας βάσει αυτών που αποκαλύπτει ο έλεγχος.",
           "durationMinutes": 12,
           "sortOrder": 1
         },
         {
           "title": "Your Peak Energy Hours",
+          "titleEl": "Οι Ώρες Κορυφαίας Ενέργειάς σας",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 8,
           "sortOrder": 2
@@ -24,20 +32,32 @@
     },
     {
       "title": "Prioritisation Frameworks",
+      "titleEl": "Πλαίσια Ιεράρχησης Προτεραιοτήτων",
       "description": "Decide what to work on and what to drop.",
+      "descriptionEl": "Αποφασίστε σε τι να εργαστείτε και τι να αφήσετε.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "The Eisenhower Matrix",
+          "titleEl": "Ο Πίνακας Eisenhower",
           "content": "# The Eisenhower Matrix\n\nNot all tasks are equal. The Eisenhower Matrix helps you decide what to do, schedule, delegate, or delete.\n\n## The Four Quadrants\n\n| | Urgent | Not Urgent |\n|---|---|---|\n| **Important** | Do now | Schedule |\n| **Not Important** | Delegate | Delete |\n\n### Quadrant 1 — Do Now\nCrises, deadlines, emergencies. Minimise time here.\n\n### Quadrant 2 — Schedule\nStrategic work, learning, relationship building, planning. This is where growth happens.\n\n### Quadrant 3 — Delegate\nInterruptions, some meetings, some emails. Pass these on.\n\n### Quadrant 4 — Delete\nTime-wasting activities. Eliminate ruthlessly.\n\n## The Goal\nMost high performers spend the majority of their time in Quadrant 2.",
+          "contentEl": "# Ο Πίνακας Eisenhower\n\nΔεν είναι όλες οι εργασίες ίσες. Ο Πίνακας Eisenhower σας βοηθά να αποφασίσετε τι να κάνετε, να προγραμματίσετε, να αναθέσετε ή να διαγράψετε.\n\n## Τα Τέσσερα Τεταρτημόρια\n\n| | Επείγον | Μη Επείγον |\n|---|---|---|\n| **Σημαντικό** | Κάνε τώρα | Προγραμμάτισε |\n| **Μη Σημαντικό** | Ανάθεσε | Διέγραψε |\n\n### Τεταρτημόριο 1 — Κάνε Τώρα\nΚρίσεις, προθεσμίες, έκτακτα. Ελαχιστοποιήστε τον χρόνο εδώ.\n\n### Τεταρτημόριο 2 — Προγραμμάτισε\nΣτρατηγική εργασία, μάθηση, δημιουργία σχέσεων, σχεδιασμός. Εδώ συμβαίνει η ανάπτυξη.\n\n### Τεταρτημόριο 3 — Ανάθεσε\nΔιακοπές, μερικές συναντήσεις, μερικά email. Παραδώστε αυτά.\n\n### Τεταρτημόριο 4 — Διέγραψε\nΔραστηριότητες χάσιμου χρόνου. Εξαλείψτε αλύπητα.\n\n## Ο Στόχος\nΟι περισσότεροι υψηλής απόδοσης αφιερώνουν το μεγαλύτερο μέρος του χρόνου τους στο Τεταρτημόριο 2.",
           "durationMinutes": 11,
           "sortOrder": 1
         },
         {
           "title": "Time Blocking Your Week",
+          "titleEl": "Αποκλεισμός Χρόνου για την Εβδομάδα σας",
           "content": "# Time Blocking Your Week\n\nTime blocking is the practice of scheduling specific tasks into dedicated calendar blocks.\n\n## How to Time Block\n\n1. **Start Sunday night.** Review the week ahead and identify your top 3 priorities.\n2. **Block deep work first.** Schedule your hardest, highest-value tasks during your peak energy hours.\n3. **Group shallow tasks.** Batch email, Slack, and admin into 2–3 short windows per day.\n4. **Add buffer blocks.** Leave 20 % of your calendar unscheduled for the unexpected.\n\n## Rules\n- Treat calendar blocks like meetings you cannot cancel.\n- Turn off notifications during deep work blocks.\n- Review and adjust every Friday for the following week.\n\n## Common Time Blocking Mistakes\n- Blocking too many tasks (overestimating output).\n- Not protecting blocks from meeting requests.\n- Never revisiting and refining the system.",
+          "contentEl": "# Αποκλεισμός Χρόνου για την Εβδομάδα σας\n\nΟ αποκλεισμός χρόνου είναι η πρακτική του προγραμματισμού συγκεκριμένων εργασιών σε αφιερωμένα μπλοκ ημερολογίου.\n\n## Πώς να Κάνετε Αποκλεισμό Χρόνου\n\n1. **Ξεκινήστε το Κυριακάτικο βράδυ.** Ελέγξτε την εβδομάδα που έρχεται και εντοπίστε τις 3 κορυφαίες προτεραιότητές σας.\n2. **Αποκλείστε πρώτα τη βαθιά εργασία.** Προγραμματίστε τις πιο δύσκολες, υψηλότερης αξίας εργασίες σας κατά τις ώρες κορυφαίας ενέργειάς σας.\n3. **Ομαδοποιήστε επιφανειακές εργασίες.** Συγκεντρώστε email, Slack και διοίκηση σε 2–3 σύντομα παράθυρα ανά ημέρα.\n4. **Προσθέστε μπλοκ ασφαλείας.** Αφήστε το 20% του ημερολογίου σας απρογραμμάτιστο για τα απροσδόκητα.\n\n## Κανόνες\n- Αντιμετωπίστε τα μπλοκ ημερολογίου σαν συναντήσεις που δεν μπορείτε να ακυρώσετε.\n- Απενεργοποιήστε τις ειδοποιήσεις κατά τα μπλοκ βαθιάς εργασίας.\n- Ελέγχετε και προσαρμόζετε κάθε Παρασκευή για την επόμενη εβδομάδα.\n\n## Συνηθισμένα Λάθη Αποκλεισμού Χρόνου\n- Αποκλεισμός πάρα πολλών εργασιών (υπερεκτίμηση παραγωγής).\n- Μη προστασία μπλοκ από αιτήματα συναντήσεων.\n- Ποτέ επανεξέταση και βελτίωση του συστήματος.",
           "durationMinutes": 13,
           "sortOrder": 2
+        },
+        {
+          "title": "Time Management Toolkit",
+          "titleEl": "Εργαλειοθήκη Διαχείρισης Χρόνου",
+          "pdfPath": "/docs/time-management-toolkit.pdf",
+          "sortOrder": 3
         }
       ]
     }

@@ -1,41 +1,62 @@
 {
   "title": "Resume Writing & CV Optimization",
+  "titleEl": "Συγγραφή Βιογραφικού & Βελτιστοποίηση CV",
   "description": "Craft a compelling resume that gets past applicant tracking systems and impresses hiring managers.",
+  "descriptionEl": "Δημιουργήστε ένα ελκυστικό βιογραφικό που περνά τα αυτοματοποιημένα συστήματα διαλογής και εντυπωσιάζει τους υπεύθυνους προσλήψεων.",
+  "requiredTier": "Free",
   "isPublished": true,
   "modules": [
     {
       "title": "Resume Foundations",
+      "titleEl": "Βασικές Αρχές Βιογραφικού",
       "description": "Learn the core principles of an effective resume.",
+      "descriptionEl": "Μάθετε τις βασικές αρχές ενός αποτελεσματικού βιογραφικού σημειώματος.",
       "sortOrder": 1,
       "lessons": [
         {
           "title": "Anatomy of a Winning Resume",
+          "titleEl": "Ανατομία ενός Επιτυχημένου Βιογραφικού",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 8,
           "sortOrder": 1
         },
         {
           "title": "Choosing the Right Format",
+          "titleEl": "Επιλογή της Κατάλληλης Μορφής",
           "content": "# Choosing the Right Resume Format\n\nThe format you choose depends on your career stage and goals.\n\n## The Three Main Formats\n\n### Chronological\nLists experience in reverse date order. Best for candidates with a strong, consistent work history.\n\n### Functional\nGroups experience by skill category rather than date. Useful when changing careers or returning after a gap.\n\n### Combination (Hybrid)\nMerges both approaches — leads with a skills summary, then lists chronological experience. Ideal for most mid-career professionals.\n\n## Which Should You Use?\n\n- **Consistent work history** → Chronological\n- **Career changer or gaps** → Functional or Combination\n- **Senior professional** → Combination\n\n## Key Rule\nAlways tailor the format to the job you are applying for, not just the one you last held.",
+          "contentEl": "# Επιλογή της Κατάλληλης Μορφής Βιογραφικού\n\nΗ μορφή που θα επιλέξετε εξαρτάται από το στάδιο της καριέρας σας και τους στόχους σας.\n\n## Οι Τρεις Κύριες Μορφές\n\n### Χρονολογική\nΑναγράφει την εμπειρία με αντίστροφη χρονολογική σειρά. Κατάλληλη για υποψήφιους με σταθερό και συνεχές ιστορικό εργασίας.\n\n### Λειτουργική\nΟμαδοποιεί την εμπειρία ανά κατηγορία δεξιοτήτων αντί για ημερομηνία. Χρήσιμη για αλλαγή κλάδου ή επιστροφή μετά από κενό.\n\n### Συνδυαστική (Υβριδική)\nΣυνδυάζει και τις δύο προσεγγίσεις — ξεκινά με περίληψη δεξιοτήτων και ακολουθεί χρονολογική εμπειρία. Ιδανική για επαγγελματίες σε μέσο στάδιο καριέρας.\n\n## Ποια να Επιλέξετε;\n\n- **Σταθερό ιστορικό εργασίας** → Χρονολογική\n- **Αλλαγή κλάδου ή κενά** → Λειτουργική ή Συνδυαστική\n- **Έμπειρος επαγγελματίας** → Συνδυαστική\n\n## Βασικός Κανόνας\nΠάντα προσαρμόζετε τη μορφή στη θέση για την οποία κάνετε αίτηση, όχι μόνο στην τελευταία που κατείχατε.",
           "durationMinutes": 12,
           "sortOrder": 2
+        },
+        {
+          "title": "Resume Writing Cheat Sheet",
+          "titleEl": "Φύλλο Βοήθειας για Συγγραφή Βιογραφικού",
+          "pdfPath": "/docs/resume-writing-cheat-sheet.pdf",
+          "durationMinutes": 5,
+          "sortOrder": 3
         }
       ]
     },
     {
       "title": "Writing Powerful Bullet Points",
+      "titleEl": "Συγγραφή Δυνατών Δυνατοτήτων Bullet",
       "description": "Turn job duties into achievement statements that stand out.",
+      "descriptionEl": "Μετατρέψτε τα καθήκοντα εργασίας σε δηλώσεις επιτευγμάτων που ξεχωρίζουν.",
       "sortOrder": 2,
       "lessons": [
         {
           "title": "The CAR Method: Context, Action, Result",
+          "titleEl": "Η Μέθοδος CAR: Πλαίσιο, Δράση, Αποτέλεσμα",
           "content": "# The CAR Method\n\nStrong resume bullets follow a three-part formula:\n\n1. **Context** — the situation or challenge\n2. **Action** — what you specifically did\n3. **Result** — the measurable outcome\n\n## Example Transformation\n\n**Weak:** Responsible for social media accounts.\n\n**Strong:** Grew company LinkedIn following by 42 % in 6 months by executing a weekly content calendar, increasing inbound leads by 18 %.\n\n## Tips\n\n- Start every bullet with a strong action verb (Led, Built, Reduced, Launched).\n- Quantify wherever possible: percentages, dollar amounts, time saved.\n- Keep each bullet to one or two lines.",
+          "contentEl": "# Η Μέθοδος CAR\n\nΤα ισχυρά bullet του βιογραφικού ακολουθούν έναν τριμερή τύπο:\n\n1. **Πλαίσιο** — η κατάσταση ή η πρόκληση\n2. **Δράση** — τι κάνατε συγκεκριμένα εσείς\n3. **Αποτέλεσμα** — το μετρήσιμο αποτέλεσμα\n\n## Παράδειγμα Μετατροπής\n\n**Αδύναμο:** Υπεύθυνος για λογαριασμούς κοινωνικών μέσων.\n\n**Ισχυρό:** Αύξησα τους ακόλουθους της εταιρείας στο LinkedIn κατά 42% σε 6 μήνες εκτελώντας εβδομαδιαίο πλάνο περιεχομένου, αυξάνοντας τα εισερχόμενα leads κατά 18%.\n\n## Συμβουλές\n\n- Ξεκινάτε κάθε bullet με ισχυρό ρήμα δράσης (Ηγήθηκα, Δημιούργησα, Μείωσα, Λάνσαρα).\n- Ποσοτικοποιείτε όπου είναι δυνατό: ποσοστά, χρηματικά ποσά, χρόνος που εξοικονομήθηκε.\n- Κρατάτε κάθε bullet σε μία ή δύο γραμμές.",
           "durationMinutes": 14,
           "sortOrder": 1
         },
         {
           "title": "Action Verbs Cheat Sheet",
+          "titleEl": "Φύλλο Βοήθειας με Ρήματα Δράσης",
           "content": "# Action Verb Cheat Sheet\n\nUse these verbs to open your bullet points:\n\n## Leadership\nLed, Directed, Managed, Coached, Mentored, Oversaw\n\n## Analysis\nAnalyzed, Assessed, Evaluated, Forecasted, Identified, Researched\n\n## Creation\nBuilt, Designed, Developed, Launched, Engineered, Produced\n\n## Communication\nPresented, Negotiated, Authored, Collaborated, Facilitated, Pitched\n\n## Improvement\nReduced, Streamlined, Optimized, Accelerated, Increased, Saved\n\n## Delivery\nDelivered, Executed, Implemented, Completed, Achieved, Exceeded",
+          "contentEl": "# Φύλλο Βοήθειας με Ρήματα Δράσης\n\nΧρησιμοποιήστε αυτά τα ρήματα για να ανοίξετε τα bullet σας:\n\n## Ηγεσία\nΗγήθηκα, Κατεύθυνα, Διαχειρίστηκα, Προπόνησα, Καθοδήγησα, Εποπτεύσα\n\n## Ανάλυση\nΑνέλυσα, Αξιολόγησα, Εκτίμησα, Προέβλεψα, Εντόπισα, Ερεύνησα\n\n## Δημιουργία\nΈχτισα, Σχεδίασα, Ανέπτυξα, Λάνσαρα, Μηχανολόγησα, Παρήγαγα\n\n## Επικοινωνία\nΠαρουσίασα, Διαπραγματεύτηκα, Συνέγραψα, Συνεργάστηκα, Διευκόλυνα, Τόνωσα\n\n## Βελτίωση\nΜείωσα, Εξορθολόγισα, Βελτιστοποίησα, Επιτάχυνα, Αύξησα, Εξοικονόμησα\n\n## Εκτέλεση\nΠαρέδωσα, Εκτέλεσα, Υλοποίησα, Ολοκλήρωσα, Πέτυχα, Υπερέβην",
           "durationMinutes": 7,
           "sortOrder": 2
         }
@@ -43,18 +64,23 @@
     },
     {
       "title": "Beating Applicant Tracking Systems",
+      "titleEl": "Πώς να Περάσετε τα Αυτοματοποιημένα Συστήματα Διαλογής",
       "description": "Optimize your resume so automated screeners let it through.",
+      "descriptionEl": "Βελτιστοποιήστε το βιογραφικό σας ώστε να περνά από τα αυτοματοποιημένα συστήματα διαλογής.",
       "sortOrder": 3,
       "lessons": [
         {
           "title": "How ATS Works",
+          "titleEl": "Πώς Λειτουργεί το ATS",
           "videoPath": "https://www.youtube.com/embed/dQw4w9WgXcQ",
           "durationMinutes": 10,
           "sortOrder": 1
         },
         {
           "title": "Keyword Matching Strategy",
+          "titleEl": "Στρατηγική Αντιστοίχισης Λέξεων-Κλειδιών",
           "content": "# Keyword Matching Strategy\n\nATS systems rank resumes by how closely they match the job description.\n\n## Step-by-Step Process\n\n1. **Copy the job description** into a text document.\n2. **Highlight nouns and skills** — these are your target keywords.\n3. **Compare to your resume** — note missing terms.\n4. **Weave keywords in naturally** — in your summary, skills section, and bullets.\n\n## Do Not Keyword-Stuff\nHidden white text or massive keyword lists are detected and penalised.\n\n## Tools to Help\n- Jobscan.co\n- Resume Worded\n- LinkedIn's resume match feature\n\n## Formatting Rules for ATS\n- Use standard section headings (Experience, Education, Skills).\n- Avoid tables, columns, graphics, and text boxes.\n- Save as .docx or plain .pdf.",
+          "contentEl": "# Στρατηγική Αντιστοίχισης Λέξεων-Κλειδιών\n\nΤα συστήματα ATS κατατάσσουν τα βιογραφικά ανάλογα με το πόσο ταιριάζουν στην περιγραφή θέσης.\n\n## Βήμα-προς-Βήμα Διαδικασία\n\n1. **Αντιγράψτε την περιγραφή θέσης** σε ένα έγγραφο κειμένου.\n2. **Επισημάνετε ουσιαστικά και δεξιότητες** — αυτές είναι οι λέξεις-κλειδιά στόχοι σας.\n3. **Συγκρίνετε με το βιογραφικό σας** — σημειώστε τους όρους που λείπουν.\n4. **Ενσωματώστε τις λέξεις-κλειδιά φυσικά** — στην περίληψη, στην ενότητα δεξιοτήτων και στα bullets.\n\n## Μην Παραγεμίζετε με Λέξεις-Κλειδιά\nΚρυφό λευκό κείμενο ή τεράστιες λίστες λέξεων-κλειδιών ανιχνεύονται και τιμωρούνται.\n\n## Χρήσιμα Εργαλεία\n- Jobscan.co\n- Resume Worded\n- Δυνατότητα αντιστοίχισης βιογραφικού του LinkedIn\n\n## Κανόνες Μορφοποίησης για ATS\n- Χρησιμοποιήστε τυπικές επικεφαλίδες ενοτήτων (Εμπειρία, Εκπαίδευση, Δεξιότητες).\n- Αποφύγετε πίνακες, στήλες, γραφικά και πλαίσια κειμένου.\n- Αποθηκεύστε ως .docx ή απλό .pdf.",
           "durationMinutes": 15,
           "sortOrder": 2
         }
