@@ -6,6 +6,7 @@
 - Sorting for Table Components both in Backend and in FrontEnd
 - Like/reaction system for chat messages
 - UI is very wide(buttons etc)
+- Checkbox on admin course editor to make a course pro accessible 
 
 ---
 
@@ -80,7 +81,7 @@
 
 - AI Features using SLM like Ollama for personalized course recommendations, automated content tagging, and intelligent search capabilities — as few dependencies as possible in the .NET ecosystem
 
-- Change to Blazor Server for better SEO and performance
+- Change to Blazor SSR for better SEO and performance
 
 - Mobile App using .NET only (MAUI) for iOS and Android with all features of the web platform, optimized for mobile user experience
 
