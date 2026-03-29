@@ -88,10 +88,6 @@ builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer
 builder.Services.AddHttpClient<ICertificateConsumer, CertificateConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
-// --- Admin Certificate Consumer ---
-builder.Services.AddHttpClient<IAdminCertificateConsumer, AdminCertificateConsumer>(c => c.BaseAddress = new Uri(apiBase))
-    .AddHttpMessageHandler<AuthHeaderHandler>();
-
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 
