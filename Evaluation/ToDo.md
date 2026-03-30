@@ -3,10 +3,9 @@
 ---
 
 ## Smallest Scope (Isolated / Single-feature changes)
-- Sorting for Table Components both in Backend and in FrontEnd
+- Sorting for Table Blazor Components End To End (both in Backend and in FrontEnd)
 - Like/reaction system for chat messages
 - UI is very wide(buttons etc)
-- Checkbox on admin course editor to make a course pro accessible 
 
 ---
 
