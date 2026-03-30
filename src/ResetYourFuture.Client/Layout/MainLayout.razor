@@ -3,15 +3,14 @@
 <ImpersonationBanner />
 
 <header>
-    <NavMenu />
-    <div class="container-fluid">
-        <div class="d-flex justify-content-end align-items-center gap-3 p-2">
+    <NavMenu>
+        <TrailingContent>
             <CultureSelector />
             <AvatarDropdown />
-        </div>
-    </div>
+        </TrailingContent>
+    </NavMenu>
 </header>
 
-<main class="content px-4">
+<main class="content">
     @Body
 </main>

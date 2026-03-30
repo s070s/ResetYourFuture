@@ -50,11 +50,21 @@
     color: var(--text-accent);
 }
 
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 html,
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: var(--bg-primary);
     color: var(--text-strong-normal);
+}
+
+/* Prevent 300ms tap delay on interactive elements */
+.btn, button, [role="button"], a {
+    touch-action: manipulation;
 }
 
 h1:focus {
@@ -262,14 +272,9 @@ input:-webkit-autofill:active {
 }
 
 /* Global form adjustments */
-@media (max-width: 640.98px) {
+@media (max-width: 767.98px) {
     .form-control {
-        font-size: 16px;
-    }
-
-    .btn {
-        width: 100%;
-        padding: 0.75rem;
+        font-size: 16px; /* prevents iOS zoom on focus */
     }
 
     .row > .col-md-6 {
