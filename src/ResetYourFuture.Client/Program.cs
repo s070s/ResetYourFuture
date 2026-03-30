@@ -99,6 +99,11 @@ builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer
 builder.Services.AddHttpClient<ICertificateConsumer, CertificateConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
+// --- Blog Consumers ---
+builder.Services.AddHttpClient<IBlogConsumer, BlogConsumer>(c => c.BaseAddress = new Uri(apiBase));
+builder.Services.AddHttpClient<IAdminBlogConsumer, AdminBlogConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 

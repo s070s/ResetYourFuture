@@ -212,5 +212,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Certificates", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Blog.
+        /// </summary>
+        public static string Blog {
+            get {
+                return ResourceManager.GetString("Blog", resourceCulture);
+            }
+        }
     }
 }

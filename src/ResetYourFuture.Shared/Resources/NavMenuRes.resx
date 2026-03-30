@@ -168,4 +168,7 @@
   <data name="Certificates" xml:space="preserve">
     <value>Certificates</value>
   </data>
+  <data name="Blog" xml:space="preserve">
+    <value>Blog</value>
+  </data>
 </root>

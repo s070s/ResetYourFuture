@@ -12,7 +12,6 @@
 
 - Testimonials on landing page editable from the Admin Panel
 
-- Section in the Home/Landing Page for Blog Type Articles editable from the Admin Panel
 
 - Include a F.A.Q page with common questions and answers about the platform, courses, assessments, and account management editable from the admin panel
 

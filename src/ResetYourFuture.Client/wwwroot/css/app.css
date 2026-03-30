@@ -45,6 +45,11 @@
     color: var(--text-light-muted);
 }
 
+/* Override Bootstrap's .form-text which is too dim on the dark theme. */
+.form-text {
+    color: var(--text-accent);
+}
+
 html,
 body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

@@ -232,6 +232,65 @@
             </div>
         </section>
 
+        <!-- Blog Section -->
+        @if (_blogLoading)
+        {
+            <section class="section section-blog">
+                <div class="container">
+                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <div class="blog-grid">
+                        <div class="blog-card blog-card-skeleton"></div>
+                        <div class="blog-card blog-card-skeleton"></div>
+                        <div class="blog-card blog-card-skeleton"></div>
+                    </div>
+                </div>
+            </section>
+        }
+        else if (_blogSummaries is { Count: > 0 })
+        {
+            <section class="section section-blog">
+                <div class="container">
+                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <div class="blog-grid">
+                        @foreach (var article in _blogSummaries)
+                        {
+                            <div class="blog-card" @key="article.Id">
+                                @if (!string.IsNullOrWhiteSpace(article.CoverImageUrl))
+                                {
+                                    <div class="blog-card-cover">
+                                        <img src="@article.CoverImageUrl" alt="@article.Title" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="blog-card-cover blog-card-cover-placeholder"></div>
+                                }
+                                @if (article.Tags.Length > 0)
+                                {
+                                    <div class="blog-card-tags">
+                                        @foreach (var tag in article.Tags)
+                                        {
+                                            <span class="blog-tag">@tag</span>
+                                        }
+                                    </div>
+                                }
+                                <h3 class="blog-card-title">@article.Title</h3>
+                                <p class="blog-card-summary">@article.Summary</p>
+                                <div class="blog-card-meta">
+                                    <span>@article.AuthorName</span>
+                                    @if (article.PublishedAt.HasValue)
+                                    {
+                                        <span>@article.PublishedAt.Value.ToString("dd MMM yyyy")</span>
+                                    }
+                                </div>
+                                <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">Read More</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
         <!-- CTA Section -->
         <section class="section section-cta">
             <div class="cta-glow"></div>

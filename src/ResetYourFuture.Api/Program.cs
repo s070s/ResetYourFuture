@@ -126,6 +126,7 @@ builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
 builder.Services.AddScoped<IEmailService , StubEmailService>();
 builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
 builder.Services.AddScoped<ICertificateService , CertificateService>();
+builder.Services.AddScoped<IBlogArticleService , BlogArticleService>();
 
 // --- Localization ---
 builder.Services.AddLocalization();
@@ -250,6 +251,9 @@ using ( var scope = app.Services.CreateScope() )
 
     // --- Seed Subscription Plans ---
     await SubscriptionPlanSeeder.SeedAsync( db , startupLogger );
+
+    // --- Seed Blog Articles ---
+    await BlogArticleSeeder.SeedAsync( db , startupLogger );
 
     // --- Seed Admin User (all environments) ---
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();

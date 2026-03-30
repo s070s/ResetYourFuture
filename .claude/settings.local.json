@@ -16,7 +16,8 @@
       "Bash(sqllocaldb start:*)",
       "Bash(sqllocaldb versions:*)",
       "Bash(sqllocaldb stop:*)",
-      "Bash(sqlcmd -S \"\\(localdb\\)\\\\MSSQLLocalDB\" -Q \"SELECT @@VERSION\")"
+      "Bash(sqlcmd -S \"\\(localdb\\)\\\\MSSQLLocalDB\" -Q \"SELECT @@VERSION\")",
+      "Bash(grep -r \"section-blog\\\\|blog-card\\\\|blog-grid\" C:UsersGSDesktopProjectsRYFsrc --include=*.css)"
     ]
   }
 }
