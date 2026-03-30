@@ -3,7 +3,6 @@
 ---
 
 ## Smallest Scope (Isolated / Single-feature changes)
-- Sorting for Table Blazor Components End To End (both in Backend and in FrontEnd)
 - Like/reaction system for chat messages
 - UI is very wide(buttons etc)
 
