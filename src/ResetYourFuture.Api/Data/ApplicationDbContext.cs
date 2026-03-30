@@ -39,6 +39,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     // --- Blog ---
     public DbSet<BlogArticle> BlogArticles => Set<BlogArticle>();
 
+    // --- Testimonials ---
+    public DbSet<Testimonial> Testimonials => Set<Testimonial>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;

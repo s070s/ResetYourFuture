@@ -104,6 +104,11 @@ builder.Services.AddHttpClient<IBlogConsumer, BlogConsumer>(c => c.BaseAddress =
 builder.Services.AddHttpClient<IAdminBlogConsumer, AdminBlogConsumer>(c => c.BaseAddress = new Uri(apiBase))
     .AddHttpMessageHandler<AuthHeaderHandler>();
 
+// --- Testimonial Consumers ---
+builder.Services.AddHttpClient<ITestimonialConsumer, TestimonialConsumer>(c => c.BaseAddress = new Uri(apiBase));
+builder.Services.AddHttpClient<IAdminTestimonialConsumer, AdminTestimonialConsumer>(c => c.BaseAddress = new Uri(apiBase))
+    .AddHttpMessageHandler<AuthHeaderHandler>();
+
 // --- Authorization ---
 builder.Services.AddAuthorizationCore();
 

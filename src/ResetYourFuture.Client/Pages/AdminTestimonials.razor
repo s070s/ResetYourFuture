@@ -1,0 +1,111 @@
+@page "/admin/testimonials"
+@attribute [Authorize(Roles = "Admin")]
+@using ResetYourFuture.Client.Shared.Components.Data
+
+<PageTitle>Testimonials</PageTitle>
+
+<div class="admin-container">
+    <h2>Testimonials</h2>
+
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-primary text-nowrap" @onclick="NewTestimonial">New Testimonial</button>
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            @if (pagedResult == null)
+            {
+                <p>@AdminRes.Loading</p>
+            }
+            else if (!pagedResult.Items.Any())
+            {
+                <p>No testimonials found. Add one to display on the landing page.</p>
+            }
+            else
+            {
+                <VirtualizedTable Items="pagedResult.Items" TItem="AdminTestimonialDto">
+                    <HeaderRow>
+                        <tr>
+                            <th>Order</th>
+                            <th>Name</th>
+                            <th>Role / Company</th>
+                            <th>@AdminRes.ColStatus</th>
+                            <th>@AdminRes.ColActions</th>
+                        </tr>
+                    </HeaderRow>
+                    <RowTemplate Context="item">
+                        <tr @key="item.Id">
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-sm btn-outline-secondary" title="Move up"
+                                            @onclick="() => MoveUp(item.Id)">↑</button>
+                                    <span class="px-1 align-self-center">@item.DisplayOrder</span>
+                                    <button class="btn btn-sm btn-outline-secondary" title="Move down"
+                                            @onclick="() => MoveDown(item.Id)">↓</button>
+                                </div>
+                            </td>
+                            <td>@item.FullName</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.RoleOrTitle) || !string.IsNullOrEmpty(item.CompanyOrContext))
+                                {
+                                    <span>@item.RoleOrTitle</span>
+                                    @if (!string.IsNullOrEmpty(item.RoleOrTitle) && !string.IsNullOrEmpty(item.CompanyOrContext))
+                                    {
+                                        <span class="text-muted"> · </span>
+                                    }
+                                    <span class="text-muted">@item.CompanyOrContext</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                <StatusBadge IsActive="item.IsActive"
+                                             ActiveText="Active"
+                                             InactiveText="Inactive" />
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-1" @onclick="() => EditTestimonial(item.Id)">@AdminRes.Edit</button>
+                                @if (item.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-warning me-1" @onclick="() => ToggleActive(item.Id)">Deactivate</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success me-1" @onclick="() => ToggleActive(item.Id)">Activate</button>
+                                }
+                                @if (confirmDeleteId == item.Id)
+                                {
+                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteTestimonial(item.Id)">@AdminRes.ConfirmDelete</button>
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => confirmDeleteId = item.Id">@AdminRes.Delete</button>
+                                }
+                            </td>
+                        </tr>
+                    </RowTemplate>
+                </VirtualizedTable>
+
+                <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                        TotalPages="pagedResult.TotalPages"
+                                        TotalCount="pagedResult.TotalCount"
+                                        PageSize="pagedResult.PageSize"
+                                        HasPreviousPage="pagedResult.HasPreviousPage"
+                                        HasNextPage="pagedResult.HasNextPage"
+                                        PageSizeOptions="PageSizeOptions"
+                                        ItemLabel="testimonials"
+                                        OnPageSizeChanged="OnPageSizeChanged"
+                                        OnPreviousPage="PreviousPage"
+                                        OnNextPage="NextPage" />
+            }
+
+            <DismissibleAlert Message="@message" Dismissible="false" OnDismiss="@(() => message = string.Empty)" />
+        </Authorized>
+        <NotAuthorized>
+            <div class="alert alert-danger">@AdminRes.AccessDenied</div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>

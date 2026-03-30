@@ -127,6 +127,7 @@ builder.Services.AddScoped<IEmailService , StubEmailService>();
 builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
 builder.Services.AddScoped<ICertificateService , CertificateService>();
 builder.Services.AddScoped<IBlogArticleService , BlogArticleService>();
+builder.Services.AddScoped<ITestimonialService , TestimonialService>();
 
 // --- Localization ---
 builder.Services.AddLocalization();

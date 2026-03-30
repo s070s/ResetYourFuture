@@ -221,5 +221,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Blog", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Testimonials.
+        /// </summary>
+        public static string Testimonials {
+            get {
+                return ResourceManager.GetString("Testimonials", resourceCulture);
+            }
+        }
     }
 }

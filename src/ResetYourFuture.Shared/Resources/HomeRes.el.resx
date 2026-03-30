@@ -237,6 +237,12 @@
   <data name="StoryTitleHighlight" xml:space="preserve">
     <value>Reset Your Future</value>
   </data>
+  <data name="TestimonialsTitle" xml:space="preserve">
+    <value>Ευχαριστημένοι</value>
+  </data>
+  <data name="TestimonialsTitleHighlight" xml:space="preserve">
+    <value>Πελάτες</value>
+  </data>
   <data name="StoryQuote" xml:space="preserve">
     <value>Το 2014 απέτυχα στις Πανελλαδικές. Ένιωσα χαμένος και χωρίς κατεύθυνση. Σήμερα βοηθάω μαθητές να μετατρέψουν την αποτυχία σε δύναμη και σχέδιο δράσης.</value>
   </data>

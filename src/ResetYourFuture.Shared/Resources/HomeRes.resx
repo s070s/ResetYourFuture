@@ -237,6 +237,12 @@
   <data name="StoryTitleHighlight" xml:space="preserve">
     <value>Reset Your Future</value>
   </data>
+  <data name="TestimonialsTitle" xml:space="preserve">
+    <value>Happy</value>
+  </data>
+  <data name="TestimonialsTitleHighlight" xml:space="preserve">
+    <value>Customers</value>
+  </data>
   <data name="StoryQuote" xml:space="preserve">
     <value>In 2014, I failed the national exams. I felt lost and without direction. Today, I help students turn failure into strength and an action plan.</value>
   </data>

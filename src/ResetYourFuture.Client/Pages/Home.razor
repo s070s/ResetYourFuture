@@ -206,7 +206,7 @@
                 <h2 class="section-title">
                     @HomeRes.StoryTitle <span class="text-gradient">@HomeRes.StoryTitleHighlight</span>
                 </h2>
-                
+
                 <div class="story-card">
                     <div class="quote-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -214,11 +214,11 @@
                             <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
                         </svg>
                     </div>
-                    
+
                     <blockquote>
                         «@HomeRes.StoryQuote»
                     </blockquote>
-                    
+
                     <div class="author">
                         <div class="author-avatar">
                             <span class="text-gradient">@HomeRes.StoryAuthorInitials</span>
@@ -231,6 +231,81 @@
                 </div>
             </div>
         </section>
+
+        <!-- Testimonials Section -->
+        @if (_testimonialsLoading)
+        {
+            <section class="section section-story">
+                <div class="container">
+                    <h2 class="section-title">
+                        @HomeRes.TestimonialsTitle <span class="text-gradient">@HomeRes.TestimonialsTitleHighlight</span>
+                    </h2>
+                    <div class="story-card">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-10 mb-2" style="height:1.2rem;display:block;"></span>
+                            <span class="placeholder col-8 mb-2" style="height:1rem;display:block;"></span>
+                            <span class="placeholder col-4" style="height:1rem;display:block;"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+        else if (_testimonials is { Count: > 0 })
+        {
+            <section class="section section-story">
+                <div class="container">
+                    <h2 class="section-title">
+                        @HomeRes.TestimonialsTitle <span class="text-gradient">@HomeRes.TestimonialsTitleHighlight</span>
+                    </h2>
+
+                    <div class="testimonials-grid">
+                        @foreach (var t in _testimonials)
+                        {
+                            <div class="story-card" @key="t.Id">
+                                <div class="quote-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                                        <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                                    </svg>
+                                </div>
+
+                                <blockquote>«@t.QuoteText»</blockquote>
+
+                                <div class="author">
+                                    <div class="author-avatar">
+                                        @if (!string.IsNullOrEmpty(t.AvatarUrl))
+                                        {
+                                            <img src="@t.AvatarUrl" alt="@t.FullName"
+                                                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                                            <span class="text-gradient" style="display:none;">@TestimonialInitials(t.FullName)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-gradient">@TestimonialInitials(t.FullName)</span>
+                                        }
+                                    </div>
+                                    <div class="author-info">
+                                        <p class="author-name">@t.FullName</p>
+                                        @if (!string.IsNullOrEmpty(t.RoleOrTitle) || !string.IsNullOrEmpty(t.CompanyOrContext))
+                                        {
+                                            <p class="author-title">
+                                                @t.RoleOrTitle
+                                                @if (!string.IsNullOrEmpty(t.RoleOrTitle) && !string.IsNullOrEmpty(t.CompanyOrContext))
+                                                {
+                                                    <span> · </span>
+                                                }
+                                                @t.CompanyOrContext
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
 
         <!-- Blog Section -->
         @if (_blogLoading)

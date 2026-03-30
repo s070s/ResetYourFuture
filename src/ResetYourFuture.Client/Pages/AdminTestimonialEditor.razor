@@ -1,0 +1,106 @@
+@page "/admin/testimonials/new"
+@page "/admin/testimonials/{Id:guid}"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(_isEditMode ? "Edit Testimonial" : "New Testimonial")</PageTitle>
+
+<div class="admin-container">
+    <h2>@(_isEditMode ? "Edit Testimonial" : "New Testimonial")</h2>
+
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="row g-3" style="max-width: 700px;">
+
+        <div class="col-12">
+            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" @bind="_fullName" maxlength="150"
+                   placeholder="e.g. Maria Papadopoulou" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Role / Title</label>
+            <input type="text" class="form-control" @bind="_roleOrTitle" maxlength="150"
+                   placeholder="e.g. Career Coach" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Company / Context</label>
+            <input type="text" class="form-control" @bind="_companyOrContext" maxlength="150"
+                   placeholder="e.g. Reset Your Future Graduate" />
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Quote <span class="text-danger">*</span></label>
+            <textarea class="form-control" rows="4" @bind="_quoteText" maxlength="1000"
+                      placeholder="The testimonial quote (max 1000 characters)"></textarea>
+            <div class="form-text">@(_quoteText?.Length ?? 0) / 1000</div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Display Order</label>
+            <input type="number" class="form-control" @bind="_displayOrder" min="1" />
+            <div class="form-text">Lower number = shown first.</div>
+        </div>
+
+        <div class="col-md-4 align-self-end">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input" id="isActive" @bind="_isActive" />
+                <label class="form-check-label" for="isActive">Active (visible on landing page)</label>
+            </div>
+        </div>
+
+        <!-- Avatar section — only shown in edit mode -->
+        @if (_isEditMode)
+        {
+            <div class="col-12">
+                <hr class="my-2" />
+                <label class="form-label">Avatar / Photo</label>
+
+                @if (!string.IsNullOrEmpty(_avatarPreviewUrl))
+                {
+                    <div class="mb-2 d-flex align-items-center gap-3">
+                        <img src="@_avatarPreviewUrl" alt="Avatar preview"
+                             style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #444;" />
+                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="RemoveAvatar"
+                                disabled="@_isBusy">Remove</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-2">
+                        <span class="avatar-placeholder-initials">
+                            @Initials
+                        </span>
+                    </div>
+                }
+
+                <InputFile OnChange="OnAvatarFileSelected" accept="image/*" class="form-control"
+                           style="max-width:300px;" />
+                <div class="form-text">JPEG, PNG, GIF or WebP · Max 5 MB</div>
+            </div>
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info py-2">
+                    Save the testimonial first, then upload an avatar from the edit form.
+                </div>
+            </div>
+        }
+
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" @onclick="Save" disabled="@_isBusy">
+            @if (_isBusy)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            Save
+        </button>
+        <button class="btn btn-secondary" @onclick="Cancel" disabled="@_isBusy">@AdminRes.Cancel</button>
+    </div>
+</div>

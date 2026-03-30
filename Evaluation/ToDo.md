@@ -9,15 +9,9 @@
 ---
 
 ## Small–Medium Scope (New section or page + Admin CRUD)
-
-- Testimonials on landing page editable from the Admin Panel
-
-
 - Include a F.A.Q page with common questions and answers about the platform, courses, assessments, and account management editable from the admin panel
 
 - Admin controllable pop up for Announcements and News that can be shown to all users or specific groups of users
-
-- Change the Courses Section to include Course Items as Cards — use the Cards.md as reference
 
 - Assessments are not a separate Feature on a separate Tab — they can be attached to Courses and can be taken at the end of the course
 

@@ -473,7 +473,19 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("StoryTitleHighlight", resourceCulture);
             }
         }
-        
+
+        public static string TestimonialsTitle {
+            get {
+                return ResourceManager.GetString("TestimonialsTitle", resourceCulture);
+            }
+        }
+
+        public static string TestimonialsTitleHighlight {
+            get {
+                return ResourceManager.GetString("TestimonialsTitleHighlight", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Welcome, {0}!.
         /// </summary>

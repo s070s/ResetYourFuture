@@ -9,9 +9,13 @@ public partial class Home
 {
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IBlogConsumer BlogConsumer { get; set; } = default!;
+    [Inject] private ITestimonialConsumer TestimonialConsumer { get; set; } = default!;
 
     private IReadOnlyList<BlogArticleSummaryDto>? _blogSummaries;
     private bool _blogLoading = true;
+
+    private IReadOnlyList<TestimonialDto>? _testimonials;
+    private bool _testimonialsLoading = true;
 
     // Use the client-served static image. Leading slash ensures the request goes to the client host.
     // Change the filename if you used .jpg instead of .png.
@@ -28,6 +32,33 @@ public partial class Home
 
     protected override async Task OnInitializedAsync()
     {
+        // Load blog and testimonials concurrently — both sections are non-critical
+        var blogTask         = LoadBlogAsync();
+        var testimonialsTask = LoadTestimonialsAsync();
+        await Task.WhenAll( blogTask, testimonialsTask );
+    }
+
+    protected override async Task OnAfterRenderAsync( bool firstRender )
+    {
+        if ( !firstRender ) return;
+
+        // On first VS multi-project startup the API may still be initializing
+        // (sqllocaldb + migrations can take several seconds). If the initial
+        // requests silently failed, retry once after a short delay.
+        bool needsRetry = _testimonials == null || _blogSummaries == null;
+        if ( !needsRetry ) return;
+
+        await Task.Delay( 3000 );
+
+        var retries = new List<Task>();
+        if ( _testimonials == null )   retries.Add( LoadTestimonialsAsync() );
+        if ( _blogSummaries == null )  retries.Add( LoadBlogAsync() );
+        await Task.WhenAll( retries );
+        StateHasChanged();
+    }
+
+    private async Task LoadBlogAsync()
+    {
         try
         {
             _blogSummaries = await BlogConsumer.GetSummariesAsync( count: 6, lang: CurrentLang );
@@ -40,6 +71,31 @@ public partial class Home
         {
             _blogLoading = false;
         }
+    }
+
+    private async Task LoadTestimonialsAsync()
+    {
+        try
+        {
+            _testimonials = await TestimonialConsumer.GetActiveAsync();
+        }
+        catch
+        {
+            // Testimonials section is non-critical — silently skip if the API is unreachable
+        }
+        finally
+        {
+            _testimonialsLoading = false;
+        }
+    }
+
+    private static string TestimonialInitials( string fullName )
+    {
+        if ( string.IsNullOrWhiteSpace( fullName ) ) return "?";
+        return string.Concat(
+            fullName.Split( ' ', StringSplitOptions.RemoveEmptyEntries )
+                    .Take( 2 )
+                    .Select( w => char.ToUpperInvariant( w[0] ) ) );
     }
 
     private void NavigateToRegister()

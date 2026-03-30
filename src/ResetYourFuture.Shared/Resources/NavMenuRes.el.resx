@@ -171,4 +171,7 @@
   <data name="Blog" xml:space="preserve">
     <value>Άρθρα</value>
   </data>
+  <data name="Testimonials" xml:space="preserve">
+    <value>Ευχαριστημένοι Χρήστες</value>
+  </data>
 </root>
