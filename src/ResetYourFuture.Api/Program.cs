@@ -173,6 +173,28 @@ builder.Services.AddCors( options =>
 
 var app = builder.Build();
 
+// --- Pre-warm LocalDB so EF Core doesn't hit LOCALDB_ERROR_CANNOT_GET_USER_PROFILE_FOLDER ---
+// LocalDB auto-stops when idle. The auto-start via connection string fails with 0x89C5010A
+// on Windows 11 if the user profile folder can't be resolved in the app's process context.
+// Running 'sqllocaldb start' explicitly before EF connects works around this reliably.
+if ( app.Environment.IsDevelopment() )
+{
+    try
+    {
+        using var proc = System.Diagnostics.Process.Start( new System.Diagnostics.ProcessStartInfo
+        {
+            FileName               = "sqllocaldb",
+            Arguments              = "start MSSQLLocalDB",
+            RedirectStandardOutput = true,
+            RedirectStandardError  = true,
+            UseShellExecute        = false,
+            CreateNoWindow         = true,
+        } );
+        proc?.WaitForExit( 10_000 );
+    }
+    catch { /* sqllocaldb not on PATH — non-fatal, LocalDB may already be running */ }
+}
+
 // --- Apply migrations and seed (runs at startup) ---
 using ( var scope = app.Services.CreateScope() )
 {

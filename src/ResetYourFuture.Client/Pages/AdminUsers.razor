@@ -27,9 +27,15 @@
                 <VirtualizedTable Items="pagedResult.Items" TItem="AdminUserDto">
                     <HeaderRow>
                         <tr>
-                            <th>@AdminRes.ColEmail</th>
-                            <th>@AdminRes.ColName</th>
-                            <th>@AdminRes.ColEnabled</th>
+                            <SortableColumnHeader ColumnKey="email"     Label="@AdminRes.ColEmail"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="firstname" Label="@AdminRes.ColName"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="isenabled" Label="@AdminRes.ColEnabled"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
                             <th>@AdminRes.ColRoles</th>
                             <th>@AdminRes.ColActions</th>
                         </tr>

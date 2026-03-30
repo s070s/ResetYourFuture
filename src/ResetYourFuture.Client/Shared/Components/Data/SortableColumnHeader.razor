@@ -1,0 +1,28 @@
+@* Renders a <th> with a click-to-sort indicator.
+   Toggle logic (asc/desc, page reset) lives in the parent page — this component is stateless. *@
+
+<th class="@( IsActive ? "sort-active" : "" )"
+    @onclick="HandleClick"
+    style="cursor:pointer; user-select:none; white-space:nowrap">
+    @Label
+    @if ( IsActive )
+    {
+        <span class="sort-arrow">@( CurrentSortDir == "desc" ? " ▼" : " ▲" )</span>
+    }
+    else
+    {
+        <span class="sort-arrow sort-arrow--inactive"> ⇅</span>
+    }
+</th>
+
+@code {
+    [Parameter, EditorRequired] public string ColumnKey      { get; set; } = default!;
+    [Parameter, EditorRequired] public string Label          { get; set; } = default!;
+    [Parameter, EditorRequired] public string CurrentSortBy  { get; set; } = default!;
+    [Parameter, EditorRequired] public string CurrentSortDir { get; set; } = default!;
+    [Parameter, EditorRequired] public EventCallback<string> OnSort { get; set; }
+
+    private bool IsActive => string.Equals( CurrentSortBy, ColumnKey, StringComparison.OrdinalIgnoreCase );
+
+    private async Task HandleClick() => await OnSort.InvokeAsync( ColumnKey );
+}

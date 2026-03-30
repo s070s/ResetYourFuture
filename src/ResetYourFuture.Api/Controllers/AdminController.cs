@@ -50,6 +50,8 @@ public class AdminController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null,
+        [FromQuery] string sortBy = "email",
+        [FromQuery] string sortDir = "asc",
         CancellationToken cancellationToken = default )
     {
         page = Math.Max( 1, page );
@@ -65,7 +67,7 @@ public class AdminController : ControllerBase
         var totalCount = await query.CountAsync( cancellationToken );
 
         var users = await query
-            .OrderBy( u => u.Email )
+            .ApplySort( sortBy, sortDir )
             .Skip( ( page - 1 ) * pageSize )
             .Take( pageSize )
             .ToListAsync( cancellationToken );
@@ -101,7 +103,7 @@ public class AdminController : ControllerBase
             );
         } ).ToList();
 
-        return Ok( new PagedResult<AdminUserDto>( result, totalCount, page, pageSize ) );
+        return Ok( new PagedResult<AdminUserDto>( result, totalCount, page, pageSize, sortBy, sortDir ) );
     }
 
     /// <summary>

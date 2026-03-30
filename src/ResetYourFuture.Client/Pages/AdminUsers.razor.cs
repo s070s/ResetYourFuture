@@ -18,6 +18,8 @@ public partial class AdminUsers : IAsyncDisposable
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string searchTerm = string.Empty;
     private string message = string.Empty;
+    private string _sortBy  = "email";
+    private string _sortDir = "asc";
     private string? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
 
@@ -34,6 +36,19 @@ public partial class AdminUsers : IAsyncDisposable
         await LoadUsers();
     }
 
+    private async Task OnSort( string columnKey )
+    {
+        if ( _sortBy == columnKey )
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy  = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
+        await LoadUsers();
+    }
+
     private async Task LoadUsers()
     {
         try
@@ -41,7 +56,9 @@ public partial class AdminUsers : IAsyncDisposable
             pagedResult = await UserConsumer.GetUsersAsync(
                 currentPage ,
                 pageSize ,
-                string.IsNullOrEmpty( searchTerm ) ? null : searchTerm );
+                string.IsNullOrEmpty( searchTerm ) ? null : searchTerm ,
+                _sortBy ,
+                _sortDir );
         }
         catch ( HttpRequestException ex ) when ( ex.StatusCode == System.Net.HttpStatusCode.Forbidden )
         {

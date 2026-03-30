@@ -5,6 +5,32 @@ namespace ResetYourFuture.Api.Extensions;
 internal static class UserSearchExtensions
 {
     /// <summary>
+    /// Applies server-side sorting to a user query.
+    /// Uses a switch expression to keep EF Core SQL translation intact —
+    /// never boxes to object, which would trigger client-side evaluation.
+    /// Always appends .ThenBy(Email) as a stable tie-breaker across pages.
+    /// </summary>
+    internal static IQueryable<ApplicationUser> ApplySort(
+        this IQueryable<ApplicationUser> query, string? sortBy, string? sortDir )
+    {
+        var ordered = (sortBy?.ToLowerInvariant(), sortDir?.ToLowerInvariant()) switch
+        {
+            ("firstname", "desc") => query.OrderByDescending( u => u.FirstName ).ThenBy( u => u.LastName ),
+            ("firstname", _)      => query.OrderBy( u => u.FirstName ).ThenBy( u => u.LastName ),
+            ("lastname",  "desc") => query.OrderByDescending( u => u.LastName ).ThenBy( u => u.FirstName ),
+            ("lastname",  _)      => query.OrderBy( u => u.LastName ).ThenBy( u => u.FirstName ),
+            ("createdat", "desc") => query.OrderByDescending( u => u.CreatedAt ),
+            ("createdat", _)      => query.OrderBy( u => u.CreatedAt ),
+            ("isenabled", "desc") => query.OrderByDescending( u => u.IsEnabled ),
+            ("isenabled", _)      => query.OrderBy( u => u.IsEnabled ),
+            ("email",     "desc") => query.OrderByDescending( u => u.Email ),
+            _                     => query.OrderBy( u => u.Email ),
+        };
+        return ordered.ThenBy( u => u.Email );
+    }
+
+
+    /// <summary>
     /// Applies smart search to a user query.
     /// - '@' present → email-mode: match by prefix (StartsWith) and/or suffix (Contains "@suffix")
     /// - space present → first+last split: match FirstName/LastName in either order

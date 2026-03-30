@@ -7,7 +7,7 @@ namespace ResetYourFuture.Client.Consumers;
 /// </summary>
 public interface IAdminUserConsumer
 {
-    Task<PagedResult<AdminUserDto>?> GetUsersAsync( int page = 1 , int pageSize = 10 , string? search = null );
+    Task<PagedResult<AdminUserDto>?> GetUsersAsync( int page = 1 , int pageSize = 10 , string? search = null , string sortBy = "email" , string sortDir = "asc" );
     Task<List<AdminUserDto>> SearchUsersAsync( string query );
     Task<AdminUserDto?> GetUserAsync( string userId );
     Task<bool?> ToggleEnableAsync( string userId );

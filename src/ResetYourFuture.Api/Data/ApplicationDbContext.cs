@@ -75,6 +75,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property( u => u.FirstName ).HasMaxLength( 100 );
             entity.Property( u => u.LastName ).HasMaxLength( 100 );
+
+            // Indexes for server-side sorting performance
+            entity.HasIndex( u => u.Email ).HasDatabaseName( "IX_AspNetUsers_Email" );
+            entity.HasIndex( u => u.FirstName ).HasDatabaseName( "IX_AspNetUsers_FirstName" );
+            entity.HasIndex( u => u.LastName ).HasDatabaseName( "IX_AspNetUsers_LastName" );
+            entity.HasIndex( u => u.CreatedAt ).HasDatabaseName( "IX_AspNetUsers_CreatedAt" );
         } );
     }
 }

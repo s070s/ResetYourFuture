@@ -10,7 +10,13 @@
       "Bash(node -e \":*)",
       "Bash(dotnet build:*)",
       "Bash(python3 -c \":*)",
-      "Bash(find /c/Users/GS/Desktop/Projects/RYF -name AuditableEntity* -o -name *AuditableEntity*)"
+      "Bash(find /c/Users/GS/Desktop/Projects/RYF -name AuditableEntity* -o -name *AuditableEntity*)",
+      "Bash(dotnet ef:*)",
+      "Bash(sqllocaldb info:*)",
+      "Bash(sqllocaldb start:*)",
+      "Bash(sqllocaldb versions:*)",
+      "Bash(sqllocaldb stop:*)",
+      "Bash(sqlcmd -S \"\\(localdb\\)\\\\MSSQLLocalDB\" -Q \"SELECT @@VERSION\")"
     ]
   }
 }

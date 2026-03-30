@@ -15,9 +15,11 @@ public class AdminUserConsumer : IAdminUserConsumer
         _http = http;
     }
 
-    public async Task<PagedResult<AdminUserDto>?> GetUsersAsync( int page = 1 , int pageSize = 10 , string? search = null )
+    public async Task<PagedResult<AdminUserDto>?> GetUsersAsync( int page = 1 , int pageSize = 10 , string? search = null , string sortBy = "email" , string sortDir = "asc" )
     {
-        var url = $"api/admin/users?page={page}&pageSize={pageSize}";
+        var url = $"api/admin/users?page={page}&pageSize={pageSize}" +
+                  $"&sortBy={Uri.EscapeDataString( sortBy )}" +
+                  $"&sortDir={Uri.EscapeDataString( sortDir )}";
         if ( !string.IsNullOrWhiteSpace( search ) )
             url += $"&search={Uri.EscapeDataString( search )}";
 
