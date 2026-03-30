@@ -158,4 +158,16 @@
 	<data name="Next" xml:space="preserve">
 		<value>Next</value>
 	</data>
+	<data name="RequiresPlanFormat" xml:space="preserve">
+		<value>This course requires the {0} plan or higher.</value>
+	</data>
+	<data name="UpgradePlan" xml:space="preserve">
+		<value>Upgrade Plan</value>
+	</data>
+	<data name="PlanCourseLimitFormat" xml:space="preserve">
+		<value>You are on the {0} plan — up to {1} course(s).</value>
+	</data>
+	<data name="CourseSlotsFullNotice" xml:space="preserve">
+		<value>You have used all your course slots.</value>
+	</data>
 </root>

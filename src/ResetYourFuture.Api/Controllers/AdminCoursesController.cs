@@ -61,7 +61,8 @@ public class AdminCoursesController : ControllerBase
             course.UpdatedAt ,
             course.Modules.Count ,
             course.Modules.SelectMany( m => m.Lessons ).Count() ,
-            course.Enrollments.Count
+            course.Enrollments.Count ,
+            course.RequiredTier
         );
 
         return Ok( dto );
@@ -100,7 +101,8 @@ public class AdminCoursesController : ControllerBase
                 c.UpdatedAt ,
                 c.Modules.Count ,
                 c.Modules.SelectMany( m => m.Lessons ).Count() ,
-                c.Enrollments.Count
+                c.Enrollments.Count ,
+                c.RequiredTier
             ) )
             .ToListAsync( cancellationToken );
 
@@ -121,6 +123,7 @@ public class AdminCoursesController : ControllerBase
             TitleEl = request.TitleEl ,
             DescriptionEn = request.DescriptionEn ,
             DescriptionEl = request.DescriptionEl ,
+            RequiredTier = request.RequiredTier ,
             IsPublished = false ,
             UpdatedByUserId = UserId
         };
@@ -139,7 +142,8 @@ public class AdminCoursesController : ControllerBase
             course.IsPublished ,
             course.CreatedAt ,
             course.UpdatedAt ,
-            0 , 0 , 0
+            0 , 0 , 0 ,
+            course.RequiredTier
         );
 
         // Return 201 Created with a location header pointing to the courses endpoint.
@@ -173,6 +177,7 @@ public class AdminCoursesController : ControllerBase
         course.TitleEl = request.TitleEl;
         course.DescriptionEn = request.DescriptionEn;
         course.DescriptionEl = request.DescriptionEl;
+        course.RequiredTier = request.RequiredTier;
         course.UpdatedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = UserId;
 
@@ -191,7 +196,8 @@ public class AdminCoursesController : ControllerBase
             course.UpdatedAt ,
             course.Modules.Count ,
             course.Modules.SelectMany( m => m.Lessons ).Count() ,
-            course.Enrollments.Count
+            course.Enrollments.Count ,
+            course.RequiredTier
         );
 
         // Return 200 OK with the updated course DTO.

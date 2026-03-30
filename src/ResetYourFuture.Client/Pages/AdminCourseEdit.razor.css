@@ -1,0 +1,27 @@
+.tier-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.tier-option {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--bs-border-color, #444);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tier-option input[type="radio"] {
+    display: none;
+}
+
+.tier-option.selected {
+    border-color: var(--bs-primary, #6f42c1);
+    background-color: rgba(111, 66, 193, 0.15);
+    font-weight: 600;
+}

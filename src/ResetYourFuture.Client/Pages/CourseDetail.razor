@@ -41,11 +41,25 @@ else
                     <span class="completed-badge">@CourseRes.CourseCompleted</span>
                 }
             }
+            else if (_userTier < _course.RequiredTier)
+            {
+                <div class="enroll-upgrade-notice">
+                    <p>@string.Format(CourseRes.RequiresPlanFormat, _course.RequiredTier)</p>
+                    <button class="btn btn-primary" @onclick="GoToPricing">@CourseRes.UpgradePlan</button>
+                </div>
+            }
             else
             {
                 <button class="btn btn-primary" @onclick="EnrollInCourse" disabled="@_enrolling">
                     @(_enrolling ? CourseRes.Enrolling : CourseRes.EnrollInThisCourse)
                 </button>
+                @if (_enrollError is not null)
+                {
+                    <div class="enroll-error-notice">
+                        <p class="text-danger">@_enrollError</p>
+                        <button class="btn btn-outline-primary btn-sm" @onclick="GoToPricing">@CourseRes.UpgradePlan</button>
+                    </div>
+                }
             }
         </div>
     </div>

@@ -143,7 +143,8 @@ public class CoursesController : ControllerBase
                     l.SortOrder ,
                     completedLessonIds.Contains( l.Id )
                 ) ).ToList()
-            ) ).ToList()
+            ) ).ToList() ,
+            course.RequiredTier
         );
 
         return Ok( dto );

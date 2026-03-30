@@ -37,6 +37,7 @@ public partial class AdminCourseEdit
     private string? courseTitleEl;
     private string? courseDescriptionEn;
     private string? courseDescriptionEl;
+    private SubscriptionTierEnum courseRequiredTier = SubscriptionTierEnum.Free;
     private QuillEditor? descriptionEditorEn;
     private QuillEditor? descriptionEditorEl;
 
@@ -87,6 +88,7 @@ public partial class AdminCourseEdit
                 courseTitleEl = course.TitleEl;
                 courseDescriptionEn = course.DescriptionEn;
                 courseDescriptionEl = course.DescriptionEl;
+                courseRequiredTier = course.RequiredTier;
             }
         }
         catch ( Exception ex )
@@ -150,7 +152,7 @@ public partial class AdminCourseEdit
                 ? await descriptionEditorEl.GetContentAsync()
                 : courseDescriptionEl;
 
-            var request = new SaveCourseRequest( courseTitleEn , courseTitleEl , descEn , descEl );
+            var request = new SaveCourseRequest( courseTitleEn , courseTitleEl , descEn , descEl , courseRequiredTier );
 
             if ( IsNew )
             {

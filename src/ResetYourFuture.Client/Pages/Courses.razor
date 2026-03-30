@@ -19,6 +19,18 @@ else if (_pagedResult is null || _pagedResult.TotalCount == 0)
 }
 else
 {
+    @if (_maxCourses != int.MaxValue)
+    {
+        <div class="plan-limit-banner @(_enrolledCount >= _maxCourses ? "plan-limit-full" : "")">
+            <span>@string.Format(CourseRes.PlanCourseLimitFormat, _userStatus?.PlanName ?? "Free", _maxCourses)</span>
+            @if (_enrolledCount >= _maxCourses)
+            {
+                <span class="slots-full-label">@CourseRes.CourseSlotsFullNotice</span>
+            }
+            <button class="btn btn-sm btn-outline-primary" @onclick="GoToPricing">@CourseRes.UpgradePlan</button>
+        </div>
+    }
+
     <div class="pagination-toolbar">
         <span class="pagination-info">
             @string.Format(CourseRes.TotalCoursesFormat, _pagedResult.TotalCount)
@@ -39,7 +51,7 @@ else
     <div class="courses-list">
         @foreach (var course in _pagedResult.Items)
         {
-            var isLocked = _userTier < course.RequiredTier;
+            var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;
 
             <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id" @onclick="() => ViewCourse(course)">
                 <div class="course-card-header">

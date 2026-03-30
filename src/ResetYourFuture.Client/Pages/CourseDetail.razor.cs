@@ -14,12 +14,15 @@ public partial class CourseDetail
     }
 
     [Inject] private ICourseConsumer CourseService { get; set; } = default!;
+    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private CourseDetailDto? _course;
+    private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
     private bool _loading = true;
     private bool _enrolling;
     private string? _error;
+    private string? _enrollError;
     private HashSet<Guid> _expandedModules = new();
 
     private static string CurrentLang =>
@@ -27,13 +30,19 @@ public partial class CourseDetail
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCourse();
+        var tierTask = SubscriptionService.GetStatusAsync();
+        await Task.WhenAll( LoadCourse(), tierTask );
+
+        var status = tierTask.Result;
+        if ( status is not null )
+            _userTier = status.Tier;
     }
 
     private async Task LoadCourse()
     {
         _loading = true;
         _error = null;
+        _enrollError = null;
         _expandedModules = new();
 
         try
@@ -70,6 +79,7 @@ public partial class CourseDetail
     private async Task EnrollInCourse()
     {
         _enrolling = true;
+        _enrollError = null;
         try
         {
             var result = await CourseService.EnrollAsync( CourseId );
@@ -79,12 +89,12 @@ public partial class CourseDetail
             }
             else
             {
-                _error = result?.Message ?? "Failed to enroll.";
+                _enrollError = result?.Message ?? "Failed to enroll. Please try again.";
             }
         }
         catch ( Exception ex )
         {
-            _error = "Failed to enroll. Please try again.";
+            _enrollError = "Failed to enroll. Please try again.";
             Console.WriteLine( ex.Message );
         }
         finally
@@ -104,5 +114,10 @@ public partial class CourseDetail
     private void GoBack()
     {
         Navigation.NavigateTo( "/courses" );
+    }
+
+    private void GoToPricing()
+    {
+        Navigation.NavigateTo( "/pricing" );
     }
 }

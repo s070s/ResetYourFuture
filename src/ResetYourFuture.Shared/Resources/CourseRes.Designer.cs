@@ -239,5 +239,41 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Next", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This course requires the {0} plan or higher.
+        /// </summary>
+        public static string RequiresPlanFormat {
+            get {
+                return ResourceManager.GetString("RequiresPlanFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade Plan.
+        /// </summary>
+        public static string UpgradePlan {
+            get {
+                return ResourceManager.GetString("UpgradePlan", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You are on the {0} plan — up to {1} course(s).
+        /// </summary>
+        public static string PlanCourseLimitFormat {
+            get {
+                return ResourceManager.GetString("PlanCourseLimitFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You have used all your course slots.
+        /// </summary>
+        public static string CourseSlotsFullNotice {
+            get {
+                return ResourceManager.GetString("CourseSlotsFullNotice", resourceCulture);
+            }
+        }
     }
 }

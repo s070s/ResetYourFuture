@@ -40,6 +40,26 @@ else
                 <QuillEditor @ref="descriptionEditorEl" Content="@courseDescriptionEl" MinHeight="150px" />
             </div>
 
+            <div class="mb-3">
+                <label class="form-label">Required Subscription Tier</label>
+                <div class="tier-selector">
+                    @foreach (var tier in Enum.GetValues<SubscriptionTierEnum>())
+                    {
+                        <label class="tier-option @(courseRequiredTier == tier ? "selected" : "")">
+                            <input type="radio"
+                                   name="requiredTier"
+                                   value="@tier"
+                                   checked="@(courseRequiredTier == tier)"
+                                   @onchange="() => courseRequiredTier = tier" />
+                            @tier
+                        </label>
+                    }
+                </div>
+                <small class="form-text text-light-muted">
+                    Users must be on this plan or higher to enroll in this course.
+                </small>
+            </div>
+
             <SaveCancelBar SaveLabel="@AdminRes.SaveCourse"
                            SavingLabel="@AdminRes.Saving"
                            IsSaving="isSaving"

@@ -12,7 +12,10 @@ public partial class Courses
     [Inject] private NavigationManager Navigation { get; set; } = default!;
 
     private PagedResult<CourseListItemDto>? _pagedResult;
+    private UserSubscriptionStatusDto? _userStatus;
     private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
+    private int _maxCourses = 1;
+    private int _enrolledCount;
     private bool _loading = true;
     private string? _error;
 
@@ -29,9 +32,14 @@ public partial class Courses
         var statusTask = SubscriptionService.GetStatusAsync();
         await Task.WhenAll( LoadCoursesAsync(), statusTask );
 
-        var status = statusTask.Result;
-        if ( status is not null )
-            _userTier = status.Tier;
+        _userStatus = statusTask.Result;
+        if ( _userStatus is not null )
+        {
+            _userTier = _userStatus.Tier;
+            _maxCourses = _userStatus.Features?.MaxCourses ?? 1;
+        }
+
+        UpdateEnrolledCount();
     }
 
     private async Task LoadCoursesAsync()
@@ -41,6 +49,7 @@ public partial class Courses
         try
         {
             _pagedResult = await CourseService.GetCoursesAsync( _page, _pageSize, CurrentLang );
+            UpdateEnrolledCount();
         }
         catch ( Exception ex )
         {
@@ -51,6 +60,11 @@ public partial class Courses
         {
             _loading = false;
         }
+    }
+
+    private void UpdateEnrolledCount()
+    {
+        _enrolledCount = _pagedResult?.Items.Count( c => c.IsEnrolled ) ?? 0;
     }
 
     private async Task GoToPage( int page )
@@ -70,7 +84,8 @@ public partial class Courses
 
     private void ViewCourse( CourseListItemDto course )
     {
-        if ( _userTier < course.RequiredTier )
+        // Enrolled courses are always accessible, even after a plan downgrade
+        if ( _userTier < course.RequiredTier && !course.IsEnrolled )
         {
             Navigation.NavigateTo( "/pricing" );
             return;
@@ -80,4 +95,3 @@ public partial class Courses
 
     private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
 }
-

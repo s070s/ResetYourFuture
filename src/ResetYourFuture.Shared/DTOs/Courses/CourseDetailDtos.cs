@@ -12,7 +12,8 @@ public record CourseDetailDto(
     int CompletedLessons,
     int TotalLessons,
     double ProgressPercent,
-    List<ModuleDto> Modules
+    List<ModuleDto> Modules,
+    SubscriptionTierEnum RequiredTier
 );
 
 /// <summary>

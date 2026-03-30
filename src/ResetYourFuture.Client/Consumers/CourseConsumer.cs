@@ -35,9 +35,9 @@ public class CourseConsumer : ICourseConsumer
     public async Task<EnrollmentResultDto?> EnrollAsync( Guid courseId )
     {
         var response = await _http.PostAsync( $"api/courses/{courseId}/enroll", null );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<EnrollmentResultDto>()
-            : null;
+        if ( response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Forbidden )
+            return await response.Content.ReadFromJsonAsync<EnrollmentResultDto>();
+        return null;
     }
 
     public async Task<LessonDetailDto?> GetLessonAsync( Guid lessonId, string lang = "en" )

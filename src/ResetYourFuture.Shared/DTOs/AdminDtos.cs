@@ -43,7 +43,8 @@ public record AdminCourseDto(
     DateTimeOffset? UpdatedAt,
     int ModuleCount,
     int TotalLessons,
-    int EnrollmentCount
+    int EnrollmentCount,
+    SubscriptionTierEnum RequiredTier
 );
 
 /// <summary>
@@ -53,7 +54,8 @@ public record SaveCourseRequest(
     string TitleEn,
     string? TitleEl,
     string? DescriptionEn,
-    string? DescriptionEl
+    string? DescriptionEl,
+    SubscriptionTierEnum RequiredTier
 );
 
 /// <summary>

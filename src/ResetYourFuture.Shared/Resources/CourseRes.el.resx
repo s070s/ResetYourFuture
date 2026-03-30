@@ -146,4 +146,16 @@
 	<data name="UpgradeToFormat" xml:space="preserve">
 		<value>🔒 Αναβάθμιση σε {0}</value>
 	</data>
+	<data name="RequiresPlanFormat" xml:space="preserve">
+		<value>Αυτό το μάθημα απαιτεί το πλάνο {0} ή ανώτερο.</value>
+	</data>
+	<data name="UpgradePlan" xml:space="preserve">
+		<value>Αναβάθμιση Πλάνου</value>
+	</data>
+	<data name="PlanCourseLimitFormat" xml:space="preserve">
+		<value>Βρίσκεστε στο πλάνο {0} — έως {1} μάθημα/τα.</value>
+	</data>
+	<data name="CourseSlotsFullNotice" xml:space="preserve">
+		<value>Έχετε χρησιμοποιήσει όλα τα διαθέσιμά σας μαθήματα.</value>
+	</data>
 </root>
