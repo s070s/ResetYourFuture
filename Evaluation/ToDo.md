@@ -4,7 +4,6 @@
 
 ## Smallest Scope (Isolated / Single-feature changes)
 - Like/reaction system for chat messages
-- UI is very wide(buttons etc)
 
 ---
 
@@ -68,7 +67,6 @@
 
 ## Largest Scope (Architectural migrations and new platforms)
 
-- Change to .NET 10
 
 - AI Features using SLM like Ollama for personalized course recommendations, automated content tagging, and intelligent search capabilities — as few dependencies as possible in the .NET ecosystem
 
