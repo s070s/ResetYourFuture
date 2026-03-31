@@ -1,5 +1,29 @@
 /* Register page specific styles */
 
+/* Submit button is intentionally full-width on the auth form */
+.auth-container .btn-primary {
+    width: 100%;
+    padding: 0.65rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Accent the helper links */
+.auth-container p a {
+    color: var(--text-strong-accent);
+}
+
+.auth-container p a:hover {
+    color: var(--text-accent);
+}
+
+/* Tighten date-of-birth row on mobile */
+@media (max-width: 767.98px) {
+    .auth-container .row .col-md-6 {
+        margin-bottom: 0;
+    }
+}
+
 .btn-password-toggle {
     background-color: var(--bg-table-odd);
     border: 1px solid var(--border-subtle);

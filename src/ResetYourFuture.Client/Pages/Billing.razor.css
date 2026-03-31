@@ -86,6 +86,21 @@
     display: flex;
     gap: 0.75rem;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767.98px) {
+    .plan-actions {
+        flex-direction: column;
+    }
+
+    .plan-actions > .btn {
+        width: 100%;
+    }
+
+    .billing-page {
+        padding: 1rem 0;
+    }
 }
 
 .cancel-msg {

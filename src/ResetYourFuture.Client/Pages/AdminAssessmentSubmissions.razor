@@ -30,10 +30,10 @@ else
         </HeaderRow>
         <RowTemplate Context="sub">
             <tr @key="sub.Id">
-                <td>@sub.UserDisplayName</td>
-                <td>@sub.UserEmail</td>
-                <td>@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
-                <td>
+                <td data-label="@AdminRes.ColUser">@sub.UserDisplayName</td>
+                <td data-label="@AdminRes.ColEmail">@sub.UserEmail</td>
+                <td data-label="@AdminRes.ColSubmittedAt">@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
+                <td data-label="Actions">
                     <button class="btn btn-sm btn-outline-primary"
                             @onclick="() => ToggleAnswers(sub.Id)">
                         @(expandedSubmissionId == sub.Id ? AdminRes.HideAnswers : AdminRes.ViewAnswers)

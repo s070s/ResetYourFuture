@@ -37,15 +37,15 @@
                     </HeaderRow>
                     <RowTemplate Context="article">
                         <tr @key="article.Id">
-                            <td>@article.TitleEn</td>
-                            <td><code>@article.Slug</code></td>
-                            <td>
+                            <td data-label="Title">@article.TitleEn</td>
+                            <td data-label="Slug"><code>@article.Slug</code></td>
+                            <td data-label="@AdminRes.ColStatus">
                                 <StatusBadge IsActive="article.IsPublished"
                                              ActiveText="@AdminRes.StatusPublished"
                                              InactiveText="@AdminRes.StatusDraft" />
                             </td>
-                            <td>@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
-                            <td>
+                            <td data-label="Published">@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td data-label="Actions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditArticle(article.Id)">@AdminRes.Edit</button>
                                 @if (article.IsPublished)
                                 {

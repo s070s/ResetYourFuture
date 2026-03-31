@@ -30,14 +30,14 @@ else
         </HeaderRow>
         <RowTemplate Context="course">
             <tr @key="course.Id">
-                <td>@course.TitleEn</td>
-                <td>
+                <td data-label="@AdminRes.FieldTitle">@course.TitleEn</td>
+                <td data-label="@AdminRes.ColStatus">
                     <StatusBadge IsActive="course.IsPublished"
                                  ActiveText="@AdminRes.StatusPublished"
                                  InactiveText="@AdminRes.StatusDraft" />
                 </td>
-                <td>@course.EnrollmentCount</td>
-                <td>
+                <td data-label="@AdminRes.ColEnrollments">@course.EnrollmentCount</td>
+                <td data-label="Actions">
                     <button class="btn btn-sm btn-primary" @onclick="() => EditCourse(course.Id)">@AdminRes.Edit</button>
                     @if (course.IsPublished)
                     {

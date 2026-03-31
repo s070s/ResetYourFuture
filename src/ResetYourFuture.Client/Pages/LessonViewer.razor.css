@@ -28,7 +28,7 @@
 }
 
 .module-name {
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
 }
 
 h1 {
@@ -36,7 +36,7 @@ h1 {
 }
 
 .duration {
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     margin-bottom: 1.5rem;
 }
 
@@ -118,7 +118,7 @@ h1 {
 }
 
 .progress-update {
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
 }
 
 .course-completed {
@@ -132,6 +132,28 @@ h1 {
     justify-content: space-between;
     padding-top: 1rem;
     border-top: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 767.98px) {
+    .lesson-navigation {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .lesson-navigation .btn-primary,
+    .lesson-navigation .btn-secondary {
+        width: 100%;
+        text-align: center;
+    }
+
+    .lesson-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .lesson-actions .btn-success {
+        width: 100%;
+    }
 }
 
 .btn-primary {

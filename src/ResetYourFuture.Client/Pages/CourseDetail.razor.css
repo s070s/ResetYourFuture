@@ -8,7 +8,7 @@
     }
 
     .course-header .description {
-        color: var(--text-strong-normal);
+        color: var(--text-light-normal);
         font-size: 1.1rem;
     }
 
@@ -49,7 +49,7 @@
 
 .progress-text {
     font-size: 0.9rem;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
 }
 
 .completed-badge {
@@ -74,7 +74,7 @@
     }
 
 .module-description {
-    color: var(--text-strong-normal);
+    color: var(--text-light-normal);
     margin-bottom: 1rem;
 }
 

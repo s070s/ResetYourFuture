@@ -41,9 +41,9 @@ else
         </HeaderRow>
         <RowTemplate Context="submission">
             <tr @key="submission.Id">
-                <td>@submission.AssessmentTitle</td>
-                <td>@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
-                <td>
+                <td data-label="@AssessmentRes.AssessmentHeader">@submission.AssessmentTitle</td>
+                <td data-label="@AssessmentRes.SubmittedHeader">@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
+                <td data-label="@AssessmentRes.Actions">
                     <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
                 </td>
             </tr>

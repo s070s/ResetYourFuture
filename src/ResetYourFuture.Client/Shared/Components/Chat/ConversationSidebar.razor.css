@@ -53,13 +53,13 @@
 .convo-role {
     font-weight: 400;
     font-size: 0.7rem;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     margin-left: 0.25rem;
 }
 
 .convo-preview {
     font-size: 0.78rem;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -80,7 +80,7 @@
     padding: 0.15rem 0.35rem;
     opacity: 0;
     transition: opacity 0.15s, color 0.15s;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     background: transparent;
     border: none;
     line-height: 1;
@@ -102,37 +102,14 @@
     flex-shrink: 0;
 }
 
-.page-size-select {
-    padding: 0.25rem 1.75rem 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: var(--text-light-normal);
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 12px 9px;
-    border: 1px solid var(--border-subtle);
-    border-radius: 0.2rem;
-    appearance: none;
-    cursor: pointer;
-}
-
-.page-size-select:focus {
-    outline: none;
-    border-color: var(--text-accent);
-    box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--text-accent) 25%, transparent);
-}
-
-.page-size-select option {
-    background-color: var(--bg-table-header);
-    color: var(--text-light-normal);
-}
-
 /* --- Responsive --- */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
     .chat-sidebar {
-        width: 200px;
-        min-width: 160px;
+        width: 100%;
+        min-width: unset;
+        max-height: 38vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        overflow: hidden;
     }
 }

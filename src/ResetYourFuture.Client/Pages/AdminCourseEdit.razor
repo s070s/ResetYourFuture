@@ -139,6 +139,7 @@ else
                                         }
                                         else
                                         {
+                                            <div class="table-responsive">
                                             <table class="table table-sm table-hover mb-0">
                                                 <thead class="table-light">
                                                     <tr>
@@ -154,9 +155,9 @@ else
                                                     @foreach (var lesson in moduleLessons)
                                                     {
                                                         <tr @key="lesson.Id">
-                                                            <td>@lesson.SortOrder</td>
-                                                            <td>@lesson.TitleEn</td>
-                                                            <td>
+                                                            <td data-label="#">@lesson.SortOrder</td>
+                                                            <td data-label="@AdminRes.FieldTitle">@lesson.TitleEn</td>
+                                                            <td data-label="@AdminRes.FieldType">
                                                                 @if (!string.IsNullOrEmpty(lesson.VideoPath))
                                                                 {
                                                                     <span class="badge bg-info">@AdminRes.LessonTypeVideo</span>
@@ -170,13 +171,13 @@ else
                                                                     <span class="badge bg-light text-dark">@AdminRes.LessonTypeText</span>
                                                                 }
                                                             </td>
-                                                            <td>@(lesson.DurationMinutes?.ToString() ?? "—")</td>
-                                                            <td>
+                                                            <td data-label="@AdminRes.ColMins">@(lesson.DurationMinutes?.ToString() ?? "—")</td>
+                                                            <td data-label="@AdminRes.ColStatus">
                                                                 <StatusBadge IsActive="lesson.IsPublished"
                                                                              ActiveText="@AdminRes.StatusLive"
                                                                              InactiveText="@AdminRes.StatusDraft" />
                                                             </td>
-                                                            <td>
+                                                            <td data-label="@AdminRes.ColActions">
                                                                 <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowEditLesson(lesson)">@AdminRes.Edit</button>
                                                                 <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteLesson(lesson.Id, module.Id)">✕</button>
                                                             </td>
@@ -184,6 +185,7 @@ else
                                                     }
                                                 </tbody>
                                             </table>
+                                            </div>
                                         }
                                     </div>
                                 </div>

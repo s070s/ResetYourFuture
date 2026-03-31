@@ -55,6 +55,7 @@ else
                 <div class="card-body">
                     @if (stats.CourseStats != null && stats.CourseStats.Any())
                     {
+                        <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
@@ -67,13 +68,14 @@ else
                                 @foreach (var courseStat in stats.CourseStats)
                                 {
                                     <tr @key="courseStat.CourseTitle">
-                                        <td>@courseStat.CourseTitle</td>
-                                        <td>@courseStat.EnrollmentCount</td>
-                                        <td>@courseStat.CompletionCount</td>
+                                        <td data-label="@AdminRes.ColCourse">@courseStat.CourseTitle</td>
+                                        <td data-label="@AdminRes.ColEnrollments">@courseStat.EnrollmentCount</td>
+                                        <td data-label="@AdminRes.ColCompletions">@courseStat.CompletionCount</td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
+                        </div>
                     }
                     else
                     {
@@ -91,6 +93,7 @@ else
                 <div class="card-body">
                     @if (stats.AssessmentStats != null && stats.AssessmentStats.Any())
                     {
+                        <div class="table-responsive">
                         <table class="table table-sm">
                             <thead>
                                 <tr>
@@ -102,12 +105,13 @@ else
                                 @foreach (var assessmentStat in stats.AssessmentStats)
                                 {
                                     <tr @key="assessmentStat.AssessmentTitle">
-                                        <td>@assessmentStat.AssessmentTitle</td>
-                                        <td>@assessmentStat.SubmissionCount</td>
+                                        <td data-label="@AdminRes.ColAssessment">@assessmentStat.AssessmentTitle</td>
+                                        <td data-label="@AdminRes.ColSubmissions">@assessmentStat.SubmissionCount</td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
+                        </div>
                     }
                     else
                     {

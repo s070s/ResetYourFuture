@@ -93,7 +93,7 @@
             }
             else
             {
-                <div class="transactions-table-wrapper" style="max-height:60vh; overflow-y:auto">
+                <div class="transactions-table-wrapper table-responsive" style="max-height:60vh; overflow-y:auto">
                     <table class="transactions-table">
                         <thead style="position:sticky; top:0; z-index:1">
                             <tr>
@@ -105,15 +105,16 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <Virtualize Items="_overview.Transactions.Items" Context="tx" SpacerElement="tr" OverscanCount="10">
+                            @foreach (var tx in _overview.Transactions.Items)
+                            {
                                 <tr @key="tx.Id">
-                                    <td>@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
-                                    <td>
+                                    <td data-label="@BillingRes.ColDate">@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                                    <td data-label="@BillingRes.ColDescription">
                                         <span class="tx-type tx-type-@tx.Type.ToLowerInvariant()">@tx.Type</span>
                                         <span>@tx.Description</span>
                                     </td>
-                                    <td>@tx.PlanName</td>
-                                    <td class="@(tx.Amount > 0 ? "amount-charge" : "amount-zero")">
+                                    <td data-label="@BillingRes.ColPlan">@tx.PlanName</td>
+                                    <td data-label="@BillingRes.ColAmount" class="@(tx.Amount > 0 ? "amount-charge" : "amount-zero")">
                                         @if (tx.Amount == 0)
                                         {
                                             <span>—</span>
@@ -123,7 +124,7 @@
                                             <span>@tx.Currency @tx.Amount.ToString("F2")</span>
                                         }
                                     </td>
-                                    <td class="tx-ref">
+                                    <td data-label="@BillingRes.ColReference" class="tx-ref">
                                         @if (!string.IsNullOrEmpty(tx.StripeSessionId))
                                         {
                                             <code>@tx.StripeSessionId[..Math.Min(20, tx.StripeSessionId.Length)]…</code>
@@ -134,16 +135,16 @@
                                         }
                                     </td>
                                 </tr>
-                            </Virtualize>
+                            }
                         </tbody>
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="pagination-toolbar-admin">
                     <small class="text-light-muted">
                         Showing @((_overview.Transactions.Page - 1) * _overview.Transactions.PageSize + 1)–@(Math.Min(_overview.Transactions.Page * _overview.Transactions.PageSize, _overview.Transactions.TotalCount)) of @_overview.Transactions.TotalCount transactions
                     </small>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="pagination-controls">
                         <label class="form-label mb-0 text-light-muted small">Rows:</label>
                         <select class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
                             @foreach (var opt in PageSizeOptions)

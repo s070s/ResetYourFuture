@@ -40,11 +40,11 @@
                     </HeaderRow>
                     <RowTemplate Context="user">
                         <tr @key="user.Id">
-                            <td>@user.Email</td>
-                            <td>@user.FirstName @user.LastName</td>
-                            <td>@(user.IsEnabled ? "✓" : "✗")</td>
-                            <td>@string.Join(", ", user.Roles)</td>
-                            <td>
+                            <td data-label="@AdminRes.ColEmail">@user.Email</td>
+                            <td data-label="@AdminRes.ColName">@user.FirstName @user.LastName</td>
+                            <td data-label="@AdminRes.ColEnabled">@(user.IsEnabled ? "✓" : "✗")</td>
+                            <td data-label="@AdminRes.ColRoles">@string.Join(", ", user.Roles)</td>
+                            <td data-label="Actions">
                                 @if (user.Roles.Contains("Student"))
                                 {
                                     <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>

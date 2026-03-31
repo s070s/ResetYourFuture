@@ -16,7 +16,7 @@
     }
 
 .pricing-subtitle {
-    color: var(--text-strong-normal);
+    color: var(--text-light-normal);
     font-size: 1.1rem;
 }
 
@@ -99,7 +99,7 @@
 }
 
 .plan-description {
-    color: var(--text-strong-normal);
+    color: var(--text-light-normal);
     font-size: 0.95rem;
     margin-bottom: 1.5rem;
     min-height: 2.5rem;

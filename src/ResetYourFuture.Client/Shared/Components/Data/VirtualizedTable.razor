@@ -7,9 +7,10 @@
             @HeaderRow
         </thead>
         <tbody>
-            <Virtualize Items="Items" Context="item" SpacerElement="tr" OverscanCount="OverscanCount">
+            @foreach (var item in Items)
+            {
                 @RowTemplate(item)
-            </Virtualize>
+            }
         </tbody>
     </table>
 </div>
@@ -20,5 +21,4 @@
     [Parameter, EditorRequired] public RenderFragment<TItem> RowTemplate { get; set; } = default!;
     [Parameter] public string MaxHeight { get; set; } = "60vh";
     [Parameter] public string TableCssClass { get; set; } = "table table-striped";
-    [Parameter] public int OverscanCount { get; set; } = 10;
 }

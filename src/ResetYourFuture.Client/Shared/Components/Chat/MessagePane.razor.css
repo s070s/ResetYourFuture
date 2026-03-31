@@ -12,7 +12,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     gap: 0.5rem;
 }
 
@@ -28,7 +28,7 @@
 .chat-header-role {
     font-weight: 400;
     font-size: 0.78rem;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
 }
 
 /* --- Pagination bar --- */
@@ -37,33 +37,6 @@
     background-color: var(--bg-surface);
     font-size: 0.8rem;
     flex-shrink: 0;
-}
-
-.page-size-select {
-    padding: 0.25rem 1.75rem 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    color: var(--text-light-normal);
-    background-color: transparent;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 12px 9px;
-    border: 1px solid var(--border-subtle);
-    border-radius: 0.2rem;
-    appearance: none;
-    cursor: pointer;
-}
-
-.page-size-select:focus {
-    outline: none;
-    border-color: var(--text-accent);
-    box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--text-accent) 25%, transparent);
-}
-
-.page-size-select option {
-    background-color: var(--bg-table-header);
-    color: var(--text-light-normal);
 }
 
 /* --- Messages --- */
@@ -101,7 +74,7 @@
 
 .message-role {
     font-weight: 400;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
 }
 
 .message-content {
@@ -112,7 +85,7 @@
 
 .message-time {
     font-size: 0.65rem;
-    color: var(--text-strong-normal);
+    color: var(--text-light-muted);
     text-align: right;
     margin-top: 2px;
 }

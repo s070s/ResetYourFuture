@@ -35,7 +35,7 @@
                     </HeaderRow>
                     <RowTemplate Context="item">
                         <tr @key="item.Id">
-                            <td>
+                            <td data-label="Order">
                                 <div class="d-flex gap-1">
                                     <button class="btn btn-sm btn-outline-secondary" title="Move up"
                                             @onclick="() => MoveUp(item.Id)">↑</button>
@@ -44,8 +44,8 @@
                                             @onclick="() => MoveDown(item.Id)">↓</button>
                                 </div>
                             </td>
-                            <td>@item.FullName</td>
-                            <td>
+                            <td data-label="Name">@item.FullName</td>
+                            <td data-label="Role / Company">
                                 @if (!string.IsNullOrEmpty(item.RoleOrTitle) || !string.IsNullOrEmpty(item.CompanyOrContext))
                                 {
                                     <span>@item.RoleOrTitle</span>
@@ -60,12 +60,12 @@
                                     <span class="text-muted">—</span>
                                 }
                             </td>
-                            <td>
+                            <td data-label="@AdminRes.ColStatus">
                                 <StatusBadge IsActive="item.IsActive"
                                              ActiveText="Active"
                                              InactiveText="Inactive" />
                             </td>
-                            <td>
+                            <td data-label="Actions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditTestimonial(item.Id)">@AdminRes.Edit</button>
                                 @if (item.IsActive)
                                 {

@@ -27,15 +27,15 @@ else
         </HeaderRow>
         <RowTemplate Context="assessment">
             <tr @key="assessment.Id">
-                <td>@assessment.Title</td>
-                <td>@assessment.Key</td>
-                <td>
+                <td data-label="@AdminRes.FieldTitle">@assessment.Title</td>
+                <td data-label="@AdminRes.FieldKey">@assessment.Key</td>
+                <td data-label="@AdminRes.ColStatus">
                     <StatusBadge IsActive="assessment.IsPublished"
                                  ActiveText="@AdminRes.StatusPublished"
                                  InactiveText="@AdminRes.StatusDraft" />
                 </td>
-                <td>@assessment.SubmissionCount</td>
-                <td>
+                <td data-label="@AdminRes.ColSubmissions">@assessment.SubmissionCount</td>
+                <td data-label="Actions">
                     <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">@AdminRes.Edit</button>
                     @if (assessment.IsPublished)
                     {
