@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Shared.DTOs;
 using System.Globalization;
@@ -11,6 +12,11 @@ public partial class Home : IDisposable
     [Inject] private IBlogConsumer BlogConsumer { get; set; } = default!;
     [Inject] private ITestimonialConsumer TestimonialConsumer { get; set; } = default!;
     [Inject] private PersistentComponentState ApplicationState { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    private bool _isAuthenticated;
+    private string? _authenticatedUserName;
+    private bool _authRestored;
 
     private IReadOnlyList<BlogArticleSummaryDto>? _blogSummaries;
     private bool _blogLoading = true;
@@ -31,36 +37,56 @@ public partial class Home : IDisposable
     private string CurrentLang =>
         CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
 
+    // Restore ALL persisted state BEFORE the first render so the first interactive render
+    // exactly matches the SSR pre-rendered HTML — seamless hydration, zero flash.
+    // OnInitializedAsync fires after the first render and would introduce a loading-state
+    // mismatch if GetAuthenticationStateAsync() ever suspends (intermittent flicker).
+    public override async Task SetParametersAsync( ParameterView parameters )
+    {
+        if ( ApplicationState.TryTakeFromJson<bool>( "home-isAuthenticated" , out var isAuth ) )
+        {
+            _isAuthenticated = isAuth;
+            ApplicationState.TryTakeFromJson<string?>( "home-userName" , out _authenticatedUserName );
+            _authRestored = true;
+        }
+        if ( ApplicationState.TryTakeFromJson<List<TestimonialDto>>( "home-testimonials" , out var t ) )
+        {
+            _testimonials = t;
+            _testimonialsLoading = false;
+        }
+        if ( ApplicationState.TryTakeFromJson<List<BlogArticleSummaryDto>>( "home-blog" , out var b ) )
+        {
+            _blogSummaries = b;
+            _blogLoading = false;
+        }
+        await base.SetParametersAsync( parameters );
+    }
+
     protected override async Task OnInitializedAsync()
     {
         _persistSub = ApplicationState.RegisterOnPersisting( PersistHomeData );
 
-        // Restore from prerender state if available (avoids duplicate API calls on circuit connect)
-        var hasTestimonials = ApplicationState.TryTakeFromJson<List<TestimonialDto>>( "home-testimonials" , out var restoredTestimonials );
-        var hasBlog = ApplicationState.TryTakeFromJson<List<BlogArticleSummaryDto>>( "home-blog" , out var restoredBlog );
-
-        if ( hasTestimonials )
+        // Resolve auth state only when not already restored from prerender persistence
+        if ( !_authRestored )
         {
-            _testimonials = restoredTestimonials;
-            _testimonialsLoading = false;
+            var state = await AuthStateProvider.GetAuthenticationStateAsync();
+            _isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
+            _authenticatedUserName = state.User.Identity?.Name;
         }
 
-        if ( hasBlog )
-        {
-            _blogSummaries = restoredBlog;
-            _blogLoading = false;
-        }
-
-        if ( !hasTestimonials || !hasBlog )
-        {
-            var blogTask = hasBlog ? Task.CompletedTask : LoadBlogAsync();
-            var testimonialsTask = hasTestimonials ? Task.CompletedTask : LoadTestimonialsAsync();
-            await Task.WhenAll( blogTask , testimonialsTask );
-        }
+        // Load only what wasn't already restored — flags are false when SetParametersAsync
+        // successfully restored the data, so no duplicate API calls occur.
+        var tasks = new List<Task>();
+        if ( _blogLoading ) tasks.Add( LoadBlogAsync() );
+        if ( _testimonialsLoading ) tasks.Add( LoadTestimonialsAsync() );
+        if ( tasks.Count > 0 )
+            await Task.WhenAll( tasks );
     }
 
     private Task PersistHomeData()
     {
+        ApplicationState.PersistAsJson( "home-isAuthenticated" , _isAuthenticated );
+        ApplicationState.PersistAsJson( "home-userName" , _authenticatedUserName );
         ApplicationState.PersistAsJson( "home-testimonials" , _testimonials );
         ApplicationState.PersistAsJson( "home-blog" , _blogSummaries );
         return Task.CompletedTask;

@@ -6,14 +6,15 @@
          CanonicalUrl="https://reset-your-future.com/"
          ImageUrl="https://reset-your-future.com/images/og-home.jpg" />
 
-<AuthorizeView>
-    <Authorized>
-        <div class="authenticated-home">
-            <h1>@string.Format(HomeRes.WelcomeUser, context.User.Identity?.Name)</h1>
-            <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
-        </div>
-    </Authorized>
-    <NotAuthorized>
+@if (_isAuthenticated)
+{
+    <div class="authenticated-home">
+        <h1>@string.Format(HomeRes.WelcomeUser, _authenticatedUserName)</h1>
+        <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
+    </div>
+}
+else
+{
         <!-- Hero Section -->
         <section class="hero-section" style="@heroBackgroundStyle">
             <div class="hero-bg-overlay"></div>
@@ -425,6 +426,5 @@
                 </div>
             </div>
         </footer>
-    </NotAuthorized>
-</AuthorizeView>
+}
 
