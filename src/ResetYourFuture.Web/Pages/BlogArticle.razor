@@ -21,6 +21,11 @@ else if (_notFound || _article is null)
 else
 {
     <PageTitle>@_article.Title</PageTitle>
+    <SeoHead Title="@_article.Title"
+             Description="@_article.Summary"
+             CanonicalUrl="@($"https://reset-your-future.com/blog/{_article.Slug}")"
+             ImageUrl="@_article.CoverImageUrl"
+             OgType="article" />
 
     <article class="blog-article container">
         @if (!string.IsNullOrWhiteSpace(_article.CoverImageUrl))

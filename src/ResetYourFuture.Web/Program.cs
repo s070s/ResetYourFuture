@@ -560,6 +560,29 @@ app.MapHub<ChatHub>( "/hubs/chat" );
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 
+// --- Sitemap ---
+app.MapGet( "/sitemap.xml" , async ( IBlogArticleService blog , HttpContext ctx ) =>
+{
+    const string baseUrl = "https://reset-your-future.com";
+    var articles = await blog.GetPublishedSummariesAsync( 200 , "en" , ctx.RequestAborted );
+
+    var sb = new System.Text.StringBuilder();
+    sb.AppendLine( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
+    sb.AppendLine( "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" );
+
+    sb.AppendLine( $"  <url><loc>{baseUrl}/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>" );
+
+    foreach ( var article in articles )
+    {
+        var lastmod = article.PublishedAt?.ToString( "yyyy-MM-dd" ) ?? DateTime.UtcNow.ToString( "yyyy-MM-dd" );
+        sb.AppendLine( $"  <url><loc>{baseUrl}/blog/{article.Slug}</loc><lastmod>{lastmod}</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>" );
+    }
+
+    sb.AppendLine( "</urlset>" );
+    ctx.Response.ContentType = "application/xml; charset=utf-8";
+    await ctx.Response.WriteAsync( sb.ToString() );
+} ).AllowAnonymous();
+
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation( "ResetYourFuture.Web started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );
 

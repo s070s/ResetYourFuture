@@ -5,16 +5,20 @@ using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
 
-public partial class Home
+public partial class Home : IDisposable
 {
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IBlogConsumer BlogConsumer { get; set; } = default!;
     [Inject] private ITestimonialConsumer TestimonialConsumer { get; set; } = default!;
+    [Inject] private PersistentComponentState ApplicationState { get; set; } = default!;
+
     private IReadOnlyList<BlogArticleSummaryDto>? _blogSummaries;
     private bool _blogLoading = true;
 
     private IReadOnlyList<TestimonialDto>? _testimonials;
     private bool _testimonialsLoading = true;
+
+    private PersistingComponentStateSubscription _persistSub;
 
     private string InstagramUrl => Configuration [ "Social:Instagram" ] ?? "https://instagram.com/yourprofile";
     private string YoutubeUrl => Configuration [ "Social:Youtube" ] ?? "https://youtube.com";
@@ -29,11 +33,37 @@ public partial class Home
 
     protected override async Task OnInitializedAsync()
     {
-        // Load blog and testimonials concurrently — both sections are non-critical.
-        // In SSR the API is in-process, so no cold-start delay is needed.
-        var blogTask = LoadBlogAsync();
-        var testimonialsTask = LoadTestimonialsAsync();
-        await Task.WhenAll( blogTask , testimonialsTask );
+        _persistSub = ApplicationState.RegisterOnPersisting( PersistHomeData );
+
+        // Restore from prerender state if available (avoids duplicate API calls on circuit connect)
+        var hasTestimonials = ApplicationState.TryTakeFromJson<List<TestimonialDto>>( "home-testimonials" , out var restoredTestimonials );
+        var hasBlog = ApplicationState.TryTakeFromJson<List<BlogArticleSummaryDto>>( "home-blog" , out var restoredBlog );
+
+        if ( hasTestimonials )
+        {
+            _testimonials = restoredTestimonials;
+            _testimonialsLoading = false;
+        }
+
+        if ( hasBlog )
+        {
+            _blogSummaries = restoredBlog;
+            _blogLoading = false;
+        }
+
+        if ( !hasTestimonials || !hasBlog )
+        {
+            var blogTask = hasBlog ? Task.CompletedTask : LoadBlogAsync();
+            var testimonialsTask = hasTestimonials ? Task.CompletedTask : LoadTestimonialsAsync();
+            await Task.WhenAll( blogTask , testimonialsTask );
+        }
+    }
+
+    private Task PersistHomeData()
+    {
+        ApplicationState.PersistAsJson( "home-testimonials" , _testimonials );
+        ApplicationState.PersistAsJson( "home-blog" , _blogSummaries );
+        return Task.CompletedTask;
     }
 
     private async Task LoadBlogAsync()
@@ -81,4 +111,6 @@ public partial class Home
     {
         Navigation.NavigateTo( "/register" );
     }
+
+    public void Dispose() => _persistSub.Dispose();
 }

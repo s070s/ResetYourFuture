@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Allow: /blog/
+Disallow: /admin
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /courses
+Disallow: /billing
+Disallow: /chat
+Disallow: /assessments
+Disallow: /certificates
+Disallow: /hubs/
+Disallow: /culture/
+Disallow: /auth/
+
+Sitemap: https://reset-your-future.com/sitemap.xml

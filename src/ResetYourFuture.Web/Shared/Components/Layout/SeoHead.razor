@@ -1,0 +1,48 @@
+<HeadContent>
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <meta name="description" content="@Description" />
+    }
+
+    @* Open Graph *@
+    <meta property="og:site_name" content="Reset Your Future" />
+    <meta property="og:type" content="@OgType" />
+    <meta property="og:title" content="@Title" />
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <meta property="og:description" content="@Description" />
+    }
+    <meta property="og:url" content="@CanonicalUrl" />
+    @if (!string.IsNullOrEmpty(ImageUrl))
+    {
+        <meta property="og:image" content="@ImageUrl" />
+    }
+
+    @* Twitter Card *@
+    <meta name="twitter:card" content="@(string.IsNullOrEmpty(ImageUrl) ? "summary" : "summary_large_image")" />
+    <meta name="twitter:title" content="@Title" />
+    @if (!string.IsNullOrEmpty(Description))
+    {
+        <meta name="twitter:description" content="@Description" />
+    }
+    @if (!string.IsNullOrEmpty(ImageUrl))
+    {
+        <meta name="twitter:image" content="@ImageUrl" />
+    }
+
+    @* Canonical URL *@
+    <link rel="canonical" href="@CanonicalUrl" />
+
+    @* hreflang — language controlled by cookie, same URLs for both locales *@
+    <link rel="alternate" hreflang="en" href="@CanonicalUrl" />
+    <link rel="alternate" hreflang="el" href="@CanonicalUrl" />
+    <link rel="alternate" hreflang="x-default" href="@CanonicalUrl" />
+</HeadContent>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string CanonicalUrl { get; set; } = string.Empty;
+    [Parameter] public string? ImageUrl { get; set; }
+    [Parameter] public string OgType { get; set; } = "website";
+}

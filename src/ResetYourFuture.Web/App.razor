@@ -1,5 +1,11 @@
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var cultureFeature = HttpContextAccessor.HttpContext?.Features
+        .Get<Microsoft.AspNetCore.Localization.IRequestCultureFeature>();
+    var htmlLang = cultureFeature?.RequestCulture.UICulture.TwoLetterISOLanguageName ?? "en";
+}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@htmlLang">
 
 <head>
     <meta charset="utf-8" />
@@ -33,7 +39,7 @@
 <body>
     @* prerender: false eliminates the double OnInitializedAsync (SSR pre-render + circuit reconnect)
        that causes visible page flicker and duplicate API calls on every navigation. *@
-    <Routes @rendermode="@(new InteractiveServerRenderMode(prerender: false))" />
+    <Routes @rendermode="@(new InteractiveServerRenderMode(prerender: true))" />
 
     <div id="blazor-error-ui" data-nosnippet>
         An unhandled error has occurred.
