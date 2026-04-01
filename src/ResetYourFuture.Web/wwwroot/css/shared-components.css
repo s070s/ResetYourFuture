@@ -1,0 +1,714 @@
+/* ================================================
+   Shared Component Styles
+   ================================================ */
+
+/* ── Auth container ── */
+.auth-container {
+    max-width: 440px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+}
+
+/* ── Profile / Settings container ── */
+.profile-container {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* ── Admin container ── */
+.admin-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Cards */
+.card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-light-normal);
+}
+
+.card-header {
+    background-color: var(--bg-table-header);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-accent);
+}
+
+.card-body {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.card-body p,
+.card-body li {
+    color: var(--text-light-normal);
+}
+
+.card-body strong {
+    color: var(--text-accent);
+}
+
+/* ================================================
+   Collapsible sections
+   ================================================ */
+
+.collapsible-header {
+    cursor: pointer;
+    min-height: 44px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.collapsible-header:hover {
+    background-color: var(--bg-table-header-hover);
+}
+
+.chevron-icon {
+    color: var(--text-strong-accent);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.chevron-icon.expanded {
+    transform: rotate(180deg);
+}
+
+/* CSS grid trick: animates height smoothly without knowing content size */
+.collapsible-body-wrapper {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.25s ease;
+    overflow: hidden;
+}
+
+.collapsible-body-wrapper.collapsed {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
+}
+
+/* min-height: 0 is required for the grid trick */
+.collapsible-body-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ================================================
+   Mobile card-table transformation
+   Converts table rows into stacked cards on small screens.
+   Requires data-label="Column Name" on each <td>.
+   ================================================ */
+@media (max-width: 767.98px) {
+    /* Force the table itself to fill the card width, not its natural column widths */
+    .table-responsive > table {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive > table thead {
+        display: none;
+    }
+
+    .table-responsive > table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive > table tbody tr {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: 0.5rem;
+        overflow: hidden;
+        background-color: var(--bg-surface);
+    }
+
+    .table-responsive > table tbody tr:nth-child(odd),
+    .table-responsive > table tbody tr:nth-child(even) {
+        background-color: var(--bg-surface);
+    }
+
+    .table-responsive > table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 0.5rem 0.75rem;
+        border: none;
+        border-bottom: 1px solid rgba(172, 173, 190, 0.08);
+        gap: 1rem;
+        text-align: right;
+        color: var(--text-light-normal);
+        /* Allow long values (emails, slugs) to wrap instead of overflowing */
+        word-break: break-word;
+        overflow-wrap: break-word;
+        min-width: 0;
+    }
+
+    .table-responsive > table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .table-responsive > table tbody td::before {
+        content: attr(data-label);
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-light-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        flex-shrink: 0;
+        text-align: left;
+        padding-top: 0.1rem;
+        /* Label never shrinks below its own text width */
+        min-width: fit-content;
+    }
+
+    /* Action cell: no label, buttons flow horizontally and wrap if needed */
+    .table-responsive > table tbody td[data-label="Actions"],
+    .table-responsive > table tbody td[data-label="Ενέργειες"] {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .table-responsive > table tbody td[data-label="Actions"]::before,
+    .table-responsive > table tbody td[data-label="Ενέργειες"]::before {
+        display: none;
+    }
+
+    .table-responsive > table tbody td[data-label="Actions"] .btn,
+    .table-responsive > table tbody td[data-label="Ενέργειες"] .btn {
+        flex: 1 1 auto;
+        min-width: 80px;
+        text-align: center;
+    }
+
+}
+
+/* Form labels */
+.form-label {
+    color: var(--text-accent);
+}
+
+/* Global dark-theme form inputs */
+.form-control {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+}
+
+.form-control::placeholder {
+    color: var(--text-light-muted);
+    opacity: 1;
+}
+
+.form-control:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+    outline: none;
+}
+
+.form-select {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23acadbe' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.form-select:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border-color: var(--focus-ring);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+}
+
+.form-select option {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.form-check-input {
+    background-color: transparent;
+    border-color: var(--border-subtle);
+}
+
+.form-check-input:checked {
+    background-color: var(--text-strong-accent);
+    border-color: var(--text-strong-accent);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+    border-color: var(--focus-ring);
+}
+
+.form-check-label {
+    color: var(--text-light-normal);
+}
+
+.btn-outline-primary {
+    color: var(--text-accent);
+    border-color: var(--border-subtle);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-check:checked + .btn-outline-primary {
+    background-color: var(--text-strong-accent);
+    border-color: var(--text-strong-accent);
+    color: var(--bg-primary);
+}
+
+/* Alerts */
+.alert-danger {
+    background-color: var(--bg-error-subtle);
+    border-color: var(--color-error);
+    color: var(--color-error);
+}
+
+.alert-success {
+    background-color: var(--bg-success-subtle);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+/* Inputs in auth/profile pages */
+
+
+/* Fix white background on email input blur */
+.form-control.valid:not(:focus) {
+    background-color: transparent !important;
+}
+
+
+.auth-container .form-control,
+.profile-container .form-control {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    border: 1px solid var(--border-subtle);
+    padding: 0.5rem 0.75rem;
+}
+
+.auth-container .form-control::placeholder,
+.profile-container .form-control::placeholder {
+    color: var(--text-strong-normal);
+    opacity: 1;
+}
+
+.auth-container .form-check-input {
+    background-color: transparent;
+    border-color: var(--border-subtle);
+}
+
+.auth-container .form-control:focus,
+.profile-container .form-control:focus {
+    background-color: var(--bg-table-odd);
+    color: var(--text-accent);
+    box-shadow: 0 0 0 0.1rem var(--bg-primary), 0 0 0 0.25rem var(--focus-ring);
+}
+
+/* Datepicker & valid form control theme overrides
+   - Placed here so they load after app.css and win the cascade.
+   - Use root color variables to match the dark theme. */
+
+.auth-container .form-control.valid:not(:focus),
+.profile-container .form-control.valid:not(:focus),
+input[type="date"].form-control.valid:not(:focus) {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-light-normal) !important;
+    border: 1px solid var(--border-subtle);
+    box-shadow: none;
+}
+
+/* Ensure date inputs inherit theme and show correct text color */
+input[type="date"].form-control,
+.auth-container input[type="date"],
+.profile-container input[type="date"] {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+    border: 1px solid var(--border-subtle);
+}
+
+/* WebKit: make the native calendar icon visible in dark theme */
+input[type="date"].form-control::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.05);
+    opacity: 0.9;
+}
+
+/* Keep focus ring consistent with app theme */
+input[type="date"].form-control:focus {
+    box-shadow:
+        0 0 0 0.1rem var(--bg-primary),
+        0 0 0 0.25rem var(--focus-ring);
+    outline: none;
+}
+
+/* Table cells - global adjustments */
+.table th,
+.table td {
+    color: var(--text-light-normal);
+    border-color: var(--border-subtle);
+}
+
+.table thead th {
+    background-color: var(--bg-table-header);
+    color: var(--text-accent);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.table tbody td {
+    background-color: transparent;
+}
+
+/* Ensure table-striped still applies themed row backgrounds */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--bg-table-odd);
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: var(--bg-table-even);
+}
+
+/* Modal theming */
+.modal-content {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-light-normal);
+}
+
+.modal-header {
+    background-color: var(--bg-table-header);
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-accent);
+}
+
+.modal-title {
+    color: var(--text-accent);
+}
+
+.modal-body {
+    background-color: var(--bg-surface);
+    color: var(--text-light-normal);
+}
+
+.modal-footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Mobile adjustments */
+@media (max-width: 767.98px) {
+    .auth-container {
+        margin: 1rem;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+    }
+
+    .profile-container,
+    .admin-container {
+        padding: 0.75rem;
+    }
+
+    .auth-container h2,
+    .profile-container h2,
+    .admin-container h2 {
+        font-size: 1.25rem;
+    }
+
+    .card-header h4 {
+        font-size: 1rem;
+        margin: 0;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .admin-container {
+        max-width: 90%;
+    }
+}
+
+/* ================================================
+   Pagination — shared across Courses, Assessments, etc.
+   ================================================ */
+
+.pagination-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: var(--text-light-muted);
+}
+
+.page-size-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: var(--text-light-muted);
+}
+
+.page-size-selector select {
+    width: auto;
+    min-width: 4rem;
+}
+
+.pagination-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-top: 1.25rem;
+}
+
+.pagination-btn {
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-light-normal);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--bg-table-header-hover);
+    border-color: var(--text-accent);
+    color: var(--text-accent);
+}
+
+.pagination-btn.active {
+    background-color: var(--text-accent);
+    border-color: var(--text-accent);
+    color: #fff;
+    font-weight: 600;
+    cursor: default;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ================================================
+   Page-size select — themed dropdown used in admin
+   tables, chat sidebar, and message pane
+   ================================================ */
+
+.page-size-select {
+    padding: 0.25rem 1.75rem 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-light-normal);
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 12px 9px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.2rem;
+    appearance: none;
+    cursor: pointer;
+}
+
+.page-size-select:focus {
+    outline: none;
+    border-color: var(--text-accent);
+    box-shadow: 0 0 0 0.15rem color-mix(in srgb, var(--text-accent) 25%, transparent);
+}
+
+.page-size-select option {
+    background-color: var(--bg-table-header);
+    color: var(--text-light-normal);
+}
+
+/* ================================================
+   LoadingSpinner component — compass-themed
+   ================================================ */
+.compass-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fills the nearest positioned ancestor with a soft blur overlay */
+.compass-spinner--overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(var(--bg-primary-rgb), 0.78);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 100;
+}
+
+.compass-spinner__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.compass-spinner__svg {
+    overflow: visible;
+}
+
+/* Size variants */
+.compass-spinner--small  .compass-spinner__svg { width: 48px;  height: 48px; }
+.compass-spinner--medium .compass-spinner__svg { width: 80px;  height: 80px; }
+.compass-spinner--large  .compass-spinner__svg { width: 120px; height: 120px; }
+
+/* SVG element classes */
+.compass-spinner__ring-outer {
+    fill: none;
+    stroke: rgba(172, 173, 190, 0.22);
+    stroke-width: 1.5;
+}
+
+.compass-spinner__tick-cardinal {
+    stroke: rgba(206, 200, 240, 0.65);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.compass-spinner__tick-minor {
+    stroke: rgba(206, 200, 240, 0.25);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.compass-spinner__cardinal-n {
+    fill: rgba(206, 200, 240, 0.65);
+    font-size: 9px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+/* Hide "N" label on the smallest size — too tiny to read */
+.compass-spinner--small .compass-spinner__cardinal-n {
+    display: none;
+}
+
+.compass-spinner__arc-track {
+    fill: none;
+    stroke: rgba(196, 124, 180, 0.14);
+    stroke-width: 3;
+}
+
+/* Main arc — spins continuously */
+.compass-spinner__arc {
+    fill: none;
+    stroke: #C47CB4;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 88 207;
+    transform-origin: 60px 60px;
+    animation: compass-arc-spin 1.8s linear infinite;
+    filter: drop-shadow(0 0 5px rgba(196, 124, 180, 0.6));
+    will-change: transform;
+}
+
+/* Ghost trail arc — offset behind the main arc for a comet effect */
+.compass-spinner__arc-trail {
+    fill: none;
+    stroke: rgba(196, 124, 180, 0.22);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 26 269;
+    transform-origin: 60px 60px;
+    animation: compass-arc-spin 1.8s linear infinite;
+    animation-delay: -0.35s;
+    will-change: transform;
+}
+
+.compass-spinner__ring-inner {
+    fill: none;
+    stroke: rgba(172, 173, 190, 0.12);
+    stroke-width: 0.8;
+}
+
+/* Needle — seeks north like a real compass */
+.compass-spinner__needle-group {
+    transform-origin: 60px 60px;
+    animation: compass-needle-seek 4s linear infinite;
+    will-change: transform;
+}
+
+.compass-spinner__needle-north { fill: #C47CB4; }
+.compass-spinner__needle-south { fill: rgba(206, 200, 240, 0.45); }
+
+.compass-spinner__center       { fill: #C47CB4; }
+.compass-spinner__center-inner { fill: var(--bg-primary); }
+
+.compass-spinner__label {
+    color: var(--text-light-muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* No label on small spinners */
+.compass-spinner--small .compass-spinner__label {
+    display: none;
+}
+
+/* ================================================
+   Admin pagination toolbar — used in AdminPaginationToolbar
+   component and inline on Billing page
+   ================================================ */
+
+.pagination-toolbar-admin {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+    .pagination-toolbar-admin {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination-controls {
+        justify-content: space-between;
+    }
+}

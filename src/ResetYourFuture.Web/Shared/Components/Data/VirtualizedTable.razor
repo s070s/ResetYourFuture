@@ -1,0 +1,24 @@
+@* Wraps the sticky-header scrollable div + Virtualize pattern for tables. *@
+@typeparam TItem
+
+<div class="table-responsive" style="max-height:@MaxHeight; overflow-y:auto">
+    <table class="@TableCssClass">
+        <thead style="position:sticky; top:0; z-index:1">
+            @HeaderRow
+        </thead>
+        <tbody>
+            @foreach (var item in Items)
+            {
+                @RowTemplate(item)
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IList<TItem> Items { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment HeaderRow { get; set; } = default!;
+    [Parameter, EditorRequired] public RenderFragment<TItem> RowTemplate { get; set; } = default!;
+    [Parameter] public string MaxHeight { get; set; } = "60vh";
+    [Parameter] public string TableCssClass { get; set; } = "table table-striped";
+}

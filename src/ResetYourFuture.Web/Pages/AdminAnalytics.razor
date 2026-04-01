@@ -1,0 +1,124 @@
+@page "/admin/analytics"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@AdminRes.PageTitle</PageTitle>
+
+<h2>@AdminRes.PageTitle</h2>
+
+@if (stats == null)
+{
+    <p>@AdminRes.Loading</p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.TotalUsers</h3>
+                    <p>@AdminRes.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.ActiveUsers</h3>
+                    <p>@AdminRes.ActiveUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.TotalEnrollments</h3>
+                    <p>@AdminRes.TotalEnrollments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h3>@stats.CompletedCourses</h3>
+                    <p>@AdminRes.CompletedCourses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>@AdminRes.CourseEnrollmentStats</h5>
+                </div>
+                <div class="card-body">
+                    @if (stats.CourseStats != null && stats.CourseStats.Any())
+                    {
+                        <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>@AdminRes.ColCourse</th>
+                                    <th>@AdminRes.ColEnrollments</th>
+                                    <th>@AdminRes.ColCompletions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var courseStat in stats.CourseStats)
+                                {
+                                    <tr @key="courseStat.CourseTitle">
+                                        <td data-label="@AdminRes.ColCourse">@courseStat.CourseTitle</td>
+                                        <td data-label="@AdminRes.ColEnrollments">@courseStat.EnrollmentCount</td>
+                                        <td data-label="@AdminRes.ColCompletions">@courseStat.CompletionCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>@AdminRes.NoCourseData</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>@AdminRes.AssessmentStats</h5>
+                </div>
+                <div class="card-body">
+                    @if (stats.AssessmentStats != null && stats.AssessmentStats.Any())
+                    {
+                        <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>@AdminRes.ColAssessment</th>
+                                    <th>@AdminRes.ColSubmissions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var assessmentStat in stats.AssessmentStats)
+                                {
+                                    <tr @key="assessmentStat.AssessmentTitle">
+                                        <td data-label="@AdminRes.ColAssessment">@assessmentStat.AssessmentTitle</td>
+                                        <td data-label="@AdminRes.ColSubmissions">@assessmentStat.SubmissionCount</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>@AdminRes.NoAssessmentData</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

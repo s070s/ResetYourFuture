@@ -1,0 +1,200 @@
+/* ================================================
+   Blog Article Page
+   ================================================ */
+
+.blog-article {
+    max-width: 780px;
+    padding: 3rem 1rem 5rem;
+}
+
+/* Cover image */
+.blog-article-cover {
+    width: 100%;
+    max-height: 420px;
+    overflow: hidden;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+}
+
+.blog-article-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Header */
+.blog-article-header {
+    margin-bottom: 2.5rem;
+}
+
+.blog-article-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+
+.blog-article-meta {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light-muted);
+    margin-bottom: 1rem;
+}
+
+.blog-article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.blog-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
+    background: rgba(var(--text-strong-accent-rgb), 0.15);
+    color: var(--text-strong-accent);
+    border: 1px solid rgba(var(--text-strong-accent-rgb), 0.25);
+}
+
+/* Article body */
+.blog-article-content {
+    color: var(--text-light-normal);
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 2rem;
+}
+
+.blog-article-content h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    margin: 2rem 0 0.75rem;
+}
+
+.blog-article-content h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-accent);
+    margin: 1.5rem 0 0.5rem;
+}
+
+.blog-article-content p {
+    margin-bottom: 1.25rem;
+}
+
+.blog-article-content ul,
+.blog-article-content ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.blog-article-content li {
+    margin-bottom: 0.5rem;
+}
+
+.blog-article-content a {
+    color: var(--text-strong-accent);
+    text-decoration: underline;
+}
+
+.blog-article-content a:hover {
+    color: var(--text-accent);
+}
+
+.blog-article-content blockquote {
+    border-left: 3px solid var(--text-strong-accent);
+    padding-left: 1.25rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: var(--text-accent);
+}
+
+/* Footer */
+.blog-article-footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.blog-article-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-strong-accent);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(var(--text-strong-accent-rgb), 0.3);
+    border-radius: 0.5rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.blog-article-footer a:hover {
+    background: rgba(var(--text-strong-accent-rgb), 0.1);
+    color: var(--text-accent);
+}
+
+/* Skeleton loader */
+.blog-article-skeleton {
+    padding: 2rem 0;
+}
+
+.skeleton-title {
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg,
+        var(--bg-surface) 25%,
+        rgba(var(--text-accent-rgb), 0.05) 50%,
+        var(--bg-surface) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    margin-bottom: 1rem;
+    max-width: 600px;
+}
+
+.skeleton-meta {
+    height: 1rem;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg,
+        var(--bg-surface) 25%,
+        rgba(var(--text-accent-rgb), 0.05) 50%,
+        var(--bg-surface) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    margin-bottom: 2rem;
+    max-width: 300px;
+}
+
+.skeleton-body {
+    height: 400px;
+    border-radius: 0.5rem;
+    background: linear-gradient(90deg,
+        var(--bg-surface) 25%,
+        rgba(var(--text-accent-rgb), 0.05) 50%,
+        var(--bg-surface) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .blog-article-title {
+        font-size: 1.5rem;
+    }
+
+    .blog-article-content {
+        font-size: 1rem;
+    }
+}

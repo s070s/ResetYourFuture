@@ -1,0 +1,72 @@
+@* Lesson create/edit modal for admin course editing. *@
+
+<FormModal IsVisible="IsVisible"
+           Title="@(EditingLesson == null ? AdminRes.AddLesson : AdminRes.EditLesson)"
+           Size="modal-xl"
+           OnClose="OnClose">
+    <Body>
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger py-2">@_errorMessage</div>
+        }
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                <input class="form-control" @bind="_titleEn" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                <input class="form-control" @bind="_titleEl" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.SortOrder</label>
+                <input type="number" class="form-control" @bind="_sortOrder" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">@AdminRes.DurationMinutes</label>
+                <input type="number" class="form-control" @bind="_duration" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldContent (EN)</label>
+            <QuillEditor @ref="_contentEditorEn" Content="@_contentEn" MinHeight="300px" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.FieldContent (EL)</label>
+            <QuillEditor @ref="_contentEditorEl" Content="@_contentEl" MinHeight="300px" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.VideoUrlLabel</label>
+            <input class="form-control" @bind="_videoUrl" placeholder="https://www.youtube.com/embed/..." />
+            <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.UploadPdf</label>
+                <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
+                @if (!string.IsNullOrEmpty(_existingPdfPath))
+                {
+                    <small class="text-success">@AdminRes.Current @_existingPdfPath</small>
+                }
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">@AdminRes.UploadVideo</label>
+                <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
+                @if (!string.IsNullOrEmpty(_existingVideoPath))
+                {
+                    <small class="text-success">@AdminRes.Current @_existingVideoPath</small>
+                }
+            </div>
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-primary" @onclick="SaveAsync" disabled="@_isSaving">
+            @(_isSaving ? AdminRes.Saving : AdminRes.SaveLesson)
+        </button>
+        <button class="btn btn-secondary" @onclick="OnClose">@AdminRes.Cancel</button>
+    </Footer>
+</FormModal>

@@ -1,0 +1,90 @@
+@page "/assessments/mine"
+@attribute [Authorize(Roles = "Student")]
+
+<h3>@AssessmentRes.HistoryTitle</h3>
+
+@if (submissions == null)
+{
+    <p>@AssessmentRes.Loading</p>
+}
+else if (submissions.Count == 0)
+{
+    <div class="alert alert-info">
+        <p>@AssessmentRes.NoSubmissionsMessage</p>
+        <a href="/assessments" class="btn btn-primary">@AssessmentRes.TakeAssessment</a>
+    </div>
+}
+else
+{
+    @if (latestSubmission != null)
+    {
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5>@AssessmentRes.LatestSubmission</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="card-title">@latestSubmission.AssessmentTitle</h6>
+                <p class="text-light-muted">@AssessmentRes.SubmittedLabel @latestSubmission.SubmittedAt.ToLocalTime().ToString( "MMM dd, yyyy h:mm tt" )</p>
+                <button class="btn btn-primary" @onclick="() => ViewSubmission(latestSubmission.Id)">@AssessmentRes.ViewDetails</button>
+            </div>
+        </div>
+    }
+
+    <h4>@AssessmentRes.AllSubmissions</h4>
+    <VirtualizedTable Items="_sortedSubmissions" TItem="AssessmentSubmissionDto">
+        <HeaderRow>
+            <tr>
+                <th>@AssessmentRes.AssessmentHeader</th>
+                <th>@AssessmentRes.SubmittedHeader</th>
+                <th>@AssessmentRes.Actions</th>
+            </tr>
+        </HeaderRow>
+        <RowTemplate Context="submission">
+            <tr @key="submission.Id">
+                <td data-label="@AssessmentRes.AssessmentHeader">@submission.AssessmentTitle</td>
+                <td data-label="@AssessmentRes.SubmittedHeader">@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
+                <td data-label="@AssessmentRes.Actions">
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
+                </td>
+            </tr>
+        </RowTemplate>
+    </VirtualizedTable>
+}
+
+<FormModal IsVisible="@(selectedSubmission != null)"
+           Title="@(selectedSubmission?.AssessmentTitle ?? "")"
+           Size="modal-lg"
+           OnClose="CloseModal">
+    <Body>
+        @if (selectedSubmission != null)
+        {
+            <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+            <h6>@AssessmentRes.YourAnswers</h6>
+            var parsed = ParseAnswers(selectedSubmission.AnswersJson);
+            @if (parsed.Count > 0)
+            {
+                <dl class="row mb-0">
+                    @foreach (var kv in parsed)
+                    {
+                        <dt class="col-sm-5 text-truncate">@ResolveLabel(selectedSubmission.AssessmentDefinitionId, kv.Key)</dt>
+                        <dd class="col-sm-7">@(string.IsNullOrEmpty(kv.Value) ? "—" : kv.Value)</dd>
+                    }
+                </dl>
+            }
+            else
+            {
+                <pre class="mb-0">@selectedSubmission.AnswersJson</pre>
+            }
+            @if (!string.IsNullOrEmpty(selectedSubmission.SummaryJson))
+            {
+                <hr />
+                <h6>@AssessmentRes.SummaryLabel</h6>
+                <pre class="mb-0">@selectedSubmission.SummaryJson</pre>
+            }
+        }
+    </Body>
+    <Footer>
+        <button type="button" class="btn btn-secondary" @onclick="CloseModal">@AssessmentRes.Close</button>
+    </Footer>
+</FormModal>
+

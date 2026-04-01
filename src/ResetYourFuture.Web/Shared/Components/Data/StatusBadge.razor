@@ -1,0 +1,19 @@
+@* Renders a Bootstrap badge toggled by a boolean state. *@
+
+@if (IsActive)
+{
+    <span class="badge @ActiveClass">@ActiveText</span>
+}
+else
+{
+    <span class="badge @InactiveClass">@InactiveText</span>
+}
+
+@code {
+    [Parameter, EditorRequired] public bool IsActive { get; set; }
+
+    [Parameter] public string ActiveText { get; set; } = "Published";
+    [Parameter] public string InactiveText { get; set; } = "Draft";
+    [Parameter] public string ActiveClass { get; set; } = "bg-success";
+    [Parameter] public string InactiveClass { get; set; } = "bg-secondary";
+}

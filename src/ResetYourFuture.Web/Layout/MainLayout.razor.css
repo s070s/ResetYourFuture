@@ -1,0 +1,111 @@
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.impersonation-banner {
+    background-color: var(--color-attention);
+    color: var(--bg-primary);
+    font-size: 0.9rem;
+    border-bottom: 2px solid var(--color-attention-border);
+    z-index: 1000;
+}
+
+main {
+    flex: 1;
+}
+
+main.content {
+    padding: 1.1rem 1.5rem 2rem;
+    min-height: calc(100vh - 3.5rem);
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+}
+
+@media (max-width: 767.98px) {
+    main.content {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
+
+.sidebar {
+    background: linear-gradient(
+        180deg,
+        var(--bg-primary) 0%,
+        var(--bg-surface) 70%
+    );
+}
+
+.top-row {
+    background-color: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
+
+    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .top-row ::deep a:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+@media (max-width: 640.98px) {
+    .top-row {
+        justify-content: space-between;
+    }
+
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row.auth ::deep a:first-child {
+        flex: 1;
+        text-align: right;
+        width: 0;
+    }
+
+    .top-row, article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}

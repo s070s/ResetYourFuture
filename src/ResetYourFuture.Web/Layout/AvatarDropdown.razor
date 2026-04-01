@@ -1,0 +1,40 @@
+@implements IDisposable
+
+<AuthorizeView>
+    <Authorized>
+        <div class="avatar-dropdown" @onfocusout="HandleFocusOut" tabindex="-1">
+            <button class="avatar-button" @onclick="ToggleDropdown" @onclick:stopPropagation="true" title="@NavMenuRes.UserMenuTitle">
+                @if (!string.IsNullOrEmpty(avatarDataUrl))
+                {
+                    <img src="@avatarDataUrl" alt="@NavMenuRes.AvatarAlt" class="avatar-img" />
+                }
+                else
+                {
+                    <span class="bi bi-person-circle avatar-icon"></span>
+                }
+            </button>
+
+            @if (isOpen)
+            {
+                <div class="dropdown-menu-custom">
+                    <a class="dropdown-item-custom" href="profile" @onclick="Close">
+                        <span class="bi bi-person" aria-hidden="true"></span> @NavMenuRes.UserProfile
+                    </a>
+                    @if (_isImpersonating)
+                    {
+                        <span class="dropdown-item-custom text-muted" style="cursor:default;">
+                            <span class="bi bi-slash-circle" aria-hidden="true"></span> @NavMenuRes.ImpersonatingHint
+                        </span>
+                    }
+                    else
+                    {
+                        <button class="dropdown-item-custom" @onclick="HandleLogout">
+                            <span class="bi bi-box-arrow-right" aria-hidden="true"></span> @NavMenuRes.LogOut
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>
+

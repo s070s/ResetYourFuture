@@ -1,0 +1,112 @@
+﻿<nav class="navbar navbar-expand-md navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Reset Your Future</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+            <ul class="navbar-nav">
+
+                <AuthorizeView>
+                        <NotAuthorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                                <span class="bi bi-house" aria-hidden="true"></span> @NavMenuRes.Home
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="login">
+                                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> @NavMenuRes.Login
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="register">
+                                <span class="bi bi-person-add" aria-hidden="true"></span> @NavMenuRes.Register
+                            </NavLink>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Student">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="courses">
+                            <span class="bi bi-book" aria-hidden="true"></span> @NavMenuRes.Courses
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="assessments">
+                            <span class="bi bi-list-check" aria-hidden="true"></span> @NavMenuRes.Assessments
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="pricing">
+                            <span class="bi bi-credit-card" aria-hidden="true"></span> @NavMenuRes.Pricing
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="billing">
+                            <span class="bi bi-receipt" aria-hidden="true"></span> @NavMenuRes.Billing
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="chat">
+                            <span class="bi bi-chat-dots" aria-hidden="true"></span> @NavMenuRes.Chat
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="my-certificates">
+                            <span class="bi bi-award" aria-hidden="true"></span> @NavMenuRes.Certificates
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Admin">
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/users">
+                            <span class="bi bi-people" aria-hidden="true"></span> @NavMenuRes.Users
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/courses">
+                            <span class="bi bi-book" aria-hidden="true"></span> @NavMenuRes.Courses
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/assessments">
+                            <span class="bi bi-list-check" aria-hidden="true"></span> @NavMenuRes.Assessments
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/analytics">
+                            <span class="bi bi-bar-chart" aria-hidden="true"></span> @NavMenuRes.Analytics
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/blog">
+                            <span class="bi bi-newspaper" aria-hidden="true"></span> @NavMenuRes.Blog
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="admin/testimonials">
+                            <span class="bi bi-chat-quote" aria-hidden="true"></span> @NavMenuRes.Testimonials
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="chat">
+                            <span class="bi bi-chat-dots" aria-hidden="true"></span> @NavMenuRes.Chat
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
+            </ul>
+        </div>
+
+        @if (TrailingContent != null)
+        {
+            <div class="d-flex align-items-center gap-2 ms-auto trailing-content">
+                @TrailingContent
+            </div>
+        }
+    </div>
+</nav>
+

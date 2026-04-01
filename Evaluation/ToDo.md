@@ -70,7 +70,5 @@
 
 - AI Features using SLM like Ollama for personalized course recommendations, automated content tagging, and intelligent search capabilities — as few dependencies as possible in the .NET ecosystem
 
-- Change to Blazor SSR for better SEO and performance
-
 - Mobile App using .NET only (MAUI) for iOS and Android with all features of the web platform, optimized for mobile user experience
 

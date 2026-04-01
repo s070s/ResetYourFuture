@@ -1,0 +1,124 @@
+@page "/admin/blog/new"
+@page "/admin/blog/{Id:guid}"
+@attribute [Authorize(Roles = "Admin")]
+@using ResetYourFuture.Web.Shared
+
+<PageTitle>@(_isEditMode ? "Edit Article" : "New Article")</PageTitle>
+
+<div class="admin-container">
+    <h2>@(_isEditMode ? "Edit Article" : "New Article")</h2>
+
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="row g-4">
+        <!-- Left column: English content -->
+        <div class="col-md-6">
+            <h5 class="text-light-muted mb-3">🇬🇧 English (required)</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" value="@_titleEn"
+                       @oninput="OnTitleEnInput" placeholder="Article title" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Summary <span class="text-danger">*</span></label>
+                <textarea class="form-control" rows="3" maxlength="500"
+                          @bind="_summaryEn" placeholder="Short description shown on the landing page card"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Content <span class="text-danger">*</span></label>
+                <QuillEditor @ref="_editorEn" Content="@_contentEn" MinHeight="400px" />
+            </div>
+        </div>
+
+        <!-- Right column: Greek content -->
+        <div class="col-md-6">
+            <h5 class="text-light-muted mb-3">🇬🇷 Greek (optional — falls back to English)</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Τίτλος</label>
+                <input type="text" class="form-control" @bind="_titleEl" placeholder="Τίτλος άρθρου" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Σύνοψη</label>
+                <textarea class="form-control" rows="3" maxlength="500"
+                          @bind="_summaryEl" placeholder="Σύντομη περιγραφή για την κάρτα στην αρχική σελίδα"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Περιεχόμενο</label>
+                <QuillEditor @ref="_editorEl" Content="@_contentEl" MinHeight="400px" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared fields -->
+    <hr class="my-4" />
+    <h5 class="text-light-muted mb-3">Shared fields</h5>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Slug <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" value="@_slug"
+                   @oninput="OnSlugInput" placeholder="url-friendly-slug" />
+            <div class="form-text">Auto-generated from EN title. Must be unique.</div>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Author Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" @bind="_authorName" placeholder="e.g. Reset Your Future Team" />
+        </div>
+
+        <div class="col-md-8">
+            <label class="form-label">Cover Image</label>
+            @if (!string.IsNullOrEmpty(_coverImageUrl))
+            {
+                <div class="mb-2">
+                    <img src="@_coverImageUrl" alt="Cover preview" class="cover-preview" />
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @onclick="RemoveCover">Remove</button>
+                </div>
+            }
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <InputFile OnChange="OnCoverFileSelected" accept="image/*" class="form-control" style="max-width:280px;" />
+                @if (!_isEditMode)
+                {
+                    <small class="form-text">Image will be uploaded after saving the article.</small>
+                }
+            </div>
+            <div class="mt-2">
+                <input type="text" class="form-control form-control-sm" @bind="_coverImageUrl" placeholder="Or paste an image URL" />
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Tags</label>
+            <input type="text" class="form-control" @bind="_tagsInput"
+                   placeholder="Career, Mindset, Job Search" />
+            <div class="form-text">Comma-separated</div>
+        </div>
+
+        <div class="col-12">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="isPublished" @bind="_isPublished" />
+                <label class="form-check-label" for="isPublished">Published</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" @onclick="Save" disabled="@_isBusy">
+            @if (_isBusy)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            Save
+        </button>
+        <button class="btn btn-secondary" @onclick="Cancel" disabled="@_isBusy">@AdminRes.Cancel</button>
+    </div>
+</div>

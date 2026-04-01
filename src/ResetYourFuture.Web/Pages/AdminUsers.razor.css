@@ -1,0 +1,32 @@
+﻿body {
+}
+
+/* Admin page specific styles */
+
+.table {
+    color: var(--text-light-normal);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--bg-table-odd);
+    color: var(--text-light-normal);
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: var(--bg-table-even);
+}
+
+.table > thead {
+    background-color: var(--bg-table-header);
+    color: var(--text-accent);
+}
+
+.table > thead > tr > th {
+    border-bottom-color: var(--border-subtle);
+}
+
+.table > tbody > tr > td {
+    border-bottom-color: var(--border-subtle);
+}
+
+/* .page-size-select is in shared-components.css */

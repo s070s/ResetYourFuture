@@ -1,0 +1,172 @@
+@page "/admin/assessments/new"
+@page "/admin/assessments/{AssessmentId:guid}/edit"
+@using ResetYourFuture.Web.Shared
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(IsNew ? AdminRes.CreateAssessment : AdminRes.EditAssessment)</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@(IsNew ? AdminRes.CreateAssessment : AdminRes.EditAssessment)</h2>
+    <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToAssessments</button>
+</div>
+
+@if (!IsNew && loading)
+{
+    <p>@AdminRes.Loading</p>
+}
+else
+{
+    <FormCardSection Title="@AdminRes.AssessmentDetails">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@AdminRes.FieldKey <small class="text-light-muted">(@AdminRes.FieldKeyHint)</small></label>
+                    <input class="form-control" @bind="assessmentKey" placeholder="my_assessment_v1" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@AdminRes.FieldTitle (EN)</label>
+                    <input class="form-control" @bind="assessmentTitleEn" />
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">@AdminRes.FieldTitle (EL)</label>
+                    <input class="form-control" @bind="assessmentTitleEl" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">@AdminRes.FieldDescription (EN)</label>
+                <QuillEditor @ref="descriptionEditorEn" Content="@assessmentDescriptionEn" MinHeight="120px" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">@AdminRes.FieldDescription (EL)</label>
+                <QuillEditor @ref="descriptionEditorEl" Content="@assessmentDescriptionEl" MinHeight="120px" />
+            </div>
+        </ChildContent>
+    </FormCardSection>
+
+    <FormCardSection Title="@AdminRes.Questions">
+        <HeaderActions>
+            <button class="btn btn-sm btn-success" @onclick="AddQuestion">@AdminRes.AddQuestion</button>
+        </HeaderActions>
+        <ChildContent>
+            @if (questions.Count == 0)
+            {
+                <p class="text-light-muted">@AdminRes.NoQuestions</p>
+            }
+            else
+            {
+                @for (var i = 0; i < questions.Count; i++)
+                {
+                    var q = questions[i];
+                    var index = i;
+                    var isExpanded = _expandedQuestions.Contains(q.TempId);
+                    var labelPreview = string.IsNullOrWhiteSpace(q.LabelEn)
+                        ? "(no label)"
+                        : (q.LabelEn.Length > 60 ? q.LabelEn[..60] + "…" : q.LabelEn);
+
+                    <div class="card mb-3 border-start border-primary border-3" @key="q.TempId">
+                        <div class="card-header d-flex justify-content-between align-items-center collapsible-header"
+                             role="button"
+                             aria-expanded="@isExpanded.ToString().ToLowerInvariant()"
+                             @onclick="() => ToggleQuestion(q.TempId)">
+                            <div class="d-flex flex-column">
+                                <strong>@string.Format(AdminRes.QuestionNumber, index + 1)</strong>
+                                <small class="text-light-muted">@labelPreview</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-2" @onclick:stopPropagation="true">
+                                @if (index > 0)
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, -1)" title="@AdminRes.MoveUp">↑</button>
+                                }
+                                @if (index < questions.Count - 1)
+                                {
+                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => MoveQuestion(index, 1)" title="@AdminRes.MoveDown">↓</button>
+                                }
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RemoveQuestion(index)" title="@AdminRes.Remove">✕</button>
+                                <i class="bi bi-chevron-down chevron-icon @(isExpanded ? "expanded" : "")"></i>
+                            </div>
+                        </div>
+                        <div class="collapsible-body-wrapper @(isExpanded ? "expanded" : "collapsed")">
+                            <div class="collapsible-body-inner">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <label class="form-label">@AdminRes.QuestionId</label>
+                                            <input class="form-control form-control-sm" @bind="q.Id" placeholder="q1" />
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">@AdminRes.FieldType</label>
+                                            <select class="form-select form-select-sm" @bind="q.Type">
+                                                <option value="text">@AdminRes.TypeText</option>
+                                                <option value="rating">@AdminRes.TypeRating</option>
+                                                <option value="choice">@AdminRes.TypeChoice</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-2">
+                                            <label class="form-label">@AdminRes.FieldRequired</label>
+                                            <select class="form-select form-select-sm" @bind="q.Required">
+                                                <option value="true">@AdminRes.Yes</option>
+                                                <option value="false">@AdminRes.No</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-md-6">
+                                            <label class="form-label">@AdminRes.QuestionLabel (EN)</label>
+                                            <input class="form-control form-control-sm" @bind="q.LabelEn" placeholder="@AdminRes.QuestionLabelPlaceholder" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">@AdminRes.QuestionLabel (EL)</label>
+                                            <input class="form-control form-control-sm" @bind="q.LabelEl" />
+                                        </div>
+                                    </div>
+
+                                    @if (q.Type == "rating")
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label">@AdminRes.FieldMin</label>
+                                                <input type="number" class="form-control form-control-sm" @bind="q.Min" />
+                                            </div>
+                                            <div class="col-md-6 mb-2">
+                                                <label class="form-label">@AdminRes.FieldMax</label>
+                                                <input type="number" class="form-control form-control-sm" @bind="q.Max" />
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (q.Type == "choice")
+                                    {
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <label class="form-label">@AdminRes.FieldOptions (EN) <small class="text-light-muted">(@AdminRes.FieldOptionsHint)</small></label>
+                                                <textarea class="form-control form-control-sm" rows="4"
+                                                          @bind="q.OptionsTextEn"
+                                                          placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">@AdminRes.FieldOptions (EL) <small class="text-light-muted">(@AdminRes.FieldOptionsHint)</small></label>
+                                                <textarea class="form-control form-control-sm" rows="4"
+                                                          @bind="q.OptionsTextEl"
+                                                          placeholder="Επιλογή 1&#10;Επιλογή 2&#10;Επιλογή 3"></textarea>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </ChildContent>
+    </FormCardSection>
+    <SaveCancelBar SaveLabel="@AdminRes.SaveAssessment"
+                    SavingLabel="@AdminRes.Saving"
+                    IsSaving="isSaving"
+                    OnSave="SaveAssessment"
+                    CancelLabel="@AdminRes.Cancel"
+                    OnCancel="GoBack" />
+}
+
+<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
+

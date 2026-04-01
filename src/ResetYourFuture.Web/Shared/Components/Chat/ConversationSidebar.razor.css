@@ -1,0 +1,115 @@
+/* --- Sidebar --- */
+.chat-sidebar {
+    width: 280px;
+    min-width: 240px;
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+    .sidebar-header h5 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+.conversation-list {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.conversation-item {
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-subtle);
+    position: relative;
+    transition: background-color 0.15s;
+}
+
+    .conversation-item:hover {
+        background-color: var(--bg-table-header-hover);
+    }
+
+    .conversation-item.active {
+        background-color: var(--bg-table-row-hover);
+    }
+
+.convo-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.convo-role {
+    font-weight: 400;
+    font-size: 0.7rem;
+    color: var(--text-light-muted);
+    margin-left: 0.25rem;
+}
+
+.convo-preview {
+    font-size: 0.78rem;
+    color: var(--text-light-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.conversation-item .badge {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
+    font-size: 0.65rem;
+}
+
+.convo-delete-btn {
+    position: absolute;
+    bottom: 0.35rem;
+    right: 0.5rem;
+    padding: 0.15rem 0.35rem;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    color: var(--text-light-muted);
+    background: transparent;
+    border: none;
+    line-height: 1;
+}
+
+.conversation-item:hover .convo-delete-btn {
+    opacity: 1;
+}
+
+.convo-delete-btn:hover {
+    color: var(--bs-danger, #dc3545);
+}
+
+/* --- Sidebar Pagination --- */
+.sidebar-pagination {
+    border-top: 1px solid var(--border-subtle);
+    background-color: var(--bg-surface);
+    font-size: 0.78rem;
+    flex-shrink: 0;
+}
+
+/* --- Responsive --- */
+@media (max-width: 767.98px) {
+    .chat-sidebar {
+        width: 100%;
+        min-width: unset;
+        max-height: 38vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        overflow: hidden;
+    }
+}

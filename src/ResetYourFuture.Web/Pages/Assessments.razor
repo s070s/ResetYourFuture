@@ -1,0 +1,72 @@
+@page "/assessments"
+@attribute [Authorize(Roles = "Student")]
+@using ResetYourFuture.Shared.Resources
+
+<PageTitle>@AssessmentRes.AssessmentsPageTitle</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">@AssessmentRes.AvailableAssessments</h3>
+    <a href="/assessments/mine" class="btn btn-outline-primary">📋 @AssessmentRes.ViewSubmissions</a>
+</div>
+
+@if (_loading)
+{
+    <p>@AssessmentRes.LoadingAssessments</p>
+}
+else if (!_assessmentAccess)
+{
+    <UpgradePrompt PlanName="Plus"
+                   FeatureName="Assessments"
+                   Description="Assessments are available on the Plus plan and above. Upgrade to unlock all assessments." />
+}
+else if (_error is not null)
+{
+    <p class="text-danger">@_error</p>
+}
+else if (_pagedResult is null || _pagedResult.TotalCount == 0)
+{
+    <p>@AssessmentRes.NoAssessmentsAvailable</p>
+}
+else
+{
+    <div class="pagination-toolbar">
+        <span class="pagination-info">
+            @string.Format(AssessmentRes.TotalAssessmentsFormat, _pagedResult.TotalCount)
+        </span>
+        <div class="page-size-selector">
+            <label for="assessmentPageSizeSelect">@AssessmentRes.PerPage</label>
+            <select id="assessmentPageSizeSelect" class="form-select form-select-sm"
+                    value="@_pageSize"
+                    @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
+                @foreach (var size in PageSizeOptions)
+                {
+                    <option value="@size" selected="@(_pageSize == size)">@size</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var assessment in _pagedResult.Items)
+        {
+            <div class="col-md-6 mb-3" @key="assessment.Id">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@assessment.Title</h5>
+                        <div class="card-text">@((MarkupString)(assessment.Description ?? ""))</div>
+                        <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">Start</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <PaginationNav CurrentPage="_page"
+                    TotalPages="_pagedResult.TotalPages"
+                    HasPreviousPage="_pagedResult.HasPreviousPage"
+                    HasNextPage="_pagedResult.HasNextPage"
+                    PreviousLabel="@AssessmentRes.Previous"
+                    NextLabel="@AssessmentRes.Next"
+                    AriaLabel="Assessment pages"
+                    OnPageChanged="GoToPage" />
+}

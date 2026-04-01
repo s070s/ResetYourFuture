@@ -1,0 +1,426 @@
+@page "/"
+
+<PageTitle>@HomeRes.PageTitle</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="authenticated-home">
+            <h1>@string.Format(HomeRes.WelcomeUser, context.User.Identity?.Name)</h1>
+            <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <!-- Hero Section -->
+        <section class="hero-section" style="@heroBackgroundStyle">
+            <div class="hero-bg-overlay"></div>
+            
+            <div class="container hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        @HomeRes.HeroTitleLine1<br>
+                        <span class="text-gradient">@HomeRes.HeroTitleLine2</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        @HomeRes.HeroSubtitle
+                    </p>
+                    <div class="hero-cta">
+                        <button class="btn-cta" @onclick="NavigateToRegister">
+                            @HomeRes.HeroCtaButton
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scroll-indicator">
+                <div class="scroll-mouse">
+                    <div class="scroll-dot"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problem Section -->
+        <section class="section section-problem">
+            <div class="container">
+                <div class="section-content">
+                    <h2 class="section-title">
+                        @HomeRes.ProblemTitle <span class="text-gradient">@HomeRes.ProblemTitleHighlight</span>
+                    </h2>
+                    
+                    <div class="problem-grid">
+                        <div class="problem-card">
+                            <div class="problem-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                                </svg>
+                            </div>
+                            <p>@HomeRes.ProblemCard1</p>
+                        </div>
+                        
+                        <div class="problem-card">
+                            <div class="problem-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                                </svg>
+                            </div>
+                            <p>@HomeRes.ProblemCard2</p>
+                        </div>
+                        
+                        <div class="problem-card">
+                            <div class="problem-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                                </svg>
+                            </div>
+                            <p>@HomeRes.ProblemCard3</p>
+                        </div>
+                        
+                        <div class="problem-card">
+                            <div class="problem-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" x2="12" y1="8" y2="12"></line>
+                                    <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                                </svg>
+                            </div>
+                            <p>@HomeRes.ProblemCard4</p>
+                        </div>
+                    </div>
+                    
+                    <p class="problem-conclusion">
+                        @HomeRes.ProblemConclusion <span class="text-gradient font-bold">@HomeRes.ProblemConclusionHighlight</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solution Section -->
+        <section class="section section-solution">
+            <div class="container">
+                <h2 class="section-title">
+                    @HomeRes.SolutionTitle <span class="text-gradient">@HomeRes.SolutionTitleHighlight</span>
+                </h2>
+                
+                <div class="solution-grid">
+                    <div class="solution-card">
+                        <div class="solution-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 7v14"></path>
+                                <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>
+                            </svg>
+                        </div>
+                        <h3>@HomeRes.SolutionCard1Title</h3>
+                        <p>@HomeRes.SolutionCard1Text</p>
+                    </div>
+                    
+                    <div class="solution-card">
+                        <div class="solution-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+                            </svg>
+                        </div>
+                        <h3>@HomeRes.SolutionCard2Title</h3>
+                        <p>@HomeRes.SolutionCard2Text</p>
+                    </div>
+                    
+                    <div class="solution-card">
+                        <div class="solution-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <h3>@HomeRes.SolutionCard3Title</h3>
+                        <p>@HomeRes.SolutionCard3Text</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Method Section -->
+        <section class="section section-method">
+            <div class="method-glow method-glow-1"></div>
+            <div class="method-glow method-glow-2"></div>
+            
+            <div class="container">
+                <h2 class="section-title">
+                    @HomeRes.MethodTitleFrom <span class="text-light-muted">@HomeRes.MethodTitleZeroState</span> @HomeRes.MethodTitleTo <span class="text-gradient">@HomeRes.MethodTitleHeroState</span>
+                </h2>
+                
+                <div class="method-grid">
+                    <div class="state-card zero-state">
+                        <div class="state-header">
+                            <span class="state-dot zero-dot"></span>
+                            <h3>@HomeRes.ZeroStateTitle</h3>
+                        </div>
+                        <ul class="state-list">
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState1</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState2</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState3</li>
+                            <li><span class="bullet zero-bullet"></span>@HomeRes.ZeroState4</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="arrow-container">
+                        <div class="arrow-line"></div>
+                        <div class="arrow-circle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </div>
+                        <div class="arrow-line"></div>
+                    </div>
+                    
+                    <div class="state-card hero-state">
+                        <div class="state-header">
+                            <span class="state-dot hero-dot"></span>
+                            <h3 class="text-gradient">@HomeRes.HeroStateTitle</h3>
+                        </div>
+                        <ul class="state-list">
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState1</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState2</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState3</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState4</li>
+                            <li><span class="bullet hero-bullet"></span>@HomeRes.HeroState5</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Story Section -->
+        <section class="section section-story">
+            <div class="container">
+                <h2 class="section-title">
+                    @HomeRes.StoryTitle <span class="text-gradient">@HomeRes.StoryTitleHighlight</span>
+                </h2>
+
+                <div class="story-card">
+                    <div class="quote-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                            <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                        </svg>
+                    </div>
+
+                    <blockquote>
+                        «@HomeRes.StoryQuote»
+                    </blockquote>
+
+                    <div class="author">
+                        <div class="author-avatar">
+                            <span class="text-gradient">@HomeRes.StoryAuthorInitials</span>
+                        </div>
+                        <div class="author-info">
+                            <p class="author-name">@HomeRes.StoryAuthorName</p>
+                            <p class="author-title">@HomeRes.StoryAuthorTitle</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        @if (_testimonialsLoading)
+        {
+            <section class="section section-story">
+                <div class="container">
+                    <h2 class="section-title">
+                        @HomeRes.TestimonialsTitle <span class="text-gradient">@HomeRes.TestimonialsTitleHighlight</span>
+                    </h2>
+                    <div class="story-card">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-10 mb-2" style="height:1.2rem;display:block;"></span>
+                            <span class="placeholder col-8 mb-2" style="height:1rem;display:block;"></span>
+                            <span class="placeholder col-4" style="height:1rem;display:block;"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        }
+        else if (_testimonials is { Count: > 0 })
+        {
+            <section class="section section-story">
+                <div class="container">
+                    <h2 class="section-title">
+                        @HomeRes.TestimonialsTitle <span class="text-gradient">@HomeRes.TestimonialsTitleHighlight</span>
+                    </h2>
+
+                    <div class="testimonials-grid">
+                        @foreach (var t in _testimonials)
+                        {
+                            <div class="story-card" @key="t.Id">
+                                <div class="quote-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                                        <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z"></path>
+                                    </svg>
+                                </div>
+
+                                <blockquote>«@t.QuoteText»</blockquote>
+
+                                <div class="author">
+                                    <div class="author-avatar">
+                                        @if (!string.IsNullOrEmpty(t.AvatarUrl))
+                                        {
+                                            <img src="@t.AvatarUrl" alt="@t.FullName"
+                                                 style="width:100%;height:100%;object-fit:cover;border-radius:50%;"
+                                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+                                            <span class="text-gradient" style="display:none;">@TestimonialInitials(t.FullName)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-gradient">@TestimonialInitials(t.FullName)</span>
+                                        }
+                                    </div>
+                                    <div class="author-info">
+                                        <p class="author-name">@t.FullName</p>
+                                        @if (!string.IsNullOrEmpty(t.RoleOrTitle) || !string.IsNullOrEmpty(t.CompanyOrContext))
+                                        {
+                                            <p class="author-title">
+                                                @t.RoleOrTitle
+                                                @if (!string.IsNullOrEmpty(t.RoleOrTitle) && !string.IsNullOrEmpty(t.CompanyOrContext))
+                                                {
+                                                    <span> · </span>
+                                                }
+                                                @t.CompanyOrContext
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- Blog Section -->
+        @if (_blogLoading)
+        {
+            <section class="section section-blog">
+                <div class="container">
+                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <div class="blog-grid">
+                        <div class="blog-card blog-card-skeleton"></div>
+                        <div class="blog-card blog-card-skeleton"></div>
+                        <div class="blog-card blog-card-skeleton"></div>
+                    </div>
+                </div>
+            </section>
+        }
+        else if (_blogSummaries is { Count: > 0 })
+        {
+            <section class="section section-blog">
+                <div class="container">
+                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <div class="blog-grid">
+                        @foreach (var article in _blogSummaries)
+                        {
+                            <div class="blog-card" @key="article.Id">
+                                @if (!string.IsNullOrWhiteSpace(article.CoverImageUrl))
+                                {
+                                    <div class="blog-card-cover">
+                                        <img src="@article.CoverImageUrl" alt="@article.Title" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="blog-card-cover blog-card-cover-placeholder"></div>
+                                }
+                                @if (article.Tags.Length > 0)
+                                {
+                                    <div class="blog-card-tags">
+                                        @foreach (var tag in article.Tags)
+                                        {
+                                            <span class="blog-tag">@tag</span>
+                                        }
+                                    </div>
+                                }
+                                <h3 class="blog-card-title">@article.Title</h3>
+                                <p class="blog-card-summary">@article.Summary</p>
+                                <div class="blog-card-meta">
+                                    <span>@article.AuthorName</span>
+                                    @if (article.PublishedAt.HasValue)
+                                    {
+                                        <span>@article.PublishedAt.Value.ToString("dd MMM yyyy")</span>
+                                    }
+                                </div>
+                                <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">Read More</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+        <!-- CTA Section -->
+        <section class="section section-cta">
+            <div class="cta-glow"></div>
+            
+            <div class="container">
+                <div class="cta-card">
+                    <h2 class="cta-title">
+                        @HomeRes.CtaTitle <span class="text-gradient">@HomeRes.CtaTitleHighlight</span>
+                    </h2>
+                    <p class="cta-text">
+                        @HomeRes.CtaText
+                    </p>
+                    <button class="btn-cta btn-cta-large" @onclick="NavigateToRegister">
+                        @HomeRes.CtaButton
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <span class="footer-logo">@HomeRes.FooterBrand</span>
+                    </div>
+                    <div class="footer-author">
+                        <p class="footer-name">@HomeRes.FooterAuthorName</p>
+                        <p class="footer-role">@HomeRes.FooterAuthorRole</p>
+                    </div>
+                    <div class="footer-social">
+                        <a href="@YoutubeUrl" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
+                                <path d="m10 15 5-3-5-3z"></path>
+                            </svg>
+                        </a>
+                        <a href="@InstagramUrl" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>@HomeRes.FooterCopyright</p>
+                </div>
+            </div>
+        </footer>
+    </NotAuthorized>
+</AuthorizeView>
+

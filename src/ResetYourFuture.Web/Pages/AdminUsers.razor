@@ -1,0 +1,136 @@
+@page "/admin/users"
+@attribute [Authorize(Roles = "Admin")]
+@using ResetYourFuture.Web.Shared.Components.Data
+
+<PageTitle>@AdminRes.UserManagement</PageTitle>
+
+<div class="admin-container">
+    <h2>@AdminRes.UserManagement</h2>
+
+    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="@AdminRes.SearchByEmailOrName"
+               value="@searchTerm" @oninput="OnSearchInput" />
+    </div>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            @if (pagedResult == null)
+            {
+                <p>@AdminRes.LoadingUsers</p>
+            }
+            else if (!pagedResult.Items.Any())
+            {
+                <p>@AdminRes.NoUsersFound</p>
+            }
+            else
+            {
+                <VirtualizedTable Items="pagedResult.Items" TItem="AdminUserDto">
+                    <HeaderRow>
+                        <tr>
+                            <SortableColumnHeader ColumnKey="email"     Label="@AdminRes.ColEmail"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="firstname" Label="@AdminRes.ColName"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <th>@AdminRes.ColEnabled</th>
+                            <th>@AdminRes.ColRoles</th>
+                            <th>@AdminRes.ColActions</th>
+                        </tr>
+                    </HeaderRow>
+                    <RowTemplate Context="user">
+                        <tr @key="user.Id">
+                            <td data-label="@AdminRes.ColEmail">@user.Email</td>
+                            <td data-label="@AdminRes.ColName">@user.FirstName @user.LastName</td>
+                            <td data-label="@AdminRes.ColEnabled">@(user.IsEnabled ? "✓" : "✗")</td>
+                            <td data-label="@AdminRes.ColRoles">@string.Join(", ", user.Roles)</td>
+                            <td data-label="Actions">
+                                @if (user.Roles.Contains("Student"))
+                                {
+                                    <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
+                                }
+                                @if (!user.Roles.Contains("Admin"))
+                                {
+                                    <button class="btn btn-sm btn-warning" @onclick="() => OpenResetPasswordModal(user)">@AdminRes.ResetPassword</button>
+                                }
+                                @if (!user.Roles.Contains("Admin"))
+                                {
+                                    @if (user.IsEnabled)
+                                    {
+                                        <button class="btn btn-sm btn-secondary" @onclick="() => ToggleEnable(user.Id)">@AdminRes.DisableUser</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => ToggleEnable(user.Id)">@AdminRes.EnableUser</button>
+                                    }
+                                }
+                                @if (!user.Roles.Contains("Admin"))
+                                {
+                                    @if (confirmDeleteId == user.Id)
+                                    {
+                                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.Id)">@AdminRes.ConfirmDelete</button>
+                                        <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => confirmDeleteId = user.Id)">@AdminRes.Delete</button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    </RowTemplate>
+                </VirtualizedTable>
+
+                <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                        TotalPages="pagedResult.TotalPages"
+                                        TotalCount="pagedResult.TotalCount"
+                                        PageSize="pagedResult.PageSize"
+                                        HasPreviousPage="pagedResult.HasPreviousPage"
+                                        HasNextPage="pagedResult.HasNextPage"
+                                        PageSizeOptions="PageSizeOptions"
+                                        ItemLabel="users"
+                                        OnPageSizeChanged="OnPageSizeChanged"
+                                        OnPreviousPage="PreviousPage"
+                                        OnNextPage="NextPage" />
+            }
+
+            <DismissibleAlert Message="@message" Dismissible="false" OnDismiss="@(() => message = string.Empty)" />
+        </Authorized>
+        <NotAuthorized>
+            <div class="alert alert-danger">
+                @AdminRes.AccessDenied
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+<FormModal IsVisible="_resetPwdModalVisible"
+           Title="@(string.Format(AdminRes.ResetPasswordFor, _resetPwdEmail))"
+           OnClose="CloseResetPasswordModal">
+    <Body>
+        @if (_resetPwdError is not null)
+        {
+            <div class="alert alert-danger py-1">@_resetPwdError</div>
+        }
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.NewPassword</label>
+            <input type="password" class="form-control" @bind="_resetPwdNew" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@AdminRes.ConfirmPasswordLabel</label>
+            <input type="password" class="form-control" @bind="_resetPwdConfirm" />
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-secondary" @onclick="CloseResetPasswordModal" disabled="@_resetPwdBusy">
+            @AdminRes.Cancel
+        </button>
+        <button class="btn btn-warning" @onclick="SubmitResetPassword" disabled="@_resetPwdBusy">
+            @if (_resetPwdBusy)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            @AdminRes.SetPassword
+        </button>
+    </Footer>
+</FormModal>

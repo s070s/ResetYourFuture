@@ -1,0 +1,76 @@
+@page "/admin/assessments"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@AdminRes.AssessmentManagement</PageTitle>
+
+<h2>@AdminRes.AssessmentManagement</h2>
+
+<div class="mb-3">
+    <button class="btn btn-primary" @onclick="CreateAssessment">@AdminRes.CreateNewAssessment</button>
+</div>
+
+@if (_pagedResult == null)
+{
+    <p>@AdminRes.Loading</p>
+}
+else
+{
+    <VirtualizedTable Items="_pagedResult.Items" TItem="AssessmentDefinitionListItemDto">
+        <HeaderRow>
+            <tr>
+                <th>@AdminRes.FieldTitle</th>
+                <th>@AdminRes.FieldKey</th>
+                <th>@AdminRes.ColStatus</th>
+                <th>@AdminRes.ColSubmissions</th>
+                <th>@AdminRes.ColActions</th>
+            </tr>
+        </HeaderRow>
+        <RowTemplate Context="assessment">
+            <tr @key="assessment.Id">
+                <td data-label="@AdminRes.FieldTitle">@assessment.Title</td>
+                <td data-label="@AdminRes.FieldKey">@assessment.Key</td>
+                <td data-label="@AdminRes.ColStatus">
+                    <StatusBadge IsActive="assessment.IsPublished"
+                                 ActiveText="@AdminRes.StatusPublished"
+                                 InactiveText="@AdminRes.StatusDraft" />
+                </td>
+                <td data-label="@AdminRes.ColSubmissions">@assessment.SubmissionCount</td>
+                <td data-label="Actions">
+                    <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">@AdminRes.Edit</button>
+                    @if (assessment.IsPublished)
+                    {
+                        <button class="btn btn-sm btn-warning" @onclick="() => UnpublishAssessment(assessment.Id)">@AdminRes.Unpublish</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-success" @onclick="() => PublishAssessment(assessment.Id)">@AdminRes.Publish</button>
+                    }
+                    <button class="btn btn-sm btn-info" @onclick="() => ViewSubmissions(assessment.Id)">@AdminRes.ColSubmissions</button>
+                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteAssessment(assessment.Id)">@AdminRes.Delete</button>
+                </td>
+            </tr>
+        </RowTemplate>
+    </VirtualizedTable>
+
+    <AdminPaginationToolbar CurrentPage="_pagedResult.Page"
+                            TotalPages="_pagedResult.TotalPages"
+                            TotalCount="_pagedResult.TotalCount"
+                            PageSize="_pagedResult.PageSize"
+                            HasPreviousPage="_pagedResult.HasPreviousPage"
+                            HasNextPage="_pagedResult.HasNextPage"
+                            PageSizeOptions="PageSizeOptions"
+                            ItemLabel="assessments"
+                            OnPageSizeChanged="OnPageSizeChanged"
+                            OnPreviousPage="() => GoToPage(_pagedResult.Page - 1)"
+                            OnNextPage="() => GoToPage(_pagedResult.Page + 1)" />
+}
+
+<ConfirmModal IsVisible="@(_pendingDeleteId.HasValue)"
+              Title="Confirm"
+              Message="Are you sure you want to delete this assessment?"
+              OnConfirm="ExecuteDeleteAsync"
+              OnCancel="@(() => _pendingDeleteId = null)" />
+
+<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
+
+

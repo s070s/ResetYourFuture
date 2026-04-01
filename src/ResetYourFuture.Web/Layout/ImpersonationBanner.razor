@@ -1,0 +1,14 @@
+@implements IDisposable
+
+@if (_isImpersonating)
+{
+    <div class="impersonation-banner d-flex align-items-center justify-content-between px-4 py-2">
+        <span>
+            <strong>@AdminRes.ImpersonationAdminView</strong> @AdminRes.ImpersonationLoggedInAs <strong>@_impersonatedName</strong> (@_impersonatedEmail)
+        </span>
+        <button class="btn btn-sm btn-light fw-semibold" @onclick="ExitAsync">
+            @AdminRes.ImpersonationExit
+        </button>
+    </div>
+}
+
