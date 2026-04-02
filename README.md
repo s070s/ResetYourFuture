@@ -105,7 +105,15 @@ dotnet dev-certs https --trust
 
 > If you use a full SQL Server instance instead of LocalDB, update the connection string accordingly.
 
-5. **Migrations are applied automatically on startup** — `Program.cs` calls `db.Database.Migrate()`, so you do **not** need to run `Update-Database` manually. The database and all tables are created the first time the app starts.
+5. **Apply database migrations** before running for the first time:
+
+   ```bash
+   dotnet ef database update \
+     --project src/ResetYourFuture.Web \
+     --startup-project src/ResetYourFuture.Web
+   ```
+
+   Or via Package Manager Console: `Update-Database`
 
 6. **Set startup project**:
    - Right-click the Solution → **Configure Startup Projects…**
@@ -144,7 +152,7 @@ AdminUser__Email=admin@yourdomain.com
 AdminUser__Password=<strong-password>
 ```
 
-5. Migrations are applied automatically on startup (`db.Database.Migrate()`). If you prefer to run them manually in CI/CD, generate a SQL script instead (see [EF Core Migrations](#ef-core-migrations)).
+5. **Apply migrations** before starting the app: `dotnet ef database update --project src/ResetYourFuture.Web --startup-project src/ResetYourFuture.Web`. For CI/CD environments you can generate a SQL script instead (see [EF Core Migrations](#ef-core-migrations)).
 
 6. Development-only seed data (courses, assessments, students) is **skipped** in Production because `SeedData:Enabled` defaults to `false`.
 
@@ -254,7 +262,7 @@ git pull --rebase origin master    # Rebase branch onto latest master
 
 ## EF Core Migrations
 
-> **Note:** Migrations are applied automatically on app startup (`db.Database.Migrate()` in `Program.cs`). The commands below are only needed when you change the data model.
+> **Note:** Migrations must be applied manually before running the app. Use the commands below when setting up for the first time or after changing the data model.
 
 ### Package Manager Console (Visual Studio)
 

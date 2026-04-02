@@ -270,42 +270,11 @@ if ( app.Environment.IsDevelopment() )
     catch { /* sqllocaldb not on PATH — non-fatal */ }
 }
 
-// --- Apply migrations and seed ---
+// --- Seed ---
 using ( var scope = app.Services.CreateScope() )
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-    try
-    {
-        var appliedMigrations = await db.Database.GetAppliedMigrationsAsync();
-        var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
-
-        if ( !appliedMigrations.Any() && pendingMigrations.Any() && await db.Database.CanConnectAsync() )
-        {
-            if ( app.Environment.IsDevelopment() )
-            {
-                startupLogger.LogWarning(
-                    "Database exists without migration history. " +
-                    "Dropping and recreating to apply migrations cleanly." );
-                await db.Database.EnsureDeletedAsync();
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    "Database exists but has no EF Core migration history. " +
-                    "Manually reconcile the schema or drop and recreate the database." );
-            }
-        }
-
-        await db.Database.MigrateAsync();
-        startupLogger.LogInformation( "EF Core migrations applied (database created if needed)." );
-    }
-    catch ( Exception ex )
-    {
-        startupLogger.LogCritical( ex , "Applying EF Core migrations failed." );
-        throw;
-    }
 
     // Seed Roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
