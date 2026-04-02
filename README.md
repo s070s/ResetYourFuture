@@ -1,7 +1,7 @@
 # ResetYourFuture
 
 A psychosocial career counseling platform with a Udemy-style course component.
-Supports course / module / lesson authoring, self-assessments, real-time chat, subscription plans, and student progress tracking.
+Supports course / module / lesson authoring, self-assessments, real-time chat, subscription plans, student progress tracking, blog articles, testimonials, and certificate generation.
 
 ---
 
@@ -9,21 +9,23 @@ Supports course / module / lesson authoring, self-assessments, real-time chat, s
 
 1. [Prerequisites](#prerequisites)
 2. [Tech Stack](#tech-stack)
-3. [Quickstart for Development](#quickstart-for-development)
-4. [Quickstart for Production](#quickstart-for-production)
-5. [Quickstart for Deployment](#quickstart-for-deployment)
-6. [Endpoints](#endpoints)
-7. [Roles](#roles)
-8. [Default Admin Account To Log In](#default-admin-account-to-log-in)
-9. [Credentials for Seeded Students](#credentials-for-seeded-students)
-10. [How Email Confirmation Works](#how-email-confirmation-works)
-11. [EF Core Migrations](#ef-core-migrations)
-12. [Walkthrough the Configurations of Each Project](#walkthrough-the-configurations-of-each-project)
-13. [File Based Logging](#file-based-logging)
-14. [Troubleshooting](#troubleshooting)
-15. [Adding Seed Content for App Startup](#adding-seed-content-for-app-startup)
-16. [Assessment Authoring Guide for Admins](#assessment-authoring-guide-for-admins)
-17. [Course, Module, Lesson Authoring Guide for Admins](#course-module-lesson-authoring-guide-for-admins)
+3. [Solution Structure](#solution-structure)
+4. [Quickstart for Development](#quickstart-for-development)
+5. [Quickstart for Production](#quickstart-for-production)
+6. [Quickstart for Deployment](#quickstart-for-deployment)
+7. [CLI Commands Reference](#cli-commands-reference)
+8. [EF Core Migrations](#ef-core-migrations)
+9. [Endpoints](#endpoints)
+10. [Roles](#roles)
+11. [Default Admin Account To Log In](#default-admin-account-to-log-in)
+12. [Credentials for Seeded Students](#credentials-for-seeded-students)
+13. [How Email Confirmation Works](#how-email-confirmation-works)
+14. [Walkthrough the Configurations of Each Project](#walkthrough-the-configurations-of-each-project)
+15. [File Based Logging](#file-based-logging)
+16. [Troubleshooting](#troubleshooting)
+17. [Adding Seed Content for App Startup](#adding-seed-content-for-app-startup)
+18. [Assessment Authoring Guide for Admins](#assessment-authoring-guide-for-admins)
+19. [Course, Module, Lesson Authoring Guide for Admins](#course-module-lesson-authoring-guide-for-admins)
 
 ---
 
@@ -33,8 +35,8 @@ Install the following before opening the solution:
 
 | Tool | Notes |
 |------|-------|
-| [Visual Studio 2026](https://visualstudio.microsoft.com/) | Workloads: **ASP.NET and web development**, **.NET desktop development** |
-| [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) | The solution targets `net9.0` |
+| [Visual Studio 2022+](https://visualstudio.microsoft.com/) | Workloads: **ASP.NET and web development**, **.NET desktop development** |
+| [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | The solution targets `net10.0` (pinned via `global.json`) |
 | [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) | **LocalDB** (ships with Visual Studio), Developer, or Express edition |
 | [SQL Server Management Studio (SSMS)](https://aka.ms/ssmsfullsetup) | Optional but recommended for inspecting the database |
 | [Git](https://git-scm.com/) | For cloning the repository |
@@ -45,20 +47,34 @@ Install the following before opening the solution:
 
 | Layer | Technology |
 |-------|------------|
-| Runtime | .NET 9 |
+| Runtime | .NET 10 |
 | Backend | ASP.NET Core Web API (controllers, OpenAPI) |
-| Frontend | Blazor WebAssembly (standalone client) |
-| ORM | Entity Framework Core 9 (SQL Server provider) |
+| Frontend | Blazor SSR (`ResetYourFuture.Web`) |
+| ORM | Entity Framework Core 10.0.5 (SQL Server provider) |
 | Database | SQL Server (LocalDB for dev) |
-| Auth | ASP.NET Core Identity + JWT Bearer tokens + Refresh tokens |
+| Auth | ASP.NET Core Identity + Cookie (SSR pages) + JWT Bearer + Refresh tokens |
 | Real-time | SignalR (`/hubs/chat`) |
-| Validation | FluentValidation |
-| Mapping | AutoMapper |
+| PDF | QuestPDF 2026.2.4 (certificate generation) |
 | Localization | Built-in `Microsoft.Extensions.Localization` (English + Greek) |
-| Client storage | Blazored.LocalStorage (JWT persistence) |
 | Logging | Custom file logger (daily rotating text files) |
 | Email | `StubEmailService` — logs emails to file in dev (no external SMTP required) |
 | Shared | `ResetYourFuture.Shared` class library (DTOs, resources, JSON seed data) |
+
+---
+
+## Solution Structure
+
+```
+ResetYourFuture.sln
+├── src/
+│   ├── ResetYourFuture.Web/      Full-stack Blazor SSR app   https://localhost:7090  ← runs
+│   ├── ResetYourFuture.Shared/   DTOs, .resx resources, JSON seed data               ← referenced
+│   ├── ResetYourFuture.Api/      ASP.NET Core Web API (legacy, superseded)
+│   └── ResetYourFuture.Client/   Blazor WASM standalone (legacy, superseded)
+└── Evaluation/                   Architecture & design docs
+```
+
+**Only `ResetYourFuture.Web` is run.** It is a full-stack Blazor SSR application that contains its own API controllers, `ApplicationDbContext`, EF Core migrations, seed logic, SignalR hub, and authentication. `ResetYourFuture.Shared` is a class library that is compiled in — it is not deployed separately. The `Api` and `Client` projects are legacy and kept for reference only.
 
 ---
 
@@ -71,34 +87,38 @@ git clone https://github.com/s070s/ResetYourFuture.git
 cd ResetYourFuture
 ```
 
-2. **Open** `ResetYourFuture.sln` in Visual Studio 2026.
+2. **Open** `ResetYourFuture.sln` in Visual Studio.
 
-3. **Verify the connection string** in `src/ResetYourFuture.Api/appsettings.json`:
+3. **Trust the HTTPS dev certificate** (once per machine):
+
+```bash
+dotnet dev-certs https --trust
+```
+
+4. **Verify the connection string** in `src/ResetYourFuture.Web/appsettings.json`:
 
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=ResetYourFutureDb;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=True;"
+  "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=ResetYourFutureDb;Trusted_Connection=True;Connect Timeout=30;TrustServerCertificate=True;"
 }
 ```
 
 > If you use a full SQL Server instance instead of LocalDB, update the connection string accordingly.
 
-4. **Migrations are applied automatically on startup** — the API's `Program.cs` calls `db.Database.Migrate()`, so you do **not** need to run `Update-Database` manually. The database and all tables are created the first time the API starts.
+5. **Migrations are applied automatically on startup** — `Program.cs` calls `db.Database.Migrate()`, so you do **not** need to run `Update-Database` manually. The database and all tables are created the first time the app starts.
 
-5. **Set multiple startup projects**:
+6. **Set startup project**:
    - Right-click the Solution → **Configure Startup Projects…**
-   - Set both **ResetYourFuture.Api** and **ResetYourFuture.Client** to **Start**.
+   - Set **ResetYourFuture.Web** as the single startup project.
 
-6. **Press `F5`** to run.
+7. **Press `F5`** to run.
 
-| Project | URL |
-|---------|-----|
-| API | `https://localhost:7003` |
-| Blazor Client | `https://localhost:7083` |
-| OpenAPI spec | `https://localhost:7003/openapi/v1.json` (Development only) |
+| URL | Description |
+|-----|-------------|
+| `https://localhost:7090` | Blazor Web (SSR) — the app |
+| `https://localhost:7090/openapi/v1.json` | OpenAPI spec (Development only) |
 
-7. **Seed data** (courses, assessments, students) is loaded automatically in `Development` mode because `appsettings.Development.json` has `"SeedData:Enabled": true`. No extra steps needed.
-
+8. **Seed data** (courses, assessments, students) loads automatically in `Development` mode when `SeedData:Enabled` is `true` in `appsettings.Development.json`. Wait for the seeding log messages to finish before testing.
 ---
 
 ## Quickstart for Production
@@ -111,7 +131,7 @@ ASPNETCORE_ENVIRONMENT=Production
 
 2. Provide a **production connection string** via environment variables or a secrets manager — **never** leave credentials in `appsettings.json` for production.
 
-3. **Replace the JWT key.** The default key in `appsettings.json` (`CHANGE_THIS_IN_PRODUCTION_MIN_32_CHARS!!`) is a placeholder. Set a strong, unique value of at least 32 characters via an environment variable or secret:
+3. **Replace the JWT key.** The default key in `appsettings.json` (`CHANGE_THIS_IN_PRODUCTION_MIN_32_CHARS!!`) is a placeholder. Set a strong, unique value of at least 32 characters:
 
 ```
 Jwt__Key=<your-strong-secret-key-min-32-chars>
@@ -132,25 +152,128 @@ AdminUser__Password=<strong-password>
 
 ## Quickstart for Deployment
 
-General steps for deploying to Azure App Service, IIS, or a container:
+`ResetYourFuture.Web` is the only deployable project. It is a self-contained server-side application — deploy it to Azure App Service, IIS, a Linux host, or a container.
 
-1. **Publish the API project**:
-   - Right-click `ResetYourFuture.Api` → **Publish**
-   - Select target (Azure App Service, folder, Docker, etc.)
+1. **Publish**:
+   - Visual Studio: right-click `ResetYourFuture.Web` → **Publish** → select target
+   - CLI: `dotnet publish src/ResetYourFuture.Web -c Release -o ./publish`
 
-2. **Publish the Blazor client project**:
-   - Right-click `ResetYourFuture.Client` → **Publish**
-   - The output is a set of static files (`wwwroot/`). Host them on Azure Static Web Apps, Blob Storage + CDN, or behind the same App Service.
-
-3. **Set environment variables** on the host:
+2. **Set environment variables** on the host:
    - `ConnectionStrings__DefaultConnection`
-   - `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`
+   - `Jwt__Key` (min 32 chars, strong random value)
+   - `Jwt__Issuer`, `Jwt__Audience`
    - `AdminUser__Email`, `AdminUser__Password`
-   - `AllowedClientOrigin` (must match the Blazor client's origin for CORS)
 
-4. **Run database migrations** — they run automatically at startup, or use `Script-Migration` to generate a SQL script for DBA-managed environments.
+3. **Run database migrations** — they run automatically at startup, or generate a SQL script for DBA-managed environments (see [EF Core Migrations](#ef-core-migrations)).
 
-5. Update `ApiBaseUrl` in the **Blazor client's** `wwwroot/appsettings.json` to point to the production API URL.
+---
+
+## CLI Commands Reference
+
+All commands run from the **solution root** unless otherwise noted.
+
+### Setup
+
+```bash
+git clone https://github.com/s070s/ResetYourFuture.git
+cd ResetYourFuture
+dotnet dev-certs https --trust     # Trust HTTPS dev certificate (once per machine)
+dotnet restore                     # Restore all NuGet packages
+```
+
+### Build & Run
+
+```bash
+dotnet build                                      # Build entire solution
+dotnet run --project src/ResetYourFuture.Web      # Run (https://localhost:7090)
+dotnet watch --project src/ResetYourFuture.Web    # Hot-reload
+dotnet publish src/ResetYourFuture.Web -c Release -o ./publish
+```
+
+### EF Core CLI
+
+```bash
+# Install the global tool once
+dotnet tool install --global dotnet-ef
+
+# Add a new migration
+dotnet ef migrations add <MigrationName> \
+  --project src/ResetYourFuture.Web \
+  --startup-project src/ResetYourFuture.Web
+
+# Apply pending migrations
+dotnet ef database update \
+  --project src/ResetYourFuture.Web \
+  --startup-project src/ResetYourFuture.Web
+
+# Remove the last migration (only if not yet applied)
+dotnet ef migrations remove \
+  --project src/ResetYourFuture.Web \
+  --startup-project src/ResetYourFuture.Web
+
+# List all migrations and their applied status
+dotnet ef migrations list \
+  --project src/ResetYourFuture.Web \
+  --startup-project src/ResetYourFuture.Web
+
+# Generate a SQL script for production / DBA review
+dotnet ef migrations script \
+  --project src/ResetYourFuture.Web \
+  --startup-project src/ResetYourFuture.Web \
+  --output ./migrations.sql
+```
+
+### LocalDB (PowerShell)
+
+```powershell
+sqllocaldb info MSSQLLocalDB       # Show instance status
+sqllocaldb start MSSQLLocalDB      # Start instance
+sqllocaldb stop MSSQLLocalDB       # Stop instance
+sqllocaldb delete MSSQLLocalDB     # Delete instance — DB is recreated on next app start
+```
+
+### Tail Logs (PowerShell)
+
+```powershell
+Get-Content -Path .\src\ResetYourFuture.Web\Logs\log-$(Get-Date -Format yyyy-MM-dd).txt -Wait -Tail 50
+```
+
+### Git Workflow
+
+```bash
+git status
+git log --oneline -10
+git checkout -b feature/<name>     # Create feature branch
+git add src/                       # Stage changes (prefer specific paths over -A)
+git commit -m "feat: <description>"
+git push -u origin feature/<name>
+git pull --rebase origin master    # Rebase branch onto latest master
+```
+
+---
+
+## EF Core Migrations
+
+> **Note:** Migrations are applied automatically on app startup (`db.Database.Migrate()` in `Program.cs`). The commands below are only needed when you change the data model.
+
+### Package Manager Console (Visual Studio)
+
+**Open PMC:** Tools → NuGet Package Manager → Package Manager Console
+
+| PMC setting | Value |
+|-------------|-------|
+| **Default project** | `src\ResetYourFuture.Web` (contains `ApplicationDbContext`) |
+| **Startup project** | `ResetYourFuture.Web` (set in Solution Explorer) |
+
+```
+Add-Migration <MigrationName>      # Add a new migration
+Update-Database                    # Apply migrations
+Remove-Migration                   # Remove last migration (if not yet applied)
+Get-Migration                      # List all migrations
+Script-Migration                   # Generate SQL script for production
+```
+
+The project includes a `DesignTimeDbContextFactory` (`src/ResetYourFuture.Web/Data/DesignTimeDbContextFactory.cs`) so both PMC and `dotnet ef` CLI commands work outside of the running application.
 
 ---
 
@@ -204,6 +327,15 @@ General steps for deploying to Azure App Service, IIS, or a container:
 | `POST` | `api/assessments/{id}/submit` | Submit assessment answers | Yes |
 | `GET` | `api/assessments/mine` | Get current user's submissions | Yes |
 
+### Certificates — `api/certificates`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/certificates/my` | List current user's certificates | Yes |
+| `POST` | `api/certificates/issue/{courseId}` | Issue certificate for a completed course | Yes |
+| `GET` | `api/certificates/{certificateId}/download` | Download certificate PDF | Yes |
+| `GET` | `api/certificates/verify/{verificationId}` | Public certificate verification | No |
+
 ### Subscriptions — `api/subscription`
 
 | Method | Route | Description | Auth |
@@ -222,9 +354,23 @@ General steps for deploying to Azure App Service, IIS, or a container:
 | `GET` | `api/chat/conversations` | List conversations | Yes |
 | `GET` | `api/chat/conversations/{id}/messages` | Load messages for a conversation | Yes |
 | `POST` | `api/chat/conversations/start` | Start a new conversation | Yes |
+| `DELETE` | `api/chat/conversations/{id}` | Delete conversation and all its messages | Yes |
 | `GET` | `api/chat/users` | List users available to chat | Yes |
 | `GET` | `api/chat/unread-count` | Get unread message count | Yes |
 | — | `/hubs/chat` (SignalR) | Real-time messaging hub | Yes (JWT via query string) |
+
+### Blog — `api/blog` (public)
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/blog/summaries` | Latest published article summaries (`?count=6&lang=en`) | No |
+| `GET` | `api/blog/{slug}` | Single published article by slug (`?lang=en`) | No |
+
+### Testimonials — `api/testimonials` (public)
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/testimonials` | All active testimonials ordered by `DisplayOrder` | No |
 
 ### Site Settings — `api/site`
 
@@ -232,6 +378,12 @@ General steps for deploying to Azure App Service, IIS, or a container:
 |--------|-------|-------------|------|
 | `GET` | `api/site/background-image` | Get landing page background image | No |
 | `POST` | `api/site/admin/background-image` | Upload landing page background image | Admin |
+
+### Media — `api/media`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/media/{*filePath}` | Serve public media files (blog covers, testimonial avatars) | No |
 
 ### Admin — User Management — `api/admin`
 
@@ -248,8 +400,9 @@ General steps for deploying to Azure App Service, IIS, or a container:
 | `POST` | `api/admin/users/{userId}/disable` | Disable user | Admin |
 | `POST` | `api/admin/users/{userId}/enable` | Enable user | Admin |
 | `DELETE` | `api/admin/users/{userId}` | Delete user | Admin |
-| `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset | Admin |
-| `POST` | `api/admin/users/{userId}/impersonate` | Impersonate a user | Admin |
+| `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset (sends reset token) | Admin |
+| `POST` | `api/admin/users/{userId}/set-password` | Directly set a new password for a user | Admin |
+| `POST` | `api/admin/users/{userId}/impersonate` | Generate temporary JWT to view app as that user | Admin |
 
 ### Admin — Courses — `api/admin/courses`
 
@@ -298,6 +451,34 @@ General steps for deploying to Azure App Service, IIS, or a container:
 | `POST` | `api/admin/assessments/{id}/unpublish` | Unpublish assessment | Admin |
 | `GET` | `api/admin/assessments/{id}/submissions` | List submissions for an assessment | Admin |
 
+### Admin — Blog — `api/admin/blog`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/blog` | List all articles (paged, searchable) | Admin |
+| `GET` | `api/admin/blog/{id}` | Get article detail | Admin |
+| `POST` | `api/admin/blog` | Create article | Admin |
+| `PUT` | `api/admin/blog/{id}` | Update article | Admin |
+| `POST` | `api/admin/blog/{id}/publish` | Publish article | Admin |
+| `POST` | `api/admin/blog/{id}/unpublish` | Unpublish article | Admin |
+| `DELETE` | `api/admin/blog/{id}` | Delete article | Admin |
+| `POST` | `api/admin/blog/{id}/upload/cover` | Upload cover image | Admin |
+
+### Admin — Testimonials — `api/admin/testimonials`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/testimonials` | List all testimonials (paged) | Admin |
+| `GET` | `api/admin/testimonials/{id}` | Get testimonial by id | Admin |
+| `POST` | `api/admin/testimonials` | Create testimonial | Admin |
+| `PUT` | `api/admin/testimonials/{id}` | Update testimonial | Admin |
+| `POST` | `api/admin/testimonials/{id}/toggle-active` | Toggle active state | Admin |
+| `POST` | `api/admin/testimonials/{id}/move-up` | Move up in display order | Admin |
+| `POST` | `api/admin/testimonials/{id}/move-down` | Move down in display order | Admin |
+| `POST` | `api/admin/testimonials/{id}/upload/avatar` | Upload avatar image | Admin |
+| `DELETE` | `api/admin/testimonials/{id}/avatar` | Remove avatar | Admin |
+| `DELETE` | `api/admin/testimonials/{id}` | Delete testimonial | Admin |
+
 ### Admin — Analytics — `api/admin/analytics`
 
 | Method | Route | Description | Auth |
@@ -310,8 +491,8 @@ General steps for deploying to Azure App Service, IIS, or a container:
 
 | Role | Description |
 |------|-------------|
-| `Admin` | Full access. Can author courses, modules, lessons, and assessments. Manages users, roles, subscriptions, and site settings. |
-| `Student` | Can enroll in courses, view lessons, complete assessments, manage profile and subscriptions. |
+| `Admin` | Full access. Can author courses, modules, lessons, assessments, blog articles, and testimonials. Manages users, roles, subscriptions, and site settings. |
+| `Student` | Can enroll in courses, view lessons, complete assessments, manage profile and subscriptions, download certificates. |
 
 Roles are seeded automatically on startup in `Program.cs`.
 
@@ -364,11 +545,11 @@ The app uses a **`StubEmailService`** (registered as `IEmailService`) that **log
 3. A confirmation token is generated and a confirmation link is built.
 4. `StubEmailService.SendEmailConfirmationAsync` logs the link to the file logger and console.
 5. In **Development** mode the dev shortcut `POST api/auth/dev/confirm-email` can confirm the account without clicking the link.
-6. In Production you would replace `StubEmailService` with a real implementation (e.g., SendGrid, Mailgun) by swapping the `IEmailService` DI registration in `Program.cs`.
+6. In Production, replace `StubEmailService` with a real implementation (e.g., SendGrid, Mailgun) by swapping the `IEmailService` DI registration in `Program.cs`.
 
 ### Where to find the confirmation link in dev
 
-Open the daily log file at `src/ResetYourFuture.Api/Logs/log-YYYY-MM-DD.txt` and search for `STUB EMAIL - Email Confirmation`. The full link is printed there.
+Open the daily log file at `src/ResetYourFuture.Web/Logs/log-YYYY-MM-DD.txt` and search for `STUB EMAIL - Email Confirmation`. The full link is printed there.
 
 ### Password reset
 
@@ -376,63 +557,18 @@ The same pattern applies: `POST api/auth/forgot-password` → stub logs the rese
 
 ---
 
-## EF Core Migrations
-
-> **Note:** Migrations are applied automatically on app startup (`db.Database.Migrate()` in `Program.cs`). The commands below are only needed when you change the data model.
-
-All migration commands are run in the **Package Manager Console (PMC)** inside Visual Studio.
-
-**Open PMC:** Tools → NuGet Package Manager → Package Manager Console
-
-| PMC setting | Value |
-|-------------|-------|
-| **Default project** | `src\ResetYourFuture.Api` (contains `ApplicationDbContext`) |
-| **Startup project** | `ResetYourFuture.Api` (set in Solution Explorer) |
-
-### Add a new migration
-
-```
-Add-Migration <MigrationName>
-```
-
-### Apply migrations to the database
-
-```
-Update-Database
-```
-
-### Remove the last migration (if not yet applied)
-
-```
-Remove-Migration
-```
-
-### List all migrations
-
-```
-Get-Migration
-```
-
-### Generate a SQL script (for production / DBA review)
-
-```
-Script-Migration
-```
-
-The project also includes a `DesignTimeDbContextFactory` (`src/ResetYourFuture.Api/Data/DesignTimeDbContextFactory.cs`) so `dotnet ef` CLI commands work outside of the running application.
-
----
-
 ## Walkthrough the Configurations of Each Project
 
-### API Project — `ResetYourFuture.Api`
+### Web Project — `ResetYourFuture.Web`
+
+The full-stack Blazor SSR application. Contains API controllers, `ApplicationDbContext`, EF Core migrations, seed logic, SignalR hub, and authentication — everything runs in a single process.
 
 | File | Purpose |
 |------|---------|
-| `appsettings.json` | Base configuration (connection string, JWT, admin user, allowed client origin, logging) |
+| `appsettings.json` | Base configuration (connection string, JWT, admin credentials, logging) |
 | `appsettings.Development.json` | Development overrides — enables seed data, sets JSON seed paths and student password |
-| `Properties/launchSettings.json` | Launch profile — `https://localhost:7003` |
-| `Program.cs` | Service registration (Identity, JWT, EF Core, CORS, SignalR, localization, file logger, DI), middleware pipeline, auto-migration, and all seed logic |
+| `Properties/launchSettings.json` | Launch profile — `https://localhost:7090` |
+| `Program.cs` | Service registration (Identity, MultiAuth, EF Core, SignalR, localization, file logger, DI), middleware pipeline, auto-migration, seed logic |
 
 **Key configuration sections in `appsettings.json`:**
 
@@ -440,12 +576,11 @@ The project also includes a `DesignTimeDbContextFactory` (`src/ResetYourFuture.A
 |---------|-------------|
 | `ConnectionStrings:DefaultConnection` | SQL Server connection string |
 | `Jwt:Key` | Symmetric signing key for JWTs (min 32 chars) |
-| `Jwt:Issuer` | Token issuer (`ResetYourFuture.Api`) |
-| `Jwt:Audience` | Token audience (`ResetYourFuture.Client`) |
+| `Jwt:Issuer` | Token issuer |
+| `Jwt:Audience` | Token audience |
 | `Jwt:AccessTokenExpirationMinutes` | Access token lifetime (default `60`) |
 | `Jwt:RefreshTokenExpirationDays` | Refresh token lifetime (default `7`) |
 | `AdminUser:Email` / `Password` | Seeded admin credentials |
-| `AllowedClientOrigin` | CORS origin for the Blazor client (`https://localhost:7083` in dev) |
 | `Logging:LogLevel` | Standard .NET logging levels |
 
 **Additional sections in `appsettings.Development.json`:**
@@ -458,29 +593,12 @@ The project also includes a `DesignTimeDbContextFactory` (`src/ResetYourFuture.A
 | `SeedData:JsonPaths:Assessments` | Path to assessment JSON seed files |
 | `SeedData:JsonPaths:Students` | Path to student JSON seed files |
 
----
+**Authentication strategy:**
 
-### Client Project — `ResetYourFuture.Client`
-
-| File | Purpose |
-|------|---------|
-| `wwwroot/appsettings.json` | Client-side config — API base URL and social links |
-| `Properties/launchSettings.json` | Launch profile — `https://localhost:7083` |
-| `Program.cs` | Service registration (HttpClient with auth handler, auth state provider, localization, Blazored.LocalStorage, SignalR client) |
-
-**Key configuration in `wwwroot/appsettings.json`:**
-
-```json
-{
-  "ApiBaseUrl": "https://localhost:7003",
-  "Social": {
-    "Instagram": "https://instagram.com/",
-    "Youtube": "https://youtube.com"
-  }
-}
-```
-
-> **Important:** `ApiBaseUrl` must match the running API URL. Update this when deploying to production.
+| Scheme | Used For |
+|--------|----------|
+| Cookie (`.RYF.Auth`) | Blazor SSR pages — 7-day sliding expiration |
+| JWT Bearer | SignalR hub connections (`/hubs/chat`) |
 
 ---
 
@@ -490,7 +608,7 @@ Contains DTOs, resource files, enums, and JSON seed data. **No configuration fil
 
 | Folder | Contents |
 |--------|----------|
-| `DTOs/` | Data transfer objects shared between API and Client |
+| `DTOs/` | Data transfer objects shared between API and clients |
 | `DTOs/Auth/` | `LoginRequestDto`, `RegisterRequestDto`, `AuthResponseDto`, etc. |
 | `DTOs/Courses/` | `CourseDetailDtos`, `CourseListItemDto`, `LessonDetailDto`, `EnrollmentResultDtos` |
 | `DTOs/Subscriptions/` | `SubscriptionDtos`, `BillingDtos`, `SubscriptionTierEnum` |
@@ -505,7 +623,7 @@ Contains DTOs, resource files, enums, and JSON seed data. **No configuration fil
 
 ## File Based Logging
 
-The API uses a **custom file logger** (no third-party library) implemented in three files:
+The app uses a **custom file logger** (no third-party library) implemented in three files inside `ResetYourFuture.Web`:
 
 | File | Purpose |
 |------|---------|
@@ -515,7 +633,7 @@ The API uses a **custom file logger** (no third-party library) implemented in th
 
 | Setting | Value |
 |---------|-------|
-| Log directory | `src/ResetYourFuture.Api/Logs/` |
+| Log directory | `src/ResetYourFuture.Web/Logs/` |
 | File name pattern | `log-YYYY-MM-DD.txt` |
 | Rotation | Daily (one file per day) |
 | Minimum level | `Information` |
@@ -529,13 +647,13 @@ builder.Logging.AddFileLogger("Logs");
 Log entry format:
 
 ```
-[2025-06-01 14:30:00.123] [INFORMATION] [ResetYourFuture.Api.Controllers.AuthController] User registered successfully.
+[2026-04-02 14:30:00.123] [INFORMATION] [ResetYourFuture.Web.Controllers.AuthController] User registered successfully.
 ```
 
 ### Tail logs in PowerShell
 
 ```powershell
-Get-Content -Path .\src\ResetYourFuture.Api\Logs\log-$(Get-Date -Format yyyy-MM-dd).txt -Wait -Tail 50
+Get-Content -Path .\src\ResetYourFuture.Web\Logs\log-$(Get-Date -Format yyyy-MM-dd).txt -Wait -Tail 50
 ```
 
 ---
@@ -544,14 +662,14 @@ Get-Content -Path .\src\ResetYourFuture.Api\Logs\log-$(Get-Date -Format yyyy-MM-
 
 ### Database connection fails on startup
 
-- Verify SQL Server / LocalDB is running. In a terminal: `sqllocaldb info MSSQLLocalDB`.
+- Verify SQL Server / LocalDB is running: `sqllocaldb info MSSQLLocalDB`.
 - Check the connection string in `appsettings.json` or `appsettings.Development.json`.
 - Ensure `TrustServerCertificate=True` is set for local development.
 
 ### Migrations fail in PMC
 
-- Confirm the **Default project** dropdown in PMC is set to `src\ResetYourFuture.Api`.
-- Confirm the **startup project** in Solution Explorer is `ResetYourFuture.Api`.
+- Confirm the **Default project** dropdown in PMC is set to `src\ResetYourFuture.Web`.
+- Confirm the **startup project** in Solution Explorer is `ResetYourFuture.Web`.
 - If the database is out of sync, try `Update-Database` before `Add-Migration`.
 
 ### Seed data does not appear
@@ -565,13 +683,6 @@ Get-Content -Path .\src\ResetYourFuture.Api\Logs\log-$(Get-Date -Format yyyy-MM-
 - There is no real email provider — `StubEmailService` logs the link to the file logger.
 - Open `Logs/log-<today>.txt` and search for `STUB EMAIL`.
 - Use the dev shortcut endpoint `POST api/auth/dev/confirm-email` to confirm without the link.
-
-### Blazor client cannot reach the API
-
-- Confirm both projects are set as startup projects.
-- Confirm `ApiBaseUrl` in `src/ResetYourFuture.Client/wwwroot/appsettings.json` is `https://localhost:7003`.
-- Confirm `AllowedClientOrigin` in the API's `appsettings.json` is `https://localhost:7083`.
-- Check the browser console (F12) for CORS errors.
 
 ### Role-based pages are inaccessible
 
@@ -589,8 +700,6 @@ Get-Content -Path .\src\ResetYourFuture.Api\Logs\log-$(Get-Date -Format yyyy-MM-
 - If a user account is disabled (`IsEnabled = false`), the API returns `401` with a `X-User-Disabled: true` response header.
 
 ### HTTPS certificate not trusted
-
-If the browser shows certificate warnings:
 
 ```powershell
 dotnet dev-certs https --trust
