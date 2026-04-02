@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Hosting;
 using ResetYourFuture.Web.Identity;
 
 namespace ResetYourFuture.Web.ApiServices;
@@ -40,7 +39,7 @@ public sealed class BulkStudentSeedingService : BackgroundService
         using var scope = _services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var bulkCount = _config.GetValue<int>( "SeedData:BulkStudentCount" , 10_000 );
+        var bulkCount = _config.GetValue<int>( "SeedData:BulkStudentCount" , 2000 );
         var studentPassword = _config [ "SeedData:StudentPassword" ] ?? "Student123!";
 
         await BulkStudentSeeder.SeedAsync( userManager , bulkCount , studentPassword , _logger , stoppingToken );
