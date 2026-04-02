@@ -73,7 +73,7 @@
         <div class="mb-3">
             <label for="password" class="form-label">@GlobalRes.Label_Password @GlobalRes.Label_Minimum8Chars</label>
             <div class="input-group">
-                <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="registerRequest.Password" />
+                <InputText id="password" type="@passwordInputType" class="form-control" autocomplete="new-password" @bind-Value="registerRequest.Password" />
                 <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
                     <i class="@passwordIconClass"></i>
                 </button>
@@ -84,7 +84,7 @@
         <div class="mb-3">
             <label for="confirmPassword" class="form-label">@GlobalRes.Label_ConfirmPassword</label>
             <div class="input-group">
-                <InputText id="confirmPassword" type="@confirmPasswordInputType" class="form-control" @bind-Value="registerRequest.ConfirmPassword" />
+                <InputText id="confirmPassword" type="@confirmPasswordInputType" class="form-control" autocomplete="new-password" @bind-Value="registerRequest.ConfirmPassword" />
                 <button type="button" class="btn btn-password-toggle" @onclick="ToggleConfirmPasswordVisibility" tabindex="-1">
                     <i class="@confirmPasswordIconClass"></i>
                 </button>

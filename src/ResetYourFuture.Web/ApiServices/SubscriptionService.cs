@@ -25,22 +25,34 @@ public class SubscriptionService : ISubscriptionService
 
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync( CancellationToken cancellationToken = default )
     {
-        var plans = await _db.SubscriptionPlans
+        var raw = await _db.SubscriptionPlans
             .AsNoTracking()
             .Where( sp => sp.IsActive )
             .OrderBy( sp => sp.Tier )
             .ThenBy( sp => sp.Price )
-            .Select( sp => new SubscriptionPlanDto(
+            .Select( sp => new
+            {
                 sp.Id ,
                 sp.Name ,
                 sp.Description ,
                 sp.Price ,
-                sp.BillingPeriod.ToString() ,
+                sp.BillingPeriod ,
                 sp.Tier ,
-                DeserializeFeatures( sp.FeaturesJson ) ,
+                sp.FeaturesJson ,
                 sp.IsActive
-            ) )
+            } )
             .ToListAsync( cancellationToken );
+
+        var plans = raw.Select( sp => new SubscriptionPlanDto(
+            sp.Id ,
+            sp.Name ,
+            sp.Description ,
+            sp.Price ,
+            sp.BillingPeriod.ToString() ,
+            sp.Tier ,
+            DeserializeFeatures( sp.FeaturesJson ) ,
+            sp.IsActive
+        ) ).ToList();
 
         return plans;
     }
