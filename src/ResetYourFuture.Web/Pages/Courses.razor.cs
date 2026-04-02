@@ -10,6 +10,7 @@ public partial class Courses
     [Inject] private ICourseConsumer CourseService { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<Courses> _logger { get; set; } = default!;
 
     private PagedResult<CourseListItemDto>? _pagedResult;
     private UserSubscriptionStatusDto? _userStatus;
@@ -32,7 +33,7 @@ public partial class Courses
         var statusTask = SubscriptionService.GetStatusAsync();
         await Task.WhenAll( LoadCoursesAsync(), statusTask );
 
-        _userStatus = statusTask.Result;
+        _userStatus = await statusTask;
         if ( _userStatus is not null )
         {
             _userTier = _userStatus.Tier;
@@ -54,7 +55,7 @@ public partial class Courses
         catch ( Exception ex )
         {
             _error = "Failed to load courses. Please try again.";
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load courses." );
         }
         finally
         {

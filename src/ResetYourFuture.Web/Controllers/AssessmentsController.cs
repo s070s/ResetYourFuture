@@ -38,7 +38,7 @@ public class AssessmentsController : ControllerBase
     /// Resolves dual-language schema JSON to single-language for the student view.
     /// Maps labelEn/labelEl → label, optionsEn/optionsEl → options based on the requested language.
     /// </summary>
-    private static string ResolveSchemaJsonByLang( string schemaJson , bool isEl )
+    private string ResolveSchemaJsonByLang( string schemaJson , bool isEl )
     {
         try
         {
@@ -104,8 +104,9 @@ public class AssessmentsController : ControllerBase
             writer.Flush();
             return System.Text.Encoding.UTF8.GetString( ms.ToArray() );
         }
-        catch
+        catch ( Exception ex )
         {
+            _logger.LogError( ex , "Failed to resolve schema JSON by language; returning original." );
             return schemaJson;
         }
     }

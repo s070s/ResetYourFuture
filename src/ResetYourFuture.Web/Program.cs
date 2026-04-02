@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
@@ -166,6 +167,9 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy( "AdminOnly" , policy => policy.RequireRole( "Admin" ) )
     .AddPolicy( "StudentOnly" , policy => policy.RequireRole( "Student" ) );
 
+// --- HTML Sanitizer (XSS protection for rich-text content) ---
+builder.Services.AddSingleton<Ganss.Xss.IHtmlSanitizer>( _ => new Ganss.Xss.HtmlSanitizer() );
+
 // --- API Services ---
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
@@ -177,6 +181,9 @@ builder.Services.AddScoped<ITestimonialService , TestimonialService>();
 
 // --- Web Services ---
 builder.Services.AddScoped<IAuthService , AuthService>();
+builder.Services.AddScoped<ICourseService , CourseService>();
+builder.Services.AddScoped<IAdminCourseService , AdminCourseService>();
+builder.Services.AddScoped<IChatQueryService , ChatQueryService>();
 
 // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
 builder.Services.AddTransient<SsrApiHandler>();
@@ -229,13 +236,28 @@ builder.Services.Configure<RequestLocalizationOptions>( options =>
 } );
 
 builder.Services.AddMemoryCache();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR( o => o.MaximumReceiveMessageSize = 32_000 );
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddHostedService<BulkStudentSeedingService>();
 
+builder.Services.AddRateLimiter( options =>
+{
+    options.AddFixedWindowLimiter( "auth" , limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 10;
+        limiterOptions.Window = TimeSpan.FromMinutes( 1 );
+        limiterOptions.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+    } );
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+} );
+
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem( new DirectoryInfo(
+        Path.Combine( builder.Environment.ContentRootPath , "DataProtection-Keys" ) ) )
+    .SetApplicationName( "ResetYourFuture" );
 
 // --- Blazor SSR ---
 // AddCascadingAuthenticationState registers the ServerAuthenticationStateProvider
@@ -294,7 +316,10 @@ using ( var scope = app.Services.CreateScope() )
     // Seed Admin User
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var adminEmail = config [ "AdminUser:Email" ] ?? "admin@resetyourfuture.local";
-    var adminPassword = config [ "AdminUser:Password" ] ?? "Admin123!";
+    var adminPassword = config [ "AdminUser:Password" ];
+    if ( string.IsNullOrWhiteSpace( adminPassword ) )
+        throw new InvalidOperationException(
+            "AdminUser:Password is required. Set it via User Secrets (dev) or environment variable AdminUser__Password (prod)." );
 
     if ( await userManager.FindByEmailAsync( adminEmail ) is null )
     {
@@ -332,7 +357,9 @@ using ( var scope = app.Services.CreateScope() )
 
         var studentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Students" )
                               ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Students" );
-        var studentPassword = config [ "SeedData:StudentPassword" ] ?? "Student123!";
+        var studentPassword = config [ "SeedData:StudentPassword" ]
+            ?? throw new InvalidOperationException(
+                "SeedData:StudentPassword is required when SeedData:Enabled=true. Set it via User Secrets." );
         await StudentSeeder.SeedFromJsonAsync( userManager , studentJsonPath , studentPassword , startupLogger );
     }
 }
@@ -343,7 +370,25 @@ if ( app.Environment.IsDevelopment() )
     app.UseDeveloperExceptionPage();
     app.MapOpenApi();
 }
+else
+{
+    app.UseExceptionHandler( exceptionHandlerApp =>
+    {
+        exceptionHandlerApp.Run( async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync( new Microsoft.AspNetCore.Mvc.ProblemDetails
+            {
+                Status = StatusCodes.Status500InternalServerError ,
+                Title = "An unexpected error occurred." ,
+                Detail = "Please try again later."
+            } );
+        } );
+    } );
+}
 
+app.UseRateLimiter();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRequestLocalization();
@@ -494,6 +539,8 @@ app.MapGet( "/auth/complete" , async (
         } );
 
     logger.LogInformation( "User {UserId} signed in via /auth/complete." , userId );
+    if ( !string.IsNullOrEmpty( adminBackupId ) )
+        logger.LogWarning( "Admin {AdminId} is impersonating user {UserId}." , adminBackupId , userId );
 
     var redirect = "/";
     if ( !string.IsNullOrEmpty( returnUrl ) )
@@ -530,9 +577,10 @@ app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 
 // --- Sitemap ---
-app.MapGet( "/sitemap.xml" , async ( IBlogArticleService blog , HttpContext ctx ) =>
+app.MapGet( "/sitemap.xml" , async ( IBlogArticleService blog , IConfiguration sitemapConfig , HttpContext ctx ) =>
 {
-    const string baseUrl = "https://reset-your-future.com";
+    var baseUrl = sitemapConfig [ "Sitemap:BaseUrl" ]
+        ?? throw new InvalidOperationException( "Sitemap:BaseUrl is not configured." );
     var articles = await blog.GetPublishedSummariesAsync( 200 , "en" , ctx.RequestAborted );
 
     var sb = new System.Text.StringBuilder();

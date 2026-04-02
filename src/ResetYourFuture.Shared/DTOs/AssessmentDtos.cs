@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
@@ -19,12 +21,12 @@ public record AssessmentDefinitionDto(
 /// DTO for creating or updating an assessment definition.
 /// </summary>
 public record SaveAssessmentDefinitionRequest(
-    string Key,
-    string TitleEn,
-    string? TitleEl,
-    string? DescriptionEn,
-    string? DescriptionEl,
-    string SchemaJson
+    [Required, MaxLength(100)] string Key,
+    [Required, MaxLength(300)] string TitleEn,
+    [MaxLength(300)] string? TitleEl,
+    [MaxLength(1000)] string? DescriptionEn,
+    [MaxLength(1000)] string? DescriptionEl,
+    [Required] string SchemaJson
 );
 
 /// <summary>
@@ -60,7 +62,7 @@ public record AssessmentSubmissionDto(
 /// Request to submit assessment answers.
 /// </summary>
 public record SubmitAssessmentRequest(
-    string AnswersJson,
+    [Required] string AnswersJson,
     string? SummaryJson
 );
 

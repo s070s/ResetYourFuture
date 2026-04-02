@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
@@ -16,11 +17,13 @@ public class BlogArticleService : IBlogArticleService
 {
     private readonly ApplicationDbContext _db;
     private readonly ILogger<BlogArticleService> _logger;
+    private readonly IHtmlSanitizer _sanitizer;
 
-    public BlogArticleService( ApplicationDbContext db, ILogger<BlogArticleService> logger )
+    public BlogArticleService( ApplicationDbContext db, ILogger<BlogArticleService> logger, IHtmlSanitizer sanitizer )
     {
         _db = db;
         _logger = logger;
+        _sanitizer = sanitizer;
     }
 
     public async Task<IReadOnlyList<BlogArticleSummaryDto>> GetPublishedSummariesAsync(
@@ -117,8 +120,8 @@ public class BlogArticleService : IBlogArticleService
             Slug          = request.Slug,
             SummaryEn     = request.SummaryEn,
             SummaryEl     = request.SummaryEl,
-            ContentEn     = request.ContentEn,
-            ContentEl     = request.ContentEl,
+            ContentEn     = _sanitizer.Sanitize( request.ContentEn ),
+            ContentEl     = request.ContentEl is not null ? _sanitizer.Sanitize( request.ContentEl ) : null,
             CoverImageUrl = request.CoverImageUrl,
             AuthorName    = request.AuthorName,
             Tags          = SerializeTags( request.Tags ),
@@ -159,8 +162,8 @@ public class BlogArticleService : IBlogArticleService
         article.Slug          = request.Slug;
         article.SummaryEn     = request.SummaryEn;
         article.SummaryEl     = request.SummaryEl;
-        article.ContentEn     = request.ContentEn;
-        article.ContentEl     = request.ContentEl;
+        article.ContentEn     = _sanitizer.Sanitize( request.ContentEn );
+        article.ContentEl     = request.ContentEl is not null ? _sanitizer.Sanitize( request.ContentEl ) : null;
         article.CoverImageUrl = request.CoverImageUrl;
         article.AuthorName    = request.AuthorName;
         article.Tags          = SerializeTags( request.Tags );

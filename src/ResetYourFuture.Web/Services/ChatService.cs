@@ -15,6 +15,7 @@ public class ChatService : IChatService
     private readonly HttpClient _http;
     private readonly string _hubUrl;
     private readonly IAuthService _authService;
+    private readonly ILogger<ChatService> _logger;
     private HubConnection? _hub;
 
     public event Action<ChatMessageDto>? OnMessageReceived;
@@ -22,10 +23,11 @@ public class ChatService : IChatService
 
     public bool IsConnected => _hub?.State == HubConnectionState.Connected;
 
-    public ChatService( HttpClient http , IAuthService authService , IHttpContextAccessor httpContextAccessor )
+    public ChatService( HttpClient http , IAuthService authService , IHttpContextAccessor httpContextAccessor , ILogger<ChatService> logger )
     {
         _http = http;
         _authService = authService;
+        _logger = logger;
 
         // Capture hub URL from the current HTTP request before circuit transition.
         var request = httpContextAccessor.HttpContext?.Request;
@@ -66,8 +68,9 @@ public class ChatService : IChatService
         {
             await _hub.StartAsync();
         }
-        catch ( Exception )
+        catch ( Exception ex )
         {
+            _logger.LogError( ex , "Failed to start SignalR hub connection to {HubUrl}." , _hubUrl );
             await _hub.DisposeAsync();
             _hub = null;
         }
@@ -94,7 +97,10 @@ public class ChatService : IChatService
                        ?? new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
             }
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to fetch conversations (page={Page}).", page );
+        }
         return new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
     }
 
@@ -110,7 +116,10 @@ public class ChatService : IChatService
                        ?? new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
             }
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to fetch messages for conversation {ConversationId} (page={Page}).", conversationId , page );
+        }
         return new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
     }
 
@@ -125,7 +134,10 @@ public class ChatService : IChatService
                 return await response.Content.ReadFromJsonAsync<ChatConversationDto>();
             }
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to start conversation with user {TargetUserId}.", targetUserId );
+        }
         return null;
     }
 
@@ -143,7 +155,10 @@ public class ChatService : IChatService
                 return await response.Content.ReadFromJsonAsync<List<ChatUserDto>>() ?? [];
             }
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to fetch available chat users (search={Search}).", search );
+        }
         return [];
     }
 
@@ -173,7 +188,10 @@ public class ChatService : IChatService
                 return await response.Content.ReadFromJsonAsync<int>();
             }
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to fetch unread message count." );
+        }
         return 0;
     }
 
@@ -184,7 +202,10 @@ public class ChatService : IChatService
             var response = await _http.DeleteAsync( $"api/chat/conversations/{conversationId}" );
             return response.IsSuccessStatusCode;
         }
-        catch ( HttpRequestException ) { }
+        catch ( HttpRequestException ex )
+        {
+            _logger.LogError( ex , "Failed to delete conversation {ConversationId}.", conversationId );
+        }
         return false;
     }
 

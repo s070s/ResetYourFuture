@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
@@ -51,10 +53,10 @@ public record AdminCourseDto(
 /// Request to create/update a course.
 /// </summary>
 public record SaveCourseRequest(
-    string TitleEn,
-    string? TitleEl,
-    string? DescriptionEn,
-    string? DescriptionEl,
+    [Required, MaxLength(200)] string TitleEn,
+    [MaxLength(200)] string? TitleEl,
+    [MaxLength(1000)] string? DescriptionEn,
+    [MaxLength(1000)] string? DescriptionEl,
     SubscriptionTierEnum RequiredTier
 );
 
@@ -76,10 +78,10 @@ public record AdminModuleDto(
 /// Request to create/update a module.
 /// </summary>
 public record SaveModuleRequest(
-    string TitleEn,
-    string? TitleEl,
-    string? DescriptionEn,
-    string? DescriptionEl,
+    [Required, MaxLength(200)] string TitleEn,
+    [MaxLength(200)] string? TitleEl,
+    [MaxLength(1000)] string? DescriptionEn,
+    [MaxLength(1000)] string? DescriptionEl,
     int SortOrder,
     Guid CourseId
 );
@@ -105,11 +107,11 @@ public record AdminLessonDto(
 /// Request to create/update a lesson.
 /// </summary>
 public record SaveLessonRequest(
-    string TitleEn,
-    string? TitleEl,
+    [Required, MaxLength(200)] string TitleEn,
+    [MaxLength(200)] string? TitleEl,
     string? ContentEn,
     string? ContentEl,
-    string? VideoUrl,
+    [MaxLength(500)] string? VideoUrl,
     int? DurationMinutes,
     int SortOrder,
     Guid ModuleId

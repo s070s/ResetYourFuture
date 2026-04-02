@@ -319,7 +319,7 @@ public class SubscriptionService : ISubscriptionService
         };
     }
 
-    private static PlanFeaturesDto? DeserializeFeatures( string? json )
+    private PlanFeaturesDto? DeserializeFeatures( string? json )
     {
         if ( string.IsNullOrWhiteSpace( json ) )
             return null;
@@ -330,8 +330,9 @@ public class SubscriptionService : ISubscriptionService
                 PropertyNameCaseInsensitive = true
             } );
         }
-        catch
+        catch ( Exception ex )
         {
+            _logger.LogError( ex , "Failed to deserialize plan features JSON." );
             return null;
         }
     }

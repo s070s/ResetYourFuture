@@ -7,5 +7,6 @@ namespace ResetYourFuture.Web.Domain.Enums;
 public enum ContentType
 {
     Text = 1,
-    Video = 2
+    Video = 2,
+    Pdf = 3
 }

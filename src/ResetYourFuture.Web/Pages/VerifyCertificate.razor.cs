@@ -10,6 +10,7 @@ public partial class VerifyCertificate
     [Parameter] public Guid VerificationId { get; set; }
 
     [Inject] private ICertificateConsumer CertificateConsumer { get; set; } = default!;
+    [Inject] private ILogger<VerifyCertificate> _logger { get; set; } = default!;
 
     private CertificateVerificationDto? _result;
     private bool _loading = true;
@@ -25,7 +26,7 @@ public partial class VerifyCertificate
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to verify certificate {VerificationId}." , VerificationId );
         }
         finally
         {

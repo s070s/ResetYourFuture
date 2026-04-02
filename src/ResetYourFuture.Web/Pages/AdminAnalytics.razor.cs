@@ -7,6 +7,7 @@ namespace ResetYourFuture.Web.Pages;
 public partial class AdminAnalytics
 {
     [Inject] private IAdminAnalyticsConsumer Analytics { get; set; } = default!;
+    [Inject] private ILogger<AdminAnalytics> _logger { get; set; } = default!;
 
     private AnalyticsSummaryDto? stats;
 
@@ -18,7 +19,7 @@ public partial class AdminAnalytics
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( $"Error loading analytics: {ex.Message}" );
+            _logger.LogError( ex , "Error loading analytics." );
         }
     }
 }

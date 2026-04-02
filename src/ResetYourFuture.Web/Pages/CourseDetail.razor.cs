@@ -16,6 +16,7 @@ public partial class CourseDetail
     [Inject] private ICourseConsumer CourseService { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<CourseDetail> _logger { get; set; } = default!;
 
     private CourseDetailDto? _course;
     private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
@@ -33,7 +34,7 @@ public partial class CourseDetail
         var tierTask = SubscriptionService.GetStatusAsync();
         await Task.WhenAll( LoadCourse(), tierTask );
 
-        var status = tierTask.Result;
+        var status = await tierTask;
         if ( status is not null )
             _userTier = status.Tier;
     }
@@ -62,7 +63,7 @@ public partial class CourseDetail
         catch ( Exception ex )
         {
             _error = "Failed to load course. Please try again.";
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load course {CourseId}." , CourseId );
         }
         finally
         {
@@ -95,7 +96,7 @@ public partial class CourseDetail
         catch ( Exception ex )
         {
             _enrollError = "Failed to enroll. Please try again.";
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to enroll in course {CourseId}." , CourseId );
         }
         finally
         {

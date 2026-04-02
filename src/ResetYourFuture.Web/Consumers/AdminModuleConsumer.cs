@@ -1,55 +1,24 @@
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Web.Consumers;
 
 /// <summary>
 /// HTTP consumer for the admin module management API.
 /// </summary>
-public class AdminModuleConsumer : IAdminModuleConsumer
+public class AdminModuleConsumer( HttpClient http ) : ApiClientBase( http ), IAdminModuleConsumer
 {
-    private readonly HttpClient _http;
-
-    public AdminModuleConsumer( HttpClient http )
-    {
-        _http = http;
-    }
-
     public async Task<List<AdminModuleDto>> GetModulesByCourseAsync( Guid courseId )
-    {
-        var response = await _http.GetAsync( $"api/admin/modules/course/{courseId}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<List<AdminModuleDto>>() ?? []
-            : [];
-    }
+        => await GetAsync<List<AdminModuleDto>>( $"api/admin/modules/course/{courseId}" ) ?? [];
 
-    public async Task<AdminModuleDto?> GetModuleAsync( Guid id )
-    {
-        var response = await _http.GetAsync( $"api/admin/modules/{id}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminModuleDto>()
-            : null;
-    }
+    public Task<AdminModuleDto?> GetModuleAsync( Guid id )
+        => GetAsync<AdminModuleDto>( $"api/admin/modules/{id}" );
 
-    public async Task<AdminModuleDto?> CreateModuleAsync( SaveModuleRequest request )
-    {
-        var response = await _http.PostAsJsonAsync( "api/admin/modules" , request );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminModuleDto>()
-            : null;
-    }
+    public Task<AdminModuleDto?> CreateModuleAsync( SaveModuleRequest request )
+        => PostJsonAsync<SaveModuleRequest, AdminModuleDto>( "api/admin/modules", request );
 
-    public async Task<AdminModuleDto?> UpdateModuleAsync( Guid id , SaveModuleRequest request )
-    {
-        var response = await _http.PutAsJsonAsync( $"api/admin/modules/{id}" , request );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminModuleDto>()
-            : null;
-    }
+    public Task<AdminModuleDto?> UpdateModuleAsync( Guid id, SaveModuleRequest request )
+        => PutJsonAsync<SaveModuleRequest, AdminModuleDto>( $"api/admin/modules/{id}", request );
 
-    public async Task<bool> DeleteModuleAsync( Guid id )
-    {
-        var response = await _http.DeleteAsync( $"api/admin/modules/{id}" );
-        return response.IsSuccessStatusCode;
-    }
+    public Task<bool> DeleteModuleAsync( Guid id )
+        => DeleteAsync( $"api/admin/modules/{id}" );
 }

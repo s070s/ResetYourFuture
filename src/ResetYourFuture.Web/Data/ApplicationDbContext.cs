@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Identity;
+using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Data;
 
@@ -12,9 +14,13 @@ namespace ResetYourFuture.Web.Data;
 /// </summary>
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-    public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options )
+    private readonly IHttpContextAccessor? _httpContextAccessor;
+
+    public ApplicationDbContext( DbContextOptions<ApplicationDbContext> options ,
+        IHttpContextAccessor? httpContextAccessor = null )
         : base( options )
     {
+        _httpContextAccessor = httpContextAccessor;
     }
 
     // --- Core Domain DbSets ---
@@ -82,11 +88,48 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.Property( u => u.FirstName ).HasMaxLength( 100 );
             entity.Property( u => u.LastName ).HasMaxLength( 100 );
 
-            // Indexes for server-side sorting performance
-            entity.HasIndex( u => u.Email ).HasDatabaseName( "IX_AspNetUsers_Email" );
-            entity.HasIndex( u => u.FirstName ).HasDatabaseName( "IX_AspNetUsers_FirstName" );
-            entity.HasIndex( u => u.LastName ).HasDatabaseName( "IX_AspNetUsers_LastName" );
-            entity.HasIndex( u => u.CreatedAt ).HasDatabaseName( "IX_AspNetUsers_CreatedAt" );
-        } );
-    }
-}
+                    // Indexes for server-side sorting performance
+                        entity.HasIndex( u => u.Email ).HasDatabaseName( "IX_AspNetUsers_Email" );
+                        entity.HasIndex( u => u.FirstName ).HasDatabaseName( "IX_AspNetUsers_FirstName" );
+                        entity.HasIndex( u => u.LastName ).HasDatabaseName( "IX_AspNetUsers_LastName" );
+                        entity.HasIndex( u => u.CreatedAt ).HasDatabaseName( "IX_AspNetUsers_CreatedAt" );
+                    } );
+
+                // Global soft-delete filter for all AuditableEntity subtypes
+                foreach ( var entityType in builder.Model.GetEntityTypes() )
+                {
+                    if ( typeof( AuditableEntity ).IsAssignableFrom( entityType.ClrType ) )
+                    {
+                        var param = Expression.Parameter( entityType.ClrType, "e" );
+                        var prop = Expression.Property( param, nameof( AuditableEntity.IsDeleted ) );
+                        var filter = Expression.Lambda( Expression.Not( prop ), param );
+                        builder.Entity( entityType.ClrType ).HasQueryFilter( filter );
+                    }
+                }
+                }
+
+                public override Task<int> SaveChangesAsync( CancellationToken cancellationToken = default )
+                {
+                    var currentUserId = _httpContextAccessor?.HttpContext?.User
+                        .FindFirstValue( ClaimTypes.NameIdentifier );
+
+                    var now = DateTimeOffset.UtcNow;
+
+                    foreach ( var entry in ChangeTracker.Entries<AuditableEntity>() )
+                    {
+                        if ( entry.State == EntityState.Added )
+                        {
+                            entry.Entity.CreatedAt = now;
+                            entry.Entity.CreatedByUserId ??= currentUserId;
+                        }
+
+                        if ( entry.State is EntityState.Added or EntityState.Modified )
+                        {
+                            entry.Entity.UpdatedAt = now;
+                            entry.Entity.UpdatedByUserId ??= currentUserId;
+                        }
+                    }
+
+                    return base.SaveChangesAsync( cancellationToken );
+                }
+            }

@@ -21,6 +21,7 @@ public partial class LessonViewer
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private ILogger<LessonViewer> _logger { get; set; } = default!;
 
     private LessonDetailDto? _lesson;
     private LessonCompletionResultDto? _completionResult;
@@ -54,7 +55,7 @@ public partial class LessonViewer
         catch ( Exception ex )
         {
             _error = LessonRes.FailedToLoadLesson;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load lesson {LessonId}." , LessonId );
         }
         finally
         {
@@ -79,7 +80,7 @@ public partial class LessonViewer
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to mark lesson {LessonId} as complete." , LessonId );
         }
         finally
         {

@@ -8,18 +8,11 @@ namespace ResetYourFuture.Web.Consumers;
 /// Transforms the raw AvatarPath into a fully-qualified media URL so Blazor
 /// components can use it directly as an img src without knowing the API base address.
 /// </summary>
-public class TestimonialConsumer : ITestimonialConsumer
+public class TestimonialConsumer( HttpClient http ) : ApiClientBase( http ), ITestimonialConsumer
 {
-    private readonly HttpClient _http;
-
-    public TestimonialConsumer( HttpClient http )
-    {
-        _http = http;
-    }
-
     public async Task<IReadOnlyList<TestimonialDto>?> GetActiveAsync( CancellationToken ct = default )
     {
-        var response = await _http.GetAsync( "api/testimonials", ct );
+        var response = await Http.GetAsync( "api/testimonials", ct );
         if ( !response.IsSuccessStatusCode )
             return null;
 
@@ -27,7 +20,7 @@ public class TestimonialConsumer : ITestimonialConsumer
         if ( items is null )
             return null;
 
-        var apiBase = _http.BaseAddress?.ToString().TrimEnd( '/' ) ?? string.Empty;
+        var apiBase = Http.BaseAddress?.ToString().TrimEnd( '/' ) ?? string.Empty;
 
         return items.Select( t => new TestimonialDto(
             t.Id,

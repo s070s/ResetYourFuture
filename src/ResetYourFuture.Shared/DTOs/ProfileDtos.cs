@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Shared.DTOs;
 /// <summary>
 /// User profile information.
@@ -16,9 +18,9 @@ public record ProfileDto(
 /// Request to update user profile.
 /// </summary>
 public record UpdateProfileRequest(
-    string FirstName,
-    string LastName,
-    string? DisplayName,
+    [Required, MaxLength(100)] string FirstName,
+    [Required, MaxLength(100)] string LastName,
+    [MaxLength(100)] string? DisplayName,
     DateOnly? DateOfBirth
 );
 
@@ -26,6 +28,6 @@ public record UpdateProfileRequest(
 /// Request to change password.
 /// </summary>
 public record ChangePasswordRequest(
-    string CurrentPassword,
-    string NewPassword
+    [Required] string CurrentPassword,
+    [Required, MinLength(8), MaxLength(128)] string NewPassword
 );

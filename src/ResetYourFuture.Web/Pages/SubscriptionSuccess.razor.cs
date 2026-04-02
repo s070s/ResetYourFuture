@@ -8,6 +8,7 @@ public partial class SubscriptionSuccess
 {
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<SubscriptionSuccess> _logger { get; set; } = default!;
 
     private UserSubscriptionStatusDto? _status;
     private bool _loading = true;
@@ -20,7 +21,7 @@ public partial class SubscriptionSuccess
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load subscription status on success page." );
         }
         finally
         {

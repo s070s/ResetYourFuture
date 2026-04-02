@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
@@ -32,15 +34,15 @@ public record ChatMessageDto(
 /// </summary>
 public record SendMessageRequest(
     Guid ConversationId,
-    string Content
+    [Required, MaxLength(4000)] string Content
 );
 
 /// <summary>
 /// Request to start a conversation with a specific user.
 /// </summary>
 public record StartConversationRequest(
-    string TargetUserId,
-    string? InitialMessage
+    [Required] string TargetUserId,
+    [MaxLength(4000)] string? InitialMessage
 );
 
 /// <summary>

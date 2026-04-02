@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Identity;
@@ -22,6 +23,7 @@ public class AuthController : ControllerBase
     private readonly ILogger<AuthController> _logger;
     private readonly ApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly IEmailService _emailService;
 
     public AuthController(
         UserManager<ApplicationUser> userManager ,
@@ -30,7 +32,8 @@ public class AuthController : ControllerBase
         ISubscriptionService subscriptionService ,
         ILogger<AuthController> logger ,
         ApplicationDbContext context ,
-        IWebHostEnvironment env )
+        IWebHostEnvironment env ,
+        IEmailService emailService )
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -39,6 +42,7 @@ public class AuthController : ControllerBase
         _logger = logger;
         _context = context;
         _env = env;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -46,6 +50,7 @@ public class AuthController : ControllerBase
     /// Email confirmation is required before login.
     /// </summary>
     [HttpPost( "register" )]
+    [EnableRateLimiting( "auth" )]
     public async Task<ActionResult<AuthResponseDto>> Register( [FromBody] RegisterRequestDto request )
     {
         if ( !ModelState.IsValid )
@@ -99,12 +104,13 @@ public class AuthController : ControllerBase
         } , Request.Scheme );
 
         // TODO: Send email with confirmUrl. For now, return in response (dev only).
-        _logger.LogInformation( "User {Email} registered. Confirmation URL: {Url}" , request.Email , confirmUrl );
+        _logger.LogInformation( "User {Email} registered. Confirmation email queued." , request.Email );
+        await _emailService.SendEmailConfirmationAsync( user.Email! , confirmUrl! );
 
         return Ok( new AuthResponseDto
         {
             Success = true ,
-            Message = $"Registration successful. Please confirm your email. (Dev: {confirmUrl})"
+            Message = "Registration successful. Please check your email to confirm your account."
         } );
     }
 
@@ -136,6 +142,7 @@ public class AuthController : ControllerBase
     /// Login with email and password. Returns JWT access token.
     /// </summary>
     [HttpPost( "login" )]
+    [EnableRateLimiting( "auth" )]
     public async Task<ActionResult<AuthResponseDto>> Login( [FromBody] LoginRequestDto request )
     {
         if ( !ModelState.IsValid )
@@ -225,12 +232,13 @@ public class AuthController : ControllerBase
         var resetUrl = $"{Request.Scheme}://{Request.Host}/reset-password?email={user.Email}&token={Uri.EscapeDataString( token )}";
 
         // TODO: Send email with resetUrl
-        _logger.LogInformation( "Password reset requested for {Email}. Reset URL: {Url}" , request.Email , resetUrl );
+        _logger.LogInformation( "Password reset requested for {Email}. Reset email queued." , request.Email );
+        await _emailService.SendPasswordResetAsync( user.Email! , resetUrl );
 
         return Ok( new AuthResponseDto
         {
             Success = true ,
-            Message = $"If the email exists, a reset link has been sent. (Dev: {resetUrl})"
+            Message = "If the email exists, a reset link has been sent."
         } );
     }
 

@@ -17,6 +17,7 @@ public partial class AssessmentForm
     [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ILogger<AssessmentForm> _logger { get; set; } = default!;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -56,7 +57,7 @@ public partial class AssessmentForm
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( $"Error loading assessment: {ex.Message}" );
+            _logger.LogError( ex , "Error loading assessment {AssessmentId}." , AssessmentId );
         }
     }
 
@@ -93,12 +94,12 @@ public partial class AssessmentForm
             }
             else
             {
-                Console.WriteLine( "Error submitting assessment." );
+                _logger.LogError( "Assessment submission {AssessmentId} returned null." , AssessmentId );
             }
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( $"Error submitting assessment: {ex.Message}" );
+            _logger.LogError( ex , "Error submitting assessment {AssessmentId}." , AssessmentId );
         }
         finally
         {

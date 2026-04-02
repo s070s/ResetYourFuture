@@ -11,6 +11,7 @@ public partial class Assessments
     [Inject] private IAssessmentConsumer AssessmentService { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ILogger<Assessments> _logger { get; set; } = default!;
 
     private PagedResult<AssessmentDefinitionDto>? _pagedResult;
     private bool _assessmentAccess = false;
@@ -47,7 +48,7 @@ public partial class Assessments
         catch ( Exception ex )
         {
             _error = AssessmentRes.FailedToLoad;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load assessments." );
         }
         finally
         {

@@ -1,11 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Extensions;
-using ResetYourFuture.Web.Identity;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
@@ -20,34 +14,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/[controller]" )]
 [Authorize]
-public class ChatController : ControllerBase
+public class ChatController( IChatQueryService chatService ) : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ISubscriptionService _subscriptionService;
-    private readonly ILogger<ChatController> _logger;
-
-    public ChatController(
-        ApplicationDbContext db ,
-        UserManager<ApplicationUser> userManager ,
-        ISubscriptionService subscriptionService ,
-        ILogger<ChatController> logger )
-    {
-        _db = db;
-        _userManager = userManager;
-        _subscriptionService = subscriptionService;
-        _logger = logger;
-    }
-
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
-
-    private async Task<bool> HasChatAccessAsync( string userId )
-    {
-        if ( User.IsInRole( "Admin" ) )
-            return true;
-        var status = await _subscriptionService.GetUserStatusAsync( userId );
-        return status.Features?.PrioritySupport == true;
-    }
 
     /// <summary>
     /// Get conversations for the current user (server-side paginated).
@@ -62,62 +31,11 @@ public class ChatController : ControllerBase
         pageSize = Math.Clamp( pageSize , 1 , 100 );
 
         var userId = UserId;
-        if ( !await HasChatAccessAsync( userId ) )
+        if ( !await chatService.HasChatAccessAsync( userId , User.IsInRole( "Admin" ) ) )
             return StatusCode( 403 , "Chat requires a Pro subscription." );
 
-        var query = _db.ChatConversations
-            .Include( c => c.Creator )
-            .Include( c => c.Participant )
-            .Where( c => c.CreatorId == userId || c.ParticipantId == userId )
-            .OrderByDescending( c => c.LastMessageAt ?? c.CreatedAt );
-
-        var totalCount = await query.CountAsync( cancellationToken );
-
-        var conversations = await query
-            .Skip( ( page - 1 ) * pageSize )
-            .Take( pageSize )
-            .ToListAsync( cancellationToken );
-
-        var conversationIds = conversations.Select( c => c.Id ).ToList();
-
-        var unreadCounts = await _db.ChatMessages
-            .Where( m => conversationIds.Contains( m.ConversationId ) && m.SenderId != userId && !m.IsRead )
-            .GroupBy( m => m.ConversationId )
-            .Select( g => new { ConversationId = g.Key , Count = g.Count() } )
-            .ToDictionaryAsync( x => x.ConversationId , x => x.Count , cancellationToken );
-
-        var otherUserIds = conversations
-            .Select( c => c.CreatorId == userId ? c.ParticipantId : c.CreatorId )
-            .Distinct()
-            .ToList();
-
-        var roleData = await _db.UserRoles
-            .Where( ur => otherUserIds.Contains( ur.UserId ) )
-            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
-            .ToListAsync( cancellationToken );
-
-        var roleMap = roleData
-            .GroupBy( x => x.UserId )
-            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
-
-        var result = conversations.Select( c =>
-        {
-            var otherUserId = c.CreatorId == userId ? c.ParticipantId : c.CreatorId;
-            var otherUser = c.CreatorId == userId ? c.Participant : c.Creator;
-            var otherRole = roleMap.TryGetValue( otherUserId , out var role ) ? role : "User";
-            var unreadCount = unreadCounts.TryGetValue( c.Id , out var count ) ? count : 0;
-
-            return new ChatConversationDto(
-                c.Id ,
-                otherUserId ,
-                $"{otherUser?.FirstName} {otherUser?.LastName}" ,
-                otherRole ,
-                c.LastMessageContent ,
-                c.LastMessageAt ,
-                unreadCount );
-        } ).ToList();
-
-        return Ok( new PagedResult<ChatConversationDto>( result , totalCount , page , pageSize ) );
+        var result = await chatService.GetConversationsAsync( userId , page , pageSize , cancellationToken );
+        return Ok( result );
     }
 
     /// <summary>
@@ -133,51 +51,10 @@ public class ChatController : ControllerBase
         page = Math.Max( 1 , page );
         pageSize = Math.Clamp( pageSize , 1 , 100 );
 
-        var userId = UserId;
-
-        var conversation = await _db.ChatConversations
-            .FirstOrDefaultAsync( c => c.Id == conversationId , cancellationToken );
-
-        if ( conversation is null )
-            return NotFound();
-
-        if ( conversation.CreatorId != userId && conversation.ParticipantId != userId )
-            return Forbid();
-
-        var query = _db.ChatMessages
-            .Include( m => m.Sender )
-            .Where( m => m.ConversationId == conversationId );
-
-        var totalCount = await query.CountAsync( cancellationToken );
-
-        var messages = await query
-            .OrderBy( m => m.SentAt )
-            .Skip( ( page - 1 ) * pageSize )
-            .Take( pageSize )
-            .ToListAsync( cancellationToken );
-
-        var senderIds = messages.Select( m => m.SenderId ).Distinct().ToList();
-
-        var roleData = await _db.UserRoles
-            .Where( ur => senderIds.Contains( ur.UserId ) )
-            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
-            .ToListAsync( cancellationToken );
-
-        var roleMap = roleData
-            .GroupBy( x => x.UserId )
-            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
-
-        var result = messages.Select( m => new ChatMessageDto(
-            m.Id ,
-            m.ConversationId ,
-            m.SenderId ,
-            $"{m.Sender?.FirstName} {m.Sender?.LastName}" ,
-            roleMap.TryGetValue( m.SenderId , out var role ) ? role : "User" ,
-            m.Content ,
-            m.SentAt ,
-            m.IsRead ) ).ToList();
-
-        return Ok( new PagedResult<ChatMessageDto>( result , totalCount , page , pageSize ) );
+        var result = await chatService.GetMessagesAsync( UserId , conversationId , page , pageSize , cancellationToken );
+        if ( !result.IsSuccess )
+            return StatusCode( result.StatusCode );
+        return Ok( result.Value );
     }
 
     /// <summary>
@@ -188,66 +65,10 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<ChatConversationDto>> StartConversation(
         [FromBody] StartConversationRequest request )
     {
-        var callerId = UserId;
-        if ( !await HasChatAccessAsync( callerId ) )
-            return StatusCode( 403 , "Chat requires a Pro subscription." );
-
-        if ( string.IsNullOrWhiteSpace( request.TargetUserId ) )
-            return BadRequest( "TargetUserId is required." );
-
-        if ( request.TargetUserId == callerId )
-            return BadRequest( "Cannot start a conversation with yourself." );
-
-        var targetUser = await _userManager.FindByIdAsync( request.TargetUserId );
-        if ( targetUser is null || !targetUser.IsEnabled )
-            return NotFound( "User not found." );
-
-        // Normalize the pair so (A,B) and (B,A) always map to the same row.
-        var (user1Id , user2Id) = NormalizePair( callerId , request.TargetUserId );
-
-        // Check for existing conversation between these two users.
-        var existing = await _db.ChatConversations
-            .Include( c => c.Creator )
-            .Include( c => c.Participant )
-            .FirstOrDefaultAsync( c => c.CreatorId == user1Id && c.ParticipantId == user2Id );
-
-        if ( existing is not null )
-        {
-            if ( !string.IsNullOrWhiteSpace( request.InitialMessage ) )
-            {
-                var hasMessages = await _db.ChatMessages
-                    .AnyAsync( m => m.ConversationId == existing.Id );
-
-                if ( !hasMessages )
-                {
-                    await AddInitialMessage( existing , callerId , request.InitialMessage );
-                }
-            }
-
-            return Ok( await ToDtoForUser( existing , callerId ) );
-        }
-
-        var caller = await _userManager.FindByIdAsync( callerId );
-
-        var conversation = new ChatConversation
-        {
-            CreatorId = user1Id ,
-            ParticipantId = user2Id
-        };
-
-        _db.ChatConversations.Add( conversation );
-        await _db.SaveChangesAsync();
-
-        // Load navigation properties.
-        conversation.Creator = user1Id == callerId ? caller : targetUser;
-        conversation.Participant = user2Id == callerId ? caller : targetUser;
-
-        if ( !string.IsNullOrWhiteSpace( request.InitialMessage ) )
-        {
-            await AddInitialMessage( conversation , callerId , request.InitialMessage );
-        }
-
-        return Ok( await ToDtoForUser( conversation , callerId ) );
+        var result = await chatService.StartConversationAsync( UserId , User.IsInRole( "Admin" ) , request );
+        if ( !result.IsSuccess )
+            return StatusCode( result.StatusCode , result.ErrorMessage );
+        return Ok( result.Value );
     }
 
     /// <summary>
@@ -257,45 +78,10 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<List<ChatUserDto>>> GetAvailableUsers( [FromQuery] string? search )
     {
         var userId = UserId;
-        if ( !await HasChatAccessAsync( userId ) )
+        if ( !await chatService.HasChatAccessAsync( userId , User.IsInRole( "Admin" ) ) )
             return StatusCode( 403 , "Chat requires a Pro subscription." );
 
-        // Get IDs of users the caller already has conversations with.
-        var existingPartnerIds = await _db.ChatConversations
-            .Where( c => c.CreatorId == userId || c.ParticipantId == userId )
-            .Select( c => c.CreatorId == userId ? c.ParticipantId : c.CreatorId )
-            .ToListAsync();
-
-        var query = _userManager.Users
-            .Where( u => u.Id != userId && u.IsEnabled && !existingPartnerIds.Contains( u.Id ) );
-
-        if ( !string.IsNullOrWhiteSpace( search ) )
-        {
-            query = query.ApplySearch( search.Trim() );
-        }
-
-        var users = await query
-            .OrderBy( u => u.FirstName )
-            .ThenBy( u => u.LastName )
-            .Take( 20 )
-            .ToListAsync();
-
-        var userIds = users.Select( u => u.Id ).ToList();
-
-        var roleData = await _db.UserRoles
-            .Where( ur => userIds.Contains( ur.UserId ) )
-            .Join( _db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
-            .ToListAsync();
-
-        var roleMap = roleData
-            .GroupBy( x => x.UserId )
-            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).FirstOrDefault() ?? "User" );
-
-        var result = users.Select( u => new ChatUserDto(
-            u.Id ,
-            $"{u.FirstName} {u.LastName}" ,
-            roleMap.TryGetValue( u.Id , out var role ) ? role : "User" ) ).ToList();
-
+        var result = await chatService.GetAvailableUsersAsync( userId , search );
         return Ok( result );
     }
 
@@ -307,20 +93,9 @@ public class ChatController : ControllerBase
         Guid conversationId ,
         CancellationToken cancellationToken = default )
     {
-        var userId = UserId;
-
-        var conversation = await _db.ChatConversations
-            .FirstOrDefaultAsync( c => c.Id == conversationId , cancellationToken );
-
-        if ( conversation is null )
-            return NotFound();
-
-        if ( conversation.CreatorId != userId && conversation.ParticipantId != userId )
-            return Forbid();
-
-        _db.ChatConversations.Remove( conversation );
-        await _db.SaveChangesAsync( cancellationToken );
-
+        var result = await chatService.DeleteConversationAsync( UserId , conversationId , cancellationToken );
+        if ( !result.IsSuccess )
+            return StatusCode( result.StatusCode );
         return NoContent();
     }
 
@@ -330,66 +105,7 @@ public class ChatController : ControllerBase
     [HttpGet( "unread-count" )]
     public async Task<ActionResult<int>> GetUnreadCount()
     {
-        var userId = UserId;
-
-        var count = await (
-            from m in _db.ChatMessages
-            join c in _db.ChatConversations on m.ConversationId equals c.Id
-            where !m.IsRead && m.SenderId != userId
-               && ( c.CreatorId == userId || c.ParticipantId == userId )
-            select m
-        ).CountAsync();
-
+        var count = await chatService.GetUnreadCountAsync( UserId );
         return Ok( count );
-    }
-
-    /// <summary>
-    /// Normalizes a user pair so the lexicographically smaller ID is always first.
-    /// This ensures the unique index works regardless of who initiates.
-    /// </summary>
-    private static (string User1Id , string User2Id) NormalizePair( string a , string b ) =>
-        string.CompareOrdinal( a , b ) < 0 ? (a , b) : (b , a);
-
-    private async Task AddInitialMessage( ChatConversation conversation , string senderId , string content )
-    {
-        var message = new ChatMessage
-        {
-            ConversationId = conversation.Id ,
-            SenderId = senderId ,
-            Content = content.Trim() ,
-            SentAt = DateTime.UtcNow
-        };
-
-        _db.ChatMessages.Add( message );
-
-        conversation.LastMessageContent = message.Content.Length > 500
-            ? message.Content [ ..497 ] + "..."
-            : message.Content;
-        conversation.LastMessageAt = message.SentAt;
-
-        await _db.SaveChangesAsync();
-    }
-
-    private async Task<ChatConversationDto> ToDtoForUser( ChatConversation c , string userId )
-    {
-        var otherUser = c.CreatorId == userId ? c.Participant : c.Creator;
-        var otherUserId = c.CreatorId == userId ? c.ParticipantId : c.CreatorId;
-        var otherRole = otherUser is not null
-            ? ( await _userManager.GetRolesAsync( otherUser ) ).FirstOrDefault() ?? "User"
-            : "User";
-
-        var unreadCount = await _db.ChatMessages
-            .CountAsync( m => m.ConversationId == c.Id
-                           && m.SenderId != userId
-                           && !m.IsRead );
-
-        return new ChatConversationDto(
-            c.Id ,
-            otherUserId ,
-            $"{otherUser?.FirstName} {otherUser?.LastName}" ,
-            otherRole ,
-            c.LastMessageContent ,
-            c.LastMessageAt ,
-            unreadCount );
     }
 }

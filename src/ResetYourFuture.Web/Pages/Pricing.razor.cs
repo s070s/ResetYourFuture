@@ -9,6 +9,7 @@ public partial class Pricing
 {
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<Pricing> _logger { get; set; } = default!;
 
     private List<SubscriptionPlanDto> _plans = [];
     private UserSubscriptionStatusDto? _currentStatus;
@@ -28,7 +29,7 @@ public partial class Pricing
         catch ( Exception ex )
         {
             _error = PricingRes.FailedToLoadPlans;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load pricing plans." );
         }
         finally
         {
@@ -57,7 +58,7 @@ public partial class Pricing
         catch ( Exception ex )
         {
             _error = PricingRes.CheckoutFailed;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Checkout failed for plan {PlanId}." , planId );
         }
         finally
         {
@@ -87,7 +88,7 @@ public partial class Pricing
         {
             _cancelSuccess = false;
             _cancelMessage = PricingRes.FailedToCancel;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to cancel subscription." );
         }
         finally
         {

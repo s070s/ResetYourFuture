@@ -11,6 +11,7 @@ public partial class MyCertificates
 {
     [Inject] private ICertificateConsumer CertificateConsumer { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private ILogger<MyCertificates> _logger { get; set; } = default!;
 
     private List<CertificateDto>? _certificates;
     private bool _loading = true;
@@ -29,7 +30,7 @@ public partial class MyCertificates
         catch ( Exception ex )
         {
             _error = CertificateRes.FailedToLoad;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load certificates." );
         }
         finally
         {
@@ -57,7 +58,7 @@ public partial class MyCertificates
         catch ( Exception ex )
         {
             _error = CertificateRes.DownloadFailed;
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to download certificate {CertificateId}." , cert.Id );
         }
         finally
         {

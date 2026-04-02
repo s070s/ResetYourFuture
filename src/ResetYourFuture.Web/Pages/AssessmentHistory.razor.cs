@@ -9,6 +9,7 @@ namespace ResetYourFuture.Web.Pages;
 public partial class AssessmentHistory
 {
     [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
+    [Inject] private ILogger<AssessmentHistory> _logger { get; set; } = default!;
 
     private List<AssessmentSubmissionDto>? submissions;
     private List<AssessmentSubmissionDto> _sortedSubmissions = new();
@@ -43,7 +44,7 @@ public partial class AssessmentHistory
         }
         catch ( Exception ex )
         {
-            Console.WriteLine( $"Error loading submissions: {ex.Message}" );
+            _logger.LogError( ex , "Error loading assessment submissions." );
             submissions = new List<AssessmentSubmissionDto>();
         }
     }

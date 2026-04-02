@@ -25,7 +25,7 @@ window.quillInterop = {
         });
 
         if (initialContent) {
-            quill.root.innerHTML = initialContent;
+            quill.clipboard.dangerouslyPasteHTML(initialContent);
         }
 
         this._instances[elementId] = quill;
@@ -44,7 +44,11 @@ window.quillInterop = {
     setContent: function (elementId, content) {
         const quill = this._instances[elementId];
         if (!quill) return;
-        quill.root.innerHTML = content || '';
+        if (!content) {
+            quill.setContents([]);
+        } else {
+            quill.clipboard.dangerouslyPasteHTML(content);
+        }
     },
 
     // Dispose a Quill editor instance.

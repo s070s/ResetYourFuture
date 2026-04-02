@@ -12,6 +12,7 @@ public partial class AvatarDropdown : IDisposable
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private ILogger<AvatarDropdown> _logger { get; set; } = default!;
 
     private bool isOpen;
     private bool _isImpersonating;
@@ -32,14 +33,21 @@ public partial class AvatarDropdown : IDisposable
 
     private async void OnAuthStateChanged( Task<AuthenticationState> task )
     {
-        var state = await task;
-        _isImpersonating = IsImpersonating( state.User );
-        if ( state.User.Identity?.IsAuthenticated == true )
-            await LoadAvatarAsync();
-        else
-            avatarDataUrl = null;
+        try
+        {
+            var state = await task;
+            _isImpersonating = IsImpersonating( state.User );
+            if ( state.User.Identity?.IsAuthenticated == true )
+                await LoadAvatarAsync();
+            else
+                avatarDataUrl = null;
 
-        await InvokeAsync( StateHasChanged );
+            await InvokeAsync( StateHasChanged );
+        }
+        catch ( Exception ex )
+        {
+            _logger.LogError( ex , "Error refreshing avatar state." );
+        }
     }
 
     /// <summary>

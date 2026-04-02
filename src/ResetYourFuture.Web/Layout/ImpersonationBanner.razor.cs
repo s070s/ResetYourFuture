@@ -10,6 +10,7 @@ public partial class ImpersonationBanner : IDisposable
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthState { get; set; } = default!;
+    [Inject] private ILogger<ImpersonationBanner> _logger { get; set; } = default!;
 
     private bool _isImpersonating;
     private string _impersonatedEmail = "";
@@ -23,8 +24,15 @@ public partial class ImpersonationBanner : IDisposable
 
     private async void OnAuthStateChangedAsync( Task<AuthenticationState> task )
     {
-        await RefreshAsync( await task );
-        await InvokeAsync( StateHasChanged );
+        try
+        {
+            await RefreshAsync( await task );
+            await InvokeAsync( StateHasChanged );
+        }
+        catch ( Exception ex )
+        {
+            _logger.LogError( ex , "Error refreshing impersonation state." );
+        }
     }
 
     private Task RefreshAsync( AuthenticationState state )

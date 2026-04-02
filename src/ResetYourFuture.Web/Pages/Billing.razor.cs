@@ -8,6 +8,7 @@ public partial class Billing
 {
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
+    [Inject] private ILogger<Billing> _logger { get; set; } = default!;
 
     private BillingOverviewDto? _overview;
     private bool _loading = true;
@@ -35,7 +36,7 @@ public partial class Billing
         catch ( Exception ex )
         {
             _error = "Failed to load billing information. Please try again.";
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to load billing overview." );
         }
         finally
         {
@@ -82,7 +83,7 @@ public partial class Billing
         {
             _cancelSuccess = false;
             _cancelMessage = "Failed to cancel. Please try again.";
-            Console.WriteLine( ex.Message );
+            _logger.LogError( ex , "Failed to cancel subscription." );
         }
         finally
         {

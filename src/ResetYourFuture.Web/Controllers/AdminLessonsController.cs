@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +22,15 @@ public class AdminLessonsController : ControllerBase
     private readonly ApplicationDbContext _db;
     // File storage abstraction used to save and delete lesson PDFs and videos.
     private readonly IFileStorage _fileStorage;
+    // HTML sanitizer to strip XSS payloads from rich-text lesson content.
+    private readonly IHtmlSanitizer _sanitizer;
 
     // Constructor receives dependencies (DbContext and file storage) via DI.
-    public AdminLessonsController( ApplicationDbContext db , IFileStorage fileStorage )
+    public AdminLessonsController( ApplicationDbContext db , IFileStorage fileStorage , IHtmlSanitizer sanitizer )
     {
         _db = db;
         _fileStorage = fileStorage;
+        _sanitizer = sanitizer;
     }
 
     // Helper property to get the current authenticated user's ID (used for audit fields).
@@ -70,8 +74,8 @@ public class AdminLessonsController : ControllerBase
             Id = Guid.NewGuid() ,
             TitleEn = request.TitleEn ,
             TitleEl = request.TitleEl ,
-            ContentEn = request.ContentEn ,
-            ContentEl = request.ContentEl ,
+            ContentEn = request.ContentEn is not null ? _sanitizer.Sanitize( request.ContentEn ) : null ,
+            ContentEl = request.ContentEl is not null ? _sanitizer.Sanitize( request.ContentEl ) : null ,
             VideoPath = request.VideoUrl ,
             DurationMinutes = request.DurationMinutes ,
             SortOrder = request.SortOrder ,
@@ -118,8 +122,8 @@ public class AdminLessonsController : ControllerBase
         // Apply updates to the entity and set audit metadata.
         lesson.TitleEn = request.TitleEn;
         lesson.TitleEl = request.TitleEl;
-        lesson.ContentEn = request.ContentEn;
-        lesson.ContentEl = request.ContentEl;
+        lesson.ContentEn = request.ContentEn is not null ? _sanitizer.Sanitize( request.ContentEn ) : null;
+        lesson.ContentEl = request.ContentEl is not null ? _sanitizer.Sanitize( request.ContentEl ) : null;
         lesson.VideoPath = request.VideoUrl ?? lesson.VideoPath;
         lesson.DurationMinutes = request.DurationMinutes;
         lesson.SortOrder = request.SortOrder;

@@ -1,67 +1,30 @@
 using ResetYourFuture.Shared.DTOs;
-using System.Net.Http.Json;
 
 namespace ResetYourFuture.Web.Consumers;
 
 /// <summary>
 /// HTTP consumer for the admin course management API.
 /// </summary>
-public class AdminCourseConsumer : IAdminCourseConsumer
+public class AdminCourseConsumer( HttpClient http ) : ApiClientBase( http ), IAdminCourseConsumer
 {
-    private readonly HttpClient _http;
+    public Task<PagedResult<AdminCourseDto>?> GetCoursesAsync( int page = 1, int pageSize = 10 )
+        => GetAsync<PagedResult<AdminCourseDto>>( $"api/admin/courses?page={page}&pageSize={pageSize}" );
 
-    public AdminCourseConsumer( HttpClient http )
-    {
-        _http = http;
-    }
+    public Task<AdminCourseDto?> GetCourseAsync( Guid id )
+        => GetAsync<AdminCourseDto>( $"api/admin/courses/{id}" );
 
-    public async Task<PagedResult<AdminCourseDto>?> GetCoursesAsync( int page = 1 , int pageSize = 10 )
-    {
-        var response = await _http.GetAsync( $"api/admin/courses?page={page}&pageSize={pageSize}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<PagedResult<AdminCourseDto>>()
-            : null;
-    }
+    public Task<AdminCourseDto?> CreateCourseAsync( SaveCourseRequest request )
+        => PostJsonAsync<SaveCourseRequest, AdminCourseDto>( "api/admin/courses", request );
 
-    public async Task<AdminCourseDto?> GetCourseAsync( Guid id )
-    {
-        var response = await _http.GetAsync( $"api/admin/courses/{id}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminCourseDto>()
-            : null;
-    }
+    public Task<AdminCourseDto?> UpdateCourseAsync( Guid id, SaveCourseRequest request )
+        => PutJsonAsync<SaveCourseRequest, AdminCourseDto>( $"api/admin/courses/{id}", request );
 
-    public async Task<AdminCourseDto?> CreateCourseAsync( SaveCourseRequest request )
-    {
-        var response = await _http.PostAsJsonAsync( "api/admin/courses" , request );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminCourseDto>()
-            : null;
-    }
+    public Task<bool> DeleteCourseAsync( Guid id )
+        => DeleteAsync( $"api/admin/courses/{id}" );
 
-    public async Task<AdminCourseDto?> UpdateCourseAsync( Guid id , SaveCourseRequest request )
-    {
-        var response = await _http.PutAsJsonAsync( $"api/admin/courses/{id}" , request );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<AdminCourseDto>()
-            : null;
-    }
+    public Task<bool> PublishCourseAsync( Guid id )
+        => ActionAsync( $"api/admin/courses/{id}/publish" );
 
-    public async Task<bool> DeleteCourseAsync( Guid id )
-    {
-        var response = await _http.DeleteAsync( $"api/admin/courses/{id}" );
-        return response.IsSuccessStatusCode;
-    }
-
-    public async Task<bool> PublishCourseAsync( Guid id )
-    {
-        var response = await _http.PostAsync( $"api/admin/courses/{id}/publish" , null );
-        return response.IsSuccessStatusCode;
-    }
-
-    public async Task<bool> UnpublishCourseAsync( Guid id )
-    {
-        var response = await _http.PostAsync( $"api/admin/courses/{id}/unpublish" , null );
-        return response.IsSuccessStatusCode;
-    }
+    public Task<bool> UnpublishCourseAsync( Guid id )
+        => ActionAsync( $"api/admin/courses/{id}/unpublish" );
 }

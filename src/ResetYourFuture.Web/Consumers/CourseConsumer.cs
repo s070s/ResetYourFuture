@@ -6,53 +6,26 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the course API.
 /// </summary>
-public class CourseConsumer : ICourseConsumer
+public class CourseConsumer( HttpClient http ) : ApiClientBase( http ), ICourseConsumer
 {
-    private readonly HttpClient _http;
-
-    public CourseConsumer( HttpClient http )
-    {
-        _http = http;
-    }
-
     public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10, string lang = "en" )
-    {
-        var response = await _http.GetAsync( $"api/courses?page={page}&pageSize={pageSize}&lang={lang}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<PagedResult<CourseListItemDto>>()
-              ?? new PagedResult<CourseListItemDto>( [], 0, page, pageSize )
-            : new PagedResult<CourseListItemDto>( [], 0, page, pageSize );
-    }
+        => await GetAsync<PagedResult<CourseListItemDto>>( $"api/courses?page={page}&pageSize={pageSize}&lang={lang}" )
+           ?? new PagedResult<CourseListItemDto>( [], 0, page, pageSize );
 
-    public async Task<CourseDetailDto?> GetCourseAsync( Guid courseId, string lang = "en" )
-    {
-        var response = await _http.GetAsync( $"api/courses/{courseId}?lang={lang}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<CourseDetailDto>()
-            : null;
-    }
+    public Task<CourseDetailDto?> GetCourseAsync( Guid courseId, string lang = "en" )
+        => GetAsync<CourseDetailDto>( $"api/courses/{courseId}?lang={lang}" );
 
     public async Task<EnrollmentResultDto?> EnrollAsync( Guid courseId )
     {
-        var response = await _http.PostAsync( $"api/courses/{courseId}/enroll", null );
+        var response = await Http.PostAsync( $"api/courses/{courseId}/enroll", null );
         if ( response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Forbidden )
             return await response.Content.ReadFromJsonAsync<EnrollmentResultDto>();
         return null;
     }
 
-    public async Task<LessonDetailDto?> GetLessonAsync( Guid lessonId, string lang = "en" )
-    {
-        var response = await _http.GetAsync( $"api/courses/lessons/{lessonId}?lang={lang}" );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<LessonDetailDto>()
-            : null;
-    }
+    public Task<LessonDetailDto?> GetLessonAsync( Guid lessonId, string lang = "en" )
+        => GetAsync<LessonDetailDto>( $"api/courses/lessons/{lessonId}?lang={lang}" );
 
-    public async Task<LessonCompletionResultDto?> CompleteLessonAsync( Guid lessonId )
-    {
-        var response = await _http.PostAsync( $"api/courses/lessons/{lessonId}/complete", null );
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<LessonCompletionResultDto>()
-            : null;
-    }
+    public Task<LessonCompletionResultDto?> CompleteLessonAsync( Guid lessonId )
+        => PostAsync<LessonCompletionResultDto>( $"api/courses/lessons/{lessonId}/complete" );
 }

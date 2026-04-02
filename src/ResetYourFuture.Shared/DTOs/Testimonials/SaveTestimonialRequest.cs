@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>
@@ -5,10 +7,10 @@ namespace ResetYourFuture.Shared.DTOs;
 /// FullName and QuoteText are required.
 /// </summary>
 public record SaveTestimonialRequest(
-    string FullName,
-    string? RoleOrTitle,
-    string? CompanyOrContext,
-    string QuoteText,
+    [Required, MaxLength(200)] string FullName,
+    [MaxLength(200)] string? RoleOrTitle,
+    [MaxLength(200)] string? CompanyOrContext,
+    [Required, MaxLength(1000)] string QuoteText,
     int DisplayOrder,
     bool IsActive
 );
