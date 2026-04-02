@@ -106,6 +106,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                         builder.Entity( entityType.ClrType ).HasQueryFilter( filter );
                     }
                 }
+
+                // Matching soft-delete filters for dependent entities that reference AuditableEntity
+                // principals. Without these, EF Core warns (10622) that the required principal may
+                // be silently filtered out, producing unexpected results when navigations are loaded.
+                builder.Entity<AssessmentSubmission>()
+                    .HasQueryFilter( s => !s.AssessmentDefinition.IsDeleted );
+
+                builder.Entity<Enrollment>()
+                    .HasQueryFilter( e => !e.Course.IsDeleted );
+
+                builder.Entity<Certificate>()
+                    .HasQueryFilter( c => !c.Course.IsDeleted );
+
+                builder.Entity<LessonCompletion>()
+                    .HasQueryFilter( lc => !lc.Lesson.IsDeleted );
                 }
 
                 public override Task<int> SaveChangesAsync( CancellationToken cancellationToken = default )

@@ -101,6 +101,7 @@ public static class AssessmentSeeder
             SchemaJson = dto.SchemaJson ,
             CreatedAt = dto.CreatedAt ?? now ,
             UpdatedAt = null ,
+            IsPublished = dto.IsPublished ,
             PublishedAt = dto.IsPublished ? ( dto.PublishedAt ?? now ) : null
         };
     }
