@@ -97,7 +97,7 @@ public class CertificatesController : ControllerBase
         }
         catch ( InvalidOperationException ex )
         {
-            _logger.LogWarning( ex , "Certificate issuance failed for user {UserId} on course {CourseId}." ,
+            _logger.LogError( ex , "Certificate issuance failed for user {UserId} on course {CourseId}." ,
                 userId , courseId );
             return BadRequest( ex.Message );
         }

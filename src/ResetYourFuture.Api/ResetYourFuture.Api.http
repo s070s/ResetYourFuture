@@ -1,6 +1,0 @@
-@ResetYourFuture.Api_HostAddress = http://localhost:5259
-
-GET {{ResetYourFuture.Api_HostAddress}}/students/
-Accept: application/json
-
-###

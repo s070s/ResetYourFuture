@@ -35,6 +35,7 @@ public class ChatQueryService(
 
         var totalCount = await baseQuery.CountAsync( ct );
 
+        // Q1: paginated conversations with user names — no correlated subqueries
         var rows = await baseQuery
             .OrderByDescending( c => c.LastMessageAt ?? c.CreatedAt )
             .Skip( ( page - 1 ) * pageSize )
@@ -49,20 +50,31 @@ public class ChatQueryService(
                 CreatorFirstName = c.Creator!.FirstName ,
                 CreatorLastName = c.Creator.LastName ,
                 ParticipantFirstName = c.Participant!.FirstName ,
-                ParticipantLastName = c.Participant.LastName ,
-                UnreadCount = db.ChatMessages
-                    .Count( m => m.ConversationId == c.Id && m.SenderId != userId && !m.IsRead ) ,
-                CreatorRole = db.UserRoles
-                    .Where( ur => ur.UserId == c.CreatorId )
-                    .Join( db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => r.Name )
-                    .FirstOrDefault() ?? "User" ,
-                ParticipantRole = db.UserRoles
-                    .Where( ur => ur.UserId == c.ParticipantId )
-                    .Join( db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => r.Name )
-                    .FirstOrDefault() ?? "User"
+                ParticipantLastName = c.Participant.LastName
             } )
             .ToListAsync( ct );
 
+        if ( rows.Count == 0 )
+            return new PagedResult<ChatConversationDto>( [] , totalCount , page , pageSize );
+
+        var convIds = rows.Select( r => r.Id ).ToList();
+        var userIds = rows.SelectMany( r => new[] { r.CreatorId , r.ParticipantId } ).Distinct().ToList();
+
+        // Q2: unread counts — single GROUP BY across all conversation IDs
+        var unreadMap = await db.ChatMessages
+            .Where( m => convIds.Contains( m.ConversationId ) && m.SenderId != userId && !m.IsRead )
+            .GroupBy( m => m.ConversationId )
+            .Select( g => new { Id = g.Key , Count = g.Count() } )
+            .ToDictionaryAsync( x => x.Id , x => x.Count , ct );
+
+        // Q3: roles — single JOIN across all involved user IDs
+        var roleMap = await db.UserRoles
+            .Where( ur => userIds.Contains( ur.UserId ) )
+            .Join( db.Roles , ur => ur.RoleId , r => r.Id , ( ur , r ) => new { ur.UserId , r.Name } )
+            .GroupBy( x => x.UserId )
+            .ToDictionaryAsync( g => g.Key , g => g.First().Name! , ct );
+
+        // In-memory projection — no further DB calls
         var result = rows.Select( c =>
         {
             var isCreator = c.CreatorId == userId;
@@ -70,7 +82,7 @@ public class ChatQueryService(
             var otherName = isCreator
                 ? $"{c.ParticipantFirstName} {c.ParticipantLastName}"
                 : $"{c.CreatorFirstName} {c.CreatorLastName}";
-            var otherRole = isCreator ? c.ParticipantRole : c.CreatorRole;
+            var otherRole = roleMap.GetValueOrDefault( otherUserId , "User" );
 
             return new ChatConversationDto(
                 c.Id ,
@@ -79,7 +91,7 @@ public class ChatQueryService(
                 otherRole ,
                 c.LastMessageContent ,
                 c.LastMessageAt ,
-                c.UnreadCount );
+                unreadMap.GetValueOrDefault( c.Id , 0 ) );
         } ).ToList();
 
         return new PagedResult<ChatConversationDto>( result , totalCount , page , pageSize );
