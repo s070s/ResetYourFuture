@@ -73,12 +73,9 @@ dotnet run --project src/ResetYourFuture.Web
 
 ```
 ResetYourFuture.sln
-├── src/
-│   ├── ResetYourFuture.Web/      Full-stack Blazor SSR — the only deployable project
-│   ├── ResetYourFuture.Shared/   DTOs, .resx resources, JSON seed data
-│   ├── ResetYourFuture.Api/      Legacy — kept for reference
-│   └── ResetYourFuture.Client/   Legacy — kept for reference
-└── Evaluation/                   Architecture & design docs
+└── src/
+    ├── ResetYourFuture.Web/      Full-stack Blazor SSR — the only deployable project
+    └── ResetYourFuture.Shared/   DTOs, .resx resources, JSON seed data
 ```
 
 ---
