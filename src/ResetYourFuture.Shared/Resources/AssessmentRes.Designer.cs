@@ -320,5 +320,23 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("FailedToLoad", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessments are available on the Plus plan and above...
+        /// </summary>
+        public static string UpgradeDescription {
+            get {
+                return ResourceManager.GetString("UpgradeDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Start.
+        /// </summary>
+        public static string Start {
+            get {
+                return ResourceManager.GetString("Start", resourceCulture);
+            }
+        }
     }
 }

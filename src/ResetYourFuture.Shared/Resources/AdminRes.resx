@@ -488,4 +488,55 @@
 	<data name="ImpersonationExit" xml:space="preserve">
 		<value>✕ Exit Impersonation</value>
 	</data>
+	<data name="TestimonialsPageTitle" xml:space="preserve">
+		<value>Testimonials</value>
+	</data>
+	<data name="NewTestimonial" xml:space="preserve">
+		<value>New Testimonial</value>
+	</data>
+	<data name="NoTestimonialsFound" xml:space="preserve">
+		<value>No testimonials found. Add one to display on the landing page.</value>
+	</data>
+	<data name="ColOrder" xml:space="preserve">
+		<value>Order</value>
+	</data>
+	<data name="ColRoleCompany" xml:space="preserve">
+		<value>Role / Company</value>
+	</data>
+	<data name="StatusActive" xml:space="preserve">
+		<value>Active</value>
+	</data>
+	<data name="StatusInactive" xml:space="preserve">
+		<value>Inactive</value>
+	</data>
+	<data name="Deactivate" xml:space="preserve">
+		<value>Deactivate</value>
+	</data>
+	<data name="Activate" xml:space="preserve">
+		<value>Activate</value>
+	</data>
+	<data name="ItemLabelTestimonials" xml:space="preserve">
+		<value>testimonials</value>
+	</data>
+	<data name="BlogArticlesPageTitle" xml:space="preserve">
+		<value>Blog Articles</value>
+	</data>
+	<data name="SearchByTitleSlugAuthor" xml:space="preserve">
+		<value>Search by title, slug or author...</value>
+	</data>
+	<data name="NewArticle" xml:space="preserve">
+		<value>New Article</value>
+	</data>
+	<data name="NoBlogArticlesFound" xml:space="preserve">
+		<value>No blog articles found.</value>
+	</data>
+	<data name="ColSlug" xml:space="preserve">
+		<value>Slug</value>
+	</data>
+	<data name="ColPublishedAt" xml:space="preserve">
+		<value>Published At</value>
+	</data>
+	<data name="ItemLabelArticles" xml:space="preserve">
+		<value>articles</value>
+	</data>
 </root>

@@ -185,4 +185,10 @@
 	<data name="FailedToLoad" xml:space="preserve">
 		<value>Failed to load assessments. Please try again.</value>
 	</data>
+	<data name="UpgradeDescription" xml:space="preserve">
+		<value>Assessments are available on the Plus plan and above. Upgrade to unlock all assessments.</value>
+	</data>
+	<data name="Start" xml:space="preserve">
+		<value>Start</value>
+	</data>
 </root>

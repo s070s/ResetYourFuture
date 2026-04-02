@@ -198,6 +198,21 @@
       <DependentUpon>SuccessMessagesRes.resx</DependentUpon>
     </Compile>
 
+
+    <!-- Certificate -->
+    <EmbeddedResource Update="Resources\CertificateRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CertificateRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CertificateRes.el.resx">
+      <DependentUpon>CertificateRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\CertificateRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CertificateRes.resx</DependentUpon>
+    </Compile>
+
   </ItemGroup>
 
 </Project>

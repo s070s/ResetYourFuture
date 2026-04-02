@@ -84,4 +84,7 @@
 	<data name="Cancel" xml:space="preserve">
 		<value>Cancel</value>
 	</data>
+	<data name="UpgradeDescription" xml:space="preserve">
+		<value>Chat is available on the Pro plan. Upgrade to get priority support and direct messaging.</value>
+	</data>
 </root>

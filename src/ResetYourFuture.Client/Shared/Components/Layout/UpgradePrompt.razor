@@ -2,7 +2,7 @@
 
 <div class="upgrade-prompt">
     <div class="upgrade-icon">🔒</div>
-    <h4>@PlanName Plan Required</h4>
+    <h4>@string.Format(PricingRes.PlanRequired, PlanName)</h4>
     <p>@Description</p>
     <a href="@PricingPath" class="btn btn-primary">@UpgradeButtonText</a>
 </div>
@@ -12,5 +12,5 @@
     [Parameter] public string FeatureName { get; set; } = "this feature";
     [Parameter] public string Description { get; set; } = "";
     [Parameter] public string PricingPath { get; set; } = "/pricing";
-    [Parameter] public string UpgradeButtonText { get; set; } = "Upgrade Now";
+    [Parameter] public string UpgradeButtonText { get; set; } = PricingRes.UpgradeNow;
 }

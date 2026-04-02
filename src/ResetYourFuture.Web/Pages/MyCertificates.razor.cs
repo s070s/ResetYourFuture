@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Shared.Resources;
 using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
@@ -27,7 +28,7 @@ public partial class MyCertificates
         }
         catch ( Exception ex )
         {
-            _error = "Failed to load certificates.";
+            _error = CertificateRes.FailedToLoad;
             Console.WriteLine( ex.Message );
         }
         finally
@@ -50,12 +51,12 @@ public partial class MyCertificates
             }
             else
             {
-                _error = "Certificate PDF is not available.";
+                _error = CertificateRes.NotAvailable;
             }
         }
         catch ( Exception ex )
         {
-            _error = "Download failed. Please try again.";
+            _error = CertificateRes.DownloadFailed;
             Console.WriteLine( ex.Message );
         }
         finally

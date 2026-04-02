@@ -2,15 +2,15 @@
 @attribute [Authorize(Roles = "Admin")]
 @using ResetYourFuture.Web.Shared.Components.Data
 
-<PageTitle>Blog Articles</PageTitle>
+<PageTitle>@AdminRes.BlogArticlesPageTitle</PageTitle>
 
 <div class="admin-container">
-    <h2>Blog Articles</h2>
+    <h2>@AdminRes.BlogArticlesPageTitle</h2>
 
     <div class="d-flex gap-2 mb-3">
-        <input type="text" class="form-control" placeholder="Search by title, slug or author..."
+        <input type="text" class="form-control" placeholder="@AdminRes.SearchByTitleSlugAuthor"
                value="@searchTerm" @oninput="OnSearchInput" />
-        <button class="btn btn-primary text-nowrap" @onclick="NewArticle">New Article</button>
+        <button class="btn btn-primary text-nowrap" @onclick="NewArticle">@AdminRes.NewArticle</button>
     </div>
 
     <AuthorizeView Roles="Admin">
@@ -21,30 +21,30 @@
             }
             else if (!pagedResult.Items.Any())
             {
-                <p>No blog articles found.</p>
+                <p>@AdminRes.NoBlogArticlesFound</p>
             }
             else
             {
                 <VirtualizedTable Items="pagedResult.Items" TItem="AdminBlogArticleDto">
                     <HeaderRow>
                         <tr>
-                            <th>Title</th>
-                            <th>Slug</th>
+                            <th>@AdminRes.FieldTitle</th>
+                            <th>@AdminRes.ColSlug</th>
                             <th>@AdminRes.ColStatus</th>
-                            <th>Published At</th>
+                            <th>@AdminRes.ColPublishedAt</th>
                             <th>@AdminRes.ColActions</th>
                         </tr>
                     </HeaderRow>
                     <RowTemplate Context="article">
                         <tr @key="article.Id">
-                            <td data-label="Title">@article.TitleEn</td>
-                            <td data-label="Slug"><code>@article.Slug</code></td>
+                            <td data-label="@AdminRes.FieldTitle">@article.TitleEn</td>
+                            <td data-label="@AdminRes.ColSlug"><code>@article.Slug</code></td>
                             <td data-label="@AdminRes.ColStatus">
                                 <StatusBadge IsActive="article.IsPublished"
                                              ActiveText="@AdminRes.StatusPublished"
                                              InactiveText="@AdminRes.StatusDraft" />
                             </td>
-                            <td data-label="Published">@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
+                            <td data-label="@AdminRes.ColPublishedAt">@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
                             <td data-label="Actions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditArticle(article.Id)">@AdminRes.Edit</button>
                                 @if (article.IsPublished)
@@ -76,7 +76,7 @@
                                         HasPreviousPage="pagedResult.HasPreviousPage"
                                         HasNextPage="pagedResult.HasNextPage"
                                         PageSizeOptions="PageSizeOptions"
-                                        ItemLabel="articles"
+                                        ItemLabel="@AdminRes.ItemLabelArticles"
                                         OnPageSizeChanged="OnPageSizeChanged"
                                         OnPreviousPage="PreviousPage"
                                         OnNextPage="NextPage" />

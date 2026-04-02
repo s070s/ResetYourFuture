@@ -194,5 +194,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Chat is available on the Pro plan...
+        /// </summary>
+        public static string UpgradeDescription {
+            get {
+                return ResourceManager.GetString("UpgradeDescription", resourceCulture);
+            }
+        }
     }
 }

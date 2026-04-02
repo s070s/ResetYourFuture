@@ -1229,5 +1229,158 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ImpersonationExit", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Testimonials.
+        /// </summary>
+        public static string TestimonialsPageTitle {
+            get {
+                return ResourceManager.GetString("TestimonialsPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New Testimonial.
+        /// </summary>
+        public static string NewTestimonial {
+            get {
+                return ResourceManager.GetString("NewTestimonial", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No testimonials found. Add one to display on the landing page.
+        /// </summary>
+        public static string NoTestimonialsFound {
+            get {
+                return ResourceManager.GetString("NoTestimonialsFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Order.
+        /// </summary>
+        public static string ColOrder {
+            get {
+                return ResourceManager.GetString("ColOrder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Role / Company.
+        /// </summary>
+        public static string ColRoleCompany {
+            get {
+                return ResourceManager.GetString("ColRoleCompany", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Active.
+        /// </summary>
+        public static string StatusActive {
+            get {
+                return ResourceManager.GetString("StatusActive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Inactive.
+        /// </summary>
+        public static string StatusInactive {
+            get {
+                return ResourceManager.GetString("StatusInactive", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Deactivate.
+        /// </summary>
+        public static string Deactivate {
+            get {
+                return ResourceManager.GetString("Deactivate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Activate.
+        /// </summary>
+        public static string Activate {
+            get {
+                return ResourceManager.GetString("Activate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to testimonials.
+        /// </summary>
+        public static string ItemLabelTestimonials {
+            get {
+                return ResourceManager.GetString("ItemLabelTestimonials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Blog Articles.
+        /// </summary>
+        public static string BlogArticlesPageTitle {
+            get {
+                return ResourceManager.GetString("BlogArticlesPageTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search by title, slug or author...
+        /// </summary>
+        public static string SearchByTitleSlugAuthor {
+            get {
+                return ResourceManager.GetString("SearchByTitleSlugAuthor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to New Article.
+        /// </summary>
+        public static string NewArticle {
+            get {
+                return ResourceManager.GetString("NewArticle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No blog articles found.
+        /// </summary>
+        public static string NoBlogArticlesFound {
+            get {
+                return ResourceManager.GetString("NoBlogArticlesFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Slug.
+        /// </summary>
+        public static string ColSlug {
+            get {
+                return ResourceManager.GetString("ColSlug", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Published At.
+        /// </summary>
+        public static string ColPublishedAt {
+            get {
+                return ResourceManager.GetString("ColPublishedAt", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to articles.
+        /// </summary>
+        public static string ItemLabelArticles {
+            get {
+                return ResourceManager.GetString("ItemLabelArticles", resourceCulture);
+            }
+        }
     }
 }

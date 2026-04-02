@@ -185,4 +185,10 @@
 	<data name="FailedToLoad" xml:space="preserve">
 		<value>Αποτυχία φόρτωσης αξιολογήσεων. Δοκιμάστε ξανά.</value>
 	</data>
+	<data name="UpgradeDescription" xml:space="preserve">
+		<value>Οι αξιολογήσεις είναι διαθέσιμες στο πλάνο Plus και άνω. Αναβαθμίστε για να ξεκλειδώσετε όλες τις αξιολογήσεις.</value>
+	</data>
+	<data name="Start" xml:space="preserve">
+		<value>Έναρξη</value>
+	</data>
 </root>

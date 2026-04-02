@@ -257,5 +257,23 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("UpToCoursesFormat", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} Plan Required.
+        /// </summary>
+        public static string PlanRequired {
+            get {
+                return ResourceManager.GetString("PlanRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Upgrade Now.
+        /// </summary>
+        public static string UpgradeNow {
+            get {
+                return ResourceManager.GetString("UpgradeNow", resourceCulture);
+            }
+        }
     }
 }

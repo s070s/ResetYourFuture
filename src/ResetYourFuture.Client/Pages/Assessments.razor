@@ -17,7 +17,7 @@ else if (!_assessmentAccess)
 {
     <UpgradePrompt PlanName="Plus"
                    FeatureName="Assessments"
-                   Description="Assessments are available on the Plus plan and above. Upgrade to unlock all assessments." />
+                   Description="@AssessmentRes.UpgradeDescription" />
 }
 else if (_error is not null)
 {
@@ -54,7 +54,7 @@ else
                     <div class="card-body">
                         <h5 class="card-title">@assessment.Title</h5>
                         <div class="card-text">@((MarkupString)(assessment.Description ?? ""))</div>
-                        <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">Start</button>
+                        <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">@AssessmentRes.Start</button>
                     </div>
                 </div>
             </div>

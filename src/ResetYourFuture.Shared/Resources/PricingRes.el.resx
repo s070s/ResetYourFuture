@@ -105,4 +105,10 @@
 	<data name="FailedToCancel" xml:space="preserve">
 		<value>Αποτυχία ακύρωσης. Παρακαλώ δοκιμάστε ξανά.</value>
 	</data>
+	<data name="PlanRequired" xml:space="preserve">
+		<value>Απαιτείται Πλάνο {0}</value>
+	</data>
+	<data name="UpgradeNow" xml:space="preserve">
+		<value>Αναβάθμιση Τώρα</value>
+	</data>
 </root>

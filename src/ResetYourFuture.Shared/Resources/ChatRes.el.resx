@@ -84,4 +84,7 @@
 	<data name="Cancel" xml:space="preserve">
 		<value>Ακύρωση</value>
 	</data>
+	<data name="UpgradeDescription" xml:space="preserve">
+		<value>Η συνομιλία είναι διαθέσιμη στο πλάνο Pro. Αναβαθμίστε για προτεραιότητα υποστήριξης και άμεσα μηνύματα.</value>
+	</data>
 </root>
