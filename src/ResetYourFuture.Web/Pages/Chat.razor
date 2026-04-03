@@ -18,7 +18,7 @@ else if ( !_chatAccess )
 }
 else
 {
-    <div class="chat-container">
+    <div class="chat-container @(_selectedConversation is not null ? "conversation-active" : "")">
         <ConversationSidebar Conversations="_conversations"
                              SelectedConversationId="_selectedConversation?.Id"
                              IsStarting="_isStarting"
@@ -39,6 +39,7 @@ else
                      PageSize="_messagesPageSize"
                      PageSizeOptions="MessagePageSizeOptions"
                      OnSendMessage="HandleSendMessage"
+                     OnBackToList="HandleBackToList"
                      OnPageSizeChanged="OnMessagePageSizeChanged"
                      OnPreviousPage="PreviousMessagePage"
                      OnNextPage="NextMessagePage" />

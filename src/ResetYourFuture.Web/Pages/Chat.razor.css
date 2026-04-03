@@ -7,10 +7,12 @@
 .chat-container {
     display: flex;
     height: calc(100vh - 120px);
+    height: calc(100dvh - 120px);
     border: 1px solid var(--border-subtle);
     border-radius: 0.5rem;
     overflow: hidden;
     background: var(--bg-surface);
+    overscroll-behavior: contain;
 }
 
 /* --- Mobile: stack sidebar above message pane --- */
@@ -19,6 +21,17 @@
         flex-direction: column;
         height: auto;
         min-height: calc(100vh - 120px);
+        min-height: calc(100dvh - 120px);
         border-radius: 0.375rem;
+    }
+
+    /* Conversation active: hide sidebar, give full screen to messages */
+    .chat-container.conversation-active ::deep .chat-sidebar {
+        display: none;
+    }
+
+    /* No conversation selected: hide message pane, show only sidebar */
+    .chat-container:not(.conversation-active) ::deep .chat-main {
+        display: none;
     }
 }

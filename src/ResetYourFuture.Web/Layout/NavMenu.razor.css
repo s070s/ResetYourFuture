@@ -78,11 +78,19 @@
 @media (min-width: 768px) {
     .navbar-nav {
         flex-direction: row;
-        gap: 0.25rem;
+        flex-wrap: wrap;
+        gap: 0.125rem;
     }
 
     .collapse {
         display: block;
+    }
+}
+
+/* Tighten nav link padding on medium screens to prevent overflow with many items */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .nav-item ::deep .nav-link {
+        padding: 0.5rem 0.6rem;
     }
 }
 

@@ -199,6 +199,11 @@ public partial class Chat : IAsyncDisposable
         await ChatService.SendMessageAsync( _selectedConversation.Id , message );
     }
 
+    private void HandleBackToList()
+    {
+        _selectedConversation = null;
+    }
+
     private void HandleMessageReceived( ChatMessageDto message )
     {
         InvokeAsync( () =>

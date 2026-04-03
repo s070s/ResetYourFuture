@@ -11,6 +11,12 @@
     else
     {
         <div class="chat-header">
+            @if (OnBackToList.HasDelegate)
+            {
+                <button class="btn-back-mobile" @onclick="OnBackToList" title="Back">
+                    <span class="bi bi-arrow-left"></span>
+                </button>
+            }
             <h6>
                 <span class="bi bi-person"></span> @Conversation.OtherUserName
                 <span class="chat-header-role">(@Conversation.OtherUserRole)</span>

@@ -84,10 +84,22 @@
     background: transparent;
     border: none;
     line-height: 1;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .conversation-item:hover .convo-delete-btn {
     opacity: 1;
+}
+
+/* Touch devices have no hover — always show the delete button at reduced opacity */
+@media (hover: none) {
+    .convo-delete-btn {
+        opacity: 0.55;
+    }
 }
 
 .convo-delete-btn:hover {
@@ -107,7 +119,7 @@
     .chat-sidebar {
         width: 100%;
         min-width: unset;
-        max-height: 38vh;
+        flex: 1;
         border-right: none;
         border-bottom: 1px solid var(--border-subtle);
         overflow: hidden;

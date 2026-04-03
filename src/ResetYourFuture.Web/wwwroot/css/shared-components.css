@@ -589,7 +589,7 @@ input[type="date"].form-control:focus {
 .compass-spinner__ring-outer {
     fill: none;
     stroke: rgba(172, 173, 190, 0.22);
-    stroke-width: 1.5;
+    stroke-width: 1.5px;
 }
 
 .compass-spinner__tick-cardinal {
@@ -610,12 +610,35 @@ input[type="date"].form-control:focus {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: 700;
     text-anchor: middle;
-    dominant-baseline: central;
 }
 
 /* Hide "N" label on the smallest size — too tiny to read */
 .compass-spinner--small .compass-spinner__cardinal-n {
     display: none;
+}
+
+/* ================================================
+   Mobile modal constraints
+   Prevent modals from overflowing the viewport on
+   small screens and ensure the body is scrollable.
+   ================================================ */
+@media (max-width: 767.98px) {
+    .modal-dialog {
+        margin: 0.75rem;
+        max-height: calc(100dvh - 1.5rem);
+    }
+
+    .modal-content {
+        max-height: calc(100dvh - 1.5rem);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-body {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 .compass-spinner__arc-track {
@@ -653,7 +676,7 @@ input[type="date"].form-control:focus {
 .compass-spinner__ring-inner {
     fill: none;
     stroke: rgba(172, 173, 190, 0.12);
-    stroke-width: 0.8;
+    stroke-width: 0.8px;
 }
 
 /* Needle — seeks north like a real compass */

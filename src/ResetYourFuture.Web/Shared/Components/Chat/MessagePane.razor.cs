@@ -20,6 +20,7 @@ public partial class MessagePane
     [Parameter, EditorRequired] public EventCallback<int> OnPageSizeChanged { get; set; }
     [Parameter, EditorRequired] public EventCallback OnPreviousPage { get; set; }
     [Parameter, EditorRequired] public EventCallback OnNextPage { get; set; }
+    [Parameter] public EventCallback OnBackToList { get; set; }
 
     private string _newMessage = string.Empty;
     private ElementReference _messageContainer;
