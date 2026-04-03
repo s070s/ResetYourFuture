@@ -8,3 +8,4 @@ Logs/
 *.db-shm
 *.db-wal
 App_Data/
+DataProtection-Keys/
