@@ -7,22 +7,20 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Hubs;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Shared.DTOs;
+// Bring App and Routes razor components into scope
+using ResetYourFuture.Web;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Web.ApiServices;
 using ResetYourFuture.Web.Consumers;
+using ResetYourFuture.Web.Data;
+using ResetYourFuture.Web.Hubs;
+using ResetYourFuture.Web.Identity;
 using ResetYourFuture.Web.Interfaces;
-using ResetYourFuture.Web.Services;
 using ResetYourFuture.Web.Logging;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Web.Services;
 using System.Security.Claims;
 using System.Text;
-
-// Bring App and Routes razor components into scope
-using ResetYourFuture.Web;
 
 var builder = WebApplication.CreateBuilder( args );
 var config = builder.Configuration;
@@ -253,6 +251,7 @@ builder.Services.AddRateLimiter( options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 } );
 
+//For production, encrypt the Data Protection keys at rest using DPAPI or XProtect. For development, plaintext keys are fine.
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem( new DirectoryInfo(
