@@ -62,61 +62,85 @@ public partial class AdminAssessmentEdit
         }
     }
 
-    private void ParseSchemaToQuestions( string schemaJson )
+    private void ParseSchemaToQuestions( string? schemaJson )
     {
+        if ( string.IsNullOrWhiteSpace( schemaJson ) )
+            return;
+
         try
         {
             using var doc = JsonDocument.Parse( schemaJson );
             var root = doc.RootElement;
 
-            if ( root.TryGetProperty( "questions" , out var questionsElement ) )
+            // Support both flat {"questions":[...]} and sectioned {"sections":[{"questions":[...]}]} schemas
+            var questionElements = new List<JsonElement>();
+
+            if ( root.TryGetProperty( "questions" , out var flatQuestions ) )
             {
-                foreach ( var qEl in questionsElement.EnumerateArray() )
+                foreach ( var qEl in flatQuestions.EnumerateArray() )
+                    questionElements.Add( qEl );
+            }
+            else if ( root.TryGetProperty( "sections" , out var sections ) )
+            {
+                foreach ( var section in sections.EnumerateArray() )
                 {
-                    var q = new QuestionModel
+                    if ( section.TryGetProperty( "questions" , out var sectionQuestions ) )
                     {
-                        Id = qEl.TryGetProperty( "id" , out var idEl ) ? idEl.GetString() ?? "" : "" ,
-                        Type = qEl.TryGetProperty( "type" , out var typeEl ) ? typeEl.GetString() ?? "text" : "text" ,
-                        LabelEn = qEl.TryGetProperty( "labelEn" , out var labelEnEl ) ? labelEnEl.GetString() ?? ""
-                            : ( qEl.TryGetProperty( "label" , out var labelEl ) ? labelEl.GetString() ?? "" : "" ) ,
-                        LabelEl = qEl.TryGetProperty( "labelEl" , out var labelElEl ) ? labelElEl.GetString() : null ,
-                        Required = qEl.TryGetProperty( "required" , out var reqEl ) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
-                    };
-
-                    if ( q.Type == "rating" )
-                    {
-                        q.Min = qEl.TryGetProperty( "min" , out var minEl ) ? minEl.GetInt32() : 1;
-                        q.Max = qEl.TryGetProperty( "max" , out var maxEl ) ? maxEl.GetInt32() : 5;
+                        foreach ( var qEl in sectionQuestions.EnumerateArray() )
+                            questionElements.Add( qEl );
                     }
-
-                    if ( q.Type == "choice" )
-                    {
-                        if ( qEl.TryGetProperty( "optionsEn" , out var optEnEl ) )
-                        {
-                            var options = new List<string>();
-                            foreach ( var opt in optEnEl.EnumerateArray() )
-                                options.Add( opt.GetString() ?? "" );
-                            q.OptionsTextEn = string.Join( "\n" , options );
-                        }
-                        else if ( qEl.TryGetProperty( "options" , out var optEl ) )
-                        {
-                            var options = new List<string>();
-                            foreach ( var opt in optEl.EnumerateArray() )
-                                options.Add( opt.GetString() ?? "" );
-                            q.OptionsTextEn = string.Join( "\n" , options );
-                        }
-
-                        if ( qEl.TryGetProperty( "optionsEl" , out var optElEl ) )
-                        {
-                            var options = new List<string>();
-                            foreach ( var opt in optElEl.EnumerateArray() )
-                                options.Add( opt.GetString() ?? "" );
-                            q.OptionsTextEl = string.Join( "\n" , options );
-                        }
-                    }
-
-                    questions.Add( q );
                 }
+            }
+
+            foreach ( var qEl in questionElements )
+            {
+                var rawType = qEl.TryGetProperty( "type" , out var typeEl ) ? typeEl.GetString() ?? "text" : "text";
+                // Normalise multiselect → choice; the editor treats them identically
+                var editorType = rawType == "multiselect" ? "choice" : rawType;
+
+                var q = new QuestionModel
+                {
+                    Id = qEl.TryGetProperty( "id" , out var idEl ) ? idEl.GetString() ?? "" : "" ,
+                    Type = editorType ,
+                    LabelEn = qEl.TryGetProperty( "labelEn" , out var labelEnEl ) ? labelEnEl.GetString() ?? ""
+                        : ( qEl.TryGetProperty( "label" , out var labelEl ) ? labelEl.GetString() ?? "" : "" ) ,
+                    LabelEl = qEl.TryGetProperty( "labelEl" , out var labelElEl ) ? labelElEl.GetString() : null ,
+                    Required = qEl.TryGetProperty( "required" , out var reqEl ) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
+                };
+
+                if ( q.Type == "rating" )
+                {
+                    q.Min = qEl.TryGetProperty( "min" , out var minEl ) ? minEl.GetInt32() : 1;
+                    q.Max = qEl.TryGetProperty( "max" , out var maxEl ) ? maxEl.GetInt32() : 5;
+                }
+
+                if ( q.Type == "choice" )
+                {
+                    if ( qEl.TryGetProperty( "optionsEn" , out var optEnEl ) )
+                    {
+                        var options = new List<string>();
+                        foreach ( var opt in optEnEl.EnumerateArray() )
+                            options.Add( opt.GetString() ?? "" );
+                        q.OptionsTextEn = string.Join( "\n" , options );
+                    }
+                    else if ( qEl.TryGetProperty( "options" , out var optEl ) )
+                    {
+                        var options = new List<string>();
+                        foreach ( var opt in optEl.EnumerateArray() )
+                            options.Add( opt.GetString() ?? "" );
+                        q.OptionsTextEn = string.Join( "\n" , options );
+                    }
+
+                    if ( qEl.TryGetProperty( "optionsEl" , out var optElEl ) )
+                    {
+                        var options = new List<string>();
+                        foreach ( var opt in optElEl.EnumerateArray() )
+                            options.Add( opt.GetString() ?? "" );
+                        q.OptionsTextEl = string.Join( "\n" , options );
+                    }
+                }
+
+                questions.Add( q );
             }
         }
         catch

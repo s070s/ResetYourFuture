@@ -50,7 +50,11 @@
     {
         if (_initialized)
         {
-            await JS.InvokeVoidAsync("quillInterop.dispose", _editorId);
+            try
+            {
+                await JS.InvokeVoidAsync("quillInterop.dispose", _editorId);
+            }
+            catch (JSDisconnectedException) { }
         }
     }
 }
