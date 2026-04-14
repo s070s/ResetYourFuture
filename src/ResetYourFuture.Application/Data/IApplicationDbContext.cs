@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using ResetYourFuture.Web.Domain.Entities;
 
 namespace ResetYourFuture.Web.Data;
@@ -29,9 +28,5 @@ public interface IApplicationDbContext
     DbSet<IdentityUserRole<string>> UserRoles           { get; }
     DbSet<IdentityRole>             Roles               { get; }
 
-    // Used by AuthService.LoginAsync — calls _context.ChangeTracker.Clear()
-    // Kept on interface for future Application services needing it.
-    ChangeTracker ChangeTracker { get; }
-
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync( CancellationToken cancellationToken = default );
 }
