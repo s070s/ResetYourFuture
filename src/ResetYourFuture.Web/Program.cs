@@ -35,6 +35,7 @@ builder.Services.AddDbContext<ApplicationDbContext>( options =>
             maxRetryCount: 5 ,
             maxRetryDelay: TimeSpan.FromSeconds( 10 ) ,
             errorNumbersToAdd: null ) ) );
+builder.Services.AddScoped<IApplicationDbContext>( sp => sp.GetRequiredService<ApplicationDbContext>() );
 
 // --- Identity ---
 builder.Services.AddIdentity<ApplicationUser , IdentityRole>( options =>

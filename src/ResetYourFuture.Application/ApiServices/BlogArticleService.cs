@@ -15,11 +15,11 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public class BlogArticleService : IBlogArticleService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly ILogger<BlogArticleService> _logger;
     private readonly IHtmlSanitizer _sanitizer;
 
-    public BlogArticleService( ApplicationDbContext db, ILogger<BlogArticleService> logger, IHtmlSanitizer sanitizer )
+    public BlogArticleService( IApplicationDbContext db, ILogger<BlogArticleService> logger, IHtmlSanitizer sanitizer )
     {
         _db = db;
         _logger = logger;

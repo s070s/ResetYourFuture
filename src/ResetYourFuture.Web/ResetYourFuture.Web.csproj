@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -10,13 +10,12 @@
 
   <ItemGroup>
     <!-- Identity + EF Core -->
-    <PackageReference Include="HtmlSanitizer" Version="9.0.892" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
 
     <!-- Authentication -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
@@ -27,14 +26,14 @@
     <!-- JWT parsing -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
 
-    <!-- PDF generation -->
-    <PackageReference Include="QuestPDF" Version="2026.2.4" />
-
     <!-- OpenAPI -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ResetYourFuture.Domain\ResetYourFuture.Domain.csproj" />
+    <ProjectReference Include="..\ResetYourFuture.Application\ResetYourFuture.Application.csproj" />
+    <ProjectReference Include="..\ResetYourFuture.Infrastructure\ResetYourFuture.Infrastructure.csproj" />
     <ProjectReference Include="..\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj" />
   </ItemGroup>
 

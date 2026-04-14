@@ -11,7 +11,7 @@ namespace ResetYourFuture.Web.ApiServices;
 /// Handles course discovery, enrollment, and lesson consumption for students.
 /// </summary>
 public class CourseService(
-    ApplicationDbContext db ,
+    IApplicationDbContext db ,
     ISubscriptionService subscriptionService ,
     ICertificateService certificateService ,
     ILogger<CourseService> logger ) : ICourseService

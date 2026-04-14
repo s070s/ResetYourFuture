@@ -12,7 +12,7 @@ namespace ResetYourFuture.Web.Data;
 /// EF Core DbContext with ASP.NET Identity configured for ApplicationUser.
 /// Includes core domain entities for the psychosocial career guidance platform.
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
@@ -115,9 +115,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
                 builder.Entity<Enrollment>()
                     .HasQueryFilter( e => !e.Course.IsDeleted );
-
-                builder.Entity<Certificate>()
-                    .HasQueryFilter( c => !c.Course.IsDeleted );
 
                 builder.Entity<LessonCompletion>()
                     .HasQueryFilter( lc => !lc.Lesson.IsDeleted );

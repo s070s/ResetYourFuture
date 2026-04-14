@@ -3,14 +3,8 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "src\\ResetYourFuture.Api\\ResetYourFuture.Api.csproj",
-        "Action": "Start",
-        "DebugTarget": "https"
-      },
-      {
-        "Path": "src\\ResetYourFuture.Client\\ResetYourFuture.Client.csproj",
-        "Action": "Start",
-        "DebugTarget": "https"
+        "Path": "src\\ResetYourFuture.Web\\ResetYourFuture.Web.csproj",
+        "Action": "Start"
       }
     ]
   }

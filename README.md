@@ -26,10 +26,10 @@ dotnet tool install --global dotnet-ef
 dotnet restore
 
 # 6. Create the initial migration
-dotnet ef migrations add InitialCreate  --project src/ResetYourFuture.Web  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext  --output-dir Data/Migrations
+dotnet ef migrations add InitialCreate  --project src/ResetYourFuture.Infrastructure  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext  --output-dir Data/Migrations
 
 # 7. Apply migrations
-dotnet ef database update  --project src/ResetYourFuture.Web  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext
+dotnet ef database update  --project src/ResetYourFuture.Infrastructure  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext
 
 # 8. Build
 dotnet build

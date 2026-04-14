@@ -14,10 +14,10 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public class SubscriptionService : ISubscriptionService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly ILogger<SubscriptionService> _logger;
 
-    public SubscriptionService( ApplicationDbContext db , ILogger<SubscriptionService> logger )
+    public SubscriptionService( IApplicationDbContext db , ILogger<SubscriptionService> logger )
     {
         _db = db;
         _logger = logger;

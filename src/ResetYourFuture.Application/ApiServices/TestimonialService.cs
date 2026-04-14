@@ -11,10 +11,10 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public class TestimonialService : ITestimonialService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly ILogger<TestimonialService> _logger;
 
-    public TestimonialService( ApplicationDbContext db, ILogger<TestimonialService> logger )
+    public TestimonialService( IApplicationDbContext db, ILogger<TestimonialService> logger )
     {
         _db = db;
         _logger = logger;

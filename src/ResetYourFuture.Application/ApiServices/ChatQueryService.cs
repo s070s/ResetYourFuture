@@ -13,7 +13,7 @@ namespace ResetYourFuture.Web.ApiServices;
 /// Chat history, conversations, and management queries.
 /// </summary>
 public class ChatQueryService(
-    ApplicationDbContext db ,
+    IApplicationDbContext db ,
     UserManager<ApplicationUser> userManager ,
     ISubscriptionService subscriptionService ,
     ILogger<ChatQueryService> logger ) : IChatQueryService

@@ -10,7 +10,7 @@ namespace ResetYourFuture.Web.ApiServices;
 /// Admin CRUD operations for courses.
 /// </summary>
 public class AdminCourseService(
-    ApplicationDbContext db ,
+    IApplicationDbContext db ,
     ILogger<AdminCourseService> logger ) : IAdminCourseService
 {
     public async Task<AdminCourseDto?> GetCourseByIdAsync( Guid id )
@@ -115,31 +115,21 @@ public class AdminCourseService(
     {
         var course = await db.Courses
             .Include( c => c.Enrollments )
-            .Include( c => c.Modules )
-                .ThenInclude( m => m.Lessons )
             .FirstOrDefaultAsync( c => c.Id == id );
 
         if ( course is null )
             return false;
 
-        var lessonIds = course.Modules.SelectMany( m => m.Lessons ).Select( l => l.Id ).ToList();
-        if ( lessonIds.Count > 0 )
-        {
-            var completions = await db.LessonCompletions
-                .Where( lc => lessonIds.Contains( lc.LessonId ) )
-                .ToListAsync();
-            db.LessonCompletions.RemoveRange( completions );
-        }
+        // Soft-delete the course so students retain access to their earned certificates.
+        // The global IsDeleted query filter will hide the course and its enrollments
+        // from all normal queries while leaving certificate records intact.
+        course.IsDeleted = true;
+        course.DeletedAt = DateTimeOffset.UtcNow;
+        course.UpdatedByUserId = userId;
 
-        if ( course.Enrollments.Any() )
-        {
-            db.Enrollments.RemoveRange( course.Enrollments );
-        }
-
-        db.Courses.Remove( course );
         await db.SaveChangesAsync();
 
-        logger.LogInformation( "Admin {UserId} deleted course {CourseId} with {Enrollments} enrollment(s)" ,
+        logger.LogInformation( "Admin {UserId} soft-deleted course {CourseId} with {Enrollments} enrollment(s)" ,
             userId , id , course.Enrollments.Count );
 
         return true;

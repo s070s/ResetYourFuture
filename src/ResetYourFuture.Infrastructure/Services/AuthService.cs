@@ -45,10 +45,10 @@ public class AuthService : IAuthService
     private readonly ITimeLimitedDataProtector _protector;
 
     /// <summary>Cookie name used to store the admin's user ID during impersonation.</summary>
-    internal const string AdminBackupCookieName = ".RYF.AdminUserId";
+    public const string AdminBackupCookieName = ".RYF.AdminUserId";
 
     /// <summary>Data Protection purpose string — changing this invalidates all in-flight tokens.</summary>
-    internal const string ProtectorPurpose = "ResetYourFuture.AuthCompletion.v1";
+    public const string ProtectorPurpose = "ResetYourFuture.AuthCompletion.v1";
 
     private static readonly JwtSecurityTokenHandler TokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 

@@ -2,7 +2,7 @@ using ResetYourFuture.Web.Identity;
 
 namespace ResetYourFuture.Web.Extensions;
 
-internal static class UserSearchExtensions
+public static class UserSearchExtensions
 {
     /// <summary>
     /// Applies server-side sorting to a user query.
@@ -10,7 +10,7 @@ internal static class UserSearchExtensions
     /// never boxes to object, which would trigger client-side evaluation.
     /// Always appends .ThenBy(Email) as a stable tie-breaker across pages.
     /// </summary>
-    internal static IQueryable<ApplicationUser> ApplySort(
+    public static IQueryable<ApplicationUser> ApplySort(
         this IQueryable<ApplicationUser> query , string? sortBy , string? sortDir )
     {
         var ordered = (sortBy?.ToLowerInvariant(), sortDir?.ToLowerInvariant()) switch
@@ -35,7 +35,7 @@ internal static class UserSearchExtensions
     /// - space present → first+last split: match FirstName/LastName in either order
     /// - otherwise → contains match on Email, FirstName, LastName
     /// </summary>
-    internal static IQueryable<ApplicationUser> ApplySearch( this IQueryable<ApplicationUser> query , string term )
+    public static IQueryable<ApplicationUser> ApplySearch( this IQueryable<ApplicationUser> query , string term )
     {
         if ( term.Contains( '@' ) )
         {
