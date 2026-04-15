@@ -81,6 +81,6 @@ public class Certificate
     /// <summary>Foreign key to Course.</summary>
     public Guid CourseId { get; set; }
 
-    /// <summary>Navigation: the course this certificate was issued for.</summary>
-    public Course Course { get; set; } = null!;
+    /// <summary>Navigation: the course this certificate was issued for. May be null when the course has been soft-deleted.</summary>
+    public Course? Course { get; set; }
 }

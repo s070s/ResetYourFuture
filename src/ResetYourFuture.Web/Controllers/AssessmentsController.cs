@@ -35,8 +35,9 @@ public class AssessmentsController : ControllerBase
         ?? throw new UnauthorizedAccessException( "User ID not found" );
 
     /// <summary>
-    /// Resolves dual-language schema JSON to single-language for the student view.
-    /// Maps labelEn/labelEl → label, optionsEn/optionsEl → options based on the requested language.
+    /// Resolves dual-language schema JSON to a flat single-language format for the student view.
+    /// Handles both flat {"questions":[...]} and sectioned {"sections":[{"questions":[...]}]} schemas.
+    /// Maps labelEn/labelEl or label/labelEl → label, and optionsEn/optionsEl or options/optionsEl → options.
     /// </summary>
     private string ResolveSchemaJsonByLang( string schemaJson , bool isEl )
     {
@@ -45,60 +46,87 @@ public class AssessmentsController : ControllerBase
             using var doc = JsonDocument.Parse( schemaJson );
             var root = doc.RootElement;
 
+            // Collect all question elements from either flat or sectioned schema formats.
+            var allQuestions = new List<JsonElement>();
+            if ( root.TryGetProperty( "questions" , out var flatQ ) && flatQ.ValueKind == JsonValueKind.Array )
+            {
+                foreach ( var q in flatQ.EnumerateArray() )
+                    allQuestions.Add( q );
+            }
+            else if ( root.TryGetProperty( "sections" , out var sections ) && sections.ValueKind == JsonValueKind.Array )
+            {
+                foreach ( var section in sections.EnumerateArray() )
+                {
+                    if ( section.TryGetProperty( "questions" , out var sectionQ ) && sectionQ.ValueKind == JsonValueKind.Array )
+                    {
+                        foreach ( var q in sectionQ.EnumerateArray() )
+                            allQuestions.Add( q );
+                    }
+                }
+            }
+
             using var ms = new MemoryStream();
             using var writer = new Utf8JsonWriter( ms , new JsonWriterOptions { Indented = false } );
             writer.WriteStartObject();
 
+            // Copy non-questions/sections root properties (id, title, version, etc.)
             foreach ( var prop in root.EnumerateObject() )
             {
-                if ( prop.Name == "questions" && prop.Value.ValueKind == JsonValueKind.Array )
-                {
-                    writer.WritePropertyName( "questions" );
-                    writer.WriteStartArray();
-                    foreach ( var q in prop.Value.EnumerateArray() )
-                    {
-                        writer.WriteStartObject();
-                        foreach ( var qProp in q.EnumerateObject() )
-                        {
-                            // Resolve label
-                            if ( qProp.Name == "labelEn" || qProp.Name == "labelEl" )
-                            {
-                                // Only emit once when we hit labelEn
-                                if ( qProp.Name == "labelEn" )
-                                {
-                                    var labelEn = qProp.Value.GetString() ?? "";
-                                    var labelEl = q.TryGetProperty( "labelEl" , out var elVal ) ? elVal.GetString() : null;
-                                    writer.WriteString( "label" , isEl ? ( labelEl ?? labelEn ) : labelEn );
-                                }
-                                // Skip labelEl as it was handled above
-                                continue;
-                            }
-                            // Resolve options
-                            if ( qProp.Name == "optionsEn" || qProp.Name == "optionsEl" )
-                            {
-                                if ( qProp.Name == "optionsEn" )
-                                {
-                                    var useEl = isEl && q.TryGetProperty( "optionsEl" , out var elOpts ) && elOpts.GetArrayLength() > 0;
-                                    writer.WritePropertyName( "options" );
-                                    if ( useEl )
-                                        q.GetProperty( "optionsEl" ).WriteTo( writer );
-                                    else
-                                        qProp.Value.WriteTo( writer );
-                                }
-                                continue;
-                            }
-                            // Keep legacy single-language "label" and "options" as-is
-                            qProp.WriteTo( writer );
-                        }
-                        writer.WriteEndObject();
-                    }
-                    writer.WriteEndArray();
-                }
-                else
-                {
-                    prop.WriteTo( writer );
-                }
+                if ( prop.Name is "questions" or "sections" )
+                    continue;
+                prop.WriteTo( writer );
             }
+
+            // Write resolved flat questions array
+            writer.WritePropertyName( "questions" );
+            writer.WriteStartArray();
+            foreach ( var q in allQuestions )
+            {
+                writer.WriteStartObject();
+                bool labelEmitted = false;
+                bool optionsEmitted = false;
+
+                foreach ( var qProp in q.EnumerateObject() )
+                {
+                    // Skip all Greek-only and secondary locale keys — handled below
+                    if ( qProp.Name is "labelEl" or "optionsEl" or "titleEl" or "minLabelEl" or "maxLabelEl" )
+                        continue;
+
+                    // Resolve label: supports both "labelEn" (admin-edit) and "label" (seed) keys
+                    if ( qProp.Name is "labelEn" or "label" )
+                    {
+                        if ( !labelEmitted )
+                        {
+                            var enLabel = qProp.Value.GetString() ?? "";
+                            var elLabel = isEl && q.TryGetProperty( "labelEl" , out var elV ) ? elV.GetString() : null;
+                            writer.WriteString( "label" , elLabel ?? enLabel );
+                            labelEmitted = true;
+                        }
+                        continue;
+                    }
+
+                    // Resolve options: supports both "optionsEn" (admin-edit) and "options" (seed) keys
+                    if ( qProp.Name is "optionsEn" or "options" )
+                    {
+                        if ( !optionsEmitted )
+                        {
+                            var useEl = isEl && q.TryGetProperty( "optionsEl" , out var elOpts ) && elOpts.GetArrayLength() > 0;
+                            writer.WritePropertyName( "options" );
+                            if ( useEl )
+                                q.GetProperty( "optionsEl" ).WriteTo( writer );
+                            else
+                                qProp.Value.WriteTo( writer );
+                            optionsEmitted = true;
+                        }
+                        continue;
+                    }
+
+                    qProp.WriteTo( writer );
+                }
+
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
 
             writer.WriteEndObject();
             writer.Flush();
