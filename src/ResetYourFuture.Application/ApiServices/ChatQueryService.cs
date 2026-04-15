@@ -15,8 +15,7 @@ namespace ResetYourFuture.Web.ApiServices;
 public class ChatQueryService(
     IApplicationDbContext db ,
     UserManager<ApplicationUser> userManager ,
-    ISubscriptionService subscriptionService ,
-    ILogger<ChatQueryService> logger ) : IChatQueryService
+    ISubscriptionService subscriptionService ) : IChatQueryService
 {
     public async Task<bool> HasChatAccessAsync( string userId , bool isAdmin )
     {

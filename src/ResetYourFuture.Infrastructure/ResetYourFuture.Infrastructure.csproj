@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -35,8 +35,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ResetYourFuture.Application\ResetYourFuture.Application.csproj" />
-    <ProjectReference Include="..\ResetYourFuture.Domain\ResetYourFuture.Domain.csproj" />
-    <ProjectReference Include="..\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj" />
-  </ItemGroup>
+    <ProjectReference Include="..\ResetYourFuture.Domain\ResetYourFuture.Domain.csproj" />  </ItemGroup>
 
 </Project>
