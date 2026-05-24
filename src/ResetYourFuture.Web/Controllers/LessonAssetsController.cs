@@ -16,11 +16,11 @@ namespace ResetYourFuture.Web.Controllers;
 [Authorize]
 public class LessonAssetsController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly IFileStorage _fileStorage;
     private readonly ILogger<LessonAssetsController> _logger;
 
-    public LessonAssetsController(ApplicationDbContext db, IFileStorage fileStorage, ILogger<LessonAssetsController> logger)
+    public LessonAssetsController(IApplicationDbContext db, IFileStorage fileStorage, ILogger<LessonAssetsController> logger)
     {
         _db = db;
         _fileStorage = fileStorage;

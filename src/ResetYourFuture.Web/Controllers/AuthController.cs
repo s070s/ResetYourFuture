@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Identity;
@@ -21,7 +22,7 @@ public class AuthController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<AuthController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IWebHostEnvironment _env;
     private readonly IEmailService _emailService;
 
@@ -31,7 +32,7 @@ public class AuthController : ControllerBase
         ITokenService tokenService ,
         ISubscriptionService subscriptionService ,
         ILogger<AuthController> logger ,
-        ApplicationDbContext context ,
+        IApplicationDbContext context ,
         IWebHostEnvironment env ,
         IEmailService emailService )
     {
@@ -86,7 +87,15 @@ public class AuthController : ControllerBase
         if ( !result.Succeeded )
         {
             _logger.LogWarning( "Registration failed for {Email}: {Errors}" , request.Email , string.Join( ", " , result.Errors.Select( e => e.Description ) ) );
-            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+
+            // Map duplicate-account errors to a generic message to prevent account enumeration.
+            // Password-policy errors (too short, no digits, etc.) are safe to surface verbatim.
+            var safeErrors = result.Errors.Select( e =>
+                e.Code is "DuplicateUserName" or "DuplicateEmail"
+                    ? "Registration failed. Please check your details and try again."
+                    : e.Description );
+
+            return BadRequest( new AuthResponseDto { Success = false , Errors = safeErrors } );
         }
 
         // Assign default role
@@ -118,6 +127,7 @@ public class AuthController : ControllerBase
     /// Confirm user email address.
     /// </summary>
     [HttpGet( "confirm-email" )]
+    [EnableRateLimiting( "auth" )]
     public async Task<ActionResult<AuthResponseDto>> ConfirmEmail( [FromQuery] string userId , [FromQuery] string token )
     {
         if ( string.IsNullOrEmpty( userId ) || string.IsNullOrEmpty( token ) )
@@ -157,7 +167,8 @@ public class AuthController : ControllerBase
 
         if ( !await _userManager.IsEmailConfirmedAsync( user ) )
         {
-            return Unauthorized( new AuthResponseDto { Success = false , Message = "Email not confirmed." } );
+            _logger.LogWarning( "Login blocked for unconfirmed email: {Email}" , request.Email );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Invalid credentials." } );
         }
 
         if ( !user.IsEnabled )
@@ -216,9 +227,73 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Exchange a valid refresh token for a new JWT access token and rotated refresh token.
+    /// The submitted refresh token is revoked; a fresh pair is returned.
+    /// </summary>
+    [HttpPost( "refresh" )]
+    [AllowAnonymous]
+    [EnableRateLimiting( "auth" )]
+    public async Task<ActionResult<AuthResponseDto>> Refresh( [FromBody] RefreshTokenRequestDto request )
+    {
+        if ( !ModelState.IsValid )
+            return BadRequest( new AuthResponseDto { Success = false , Message = "Refresh token is required." } );
+
+        var tokenHash = HashToken( request.RefreshToken );
+
+        var stored = await _context.RefreshTokens
+            .Include( rt => rt.User )
+            .FirstOrDefaultAsync( rt => rt.TokenHash == tokenHash );
+
+        if ( stored is null || stored.RevokedAt is not null || stored.ExpiresAt <= DateTimeOffset.UtcNow )
+        {
+            _logger.LogWarning( "Refresh attempt with invalid, expired, or revoked token." );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Invalid or expired refresh token." } );
+        }
+
+        var user = stored.User;
+
+        if ( !user.IsEnabled )
+        {
+            stored.RevokedAt = DateTimeOffset.UtcNow;
+            await _context.SaveChangesAsync();
+            _logger.LogWarning( "Refresh attempt for disabled user {UserId}." , user.Id );
+            return Unauthorized( new AuthResponseDto { Success = false , Message = "Account is disabled." } );
+        }
+
+        // Rotate: revoke the old token and issue a new pair
+        var newRefreshTokenPlain = _tokenService.GenerateRefreshToken();
+        var newEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid() ,
+            UserId = user.Id ,
+            TokenHash = HashToken( newRefreshTokenPlain ) ,
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays( 7 ) ,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        stored.RevokedAt = DateTimeOffset.UtcNow;
+        stored.ReplacedByTokenId = newEntity.Id;
+        _context.RefreshTokens.Add( newEntity );
+        await _context.SaveChangesAsync();
+
+        var (accessToken , expiration) = await _tokenService.GenerateAccessTokenAsync( user );
+
+        _logger.LogInformation( "Refresh token rotated for user {UserId}." , user.Id );
+
+        return Ok( new AuthResponseDto
+        {
+            Success = true ,
+            Token = accessToken ,
+            RefreshToken = newRefreshTokenPlain ,
+            Expiration = expiration
+        } );
+    }
+
+    /// <summary>
     /// Request password reset. Returns token (dev mode). In production, send via email.
     /// </summary>
     [HttpPost( "forgot-password" )]
+    [EnableRateLimiting( "auth" )]
     public async Task<ActionResult<AuthResponseDto>> ForgotPassword( [FromBody] ForgotPasswordRequestDto request )
     {
         var user = await _userManager.FindByEmailAsync( request.Email );
@@ -246,6 +321,7 @@ public class AuthController : ControllerBase
     /// Reset password using token from forgot-password flow.
     /// </summary>
     [HttpPost( "reset-password" )]
+    [EnableRateLimiting( "auth" )]
     public async Task<ActionResult<AuthResponseDto>> ResetPassword( [FromBody] ResetPasswordRequestDto request )
     {
         if ( !ModelState.IsValid )
@@ -261,7 +337,9 @@ public class AuthController : ControllerBase
         var result = await _userManager.ResetPasswordAsync( user , request.Token , request.NewPassword );
         if ( !result.Succeeded )
         {
-            return BadRequest( new AuthResponseDto { Success = false , Errors = result.Errors.Select( e => e.Description ) } );
+            _logger.LogWarning( "Password reset failed for {Email}: {Errors}" , request.Email , string.Join( ", " , result.Errors.Select( e => e.Description ) ) );
+            // Return generic message — specific errors would confirm account existence or reveal policy hints.
+            return BadRequest( new AuthResponseDto { Success = false , Message = "Invalid request." } );
         }
 
         _logger.LogInformation( "Password reset for {Email}" , request.Email );

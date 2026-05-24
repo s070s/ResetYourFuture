@@ -17,13 +17,13 @@ namespace ResetYourFuture.Web.Hubs;
 [Authorize]
 public class ChatHub : Hub
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
-        ApplicationDbContext db ,
+        IApplicationDbContext db ,
         UserManager<ApplicationUser> userManager ,
         ISubscriptionService subscriptionService ,
         ILogger<ChatHub> logger )
@@ -39,7 +39,14 @@ public class ChatHub : Hub
         var userId = Context.UserIdentifier;
         if ( userId is not null )
         {
-            // Join a personal group so we can target messages to this user.
+            var user = await _userManager.FindByIdAsync( userId );
+            if ( user is null || !user.IsEnabled )
+            {
+                _logger.LogWarning( "Chat: Rejected connection for disabled/unknown user {UserId}." , userId );
+                Context.Abort();
+                return;
+            }
+
             await Groups.AddToGroupAsync( Context.ConnectionId , $"user_{userId}" );
             _logger.LogInformation( "Chat: User {UserId} connected." , userId );
         }
@@ -67,6 +74,13 @@ public class ChatHub : Hub
         if ( string.IsNullOrEmpty( userId ) || string.IsNullOrWhiteSpace( content ) )
             return;
 
+        // Hard cap: 4 000 chars max per message. Prevents storage abuse and abnormally large payloads.
+        if ( content.Length > 4_000 )
+        {
+            await Clients.Caller.SendAsync( "ChatError" , "Message exceeds the 4,000 character limit." );
+            return;
+        }
+
         var isAdmin = Context.User?.IsInRole( "Admin" ) == true;
         if ( !isAdmin )
         {
@@ -89,8 +103,11 @@ public class ChatHub : Hub
             return;
 
         var sender = await _userManager.FindByIdAsync( userId );
-        if ( sender is null )
+        if ( sender is null || !sender.IsEnabled )
+        {
+            Context.Abort();
             return;
+        }
 
         var roles = await _userManager.GetRolesAsync( sender );
         var senderRole = roles.FirstOrDefault() ?? "User";

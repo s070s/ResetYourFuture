@@ -28,18 +28,40 @@ public class CourseService(
 
         var totalCount = await query.CountAsync();
 
-        var items = await query
+        var pageIds = await query
             .Skip( ( page - 1 ) * pageSize )
             .Take( pageSize )
-            .Select( c => new CourseListItemDto(
-                c.Id ,
-                isEl ? ( c.TitleEl ?? c.TitleEn ) : c.TitleEn ,
-                isEl ? ( c.DescriptionEl ?? c.DescriptionEn ) : c.DescriptionEn ,
-                c.Enrollments.Any( e => e.UserId == userId ) ,
-                c.Modules.SelectMany( m => m.Lessons ).Count() ,
-                c.RequiredTier
-            ) )
+            .Select( c => c.Id )
             .ToListAsync();
+
+        // Two batched queries replace per-row correlated subqueries.
+        var enrolledCourseIds = await db.Enrollments
+            .AsNoTracking()
+            .Where( e => e.UserId == userId && pageIds.Contains( e.CourseId ) )
+            .Select( e => e.CourseId )
+            .ToHashSetAsync();
+
+        var lessonCountById = await db.Lessons
+            .AsNoTracking()
+            .Where( l => pageIds.Contains( l.Module.CourseId ) )
+            .GroupBy( l => l.Module.CourseId )
+            .Select( g => new { CourseId = g.Key, Count = g.Count() } )
+            .ToDictionaryAsync( x => x.CourseId , x => x.Count );
+
+        var courses = await query
+            .Skip( ( page - 1 ) * pageSize )
+            .Take( pageSize )
+            .Select( c => new { c.Id, c.TitleEn, c.TitleEl, c.DescriptionEn, c.DescriptionEl, c.RequiredTier } )
+            .ToListAsync();
+
+        var items = courses.Select( c => new CourseListItemDto(
+            c.Id ,
+            isEl ? ( c.TitleEl ?? c.TitleEn ) : c.TitleEn ,
+            isEl ? ( c.DescriptionEl ?? c.DescriptionEn ) : c.DescriptionEn ,
+            enrolledCourseIds.Contains( c.Id ) ,
+            lessonCountById.GetValueOrDefault( c.Id , 0 ) ,
+            c.RequiredTier
+        ) ).ToList();
 
         return new PagedResult<CourseListItemDto>( items , totalCount , page , pageSize );
     }

@@ -12,9 +12,10 @@ public interface IFileStorage
     /// <param name="fileStream">File content stream</param>
     /// <param name="fileName">Original file name</param>
     /// <param name="folder">Folder/category for organization (e.g., "avatars", "lessons/pdf")</param>
+    /// <param name="maxBytes">Optional explicit max file size in bytes. When null the implementation chooses a default based on folder name.</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Relative file path for storage in database</returns>
-    Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, CancellationToken cancellationToken = default);
+    Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, long? maxBytes = null, CancellationToken cancellationToken = default);
     
     /// <summary>
     /// Retrieves a file from storage.

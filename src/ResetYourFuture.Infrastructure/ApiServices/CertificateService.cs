@@ -14,7 +14,7 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public class CertificateService : ICertificateService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly IFileStorage _storage;
     private readonly ILogger<CertificateService> _logger;
 
@@ -26,7 +26,7 @@ public class CertificateService : ICertificateService
     }
 
     public CertificateService(
-        ApplicationDbContext db ,
+        IApplicationDbContext db ,
         IFileStorage storage ,
         ILogger<CertificateService> logger )
     {
@@ -139,7 +139,7 @@ public class CertificateService : ICertificateService
             stream ,
             $"{cert.VerificationId}.pdf" ,
             "certificates" ,
-            cancellationToken );
+            cancellationToken: cancellationToken );
     }
 
     private static byte[] BuildDocument( Certificate cert )
@@ -192,9 +192,9 @@ public class CertificateService : ICertificateService
                         .FontSize( 13 )
                         .FontColor( "#777777" );
 
-                    // Course title
+                    // Course title — prefer localised Greek title when available
                     col.Item().AlignCenter()
-                        .Text( cert.CourseTitleEn )
+                        .Text( cert.CourseTitleEl ?? cert.CourseTitleEn )
                         .FontSize( 20 )
                         .Bold()
                         .FontColor( "#1e3a5f" );

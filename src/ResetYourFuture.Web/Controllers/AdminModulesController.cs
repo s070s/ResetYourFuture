@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +17,13 @@ namespace ResetYourFuture.Web.Controllers;
 [Authorize( Policy = "AdminOnly" )]
 public class AdminModulesController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
+    private readonly IHtmlSanitizer _sanitizer;
 
-    public AdminModulesController( ApplicationDbContext db )
+    public AdminModulesController( IApplicationDbContext db , IHtmlSanitizer sanitizer )
     {
         _db = db;
+        _sanitizer = sanitizer;
     }
 
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
@@ -79,8 +82,8 @@ public class AdminModulesController : ControllerBase
             Id = Guid.NewGuid() ,
             TitleEn = request.TitleEn ,
             TitleEl = request.TitleEl ,
-            DescriptionEn = request.DescriptionEn ,
-            DescriptionEl = request.DescriptionEl ,
+            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null ,
+            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null ,
             SortOrder = request.SortOrder ,
             CourseId = request.CourseId ,
             UpdatedByUserId = UserId
@@ -118,8 +121,8 @@ public class AdminModulesController : ControllerBase
 
         module.TitleEn = request.TitleEn;
         module.TitleEl = request.TitleEl;
-        module.DescriptionEn = request.DescriptionEn;
-        module.DescriptionEl = request.DescriptionEl;
+        module.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null;
+        module.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null;
         module.SortOrder = request.SortOrder;
         module.UpdatedAt = DateTimeOffset.UtcNow;
         module.UpdatedByUserId = UserId;

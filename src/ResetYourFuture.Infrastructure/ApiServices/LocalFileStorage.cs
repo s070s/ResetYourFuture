@@ -45,7 +45,7 @@ public class LocalFileStorage : IFileStorage
         }
     }
     
-    public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, CancellationToken cancellationToken = default)
+    public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, long? maxBytes = null, CancellationToken cancellationToken = default)
     {
         // Validate file name
         fileName = Path.GetFileName(fileName); // Security: prevent directory traversal
@@ -53,40 +53,40 @@ public class LocalFileStorage : IFileStorage
         {
             throw new ArgumentException("File name is required", nameof(fileName));
         }
-        
+
         // Validate folder
         folder = folder.Replace("\\", "/").Trim('/');
         if (string.IsNullOrWhiteSpace(folder) || folder.Contains(".."))
         {
             throw new ArgumentException("Invalid folder path", nameof(folder));
         }
-        
+
         // Generate unique file name to prevent collisions
         var extension = Path.GetExtension(fileName);
         var fileNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
         var uniqueFileName = $"{fileNameWithoutExt}_{Guid.NewGuid():N}{extension}";
-        
+
         // Create folder structure
         var folderPath = Path.Combine(_basePath, folder);
         if (!Directory.Exists(folderPath))
         {
             Directory.CreateDirectory(folderPath);
         }
-        
+
         // Build full path
         var filePath = Path.Combine(folderPath, uniqueFileName);
-        
-        // Validate file size based on folder type
-        ValidateFileSize(fileStream, folder);
-        
+
+        // Validate file size — prefer explicit cap; fall back to folder-heuristic.
+        ValidateFileSize(fileStream, folder, maxBytes);
+
         // Save file
         using var fileStreamOut = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, useAsync: true);
         await fileStream.CopyToAsync(fileStreamOut, cancellationToken);
-        
+
         // Return relative path
         var relativePath = $"{folder}/{uniqueFileName}";
         _logger.LogInformation("File saved: {FilePath}", relativePath);
-        
+
         return relativePath;
     }
     
@@ -148,7 +148,7 @@ public class LocalFileStorage : IFileStorage
         return File.Exists(fullPath);
     }
     
-    private void ValidateFileSize(Stream fileStream, string folder)
+    private void ValidateFileSize(Stream fileStream, string folder, long? explicitMaxBytes)
     {
         // Network streams (e.g. from IFormFile) may not be seekable;
         // skip stream-level validation — callers should pre-check IFormFile.Length.
@@ -157,15 +157,23 @@ public class LocalFileStorage : IFileStorage
 
         var fileSize = fileStream.Length;
 
-        long maxSize = folder.ToLowerInvariant() switch
+        // Prefer the explicit cap passed by the caller. The folder-name heuristic is the
+        // last resort — new folders that don't match any keyword will throw rather than
+        // silently inheriting an arbitrary default.
+        long maxSize = explicitMaxBytes ?? folder.ToLowerInvariant() switch
         {
-            var f when f.Contains("avatar") => MaxAvatarSize,
-            var f when f.Contains("pdf") => MaxPdfSize,
-            var f when f.Contains("video") => MaxVideoSize,
-            var f when f.Contains("background") => MaxBackgroundImageSize,
-            _ => MaxPdfSize // Default
+            var f when f.Contains("avatar")       => MaxAvatarSize,
+            var f when f.Contains("pdf")          => MaxPdfSize,
+            var f when f.Contains("video")        => MaxVideoSize,
+            var f when f.Contains("background")   => MaxBackgroundImageSize,
+            var f when f.Contains("cover")        => MaxBackgroundImageSize,
+            var f when f.Contains("blog")         => MaxBackgroundImageSize,
+            var f when f.Contains("certificate")  => MaxPdfSize,
+            _ => throw new InvalidOperationException(
+                $"No file-size limit configured for folder '{folder}'. " +
+                "Pass an explicit maxBytes to SaveFileAsync or add a folder mapping." )
         };
-        
+
         if (fileSize > maxSize)
         {
             throw new InvalidOperationException($"File size ({fileSize} bytes) exceeds maximum allowed size ({maxSize} bytes)");

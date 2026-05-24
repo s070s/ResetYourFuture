@@ -15,11 +15,11 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/site")]
 public class SiteSettingsController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly IFileStorage _fileStorage;
     private readonly ILogger<SiteSettingsController> _logger;
 
-    public SiteSettingsController(ApplicationDbContext db, IFileStorage fileStorage, ILogger<SiteSettingsController> logger)
+    public SiteSettingsController(IApplicationDbContext db, IFileStorage fileStorage, ILogger<SiteSettingsController> logger)
     {
         _db = db;
         _fileStorage = fileStorage;

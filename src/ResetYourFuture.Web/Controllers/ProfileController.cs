@@ -99,15 +99,15 @@ public class ProfileController : ControllerBase
     public async Task<IActionResult> UploadAvatar( IFormFile file )
     {
         if ( file == null || file.Length == 0 )
-        {
             return BadRequest( "No file provided" );
-        }
 
         const long maxAvatarSize = 5 * 1024 * 1024; // 5 MB
         if ( file.Length > maxAvatarSize )
-        {
             return BadRequest( "File too large (max 5 MB)" );
-        }
+
+        var allowedAvatarTypes = new[] { "image/jpeg" , "image/jpg" , "image/png" , "image/gif" , "image/webp" };
+        if ( !allowedAvatarTypes.Contains( file.ContentType , StringComparer.OrdinalIgnoreCase ) )
+            return BadRequest( "Only image files are allowed (jpeg, png, gif, webp)." );
 
         var user = await _userManager.FindByIdAsync( UserId );
         if ( user == null )

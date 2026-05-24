@@ -81,5 +81,8 @@ public enum BillingTransactionType
     Refund = 4,
 
     /// <summary>Free plan assignment (no charge).</summary>
-    FreePlanAssignment = 5
+    FreePlanAssignment = 5,
+
+    /// <summary>Same-tier plan switch (e.g. monthly → yearly of the same tier).</summary>
+    PlanSwitch = 6
 }

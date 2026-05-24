@@ -26,18 +26,20 @@ public class AdminController : ControllerBase
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ITokenService _tokenService;
     private readonly ILogger<AdminController> _logger;
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IBlogArticleService _blogService;
     private readonly IFileStorage _fileStorage;
+    private readonly IEmailService _emailService;
 
     public AdminController(
         UserManager<ApplicationUser> userManager ,
         RoleManager<IdentityRole> roleManager ,
         ITokenService tokenService ,
         ILogger<AdminController> logger ,
-        ApplicationDbContext context ,
+        IApplicationDbContext context ,
         IBlogArticleService blogService ,
-        IFileStorage fileStorage )
+        IFileStorage fileStorage ,
+        IEmailService emailService )
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -46,6 +48,7 @@ public class AdminController : ControllerBase
         _context = context;
         _blogService = blogService;
         _fileStorage = fileStorage;
+        _emailService = emailService;
     }
 
     /// <summary>
@@ -298,50 +301,58 @@ public class AdminController : ControllerBase
             .Take( 50 )
             .ToListAsync();
 
-        // Build response objects including roles for each user.
-        var result = new List<object>();
-        foreach ( var user in users )
-        {
-            var roles = await _userManager.GetRolesAsync( user );
-            result.Add( new
-            {
-                user.Id ,
-                user.Email ,
-                user.FirstName ,
-                user.LastName ,
-                user.DisplayName ,
-                user.EmailConfirmed ,
-                Roles = roles
-            } );
-        }
+        // Single JOIN query for all roles — avoids N+1 round-trips.
+        var userIds = users.Select( u => u.Id ).ToList();
+        var userRolePairs = await _context.UserRoles
+            .Where( ur => userIds.Contains( ur.UserId ) )
+            .Join( _context.Roles ,
+                   ur => ur.RoleId ,
+                   r => r.Id ,
+                   ( ur , r ) => new { ur.UserId , r.Name } )
+            .ToListAsync();
 
-        // Return 200 OK with search results.
+        var userRoleMap = userRolePairs
+            .GroupBy( x => x.UserId )
+            .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).ToList() );
+
+        var result = users.Select( user => new
+        {
+            user.Id ,
+            user.Email ,
+            user.FirstName ,
+            user.LastName ,
+            user.DisplayName ,
+            user.EmailConfirmed ,
+            Roles = userRoleMap.TryGetValue( user.Id , out var r ) ? r : new List<string>()
+        } );
+
         return Ok( result );
     }
 
     /// <summary>
-    /// Generate password reset token for a user (admin force reset).
+    /// Force-sends a password reset email to a user (admin action).
+    /// The token is delivered out-of-band via email — never returned to the caller.
     /// </summary>
     [HttpPost( "users/{userId}/force-password-reset" )]
-    public async Task<ActionResult<object>> ForcePasswordReset( string userId )
+    public async Task<IActionResult> ForcePasswordReset( string userId )
     {
-        // Ensure the user exists before generating a token.
         var user = await _userManager.FindByIdAsync( userId );
         if ( user == null )
             return NotFound( "User not found" );
 
-        // Generate a password reset token via Identity.
+        if ( string.IsNullOrEmpty( user.Email ) )
+            return BadRequest( "User has no email address." );
+
         var token = await _userManager.GeneratePasswordResetTokenAsync( user );
+        var resetUrl = Url.Action(
+            "ResetPassword" , "Auth" ,
+            new { email = user.Email , token } ,
+            Request.Scheme ) ?? $"{Request.Scheme}://{Request.Host}/reset-password?email={Uri.EscapeDataString( user.Email )}&token={Uri.EscapeDataString( token )}";
 
-        // Log action for audit purposes.
-        _logger.LogInformation( "Admin generated password reset token for user {UserId}" , userId );
+        await _emailService.SendPasswordResetAsync( user.Email , resetUrl );
+        _logger.LogInformation( "Admin triggered forced password reset for user {UserId}." , userId );
 
-        // Return token to the caller (admin should transmit securely).
-        return Ok( new
-        {
-            userId = user.Id ,
-            resetToken = token
-        } );
+        return NoContent();
     }
 
     /// <summary>
@@ -533,7 +544,7 @@ public class AdminController : ControllerBase
         }
 
         using var stream = file.OpenReadStream();
-        var path = await _fileStorage.SaveFileAsync( stream, file.FileName, "blog/covers", cancellationToken );
+        var path = await _fileStorage.SaveFileAsync( stream, file.FileName, "blog/covers", cancellationToken: cancellationToken );
 
         article.CoverImageUrl = path;
         article.UpdatedAt = DateTimeOffset.UtcNow;

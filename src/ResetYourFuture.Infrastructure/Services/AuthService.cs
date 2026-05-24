@@ -48,7 +48,7 @@ public class AuthService : IAuthService
     public const string AdminBackupCookieName = ".RYF.AdminUserId";
 
     /// <summary>Data Protection purpose string — changing this invalidates all in-flight tokens.</summary>
-    public const string ProtectorPurpose = "ResetYourFuture.AuthCompletion.v1";
+    public const string ProtectorPurpose = "ResetYourFuture.AuthCompletion.v2";
 
     private static readonly JwtSecurityTokenHandler TokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 
@@ -119,7 +119,8 @@ public class AuthService : IAuthService
             return new AuthResponseDto { Success = false , Message = "Invalid credentials." };
         }
 
-        var token = CreateSignInToken( userId: user.Id , adminBackupId: null , deleteAdminBackup: false );
+        var stamp = await _userManager.GetSecurityStampAsync( user );
+        var token = CreateSignInToken( userId: user.Id , adminBackupId: null , deleteAdminBackup: false , securityStamp: stamp );
         _logger.LogInformation( "User {Email} validated — sign-in token issued." , user.Email );
         return new AuthResponseDto { Success = true , Token = token };
     }
@@ -197,7 +198,8 @@ public class AuthService : IAuthService
         if ( string.IsNullOrEmpty( adminId ) )
             return new AuthResponseDto { Success = false , Message = "Not authenticated." };
 
-        var token = CreateSignInToken( userId: target.Id , adminBackupId: adminId , deleteAdminBackup: false );
+        var stamp = await _userManager.GetSecurityStampAsync( target );
+        var token = CreateSignInToken( userId: target.Id , adminBackupId: adminId , deleteAdminBackup: false , securityStamp: stamp );
         _logger.LogInformation( "Admin {AdminId} issued impersonation token for user {UserId}." , adminId , userId );
         return new AuthResponseDto { Success = true , Token = token };
     }
@@ -219,7 +221,8 @@ public class AuthService : IAuthService
             return "/auth/signout?returnUrl=%2F";
         }
 
-        var token = CreateSignInToken( userId: admin.Id , adminBackupId: null , deleteAdminBackup: true );
+        var stamp = await _userManager.GetSecurityStampAsync( admin );
+        var token = CreateSignInToken( userId: admin.Id , adminBackupId: null , deleteAdminBackup: true , securityStamp: stamp );
         _logger.LogInformation( "Admin {AdminId} exiting impersonation — token issued." , admin.Id );
         return $"/auth/complete?ticket={Uri.EscapeDataString( token )}&returnUrl=%2Fadmin%2Fusers";
     }
@@ -306,10 +309,10 @@ public class AuthService : IAuthService
     /// <param name="deleteAdminBackup">
     /// If true, the /auth/complete endpoint will delete the admin backup cookie (impersonation exit).
     /// </param>
-    private string CreateSignInToken( string userId , string? adminBackupId , bool deleteAdminBackup )
+    // Format: "{userId}|{adminBackupId or empty}|{0 or 1}|{securityStamp}"
+    private string CreateSignInToken( string userId , string? adminBackupId , bool deleteAdminBackup , string securityStamp )
     {
-        // Format: "{userId}|{adminBackupId or empty}|{0 or 1}"
-        var payload = $"{userId}|{adminBackupId ?? ""}|{( deleteAdminBackup ? "1" : "0" )}";
+        var payload = $"{userId}|{adminBackupId ?? ""}|{( deleteAdminBackup ? "1" : "0" )}|{securityStamp}";
         return _protector.Protect( payload , lifetime: TimeSpan.FromMinutes( 5 ) );
     }
 }

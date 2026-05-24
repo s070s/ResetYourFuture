@@ -62,8 +62,8 @@ public record AssessmentSubmissionDto(
 /// Request to submit assessment answers.
 /// </summary>
 public record SubmitAssessmentRequest(
-    [Required] string AnswersJson,
-    string? SummaryJson
+    [Required, MaxLength( 50_000 )] string AnswersJson,
+    [MaxLength( 20_000 )] string? SummaryJson
 );
 
 /// <summary>

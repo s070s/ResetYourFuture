@@ -63,12 +63,15 @@ public class BlogArticleService : IBlogArticleService
 
         if ( !string.IsNullOrWhiteSpace( search ) )
         {
-            var term = search.Trim().ToLower();
+            // EF.Functions.Like translates to a sargable LIKE predicate.
+            // Explicit ToLower() is dropped — SQL Server's default CI_AS collation
+            // makes LIKE case-insensitive without defeating the index.
+            var term = $"%{search.Trim()}%";
             query = query.Where( a =>
-                a.TitleEn.ToLower().Contains( term ) ||
-                ( a.TitleEl != null && a.TitleEl.ToLower().Contains( term ) ) ||
-                a.Slug.ToLower().Contains( term ) ||
-                a.AuthorName.ToLower().Contains( term ) );
+                EF.Functions.Like( a.TitleEn , term ) ||
+                ( a.TitleEl != null && EF.Functions.Like( a.TitleEl , term ) ) ||
+                EF.Functions.Like( a.Slug , term ) ||
+                EF.Functions.Like( a.AuthorName , term ) );
         }
 
         var total = await query.CountAsync( cancellationToken );

@@ -14,35 +14,31 @@ cd ResetYourFuture
 # 2. Trust HTTPS dev certificate (once per machine)
 dotnet dev-certs https --trust
 
-# 3. Install EF Core tools (once per machine)
-dotnet tool install --global dotnet-ef
+# 3. Set up secrets — copy the template and fill in your own values
+cp .env.template .env          # keep .env at the repo root (next to .env.template)
+# Edit .env and set at minimum:
+#   AdminUser__Password=YourAdminPassword123!
+#   SeedData__StudentPassword=YourStudentPassword123!
+#   Jwt__Key=your-dev-jwt-key-at-least-32-chars   ← must be ≥ 32 characters
 
-# 4. Set the connection string in src/ResetYourFuture.Web/appsettings.json
-# "ConnectionStrings": {
-#   "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=ResetYourFutureDb;Trusted_Connection=True;Connect Timeout=30;TrustServerCertificate=True;"
-# }
-
-# 5. Restore packages
+# 4. Restore packages
 dotnet restore
 
-# 6. Create the initial migration
-dotnet ef migrations add InitialCreate  --project src/ResetYourFuture.Infrastructure  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext  --output-dir Data/Migrations
-
-# 7. Apply migrations
-dotnet ef database update  --project src/ResetYourFuture.Infrastructure  --startup-project src/ResetYourFuture.Web  --context ApplicationDbContext
-
-# 8. Build
+# 5. Build
 dotnet build
 
-# 9. Run
+# 6. Run
 dotnet run --project src/ResetYourFuture.Web
 # Visual Studio: right-click Solution → Configure Startup Projects → set ResetYourFuture.Web → F5
 ```
 
-**Admin:** `admin@resetyourfuture.local` / `Admin123!`
-**Students:** `Student123!`
+> **Database is created and migrated automatically on first run.** If you drop the database (e.g. from SSMS), just restart the app — it will recreate and reseed it.
 
-> Seed data (students, courses, assessments) runs automatically in Development when `SeedData:Enabled = true` in `appsettings.Development.json`. Up to 2000 students are created in the background.
+**Admin:** `admin@resetyourfuture.local` / *(password you set in `.env`)*
+
+> Seed data (students, courses, assessments) runs automatically in Development when `SeedData:Enabled = true` in `appsettings.Development.json`. The bulk student seeder runs in the background after startup. Set `SeedData:BulkStudentCount` in `.env` to control the count (default: 2000).
+
+> **Never commit `.env`** — it is already in `.gitignore`. Use `.env.template` to document which keys are needed.
 
 ---
 
@@ -58,7 +54,8 @@ dotnet run --project src/ResetYourFuture.Web
 | PDF | QuestPDF 2026.2.4 |
 | Localization | English + Greek (`.resx`) |
 | Logging | Custom daily file logger |
-| Email | `StubEmailService` — logs to file, no SMTP needed in dev |
+| Email | `StubEmailService` (dev only) — logs to file; a real provider must be registered for production |
+| Security | HSTS · `X-Content-Type-Options` · `X-Frame-Options` · `Referrer-Policy` · `Permissions-Policy` |
 
 ---
 
@@ -67,8 +64,11 @@ dotnet run --project src/ResetYourFuture.Web
 ```
 ResetYourFuture.sln
 └── src/
-    ├── ResetYourFuture.Web/      Full-stack Blazor SSR — the only deployable project
-    └── ResetYourFuture.Shared/   DTOs, .resx resources, JSON seed data
+    ├── ResetYourFuture.Domain/          Entities, enums, value objects — no framework dependencies
+    ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services
+    ├── ResetYourFuture.Infrastructure/  EF Core DbContext, migrations, service implementations
+    ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
+    └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
 ```
 
 ---
@@ -85,8 +85,9 @@ ResetYourFuture.sln
 | `POST` | `api/auth/forgot-password` | Request password-reset email | No |
 | `POST` | `api/auth/reset-password` | Reset password with token | No |
 | `GET` | `api/auth/me` | Current user info from JWT | Yes |
-| `POST` | `api/auth/dev/confirm-email` | Dev-only: confirm email without link | Dev |
-| `POST` | `api/auth/dev/reset-password` | Dev-only: reset password without email | Dev |
+| `POST` | `api/auth/refresh` | Rotate refresh token — returns new JWT + refresh token pair | No |
+| `POST` | `api/auth/dev/confirm-email` | Dev-only: confirm email without link (**compiled out in Release builds**) | Dev |
+| `POST` | `api/auth/dev/reset-password` | Dev-only: reset password without email (**compiled out in Release builds**) | Dev |
 
 ### Profile — `api/profile`
 
@@ -120,7 +121,7 @@ ResetYourFuture.sln
 |--------|-------|-------------|------|
 | `GET` | `api/assessments` | List published assessments (paged) | Yes |
 | `GET` | `api/assessments/{id}` | Assessment detail | Yes |
-| `POST` | `api/assessments/{id}/submit` | Submit answers | Yes |
+| `POST` | `api/assessments/{id}/submit` | Submit answers (`AnswersJson` max 50 000 chars) | Yes |
 | `GET` | `api/assessments/mine` | Current user's submissions | Yes |
 
 ### Certificates — `api/certificates`
@@ -179,7 +180,7 @@ ResetYourFuture.sln
 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
-| `GET` | `api/media/{*filePath}` | Serve public media files | No |
+| `GET` | `api/media/{*filePath}` | Serve public media files (allowed folders: `blog/covers`, `testimonials/avatars`; allowed extensions: `.jpg .jpeg .png .gif .webp .avif .svg`) | No |
 
 ### Admin — Users — `api/admin`
 
@@ -196,7 +197,7 @@ ResetYourFuture.sln
 | `POST` | `api/admin/users/{userId}/disable` | Disable user | Admin |
 | `POST` | `api/admin/users/{userId}/enable` | Enable user | Admin |
 | `DELETE` | `api/admin/users/{userId}` | Delete user | Admin |
-| `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset (sends token) | Admin |
+| `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset — emails reset link to user; returns `204 No Content` | Admin |
 | `POST` | `api/admin/users/{userId}/set-password` | Directly set password | Admin |
 | `POST` | `api/admin/users/{userId}/impersonate` | Generate temporary JWT as that user | Admin |
 
@@ -294,17 +295,45 @@ ResetYourFuture.sln
 
 ## Configuration
 
-`appsettings.json`: `ConnectionStrings:DefaultConnection`, `Jwt:Key` (**change in production**, min 32 chars), `Jwt:Issuer`, `Jwt:Audience`, `Jwt:AccessTokenExpirationMinutes` (default `60`), `Jwt:RefreshTokenExpirationDays` (default `7`).
+All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` file is gitignored — never commit it.
 
-`appsettings.Development.json`: `SeedData:Enabled`, `SeedData:StudentPassword`, `SeedData:JsonPaths:*`.
+| Key | Where | Notes |
+|-----|-------|-------|
+| `ConnectionStrings__DefaultConnection` | `.env` | Full SQL Server connection string. `appsettings.json` intentionally blank. Dev default (with `TrustServerCertificate=True`) is in `appsettings.Development.json`. |
+| `Jwt__Key` | `.env` | **≥ 32 bytes required** — startup throws if shorter. |
+| `Jwt:AccessTokenExpirationMinutes` | `appsettings.json` | Default `15`. |
+| `Jwt:RefreshTokenExpirationDays` | `appsettings.json` | Default `7`. |
+| `AdminUser__Password` | `.env` | Admin seed account password. |
+| `SeedData__StudentPassword` | `.env` | Seed student password. Required when `SeedData:Enabled = true`. |
+| `Payment:MockEnabled` | `appsettings.Development.json` | `true` in dev — skips real Stripe; uses mock checkout. |
+| `Payment__WebhookSecret` | `.env` | Stripe HMAC signing secret. Leave unset in dev. |
+| `AllowedHosts` | `.env` or env var | Default `localhost;127.0.0.1`. **Set to your production domain** (e.g. `reset-your-future.com;www.reset-your-future.com`) before deploying. |
 
-**Production:** set `ASPNETCORE_ENVIRONMENT=Production`, real `Jwt__Key`, `ConnectionStrings__DefaultConnection` via env var, run migrations before start.
+`appsettings.Development.json`: `SeedData:Enabled`, `SeedData:BulkStudentCount`, `SeedData:JsonPaths:*`, `Payment:MockEnabled`, dev connection string.
+
+**Production checklist:**
+- `ASPNETCORE_ENVIRONMENT=Production`
+- Real `Jwt__Key` (≥ 32 bytes), `ConnectionStrings__DefaultConnection` (no `TrustServerCertificate=True`)
+- `AllowedHosts` set to the production domain
+- `IEmailService` real implementation registered (startup throws if absent in Production)
+- Migrations run automatically at startup (`MigrateAsync`); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
 
 ---
 
 ## Email
 
-`StubEmailService` logs links to file instead of sending — find them in `Logs/log-YYYY-MM-DD.txt` (search `STUB EMAIL`). Dev shortcuts: `POST api/auth/dev/confirm-email` / `POST api/auth/dev/reset-password`.
+`StubEmailService` is registered **only in Development**. It logs all emails to file instead of sending them — find links in `Logs/log-YYYY-MM-DD.txt` (search `STUB EMAIL`).
+
+> **Production:** `StubEmailService` is intentionally absent. The application will **throw at startup** unless a real `IEmailService` implementation (SendGrid, SMTP, etc.) is registered.
+
+Dev shortcuts for bypassing email confirmation:
+
+| Endpoint | Purpose |
+|----------|---------|
+| `POST api/auth/dev/confirm-email` | Confirm email without a link |
+| `POST api/auth/dev/reset-password` | Reset password without an email |
+
+> ⚠️ Both endpoints are wrapped in `#if DEBUG` and are **not compiled into Release builds** — they will 404 in production.
 
 ---
 
@@ -312,17 +341,35 @@ ResetYourFuture.sln
 
 | Problem | Fix |
 |---------|-----|
-| DB connection fails | `sqllocaldb info MSSQLLocalDB`. Verify connection string. |
-| Migration fails | Set default + startup project to `src\ResetYourFuture.Web`. |
+| DB connection fails | `sqllocaldb info MSSQLLocalDB`. Verify connection string. If the instance is stopped: `sqllocaldb start MSSQLLocalDB`. |
+| Database missing / dropped | Just restart the app — `MigrateAsync` at startup recreates and reseeds it automatically. |
+| Adding a new migration | `dotnet ef migrations add <Name> --project src/ResetYourFuture.Infrastructure --startup-project src/ResetYourFuture.Web` — then restart; migrations apply on next run. |
 | Seed data missing | `SeedData:Enabled = true` in `appsettings.Development.json`. |
 | Email link not found | Search `STUB EMAIL` in `Logs/log-<today>.txt` or use dev endpoints. |
 | Role-based page inaccessible | Check `AspNetUserRoles` table. Admin pages require `Admin` role. |
-| Chat not connecting | JWT via `access_token` query string. Check token expiry (default 60 min). |
+| Chat not connecting | JWT via `access_token` query string. Check token expiry (default 15 min) — use `api/auth/refresh` to rotate. |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
 
 ---
 
+## Security
+
+| Feature | Details |
+|---------|---------|
+| Auth cookies | `HttpOnly`, `SameSite=Strict`, `Secure` (non-dev), 24 h sliding window, 7-day `MaxAge` hard cap |
+| JWT tokens | HS256, 15-min expiry, security-stamp validated on every request, key ≥ 32 bytes enforced at startup |
+| Refresh tokens | SHA-256-hashed, single-use rotation; revoked token chain tracked |
+| XSS prevention | All rich-text inputs sanitised with Ganss.Xss (`IHtmlSanitizer`) |
+| Rate limiting | `"auth"` policy on register / login / confirm-email / forgot-password / reset-password |
+| HSTS | Enabled in Production; skipped in Development |
+| Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` |
+| File uploads | Content-type allowlist enforced per upload type (image / PDF / video); extension allowlist on media serve |
+| Sitemap | Slugs XML-escaped via `SecurityElement.Escape()` |
+| Account enumeration | Login, forgot-password, reset-password all return generic messages; duplicate-email registration mapped to generic error |
+
+---
+
 ## Logging
 
-Daily rotating log files at `src/ResetYourFuture.Web/Logs/log-YYYY-MM-DD.txt`.
+Daily rotating log files at `src/ResetYourFuture.Web/Logs/log-YYYY-MM-DD.txt`. The `Logs/` directory and all `*.log` files are gitignored.

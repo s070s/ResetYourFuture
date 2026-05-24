@@ -18,12 +18,12 @@ namespace ResetYourFuture.Web.Controllers;
 public class AdminAnalyticsController : ControllerBase
 {
     // EF Core DB context used to query application data (courses, enrollments, etc.)
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     // Identity user manager used to query and manage application users and their roles
     private readonly UserManager<ApplicationUser> _userManager;
 
     // Constructor receives dependencies via dependency injection
-    public AdminAnalyticsController( ApplicationDbContext db , UserManager<ApplicationUser> userManager )
+    public AdminAnalyticsController( IApplicationDbContext db , UserManager<ApplicationUser> userManager )
     {
         _db = db;
         _userManager = userManager;
@@ -47,27 +47,20 @@ public class AdminAnalyticsController : ControllerBase
         var completedCourses = await _db.Enrollments
             .CountAsync( e => e.Status == EnrollmentStatus.Completed );
 
-        var enrollmentData = await _db.Enrollments
-            .Select( e => new { e.CourseId, CourseTitle = e.Course.TitleEn, e.Status } )
-            .ToListAsync();
-
-        var courseStats = enrollmentData
-            .GroupBy( e => new { e.CourseId, e.CourseTitle } )
+        // GroupBy pushed into SQL — avoids loading every row into memory.
+        var courseStats = await _db.Enrollments
+            .GroupBy( e => new { e.CourseId , CourseTitle = e.Course.TitleEn } )
             .Select( g => new CourseStatDto(
-                g.Key.CourseTitle,
-                g.Count(),
+                g.Key.CourseTitle ,
+                g.Count() ,
                 g.Count( e => e.Status == EnrollmentStatus.Completed )
             ) )
-            .ToList();
-
-        var submissionData = await _db.AssessmentSubmissions
-            .Select( s => new { s.AssessmentDefinitionId, AssessmentTitle = s.AssessmentDefinition.TitleEn } )
             .ToListAsync();
 
-        var assessmentStats = submissionData
-            .GroupBy( s => new { s.AssessmentDefinitionId, s.AssessmentTitle } )
-            .Select( g => new AssessmentStatDto( g.Key.AssessmentTitle, g.Count() ) )
-            .ToList();
+        var assessmentStats = await _db.AssessmentSubmissions
+            .GroupBy( s => new { s.AssessmentDefinitionId , AssessmentTitle = s.AssessmentDefinition.TitleEn } )
+            .Select( g => new AssessmentStatDto( g.Key.AssessmentTitle , g.Count() ) )
+            .ToListAsync();
 
         var dto = new AnalyticsSummaryDto(
             totalUsers,

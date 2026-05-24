@@ -18,7 +18,7 @@ namespace ResetYourFuture.Web.Controllers;
 public class CertificatesController : ControllerBase
 {
     // EF Core DB context used to query certificate and enrollment data.
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     // Service that handles certificate issuance, revocation, and PDF generation.
     private readonly ICertificateService _certificateService;
     // File storage abstraction used to stream PDF files to the client.
@@ -27,7 +27,7 @@ public class CertificatesController : ControllerBase
     private readonly ILogger<CertificatesController> _logger;
 
     public CertificatesController(
-        ApplicationDbContext db ,
+        IApplicationDbContext db ,
         ICertificateService certificateService ,
         IFileStorage storage ,
         ILogger<CertificatesController> logger )

@@ -50,7 +50,7 @@ public class AdminCoursesController( IAdminCourseService adminCourseService ) : 
     public async Task<ActionResult<AdminCourseDto>> CreateCourse( [FromBody] SaveCourseRequest request )
     {
         var dto = await adminCourseService.CreateCourseAsync( request , UserId );
-        return CreatedAtAction( nameof( GetCourses ) , new { id = dto.Id } , dto );
+        return CreatedAtAction( nameof( GetCourseById ) , new { id = dto.Id } , dto );
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Domain.Enums;
@@ -16,11 +18,17 @@ public class SubscriptionService : ISubscriptionService
 {
     private readonly IApplicationDbContext _db;
     private readonly ILogger<SubscriptionService> _logger;
+    private readonly IMemoryCache _cache;
+    private readonly bool _mockPaymentEnabled;
 
-    public SubscriptionService( IApplicationDbContext db , ILogger<SubscriptionService> logger )
+    private static string StatusCacheKey( string userId ) => $"sub_status:{userId}";
+
+    public SubscriptionService( IApplicationDbContext db , ILogger<SubscriptionService> logger , IMemoryCache cache , IConfiguration configuration )
     {
         _db = db;
         _logger = logger;
+        _cache = cache;
+        _mockPaymentEnabled = configuration.GetValue<bool>( "Payment:MockEnabled" );
     }
 
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync( CancellationToken cancellationToken = default )
@@ -60,15 +68,21 @@ public class SubscriptionService : ISubscriptionService
     public async Task<UserSubscriptionStatusDto> GetUserStatusAsync(
         string userId , CancellationToken cancellationToken = default )
     {
+        // Cache the status for 30 s. Explicit invalidation occurs on plan change / cancellation.
+        if ( _cache.TryGetValue( StatusCacheKey( userId ) , out UserSubscriptionStatusDto? cached ) && cached is not null )
+            return cached;
+
         var activeSub = await _db.UserSubscriptions
             .AsNoTracking()
             .Include( us => us.SubscriptionPlan )
             .Where( us => us.UserId == userId && us.IsActive )
             .FirstOrDefaultAsync( cancellationToken );
 
+        UserSubscriptionStatusDto status;
+
         if ( activeSub is null )
         {
-            return new UserSubscriptionStatusDto(
+            status = new UserSubscriptionStatusDto(
                 SubscriptionTierEnum.Free ,
                 "Free" ,
                 DateTime.UtcNow ,
@@ -77,15 +91,20 @@ public class SubscriptionService : ISubscriptionService
                 GetDefaultFreeFeatures()
             );
         }
+        else
+        {
+            status = new UserSubscriptionStatusDto(
+                activeSub.SubscriptionPlan.Tier ,
+                activeSub.SubscriptionPlan.Name ,
+                activeSub.StartedAt ,
+                activeSub.ExpiresAt ,
+                activeSub.IsActive ,
+                DeserializeFeatures( activeSub.SubscriptionPlan.FeaturesJson )
+            );
+        }
 
-        return new UserSubscriptionStatusDto(
-            activeSub.SubscriptionPlan.Tier ,
-            activeSub.SubscriptionPlan.Name ,
-            activeSub.StartedAt ,
-            activeSub.ExpiresAt ,
-            activeSub.IsActive ,
-            DeserializeFeatures( activeSub.SubscriptionPlan.FeaturesJson )
-        );
+        _cache.Set( StatusCacheKey( userId ) , status , TimeSpan.FromSeconds( 30 ) );
+        return status;
     }
 
     public async Task<SubscriptionTierEnum> GetUserTierAsync(
@@ -116,26 +135,45 @@ public class SubscriptionService : ISubscriptionService
             );
         }
 
-        // Determine transaction type based on current tier
-        var currentTier = await GetUserTierAsync( userId , cancellationToken );
-        var transactionType = plan.Tier > currentTier
-            ? BillingTransactionType.Upgrade
-            : plan.Tier < currentTier
-                ? BillingTransactionType.Downgrade
-                : BillingTransactionType.Purchase;
-
-        // --- STUB: Mock Stripe checkout session ---
-        // In production, this would create a real Stripe Checkout Session.
         var mockSessionId = $"cs_test_{Guid.NewGuid():N}";
 
+        if ( !_mockPaymentEnabled )
+        {
+            _logger.LogWarning(
+                "Checkout attempted for user {UserId}, plan {PlanName} — payment not yet available in production." ,
+                userId , plan.Name );
+
+            return new CheckoutSessionDto(
+                mockSessionId ,
+                null ,
+                "pending_payment"
+            );
+        }
+
+        // Fetch the current active plan (not just tier) so we can detect same-tier switches (e.g. monthly→yearly).
+        var currentPlan = await _db.UserSubscriptions
+            .AsNoTracking()
+            .Include( us => us.SubscriptionPlan )
+            .Where( us => us.UserId == userId && us.IsActive )
+            .Select( us => us.SubscriptionPlan )
+            .FirstOrDefaultAsync( cancellationToken );
+
+        var transactionType = currentPlan is null
+            ? BillingTransactionType.Purchase
+            : plan.Tier > currentPlan.Tier
+                ? BillingTransactionType.Upgrade
+                : plan.Tier < currentPlan.Tier
+                    ? BillingTransactionType.Downgrade
+                    : plan.Id == currentPlan.Id
+                        ? BillingTransactionType.Renewal
+                        : BillingTransactionType.PlanSwitch;
+
         _logger.LogInformation(
-            "Mock Stripe checkout session created: {SessionId} for user {UserId}, plan {PlanName}" ,
+            "Mock checkout session created: {SessionId} for user {UserId}, plan {PlanName}" ,
             mockSessionId , userId , plan.Name );
 
-        // Auto-complete the subscription (simulating successful payment)
         await AssignPlanAsync( userId , planId , cancellationToken );
 
-        // Record the billing transaction
         _db.BillingTransactions.Add( new BillingTransaction
         {
             Id = Guid.NewGuid() ,
@@ -195,10 +233,15 @@ public class SubscriptionService : ISubscriptionService
         };
 
         _db.UserSubscriptions.Add( newSub );
-        await _db.SaveChangesAsync( cancellationToken );
+        // NOTE: SaveChangesAsync is intentionally NOT called here.
+        // Callers are responsible for persisting — this allows them to add billing transactions
+        // and commit everything atomically in a single SaveChangesAsync call.
+
+        // Evict cached status — it will be rebuilt on next GetUserStatusAsync call after the save.
+        _cache.Remove( StatusCacheKey( userId ) );
 
         _logger.LogInformation(
-            "Assigned plan {PlanName} (Tier: {Tier}) to user {UserId}" ,
+            "Staged plan assignment {PlanName} (Tier: {Tier}) for user {UserId}" ,
             plan.Name , plan.Tier , userId );
     }
 
@@ -285,6 +328,8 @@ public class SubscriptionService : ISubscriptionService
         } );
 
         await _db.SaveChangesAsync( cancellationToken );
+
+        _cache.Remove( StatusCacheKey( userId ) );
 
         _logger.LogInformation(
             "User {UserId} cancelled {PreviousPlan} and downgraded to Free." ,

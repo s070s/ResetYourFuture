@@ -18,6 +18,14 @@ public class MediaController : ControllerBase
         "testimonials/avatars"
     };
 
+    // Only these extensions may be served through the public media endpoint.
+    // Prevents drive-by content-type attacks where an attacker uploads a file with
+    // a crafted extension (e.g. .html, .svg) to execute scripts in browser context.
+    private static readonly HashSet<string> AllowedExtensions = new( StringComparer.OrdinalIgnoreCase )
+    {
+        ".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg"
+    };
+
     private readonly IFileStorage _fileStorage;
 
     public MediaController( IFileStorage fileStorage )
@@ -45,6 +53,11 @@ public class MediaController : ControllerBase
         if ( !allowed )
             return NotFound();
 
+        // Reject any extension not on the explicit allowlist.
+        var ext = Path.GetExtension( filePath );
+        if ( string.IsNullOrEmpty( ext ) || !AllowedExtensions.Contains( ext ) )
+            return NotFound();
+
         if ( !_fileStorage.FileExists( filePath ) )
             return NotFound();
 
@@ -52,6 +65,10 @@ public class MediaController : ControllerBase
 
         // Allow browsers to cache public media for 24 h
         Response.Headers.CacheControl = "public, max-age=86400";
+        // Prevent MIME-sniffing attacks and force inline rendering (not download)
+        Response.Headers[ "X-Content-Type-Options" ] = "nosniff";
+        var fileName = Path.GetFileName( filePath );
+        Response.Headers[ "Content-Disposition" ] = $"inline; filename=\"{fileName}\"";
 
         return File( stream, contentType );
     }

@@ -39,8 +39,13 @@ public sealed class BulkStudentSeedingService : BackgroundService
         using var scope = _services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var bulkCount = _config.GetValue<int>( "SeedData:BulkStudentCount" , 2000 );
-        var studentPassword = _config [ "SeedData:StudentPassword" ] ?? "Student123!";
+        var bulkCount = _config.GetValue<int>( "SeedData:BulkStudentCount" , 10 );
+        var studentPassword = _config [ "SeedData:StudentPassword" ];
+        if ( string.IsNullOrWhiteSpace( studentPassword ) )
+        {
+            _logger.LogError( "BulkStudentSeeder: SeedData:StudentPassword is not set. Skipping bulk seed." );
+            return;
+        }
 
         await BulkStudentSeeder.SeedAsync( userManager , bulkCount , studentPassword , _logger , stoppingToken );
     }

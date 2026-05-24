@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,15 +19,15 @@ namespace ResetYourFuture.Web.Controllers;
 public class AdminAssessmentsController : ControllerBase
 {
     // EF Core DB context used to read and write application data
-    private readonly ApplicationDbContext _db;
-    // Logger for recording informational and error messages
+    private readonly IApplicationDbContext _db;
     private readonly ILogger<AdminAssessmentsController> _logger;
+    private readonly IHtmlSanitizer _sanitizer;
 
-    // Constructor receives dependencies via dependency injection
-    public AdminAssessmentsController( ApplicationDbContext db , ILogger<AdminAssessmentsController> logger )
+    public AdminAssessmentsController( IApplicationDbContext db , ILogger<AdminAssessmentsController> logger , IHtmlSanitizer sanitizer )
     {
         _db = db;
         _logger = logger;
+        _sanitizer = sanitizer;
     }
 
     // Helper property to get the current authenticated user's ID or throw if missing
@@ -116,8 +117,8 @@ public class AdminAssessmentsController : ControllerBase
             Key = request.Key ,
             TitleEn = request.TitleEn ,
             TitleEl = request.TitleEl ,
-            DescriptionEn = request.DescriptionEn ,
-            DescriptionEl = request.DescriptionEl ,
+            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null ,
+            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null ,
             SchemaJson = request.SchemaJson ,
             IsPublished = false ,
             UpdatedByUserId = UserId
@@ -172,8 +173,8 @@ public class AdminAssessmentsController : ControllerBase
         assessment.Key = request.Key;
         assessment.TitleEn = request.TitleEn;
         assessment.TitleEl = request.TitleEl;
-        assessment.DescriptionEn = request.DescriptionEn;
-        assessment.DescriptionEl = request.DescriptionEl;
+        assessment.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null;
+        assessment.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null;
         assessment.SchemaJson = request.SchemaJson;
         assessment.UpdatedAt = DateTimeOffset.UtcNow;
         assessment.UpdatedByUserId = UserId;

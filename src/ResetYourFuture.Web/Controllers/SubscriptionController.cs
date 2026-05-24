@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Shared.DTOs;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 
 namespace ResetYourFuture.Web.Controllers;
@@ -17,13 +19,16 @@ public class SubscriptionController : ControllerBase
 {
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<SubscriptionController> _logger;
+    private readonly IConfiguration _configuration;
 
     public SubscriptionController(
         ISubscriptionService subscriptionService ,
-        ILogger<SubscriptionController> logger )
+        ILogger<SubscriptionController> logger ,
+        IConfiguration configuration )
     {
         _subscriptionService = subscriptionService;
         _logger = logger;
+        _configuration = configuration;
     }
 
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
@@ -66,9 +71,10 @@ public class SubscriptionController : ControllerBase
             UserId , request.PlanId , cancellationToken );
 
         if ( string.IsNullOrEmpty( session.SessionId ) )
-        {
             return BadRequest( session );
-        }
+
+        if ( session.Status == "pending_payment" )
+            return StatusCode( 503 , new { message = "Payment processing is not yet available. Please check back later." } );
 
         _logger.LogInformation(
             "Checkout session {SessionId} created for user {UserId}" ,
@@ -78,22 +84,85 @@ public class SubscriptionController : ControllerBase
     }
 
     /// <summary>
-    /// Stripe webhook handler (stubbed).
-    /// In production, this would verify Stripe signatures and process events.
+    /// Stripe webhook handler.
+    /// Verifies the HMAC-SHA256 signature from the Stripe-Signature header before processing.
+    /// If Payment:WebhookSecret is not configured the signature check is skipped (dev/no-Stripe mode).
     /// </summary>
     [HttpPost( "webhook" )]
     [AllowAnonymous]
+    [Consumes( "application/json" )]
     public async Task<IActionResult> HandleWebhook( CancellationToken cancellationToken )
     {
-        // --- STUB: In production, read the request body, verify Stripe signature,
-        // and process events like checkout.session.completed, customer.subscription.updated, etc.
-        _logger.LogInformation( "Stub webhook endpoint called. No processing in test mode." );
+        Request.EnableBuffering();
+        using var reader = new StreamReader( Request.Body , Encoding.UTF8 , leaveOpen: true );
+        var rawBody = await reader.ReadToEndAsync( cancellationToken );
+        Request.Body.Seek( 0 , SeekOrigin.Begin );
 
-        await Task.CompletedTask;
-        return Ok( new
+        var webhookSecret = _configuration [ "Payment:WebhookSecret" ];
+        if ( string.IsNullOrWhiteSpace( webhookSecret ) )
         {
-            received = true
-        } );
+            _logger.LogWarning( "Stripe webhook received but Payment:WebhookSecret is not configured — skipping signature check." );
+            return Ok( new { received = true } );
+        }
+
+        var signatureHeader = Request.Headers [ "Stripe-Signature" ].ToString();
+        if ( string.IsNullOrEmpty( signatureHeader ) )
+        {
+            _logger.LogWarning( "Stripe webhook received without Stripe-Signature header." );
+            return BadRequest( new { error = "Missing Stripe-Signature header." } );
+        }
+
+        if ( !VerifyStripeSignature( rawBody , signatureHeader , webhookSecret , out var timestamp ) )
+        {
+            _logger.LogWarning( "Stripe webhook signature verification failed." );
+            return BadRequest( new { error = "Invalid webhook signature." } );
+        }
+
+        // Reject replayed events older than 5 minutes
+        var eventAge = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeSeconds( timestamp );
+        if ( eventAge.TotalMinutes > 5 )
+        {
+            _logger.LogWarning( "Stripe webhook event is too old ({Age:F0} min) — possible replay attack." , eventAge.TotalMinutes );
+            return BadRequest( new { error = "Webhook event timestamp is too old." } );
+        }
+
+        // TODO: deserialise the event and dispatch:
+        //   checkout.session.completed        → AssignPlanAsync
+        //   customer.subscription.updated     → update tier
+        //   customer.subscription.deleted     → revert to Free
+        _logger.LogInformation( "Stripe webhook verified. Event processing not yet implemented." );
+        return Ok( new { received = true } );
+    }
+
+    // Implements Stripe's HMAC-SHA256 signature scheme:
+    // https://stripe.com/docs/webhooks/signatures
+    private static bool VerifyStripeSignature( string rawBody , string signatureHeader , string secret , out long timestamp )
+    {
+        timestamp = 0;
+
+        // Header format: "t=<unix_ts>,v1=<hex_sig>[,v1=<hex_sig>...]"
+        string? timestampStr = null;
+        var v1Signatures = new List<string>();
+
+        foreach ( var part in signatureHeader.Split( ',' ) )
+        {
+            var kv = part.Split( '=' , 2 );
+            if ( kv.Length != 2 ) continue;
+            if ( kv [ 0 ] == "t" ) timestampStr = kv [ 1 ];
+            else if ( kv [ 0 ] == "v1" ) v1Signatures.Add( kv [ 1 ] );
+        }
+
+        if ( timestampStr is null || !long.TryParse( timestampStr , out timestamp ) || v1Signatures.Count == 0 )
+            return false;
+
+        var signedPayload = Encoding.UTF8.GetBytes( $"{timestamp}.{rawBody}" );
+        using var hmac = new HMACSHA256( Encoding.UTF8.GetBytes( secret ) );
+        var computed = Convert.ToHexString( hmac.ComputeHash( signedPayload ) ).ToLowerInvariant();
+
+        return v1Signatures.Any( sig =>
+            CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes( computed ) ,
+                Encoding.UTF8.GetBytes( sig ) ) );
     }
 
     /// <summary>

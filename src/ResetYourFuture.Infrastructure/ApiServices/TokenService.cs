@@ -57,7 +57,8 @@ public class TokenService : ITokenService
             new("lastName", user.LastName),
             new("status", ((int)user.Status).ToString()),
             new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
-            new("subscriptionTier", ((int)tier).ToString())
+            new("subscriptionTier", ((int)tier).ToString()),
+            new("securityStamp", user.SecurityStamp ?? string.Empty)
         };
 
         // Add role claims

@@ -1,3 +1,4 @@
+using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Web.ApiInterfaces;
@@ -11,7 +12,8 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public class AdminCourseService(
     IApplicationDbContext db ,
-    ILogger<AdminCourseService> logger ) : IAdminCourseService
+    ILogger<AdminCourseService> logger ,
+    IHtmlSanitizer sanitizer ) : IAdminCourseService
 {
     public async Task<AdminCourseDto?> GetCourseByIdAsync( Guid id )
     {
@@ -63,8 +65,8 @@ public class AdminCourseService(
             Id = Guid.NewGuid() ,
             TitleEn = request.TitleEn ,
             TitleEl = request.TitleEl ,
-            DescriptionEn = request.DescriptionEn ,
-            DescriptionEl = request.DescriptionEl ,
+            DescriptionEn = request.DescriptionEn is not null ? sanitizer.Sanitize( request.DescriptionEn ) : null ,
+            DescriptionEl = request.DescriptionEl is not null ? sanitizer.Sanitize( request.DescriptionEl ) : null ,
             RequiredTier = request.RequiredTier ,
             IsPublished = false ,
             UpdatedByUserId = userId
@@ -100,8 +102,8 @@ public class AdminCourseService(
 
         course.TitleEn = request.TitleEn;
         course.TitleEl = request.TitleEl;
-        course.DescriptionEn = request.DescriptionEn;
-        course.DescriptionEl = request.DescriptionEl;
+        course.DescriptionEn = request.DescriptionEn is not null ? sanitizer.Sanitize( request.DescriptionEn ) : null;
+        course.DescriptionEl = request.DescriptionEl is not null ? sanitizer.Sanitize( request.DescriptionEl ) : null;
         course.RequiredTier = request.RequiredTier;
         course.UpdatedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = userId;

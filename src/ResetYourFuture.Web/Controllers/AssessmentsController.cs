@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Shared.DTOs;
@@ -17,22 +18,39 @@ namespace ResetYourFuture.Web.Controllers;
 [Authorize]
 public class AssessmentsController : ControllerBase
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<AssessmentsController> _logger;
 
     public AssessmentsController(
-        ApplicationDbContext db ,
+        IApplicationDbContext db ,
         ISubscriptionService subscriptionService ,
+        IMemoryCache cache ,
         ILogger<AssessmentsController> logger )
     {
         _db = db;
         _subscriptionService = subscriptionService;
+        _cache = cache;
         _logger = logger;
     }
 
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
         ?? throw new UnauthorizedAccessException( "User ID not found" );
+
+    /// Returns cached resolved schema JSON, or computes and caches it on miss.
+    /// Key: (assessmentId, "en"|"el"). TTL: 30 minutes — short enough to pick up admin edits.
+    private string GetCachedResolvedSchema( Guid assessmentId , string schemaJson , bool isEl )
+    {
+        var langKey = isEl ? "el" : "en";
+        var cacheKey = $"schema:{assessmentId}:{langKey}";
+
+        return _cache.GetOrCreate( cacheKey , entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes( 30 );
+            return ResolveSchemaJsonByLang( schemaJson , isEl );
+        } )!;
+    }
 
     /// <summary>
     /// Resolves dual-language schema JSON to a flat single-language format for the student view.
@@ -180,8 +198,9 @@ public class AssessmentsController : ControllerBase
             ) )
             .ToListAsync();
 
-        // Resolve dual-language schema to single-language for student view
-        var resolved = items.Select( a => a with { SchemaJson = ResolveSchemaJsonByLang( a.SchemaJson , isEl ) } ).ToList();
+        // Resolve dual-language schema to single-language for student view.
+        // Cached per (assessmentId, lang) — avoids re-allocating JsonDocument/MemoryStream on every page load.
+        var resolved = items.Select( a => a with { SchemaJson = GetCachedResolvedSchema( a.Id , a.SchemaJson , isEl ) } ).ToList();
 
         return Ok( new PagedResult<AssessmentDefinitionDto>( resolved , totalCount , page , pageSize ) );
     }
@@ -219,8 +238,8 @@ public class AssessmentsController : ControllerBase
             return NotFound();
         }
 
-        // Resolve dual-language schema to single-language for student view
-        var resolved = assessment with { SchemaJson = ResolveSchemaJsonByLang( assessment.SchemaJson , isEl ) };
+        // Resolve dual-language schema to single-language for student view (cache hit likely after list page)
+        var resolved = assessment with { SchemaJson = GetCachedResolvedSchema( assessment.Id , assessment.SchemaJson , isEl ) };
 
         return Ok( resolved );
     }

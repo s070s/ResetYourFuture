@@ -19,14 +19,14 @@ namespace ResetYourFuture.Web.Controllers;
 public class AdminLessonsController : ControllerBase
 {
     // EF Core DB context used to query and persist lessons and related data.
-    private readonly ApplicationDbContext _db;
+    private readonly IApplicationDbContext _db;
     // File storage abstraction used to save and delete lesson PDFs and videos.
     private readonly IFileStorage _fileStorage;
     // HTML sanitizer to strip XSS payloads from rich-text lesson content.
     private readonly IHtmlSanitizer _sanitizer;
 
     // Constructor receives dependencies (DbContext and file storage) via DI.
-    public AdminLessonsController( ApplicationDbContext db , IFileStorage fileStorage , IHtmlSanitizer sanitizer )
+    public AdminLessonsController( IApplicationDbContext db , IFileStorage fileStorage , IHtmlSanitizer sanitizer )
     {
         _db = db;
         _fileStorage = fileStorage;
@@ -197,9 +197,10 @@ public class AdminLessonsController : ControllerBase
 
         // Validate that a file was provided.
         if ( file == null || file.Length == 0 )
-        {
             return BadRequest( "No file provided" );
-        }
+
+        if ( !string.Equals( file.ContentType , "application/pdf" , StringComparison.OrdinalIgnoreCase ) )
+            return BadRequest( "Only PDF files are allowed." );
 
         // Delete previous PDF if it exists to avoid orphaned files.
         if ( !string.IsNullOrEmpty( lesson.PdfPath ) )
@@ -237,9 +238,11 @@ public class AdminLessonsController : ControllerBase
 
         // Validate file input.
         if ( file == null || file.Length == 0 )
-        {
             return BadRequest( "No file provided" );
-        }
+
+        var allowedVideoTypes = new[] { "video/mp4" , "video/webm" , "video/ogg" };
+        if ( !allowedVideoTypes.Contains( file.ContentType , StringComparer.OrdinalIgnoreCase ) )
+            return BadRequest( "Only video files are allowed (mp4, webm, ogg)." );
 
         // Delete previous video if present to prevent orphaned files.
         if ( !string.IsNullOrEmpty( lesson.VideoPath ) )
