@@ -16,6 +16,10 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/admin/lessons" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Lessons" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AdminLessonsController : ControllerBase
 {
     // EF Core DB context used to query and persist lessons and related data.
@@ -36,7 +40,7 @@ public class AdminLessonsController : ControllerBase
     // Helper property to get the current authenticated user's ID (used for audit fields).
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
 
-    // Get all lessons for a specific module, ordered by SortOrder.
+    /// <summary>Get all lessons for a specific module, ordered by sort order.</summary>
     [HttpGet( "module/{moduleId:guid}" )]
     public async Task<ActionResult<List<AdminLessonDto>>> GetLessonsByModule( Guid moduleId )
     {
@@ -64,8 +68,9 @@ public class AdminLessonsController : ControllerBase
         return Ok( lessons );
     }
 
-    // Create a new lesson under a module.
+    /// <summary>Create a new lesson under a module.</summary>
     [HttpPost]
+    [ProducesResponseType<AdminLessonDto>( StatusCodes.Status201Created )]
     public async Task<ActionResult<AdminLessonDto>> CreateLesson( [FromBody] SaveLessonRequest request )
     {
         // Create a new Lesson entity with provided values and audit metadata.
@@ -110,7 +115,7 @@ public class AdminLessonsController : ControllerBase
         } , dto );
     }
 
-    // Update an existing lesson by id.
+    /// <summary>Update an existing lesson by id.</summary>
     [HttpPut( "{id:guid}" )]
     public async Task<ActionResult<AdminLessonDto>> UpdateLesson( Guid id , [FromBody] SaveLessonRequest request )
     {
@@ -152,7 +157,7 @@ public class AdminLessonsController : ControllerBase
         return Ok( dto );
     }
 
-    // Delete a lesson, its completion records, and any associated files.
+    /// <summary>Delete a lesson, its completion records, and any associated files.</summary>
     [HttpDelete( "{id:guid}" )]
     public async Task<IActionResult> DeleteLesson( Guid id )
     {
@@ -186,7 +191,7 @@ public class AdminLessonsController : ControllerBase
         return NoContent();
     }
 
-    // Upload a PDF for a lesson.
+    /// <summary>Upload (or replace) the PDF asset for a lesson. Accepts a single PDF file.</summary>
     [HttpPost( "{id:guid}/upload/pdf" )]
     public async Task<IActionResult> UploadPdf( Guid id , IFormFile file )
     {
@@ -219,13 +224,10 @@ public class AdminLessonsController : ControllerBase
         await _db.SaveChangesAsync();
 
         // Return the stored PDF path to the caller.
-        return Ok( new
-        {
-            pdfPath = path
-        } );
+        return Ok( new LessonPdfUploadResultDto( path ) );
     }
 
-    // Upload a video for a lesson.
+    /// <summary>Upload (or replace) the video asset for a lesson (mp4, webm, ogg; up to 500 MB).</summary>
     [HttpPost( "{id:guid}/upload/video" )]
     [DisableRequestSizeLimit]
     [RequestFormLimits( MultipartBodyLengthLimit = 524_288_000 )] // 500 MB
@@ -261,13 +263,10 @@ public class AdminLessonsController : ControllerBase
         await _db.SaveChangesAsync();
 
         // Return the new video path.
-        return Ok( new
-        {
-            videoPath = path
-        } );
+        return Ok( new LessonVideoUploadResultDto( path ) );
     }
 
-    // Publish a lesson to make it available to students.
+    /// <summary>Publish a lesson to make it available to students.</summary>
     [HttpPost( "{id:guid}/publish" )]
     public async Task<IActionResult> PublishLesson( Guid id )
     {

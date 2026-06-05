@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
     <UserSecretsId>44814c73-03a4-406e-9f6a-d3fcc210e112</UserSecretsId>
+    <!-- Emit XML doc comments so Microsoft.AspNetCore.OpenApi's source generator can
+         surface <summary>/<param>/<response> text into the OpenAPI document (.NET 10). -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- 1591: missing XML comment on a public member. We document the API surface,
+         not every public member, so suppress the noise. -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +28,7 @@
 
     <!-- SignalR client (used by ChatService) -->
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.1" />
 
     <!-- JWT parsing -->
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />

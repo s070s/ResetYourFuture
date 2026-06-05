@@ -18,6 +18,7 @@ using ResetYourFuture.Web.Hubs;
 using ResetYourFuture.Web.Identity;
 using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Web.Logging;
+using ResetYourFuture.Web.OpenApi;
 using ResetYourFuture.Web.Services;
 using System.Security.Claims;
 using System.Text;
@@ -280,7 +281,8 @@ builder.Services.Configure<RequestLocalizationOptions>( options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddSignalR( o => o.MaximumReceiveMessageSize = 32_000 );
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+// Built-in OpenAPI document ("v1") + API metadata, JWT bearer scheme, and per-operation security.
+builder.Services.AddResetYourFutureOpenApi();
 builder.Services.AddHostedService<BulkStudentSeedingService>();
 
 builder.Services.AddRateLimiter( options =>
@@ -417,7 +419,20 @@ using ( var scope = app.Services.CreateScope() )
 if ( app.Environment.IsDevelopment() )
 {
     app.UseDeveloperExceptionPage();
+
+    // OpenAPI JSON document at /openapi/v1.json (Development only).
     app.MapOpenApi();
+
+    // Swagger UI (Swashbuckle) served at /swagger, pointed at the built-in OpenAPI document.
+    // Development only — no AddSwaggerGen needed; the UI consumes /openapi/v1.json directly.
+    app.UseSwaggerUI( options =>
+    {
+        options.SwaggerEndpoint( "/openapi/v1.json" , "ResetYourFuture API v1" );
+        options.RoutePrefix = "swagger";
+        options.DocumentTitle = "ResetYourFuture API — Swagger UI";
+        options.EnablePersistAuthorization();
+        options.EnableTryItOutByDefault();
+    } );
 }
 else
 {
@@ -494,7 +509,12 @@ app.MapGet( "/culture/set" , ( string culture , string? returnUrl , HttpContext 
     }
 
     return Results.LocalRedirect( redirect );
-} );
+} )
+.WithTags( "Infrastructure" )
+.WithName( "SetCulture" )
+.WithSummary( "Set the UI culture cookie and redirect back." )
+.WithDescription( "Writes the ASP.NET Core localization cookie (supported cultures: en-GB, el-GR) and 302-redirects to a local returnUrl. Used by the language switcher; browser-navigation endpoint, not a JSON API." )
+.Produces( StatusCodes.Status302Found );
 
 // --- Auth completion endpoints ---
 // Blazor Server circuits run after the HTTP response has already been committed, so
@@ -628,7 +648,12 @@ app.MapGet( "/auth/complete" , async (
     }
 
     return Results.LocalRedirect( redirect );
-} ).AllowAnonymous();
+} ).AllowAnonymous()
+.WithTags( "Infrastructure" )
+.WithName( "CompleteAuth" )
+.WithSummary( "Complete Blazor sign-in and issue the auth cookie." )
+.WithDescription( "Decodes a signed DataProtection ticket, rebuilds the principal from the database, and issues the .RYF.Auth cookie (and admin-backup cookie when impersonating). Invoked via full-page redirect from Blazor after login. Returns a 302 redirect; browser-navigation endpoint, not a JSON API." )
+.Produces( StatusCodes.Status302Found );
 
 app.MapGet( "/auth/signout" , async ( string? returnUrl , HttpContext ctx ) =>
 {
@@ -645,7 +670,12 @@ app.MapGet( "/auth/signout" , async ( string? returnUrl , HttpContext ctx ) =>
     }
 
     return Results.LocalRedirect( redirect );
-} ).AllowAnonymous();
+} ).AllowAnonymous()
+.WithTags( "Infrastructure" )
+.WithName( "SignOut" )
+.WithSummary( "Clear the auth cookie and redirect." )
+.WithDescription( "Signs out the cookie session and deletes the admin-backup cookie, then 302-redirects to a local returnUrl. Browser-navigation endpoint, not a JSON API." )
+.Produces( StatusCodes.Status302Found );
 
 app.MapControllers();
 app.MapHub<ChatHub>( "/hubs/chat" );
@@ -683,7 +713,12 @@ app.MapGet( "/sitemap.xml" , async ( IBlogArticleService blog , IConfiguration s
 
     ctx.Response.ContentType = "application/xml; charset=utf-8";
     await ctx.Response.WriteAsync( xml! );
-} ).AllowAnonymous();
+} ).AllowAnonymous()
+.WithTags( "Infrastructure" )
+.WithName( "Sitemap" )
+.WithSummary( "XML sitemap of public pages and published blog articles." )
+.WithDescription( "Returns an application/xml sitemap for search-engine crawlers. Cached for 30 minutes." )
+.Produces( StatusCodes.Status200OK , contentType: "application/xml" );
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation( "ResetYourFuture.Web started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );

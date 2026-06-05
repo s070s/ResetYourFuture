@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Shared.DTOs;
 
 namespace ResetYourFuture.Web.Controllers;
 
@@ -13,6 +14,9 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/site")]
+[Tags( "Site Settings" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class SiteSettingsController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
@@ -100,6 +104,6 @@ public class SiteSettingsController : ControllerBase
 
         await _db.SaveChangesAsync();
 
-        return Ok(new { backgroundImagePath = path });
+        return Ok(new BackgroundImageUploadResultDto( path ));
     }
 }

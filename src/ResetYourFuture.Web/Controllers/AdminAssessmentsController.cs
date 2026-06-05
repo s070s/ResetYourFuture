@@ -16,6 +16,10 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/admin/assessments" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Assessments" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AdminAssessmentsController : ControllerBase
 {
     // EF Core DB context used to read and write application data
@@ -102,6 +106,7 @@ public class AdminAssessmentsController : ControllerBase
     /// Create a new assessment definition.
     /// </summary>
     [HttpPost]
+    [ProducesResponseType<AdminAssessmentDefinitionDto>( StatusCodes.Status201Created )]
     public async Task<ActionResult<AssessmentDefinitionDto>> CreateAssessment( [FromBody] SaveAssessmentDefinitionRequest request )
     {
         // Ensure the requested key is unique to avoid duplicates

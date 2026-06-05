@@ -15,6 +15,9 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route( "api/[controller]" )]
+[Tags( "Subscriptions" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
 public class SubscriptionController : ControllerBase
 {
     private readonly ISubscriptionService _subscriptionService;
@@ -102,7 +105,7 @@ public class SubscriptionController : ControllerBase
         if ( string.IsNullOrWhiteSpace( webhookSecret ) )
         {
             _logger.LogWarning( "Stripe webhook received but Payment:WebhookSecret is not configured — skipping signature check." );
-            return Ok( new { received = true } );
+            return Ok( new StripeWebhookAckDto( true ) );
         }
 
         var signatureHeader = Request.Headers [ "Stripe-Signature" ].ToString();
@@ -131,7 +134,7 @@ public class SubscriptionController : ControllerBase
         //   customer.subscription.updated     → update tier
         //   customer.subscription.deleted     → revert to Free
         _logger.LogInformation( "Stripe webhook verified. Event processing not yet implemented." );
-        return Ok( new { received = true } );
+        return Ok( new StripeWebhookAckDto( true ) );
     }
 
     // Implements Stripe's HMAC-SHA256 signature scheme:

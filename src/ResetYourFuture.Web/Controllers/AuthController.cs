@@ -15,6 +15,10 @@ namespace ResetYourFuture.Web.Controllers;
 
 [ApiController]
 [Route( "api/[controller]" )]
+[Tags( "Authentication" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status401Unauthorized )]
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -349,9 +353,13 @@ public class AuthController : ControllerBase
     /// <summary>
     /// Get current user info. Requires authentication.
     /// </summary>
+    /// <response code="200">The authenticated user's identity summary.</response>
+    /// <response code="404">The user in the token no longer exists.</response>
     [HttpGet( "me" )]
     [Authorize]
-    public async Task<ActionResult<object>> GetCurrentUser()
+    [ProducesResponseType<CurrentUserDto>( StatusCodes.Status200OK )]
+    [ProducesResponseType( StatusCodes.Status404NotFound )]
+    public async Task<ActionResult<CurrentUserDto>> GetCurrentUser()
     {
         var userId = User.FindFirst( System.Security.Claims.ClaimTypes.NameIdentifier )?.Value;
         if ( userId == null )
@@ -363,16 +371,14 @@ public class AuthController : ControllerBase
 
         var roles = await _userManager.GetRolesAsync( user );
 
-        return Ok( new
-        {
+        return Ok( new CurrentUserDto(
             user.Id ,
             user.Email ,
             user.FirstName ,
             user.LastName ,
             user.Age ,
-            Status = user.Status.ToString() ,
-            Roles = roles
-        } );
+            user.Status.ToString() ,
+            [ .. roles ] ) );
     }
 
 #if DEBUG

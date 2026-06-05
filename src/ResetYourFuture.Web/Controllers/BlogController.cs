@@ -9,6 +9,9 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route( "api/blog" )]
+[Tags( "Blog" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class BlogController : ControllerBase
 {
     private readonly IBlogArticleService _blog;

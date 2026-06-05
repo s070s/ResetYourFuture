@@ -16,6 +16,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/[controller]" )]
 [Authorize]
+[Tags( "Assessments" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AssessmentsController : ControllerBase
 {
     private readonly IApplicationDbContext _db;

@@ -5,6 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ResetYourFuture.Web</RootNamespace>
+    <!-- Emit XML docs so the Web project's OpenAPI source generator can read DTO
+         <summary>/<example> comments from this referenced project (.NET 10). -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

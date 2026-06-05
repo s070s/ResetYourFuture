@@ -15,6 +15,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/profile" )]
 [Authorize]
+[Tags( "Profile" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class ProfileController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -128,10 +131,7 @@ public class ProfileController : ControllerBase
         user.AvatarPath = path;
         await _userManager.UpdateAsync( user );
 
-        return Ok( new
-        {
-            avatarPath = path
-        } );
+        return Ok( new AvatarUploadResultDto( path ) );
     }
 
     /// <summary>

@@ -15,6 +15,10 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/admin/modules" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Modules" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AdminModulesController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
@@ -28,6 +32,7 @@ public class AdminModulesController : ControllerBase
 
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
 
+    /// <summary>Get all modules for a course (with lesson counts), ordered by sort order.</summary>
     [HttpGet( "course/{courseId:guid}" )]
     public async Task<ActionResult<List<AdminModuleDto>>> GetModulesByCourse( Guid courseId )
     {
@@ -51,6 +56,7 @@ public class AdminModulesController : ControllerBase
         return Ok( modules );
     }
 
+    /// <summary>Get a single module (with lesson count) by id.</summary>
     [HttpGet( "{id:guid}" )]
     public async Task<ActionResult<AdminModuleDto>> GetModuleById( Guid id )
     {
@@ -74,7 +80,9 @@ public class AdminModulesController : ControllerBase
         ) );
     }
 
+    /// <summary>Create a new module within a course.</summary>
     [HttpPost]
+    [ProducesResponseType<AdminModuleDto>( StatusCodes.Status201Created )]
     public async Task<ActionResult<AdminModuleDto>> CreateModule( [FromBody] SaveModuleRequest request )
     {
         var module = new Module
@@ -109,6 +117,7 @@ public class AdminModulesController : ControllerBase
         } , dto );
     }
 
+    /// <summary>Update an existing module by id.</summary>
     [HttpPut( "{id:guid}" )]
     public async Task<ActionResult<AdminModuleDto>> UpdateModule( Guid id , [FromBody] SaveModuleRequest request )
     {
@@ -143,6 +152,7 @@ public class AdminModulesController : ControllerBase
         return Ok( dto );
     }
 
+    /// <summary>Delete a module and cascade-delete its lessons and their completion records.</summary>
     [HttpDelete( "{id:guid}" )]
     public async Task<IActionResult> DeleteModule( Guid id )
     {

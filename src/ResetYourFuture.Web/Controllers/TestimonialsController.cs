@@ -10,6 +10,8 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route( "api/testimonials" )]
+[Tags( "Testimonials" )]
+[Produces( "application/json" )]
 public class TestimonialsController : ControllerBase
 {
     private readonly ITestimonialService _testimonials;

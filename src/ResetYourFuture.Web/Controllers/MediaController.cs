@@ -10,6 +10,10 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route( "api/media" )]
+[Tags( "Media" )]
+[ProducesResponseType( StatusCodes.Status200OK )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class MediaController : ControllerBase
 {
     private static readonly HashSet<string> PublicFolders = new( StringComparer.OrdinalIgnoreCase )

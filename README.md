@@ -51,6 +51,7 @@ dotnet run --project src/ResetYourFuture.Web
 | ORM | Entity Framework Core 10 (SQL Server) |
 | Auth | ASP.NET Core Identity · Cookie (SSR) · JWT Bearer · Refresh tokens |
 | Real-time | SignalR (`/hubs/chat`) |
+| API docs | OpenAPI (`Microsoft.AspNetCore.OpenApi`) + Swagger UI — `/swagger` (Development only) |
 | PDF | QuestPDF 2026.2.4 |
 | Localization | English + Greek (`.resx`) |
 | Logging | Custom daily file logger |
@@ -70,6 +71,30 @@ ResetYourFuture.sln
     ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
     └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
 ```
+
+---
+
+## API Documentation (Swagger / OpenAPI)
+
+Interactive API docs are generated from the code (built-in `Microsoft.AspNetCore.OpenApi` + Swagger UI) and served **in Development only**:
+
+| Resource | URL |
+|----------|-----|
+| Swagger UI | `https://localhost:7090/swagger` |
+| OpenAPI document (JSON) | `https://localhost:7090/openapi/v1.json` |
+
+**Authorize / test secured endpoints:** click **Authorize** in Swagger UI, then paste a JWT obtained from `POST /api/auth/login` — paste the token value only (the `Bearer ` prefix is added for you). The lock icon on each operation reflects whether it requires authentication.
+
+**What's covered:**
+- Every API controller, grouped by tag (e.g. *Authentication*, *Courses*, *Admin · Users & Roles*), with summaries, parameter descriptions, response codes (`200 / 201 / 204 / 400 / 401 / 403 / 404 / 409 / 500`), and request-body examples pre-filled for "Try it out".
+- The four browser-navigation endpoints (`/culture/set`, `/auth/complete`, `/auth/signout`, `/sitemap.xml`) under the **Infrastructure** tag.
+- The **SignalR chat hub** (`/hubs/chat`) — documented in the document description (invoke methods, server events, query-string JWT auth) with the `ChatMessageDto` / `ChatNotificationDto` payload shapes under **Schemas**. SignalR is not a REST protocol, so it appears as reference rather than callable operations.
+
+> **Production:** the Swagger UI and `/openapi/v1.json` endpoints are mapped only when `ASPNETCORE_ENVIRONMENT=Development`; they are **not** exposed in Production.
+
+**Implementation:** `src/ResetYourFuture.Web/OpenApi/OpenApiExtensions.cs` (info metadata, JWT bearer security scheme, per-operation security/lock, parameter & response descriptions, request examples, hub documentation). Action/DTO summaries flow into the doc via `<GenerateDocumentationFile>` on the `ResetYourFuture.Web` and `ResetYourFuture.Application` projects.
+
+The tables below are a quick static reference; **Swagger UI is the authoritative, always-current source.**
 
 ---
 

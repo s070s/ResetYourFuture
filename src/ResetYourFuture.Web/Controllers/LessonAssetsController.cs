@@ -14,6 +14,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/lessons")]
 [Authorize]
+[Tags( "Lesson Assets" )]
+[ProducesResponseType( StatusCodes.Status200OK )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class LessonAssetsController : ControllerBase
 {
     private readonly IApplicationDbContext _db;

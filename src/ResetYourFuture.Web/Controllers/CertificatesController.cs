@@ -15,6 +15,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/[controller]" )]
 [Authorize]
+[Tags( "Certificates" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class CertificatesController : ControllerBase
 {
     // EF Core DB context used to query certificate and enrollment data.

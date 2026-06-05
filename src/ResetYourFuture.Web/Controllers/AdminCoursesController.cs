@@ -12,6 +12,10 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/admin/courses" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Courses" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AdminCoursesController( IAdminCourseService adminCourseService ) : ControllerBase
 {
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
@@ -47,6 +51,7 @@ public class AdminCoursesController( IAdminCourseService adminCourseService ) : 
     /// Create a new course.
     /// </summary>
     [HttpPost]
+    [ProducesResponseType<AdminCourseDto>( StatusCodes.Status201Created )]
     public async Task<ActionResult<AdminCourseDto>> CreateCourse( [FromBody] SaveCourseRequest request )
     {
         var dto = await adminCourseService.CreateCourseAsync( request , UserId );

@@ -13,6 +13,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/[controller]" )]
 [Authorize]
+[Tags( "Courses" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class CoursesController( ICourseService courseService ) : ControllerBase
 {
     private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )

@@ -19,6 +19,10 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/[controller]" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Users & Roles" )]
+[Produces( "application/json" )]
+[ProducesResponseType( StatusCodes.Status400BadRequest )]
+[ProducesResponseType( StatusCodes.Status404NotFound )]
 public class AdminController : ControllerBase
 {
     // Identity UserManager used to manage and query application users.
@@ -119,7 +123,8 @@ public class AdminController : ControllerBase
     /// Get single user by ID.
     /// </summary>
     [HttpGet( "users/{userId}" )]
-    public async Task<ActionResult<object>> GetUser( string userId )
+    [ProducesResponseType<AdminUserDetailDto>( StatusCodes.Status200OK )]
+    public async Task<ActionResult<AdminUserDetailDto>> GetUser( string userId )
     {
         // Find the user by id; return 404 if not found.
         var user = await _userManager.FindByIdAsync( userId );
@@ -128,22 +133,20 @@ public class AdminController : ControllerBase
 
         // Fetch user roles and return a detailed user object.
         var roles = await _userManager.GetRolesAsync( user );
-        return Ok( new
-        {
+        return Ok( new AdminUserDetailDto(
             user.Id ,
             user.Email ,
             user.FirstName ,
             user.LastName ,
             user.Age ,
-            Status = user.Status.ToString() ,
+            user.Status.ToString() ,
             user.EmailConfirmed ,
             user.IsEnabled ,
             user.GdprConsentGiven ,
             user.GdprConsentDate ,
             user.ParentalConsentGiven ,
             user.CreatedAt ,
-            Roles = roles
-        } );
+            [ .. roles ] ) );
     }
 
     /// <summary>
@@ -251,10 +254,7 @@ public class AdminController : ControllerBase
             return BadRequest( result.Errors.Select( e => e.Description ) );
 
         _logger.LogInformation( "Admin toggled IsEnabled to {IsEnabled} for user {UserId}" , user.IsEnabled , userId );
-        return Ok( new
-        {
-            user.IsEnabled
-        } );
+        return Ok( new UserEnabledStateDto( user.IsEnabled ) );
     }
 
     /// <summary>
@@ -286,7 +286,8 @@ public class AdminController : ControllerBase
     /// Search users by email or name.
     /// </summary>
     [HttpGet( "users/search" )]
-    public async Task<ActionResult<IEnumerable<object>>> SearchUsers( [FromQuery] string query )
+    [ProducesResponseType<IEnumerable<AdminUserSearchResultDto>>( StatusCodes.Status200OK )]
+    public async Task<ActionResult<IEnumerable<AdminUserSearchResultDto>>> SearchUsers( [FromQuery] string query )
     {
         // Validate query input.
         if ( string.IsNullOrWhiteSpace( query ) )
@@ -315,16 +316,15 @@ public class AdminController : ControllerBase
             .GroupBy( x => x.UserId )
             .ToDictionary( g => g.Key , g => g.Select( x => x.Name! ).ToList() );
 
-        var result = users.Select( user => new
-        {
+        var result = users.Select( user => new AdminUserSearchResultDto(
             user.Id ,
             user.Email ,
             user.FirstName ,
             user.LastName ,
             user.DisplayName ,
             user.EmailConfirmed ,
-            Roles = userRoleMap.TryGetValue( user.Id , out var r ) ? r : new List<string>()
-        } );
+            userRoleMap.TryGetValue( user.Id , out var r ) ? r : new List<string>()
+        ) );
 
         return Ok( result );
     }
@@ -455,6 +455,7 @@ public class AdminController : ControllerBase
 
     // ─── Blog Article Management ────────────────────────────────────────────
 
+    /// <summary>Get a paged list of all blog articles (published and draft) with optional search.</summary>
     [HttpGet( "blog" )]
     public async Task<ActionResult<PagedResult<AdminBlogArticleDto>>> GetBlogArticles(
         [FromQuery] int page = 1,
@@ -466,6 +467,7 @@ public class AdminController : ControllerBase
         return Ok( result );
     }
 
+    /// <summary>Get a single blog article by id (admin view, includes drafts).</summary>
     [HttpGet( "blog/{id:guid}" )]
     public async Task<ActionResult<AdminBlogArticleDto>> GetBlogArticle(
         Guid id, CancellationToken cancellationToken = default )
@@ -474,7 +476,10 @@ public class AdminController : ControllerBase
         return article is null ? NotFound() : Ok( article );
     }
 
+    /// <summary>Create a new blog article. Returns 409 if the slug already exists.</summary>
     [HttpPost( "blog" )]
+    [ProducesResponseType<AdminBlogArticleDto>( StatusCodes.Status201Created )]
+    [ProducesResponseType( StatusCodes.Status409Conflict )]
     public async Task<ActionResult<AdminBlogArticleDto>> CreateBlogArticle(
         [FromBody] SaveBlogArticleRequest request,
         CancellationToken cancellationToken = default )
@@ -486,7 +491,9 @@ public class AdminController : ControllerBase
         return CreatedAtAction( nameof( GetBlogArticle ), new { id = result.Id }, result );
     }
 
+    /// <summary>Update an existing blog article. Returns 409 if the new slug clashes with another article.</summary>
     [HttpPut( "blog/{id:guid}" )]
+    [ProducesResponseType( StatusCodes.Status409Conflict )]
     public async Task<ActionResult<AdminBlogArticleDto>> UpdateBlogArticle(
         Guid id,
         [FromBody] SaveBlogArticleRequest request,
@@ -501,6 +508,7 @@ public class AdminController : ControllerBase
         return Ok( result );
     }
 
+    /// <summary>Publish a blog article (make it publicly visible).</summary>
     [HttpPost( "blog/{id:guid}/publish" )]
     public async Task<IActionResult> PublishBlogArticle(
         Guid id, CancellationToken cancellationToken = default )
@@ -509,6 +517,7 @@ public class AdminController : ControllerBase
         return success ? NoContent() : NotFound();
     }
 
+    /// <summary>Unpublish a blog article (hide it from the public site).</summary>
     [HttpPost( "blog/{id:guid}/unpublish" )]
     public async Task<IActionResult> UnpublishBlogArticle(
         Guid id, CancellationToken cancellationToken = default )
@@ -517,6 +526,7 @@ public class AdminController : ControllerBase
         return success ? NoContent() : NotFound();
     }
 
+    /// <summary>Delete a blog article.</summary>
     [HttpDelete( "blog/{id:guid}" )]
     public async Task<IActionResult> DeleteBlogArticle(
         Guid id, CancellationToken cancellationToken = default )
@@ -525,6 +535,7 @@ public class AdminController : ControllerBase
         return success ? NoContent() : NotFound();
     }
 
+    /// <summary>Upload (or replace) the cover image for a blog article.</summary>
     [HttpPost( "blog/{id:guid}/upload/cover" )]
     public async Task<IActionResult> UploadBlogCoverImage(
         Guid id, IFormFile file, CancellationToken cancellationToken = default )
@@ -550,6 +561,6 @@ public class AdminController : ControllerBase
         article.UpdatedAt = DateTimeOffset.UtcNow;
         await _context.SaveChangesAsync( cancellationToken );
 
-        return Ok( new { coverImageUrl = path } );
+        return Ok( new BlogCoverUploadResultDto( path ) );
     }
 }

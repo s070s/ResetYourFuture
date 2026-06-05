@@ -15,6 +15,8 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route( "api/admin/analytics" )]
 [Authorize( Policy = "AdminOnly" )]
+[Tags( "Admin · Analytics" )]
+[Produces( "application/json" )]
 public class AdminAnalyticsController : ControllerBase
 {
     // EF Core DB context used to query application data (courses, enrollments, etc.)
