@@ -1,0 +1,10 @@
+<Project>
+  <!-- Inherit the repo-root Directory.Build.props (TargetFramework net10.0, Nullable, ImplicitUsings). -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <!-- Tests are reference-only assemblies; no need to ship XML docs or ref assemblies. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

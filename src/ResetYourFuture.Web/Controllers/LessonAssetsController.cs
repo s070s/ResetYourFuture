@@ -58,7 +58,9 @@ public class LessonAssetsController : ControllerBase
 
         if (!isEnrolled)
         {
-            return Forbid("You must be enrolled in this course to access lesson assets");
+            // NOTE: Forbid(string) treats its argument as an auth scheme name (not a message),
+            // which throws and yields a 500. Use an explicit 403 like the other controllers.
+            return StatusCode( StatusCodes.Status403Forbidden, "You must be enrolled in this course to access lesson assets" );
         }
 
         // Get file path based on type

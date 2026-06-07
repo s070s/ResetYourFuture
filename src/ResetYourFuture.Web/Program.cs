@@ -347,7 +347,11 @@ using ( var scope = app.Services.CreateScope() )
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    await db.Database.MigrateAsync();
+    // Relational-only: integration tests swap in the EF Core InMemory provider, which
+    // cannot run migrations. Guarding keeps the test host bootable; in production the
+    // SQL Server provider is always relational so behavior is unchanged.
+    if ( db.Database.IsRelational() )
+        await db.Database.MigrateAsync();
 
     // Seed Roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -724,3 +728,7 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation( "ResetYourFuture.Web started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );
 
 app.Run();
+
+// Exposes the implicit top-level Program class as public so integration tests can use
+// WebApplicationFactory<Program>. Compile-time only — no runtime effect.
+public partial class Program;
