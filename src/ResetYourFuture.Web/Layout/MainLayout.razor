@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
+<a class="skip-link" href="#main-content">@GlobalRes.SkipToContent</a>
+
 <ImpersonationBanner />
 
 <header>
@@ -11,6 +13,6 @@
     </NavMenu>
 </header>
 
-<main class="content">
+<main id="main-content" class="content" tabindex="-1">
     @Body
 </main>

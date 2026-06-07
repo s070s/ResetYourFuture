@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Web.ApiServices;
 using ResetYourFuture.Web.Data;
@@ -116,6 +117,42 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
         var client = CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", token );
         return (client, user.Id);
+    }
+
+    /// <summary>
+    /// Like <see cref="CreateAuthenticatedClientAsync"/> but assigns the given subscription tier
+    /// so plan-gated endpoints (e.g. certificate issuance) can be reached.
+    /// </summary>
+    public async Task<HttpClient> CreateAuthenticatedClientWithPlanAsync( string role , SubscriptionTierEnum tier )
+    {
+        var email = $"{role.ToLowerInvariant()}-{Guid.NewGuid():N}@test.com";
+        using var scope = Services.CreateScope();
+        var um = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            FirstName = "Test",
+            LastName = "User",
+            EmailConfirmed = true,
+            IsEnabled = true
+        };
+        await um.CreateAsync( user, TestPassword );
+        await um.AddToRoleAsync( user, role );
+
+        var subService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
+        var plans = await subService.GetPlansAsync();
+        var plan = plans.First( p => p.Tier == tier );
+        await subService.AssignPlanAsync( user.Id, plan.Id );
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await db.SaveChangesAsync();
+
+        var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+        var (token, _) = await tokenService.GenerateAccessTokenAsync( user );
+
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", token );
+        return client;
     }
 
     /// <summary>Runs an arbitrary seeding action against the shared InMemory database.</summary>

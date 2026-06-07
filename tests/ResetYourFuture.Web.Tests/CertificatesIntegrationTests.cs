@@ -1,4 +1,5 @@
 using System.Net;
+using ResetYourFuture.Shared.DTOs;
 using Shouldly;
 using Xunit;
 
@@ -47,9 +48,19 @@ public class CertificatesIntegrationTests
     }
 
     [Fact]
-    public async Task Issue_NoCompletedEnrollment_Returns400()
+    public async Task Issue_FreePlan_Returns403()
     {
         var client = await _factory.CreateAuthenticatedClientAsync( "Student" );
+
+        var response = await client.PostAsync( $"/api/certificates/issue/{Guid.NewGuid()}", content: null );
+
+        response.StatusCode.ShouldBe( HttpStatusCode.Forbidden );
+    }
+
+    [Fact]
+    public async Task Issue_ProPlan_NoCompletedEnrollment_Returns400()
+    {
+        var client = await _factory.CreateAuthenticatedClientWithPlanAsync( "Student", SubscriptionTierEnum.Pro );
 
         var response = await client.PostAsync( $"/api/certificates/issue/{Guid.NewGuid()}", content: null );
 

@@ -87,4 +87,13 @@
 	<data name="UpgradeDescription" xml:space="preserve">
 		<value>Η συνομιλία είναι διαθέσιμη στο πλάνο Pro. Αναβαθμίστε για προτεραιότητα υποστήριξης και άμεσα μηνύματα.</value>
 	</data>
+	<data name="Send" xml:space="preserve">
+		<value>Αποστολή</value>
+	</data>
+	<data name="Back" xml:space="preserve">
+		<value>Πίσω</value>
+	</data>
+	<data name="Messages" xml:space="preserve">
+		<value>Μηνύματα</value>
+	</data>
 </root>

@@ -3,14 +3,16 @@
 @if (IsVisible)
 {
     <div class="modal-backdrop fade show"></div>
-    <div class="modal fade show d-block" tabindex="-1" @onclick="OnClose">
+    <div class="modal fade show d-block" tabindex="-1" @onclick="OnClose"
+         role="dialog" aria-modal="true" aria-labelledby="@_titleId"
+         @ref="_dialogRef" @onkeydown="HandleKeyDown">
         <div class="modal-dialog @Size" @onclick:stopPropagation="true">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@Title</h5>
+                    <h5 class="modal-title" id="@_titleId">@Title</h5>
                     @if (ShowCloseButton)
                     {
-                        <button type="button" class="btn-close" @onclick="OnClose"></button>
+                        <button type="button" class="btn-close" @onclick="OnClose" aria-label="@CloseLabel"></button>
                     }
                 </div>
                 <div class="modal-body">
@@ -35,4 +37,29 @@
     [Parameter] public RenderFragment? Footer { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public bool ShowCloseButton { get; set; } = true;
+    [Parameter] public string CloseLabel { get; set; } = "Close";
+
+    private ElementReference _dialogRef;
+    private bool _wasVisible;
+    private readonly string _titleId = "form-modal-" + Guid.NewGuid().ToString("N");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Move focus into the dialog when it opens (WCAG 2.4.3 / 4.1.2).
+        if (IsVisible && !_wasVisible)
+        {
+            _wasVisible = true;
+            try { await _dialogRef.FocusAsync(); } catch { /* element gone / circuit closed */ }
+        }
+        else if (!IsVisible && _wasVisible)
+        {
+            _wasVisible = false;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape")
+            await OnClose.InvokeAsync();
+    }
 }

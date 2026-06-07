@@ -317,7 +317,7 @@ else
         {
             <section class="section section-blog">
                 <div class="container">
-                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <h2 class="section-title">@HomeRes.BlogTitle <span class="text-gradient">@HomeRes.BlogTitleHighlight</span></h2>
                     <div class="blog-grid">
                         <div class="blog-card blog-card-skeleton"></div>
                         <div class="blog-card blog-card-skeleton"></div>
@@ -330,7 +330,7 @@ else
         {
             <section class="section section-blog">
                 <div class="container">
-                    <h2 class="section-title">Latest <span class="text-gradient">Articles</span></h2>
+                    <h2 class="section-title">@HomeRes.BlogTitle <span class="text-gradient">@HomeRes.BlogTitleHighlight</span></h2>
                     <div class="blog-grid">
                         @foreach (var article in _blogSummaries)
                         {
@@ -363,7 +363,7 @@ else
                                         <span>@article.PublishedAt.Value.ToString("dd MMM yyyy")</span>
                                     }
                                 </div>
-                                <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">Read More</a>
+                                <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">@HomeRes.BlogReadMore</a>
                             </div>
                         }
                     </div>

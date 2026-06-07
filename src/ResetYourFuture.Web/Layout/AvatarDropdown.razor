@@ -3,7 +3,9 @@
 <AuthorizeView>
     <Authorized>
         <div class="avatar-dropdown" @onfocusout="HandleFocusOut" tabindex="-1">
-            <button class="avatar-button" @onclick="ToggleDropdown" @onclick:stopPropagation="true" title="@NavMenuRes.UserMenuTitle">
+            <button class="avatar-button" @onclick="ToggleDropdown" @onclick:stopPropagation="true"
+                    title="@NavMenuRes.UserMenuTitle" aria-label="@NavMenuRes.UserMenuTitle"
+                    aria-haspopup="menu" aria-expanded="@(isOpen ? "true" : "false")">
                 @if (!string.IsNullOrEmpty(avatarDataUrl))
                 {
                     <img src="@avatarDataUrl" alt="@NavMenuRes.AvatarAlt" class="avatar-img" />
@@ -16,19 +18,19 @@
 
             @if (isOpen)
             {
-                <div class="dropdown-menu-custom">
-                    <a class="dropdown-item-custom" href="profile" @onclick="Close">
+                <div class="dropdown-menu-custom" role="menu">
+                    <a class="dropdown-item-custom" role="menuitem" href="profile" @onclick="Close">
                         <span class="bi bi-person" aria-hidden="true"></span> @NavMenuRes.UserProfile
                     </a>
                     @if (_isImpersonating)
                     {
-                        <span class="dropdown-item-custom text-muted" style="cursor:default;">
+                        <span class="dropdown-item-custom text-light-muted" style="cursor:default;">
                             <span class="bi bi-slash-circle" aria-hidden="true"></span> @NavMenuRes.ImpersonatingHint
                         </span>
                     }
                     else
                     {
-                        <button class="dropdown-item-custom" @onclick="HandleLogout">
+                        <button class="dropdown-item-custom" role="menuitem" @onclick="HandleLogout">
                             <span class="bi bi-box-arrow-right" aria-hidden="true"></span> @NavMenuRes.LogOut
                         </button>
                     }

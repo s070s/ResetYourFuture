@@ -59,19 +59,19 @@
                         @if (plan.Features is not null)
                         {
                             <li class="feature-item">
-                                <span class="feature-icon">✓</span>
+                                <span class="feature-icon" aria-hidden="true">✓</span>
                                 @(plan.Features.MaxCourses >= 1000 ? PricingRes.UnlimitedCourses : string.Format(PricingRes.UpToCoursesFormat, plan.Features.MaxCourses))
                             </li>
                             <li class="feature-item @(plan.Features.AssessmentAccess ? "" : "feature-disabled")">
-                                <span class="feature-icon">@(plan.Features.AssessmentAccess ? "✓" : "✗")</span>
+                                <span class="feature-icon" aria-hidden="true">@(plan.Features.AssessmentAccess ? "✓" : "✗")</span>
                                 @PricingRes.FeatureAssessmentAccess
                             </li>
                             <li class="feature-item @(plan.Features.CertificateAccess ? "" : "feature-disabled")">
-                                <span class="feature-icon">@(plan.Features.CertificateAccess ? "✓" : "✗")</span>
+                                <span class="feature-icon" aria-hidden="true">@(plan.Features.CertificateAccess ? "✓" : "✗")</span>
                                 @PricingRes.FeatureCertificates
                             </li>
                             <li class="feature-item @(plan.Features.PrioritySupport ? "" : "feature-disabled")">
-                                <span class="feature-icon">@(plan.Features.PrioritySupport ? "✓" : "✗")</span>
+                                <span class="feature-icon" aria-hidden="true">@(plan.Features.PrioritySupport ? "✓" : "✗")</span>
                                 @PricingRes.FeaturePrioritySupport
                             </li>
                         }

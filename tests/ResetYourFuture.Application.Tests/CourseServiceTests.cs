@@ -18,9 +18,11 @@ public class CourseServiceTests
     private const string UserId = "user-1";
 
     private static UserSubscriptionStatusDto Status(
-        SubscriptionTierEnum tier = SubscriptionTierEnum.Free, int maxCourses = int.MaxValue ) =>
+        SubscriptionTierEnum tier = SubscriptionTierEnum.Free,
+        int maxCourses = int.MaxValue,
+        bool certificateAccess = false ) =>
         new( tier, tier.ToString(), DateTime.UtcNow, null, true,
-            new PlanFeaturesDto { MaxCourses = maxCourses } );
+            new PlanFeaturesDto { MaxCourses = maxCourses, CertificateAccess = certificateAccess } );
 
     private static (CourseService svc, ISubscriptionService subs, ICertificateService certs) NewService(
         ApplicationDbContext db, UserSubscriptionStatusDto? status = null )
@@ -368,7 +370,7 @@ public class CourseServiceTests
         db.Enrollments.Add( new Enrollment { Id = Guid.NewGuid(), UserId = UserId, CourseId = course.Id } );
         await db.SaveChangesAsync();
         var lessonId = course.Modules.First().Lessons.First().Id;
-        var (svc, _, certs) = NewService( db );
+        var (svc, _, certs) = NewService( db, Status( certificateAccess: true ) );
 
         var result = await svc.CompleteLessonAsync( UserId, lessonId );
 
@@ -386,7 +388,7 @@ public class CourseServiceTests
         db.Enrollments.Add( new Enrollment { Id = Guid.NewGuid(), UserId = UserId, CourseId = course.Id } );
         await db.SaveChangesAsync();
         var lessonId = course.Modules.First().Lessons.First().Id;
-        var (svc, _, certs) = NewService( db );
+        var (svc, _, certs) = NewService( db, Status( certificateAccess: true ) );
         certs.GetOrGenerateAsync( Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>() )
             .Returns( _ => Task.FromException<Certificate>( new InvalidOperationException( "boom" ) ) );
 

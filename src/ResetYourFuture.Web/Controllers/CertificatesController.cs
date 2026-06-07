@@ -20,23 +20,22 @@ namespace ResetYourFuture.Web.Controllers;
 [ProducesResponseType( StatusCodes.Status404NotFound )]
 public class CertificatesController : ControllerBase
 {
-    // EF Core DB context used to query certificate and enrollment data.
     private readonly IApplicationDbContext _db;
-    // Service that handles certificate issuance, revocation, and PDF generation.
     private readonly ICertificateService _certificateService;
-    // File storage abstraction used to stream PDF files to the client.
+    private readonly ISubscriptionService _subscriptionService;
     private readonly IFileStorage _storage;
-    // Logger used to record operational events and errors for this controller.
     private readonly ILogger<CertificatesController> _logger;
 
     public CertificatesController(
         IApplicationDbContext db ,
         ICertificateService certificateService ,
+        ISubscriptionService subscriptionService ,
         IFileStorage storage ,
         ILogger<CertificatesController> logger )
     {
         _db = db;
         _certificateService = certificateService;
+        _subscriptionService = subscriptionService;
         _storage = storage;
         _logger = logger;
     }
@@ -81,6 +80,11 @@ public class CertificatesController : ControllerBase
     {
         var userId = UserId;
         var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+
+        var subStatus = await _subscriptionService.GetUserStatusAsync( userId );
+        if ( subStatus.Features?.CertificateAccess != true )
+            return StatusCode( StatusCodes.Status403Forbidden ,
+                "Your current plan does not include certificate access. Upgrade to Pro." );
 
         try
         {

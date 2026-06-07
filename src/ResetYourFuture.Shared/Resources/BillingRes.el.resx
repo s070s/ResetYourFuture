@@ -108,4 +108,7 @@
 	<data name="ColReference" xml:space="preserve">
 		<value>Αναφορά</value>
 	</data>
+	<data name="ItemLabelTransactions" xml:space="preserve">
+		<value>συναλλαγές</value>
+	</data>
 </root>

@@ -13,9 +13,9 @@
 else if (_notFound || _article is null)
 {
     <div class="container" style="padding: 4rem 1rem; text-align: center;">
-        <h2>Article not found</h2>
-        <p>The article you're looking for doesn't exist or has been removed.</p>
-        <a href="/" class="btn-cta">Back to Home</a>
+        <h1 class="h2">@HomeRes.BlogNotFoundTitle</h1>
+        <p>@HomeRes.BlogNotFoundBody</p>
+        <a href="/" class="btn-cta">@HomeRes.BackToHome</a>
     </div>
 }
 else
@@ -60,7 +60,7 @@ else
         </div>
 
         <footer class="blog-article-footer">
-            <a href="/" class="btn-cta">← Back to Home</a>
+            <a href="/" class="btn-cta"><span aria-hidden="true">←</span> @HomeRes.BackToHome</a>
         </footer>
     </article>
 }

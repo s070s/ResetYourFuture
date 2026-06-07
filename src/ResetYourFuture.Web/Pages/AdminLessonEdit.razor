@@ -5,7 +5,7 @@
 <PageTitle>@AdminRes.ManageLessons</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>@AdminRes.ManageLessons</h2>
+    <h1 class="h2">@AdminRes.ManageLessons</h1>
     <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToCourse</button>
 </div>
 
@@ -66,20 +66,20 @@ else
     <Body>
         <div class="row">
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                <input class="form-control" @bind="lessonTitleEn" />
+                <label class="form-label" for="lesson-title-en">@AdminRes.FieldTitle (EN)</label>
+                <input id="lesson-title-en" class="form-control" @bind="lessonTitleEn" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                <input class="form-control" @bind="lessonTitleEl" />
+                <label class="form-label" for="lesson-title-el">@AdminRes.FieldTitle (EL)</label>
+                <input id="lesson-title-el" class="form-control" @bind="lessonTitleEl" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.SortOrder</label>
-                <input type="number" class="form-control" @bind="lessonSortOrder" />
+                <label class="form-label" for="lesson-sort">@AdminRes.SortOrder</label>
+                <input id="lesson-sort" type="number" class="form-control" @bind="lessonSortOrder" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.DurationMinutes</label>
-                <input type="number" class="form-control" @bind="lessonDuration" />
+                <label class="form-label" for="lesson-duration">@AdminRes.DurationMinutes</label>
+                <input id="lesson-duration" type="number" class="form-control" @bind="lessonDuration" />
             </div>
         </div>
 
@@ -94,23 +94,23 @@ else
         </div>
 
         <div class="mb-3">
-            <label class="form-label">@AdminRes.VideoUrlLabel</label>
-            <input class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
+            <label class="form-label" for="lesson-video-url">@AdminRes.VideoUrlLabel</label>
+            <input id="lesson-video-url" class="form-control" @bind="lessonVideoUrl" placeholder="https://www.youtube.com/embed/..." />
             <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadPdf</label>
-                <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
+                <label class="form-label" for="lesson-pdf">@AdminRes.UploadPdf</label>
+                <InputFile id="lesson-pdf" class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
                 @if (!string.IsNullOrEmpty(lessonPdfPath))
                 {
                     <small class="text-success">@AdminRes.Current @lessonPdfPath</small>
                 }
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadVideo</label>
-                <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
+                <label class="form-label" for="lesson-video">@AdminRes.UploadVideo</label>
+                <InputFile id="lesson-video" class="form-control" OnChange="OnVideoSelected" accept="video/*" />
                 @if (!string.IsNullOrEmpty(lessonVideoPath))
                 {
                     <small class="text-success">@AdminRes.Current @lessonVideoPath</small>
@@ -127,8 +127,10 @@ else
 </FormModal>
 
 <ConfirmModal IsVisible="@(_pendingDeleteLessonId.HasValue)"
-              Title="Confirm"
-              Message="Delete this lesson?"
+              Title="@AdminRes.ConfirmTitle"
+              Message="@AdminRes.ConfirmDeleteLesson"
+              ConfirmLabel="@AdminRes.Delete"
+              CancelLabel="@AdminRes.Cancel"
               OnConfirm="ExecuteDeleteLessonAsync"
               OnCancel="@(() => _pendingDeleteLessonId = null)" />
 

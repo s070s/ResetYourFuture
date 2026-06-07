@@ -2,16 +2,21 @@
    Toggle logic (asc/desc, page reset) lives in the parent page — this component is stateless. *@
 
 <th class="@( IsActive ? "sort-active" : "" )"
+    scope="col"
+    role="columnheader"
+    tabindex="0"
+    aria-sort="@AriaSort"
     @onclick="HandleClick"
+    @onkeydown="@(async e => { if (e.IsActivationKey()) await HandleClick(); })"
     style="cursor:pointer; user-select:none; white-space:nowrap">
     @Label
     @if ( IsActive )
     {
-        <span class="sort-arrow">@( CurrentSortDir == "desc" ? " ▼" : " ▲" )</span>
+        <span class="sort-arrow" aria-hidden="true">@( CurrentSortDir == "desc" ? " ▼" : " ▲" )</span>
     }
     else
     {
-        <span class="sort-arrow sort-arrow--inactive"> ⇅</span>
+        <span class="sort-arrow sort-arrow--inactive" aria-hidden="true"> ⇅</span>
     }
 </th>
 
@@ -23,6 +28,10 @@
     [Parameter, EditorRequired] public EventCallback<string> OnSort { get; set; }
 
     private bool IsActive => string.Equals( CurrentSortBy, ColumnKey, StringComparison.OrdinalIgnoreCase );
+
+    private string AriaSort => IsActive
+        ? ( CurrentSortDir == "desc" ? "descending" : "ascending" )
+        : "none";
 
     private async Task HandleClick() => await OnSort.InvokeAsync( ColumnKey );
 }

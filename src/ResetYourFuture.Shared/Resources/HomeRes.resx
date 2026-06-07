@@ -279,4 +279,22 @@
   <data name="FooterCopyright" xml:space="preserve">
     <value>© 2026 Reset Your Future</value>
   </data>
+  <data name="BlogTitle" xml:space="preserve">
+    <value>Latest</value>
+  </data>
+  <data name="BlogTitleHighlight" xml:space="preserve">
+    <value>Articles</value>
+  </data>
+  <data name="BlogReadMore" xml:space="preserve">
+    <value>Read More</value>
+  </data>
+  <data name="BlogNotFoundTitle" xml:space="preserve">
+    <value>Article not found</value>
+  </data>
+  <data name="BlogNotFoundBody" xml:space="preserve">
+    <value>The article you're looking for doesn't exist or has been removed.</value>
+  </data>
+  <data name="BackToHome" xml:space="preserve">
+    <value>Back to Home</value>
+  </data>
 </root>

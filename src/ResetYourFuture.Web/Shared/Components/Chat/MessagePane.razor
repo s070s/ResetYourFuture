@@ -13,8 +13,8 @@
         <div class="chat-header">
             @if (OnBackToList.HasDelegate)
             {
-                <button class="btn-back-mobile" @onclick="OnBackToList" title="Back">
-                    <span class="bi bi-arrow-left"></span>
+                <button class="btn-back-mobile" @onclick="OnBackToList" title="@ChatRes.Back" aria-label="@ChatRes.Back">
+                    <span class="bi bi-arrow-left" aria-hidden="true"></span>
                 </button>
             }
             <h6>
@@ -26,10 +26,10 @@
         @if ( Messages is not null )
         {
             <div class="d-flex justify-content-between align-items-center px-3 py-1 chat-pagination">
-                <small class="text-light-muted">@Messages.TotalCount messages</small>
+                <small class="text-light-muted">@Messages.TotalCount @ChatRes.Messages</small>
                 <div class="d-flex align-items-center gap-2">
-                    <label class="form-label mb-0 text-light-muted small">Rows:</label>
-                    <select class="page-size-select" value="@PageSize" @onchange="HandlePageSizeChange">
+                    <label class="form-label mb-0 text-light-muted small" for="msg-page-size">@GlobalRes.PaginationRows</label>
+                    <select id="msg-page-size" class="page-size-select" value="@PageSize" @onchange="HandlePageSizeChange">
                         @foreach ( var opt in PageSizeOptions )
                         {
                             <option value="@opt">@opt</option>
@@ -37,16 +37,18 @@
                     </select>
                     <button class="btn btn-sm btn-outline-secondary"
                             @onclick="OnPreviousPage"
-                            disabled="@(!Messages.HasPreviousPage)">‹ Older</button>
-                    <span class="small">Page @Messages.Page of @Messages.TotalPages</span>
+                            disabled="@(!Messages.HasPreviousPage)">‹ @GlobalRes.PaginationOlder</button>
+                    <span class="small">@string.Format(GlobalRes.PaginationPageOfFormat, Messages.Page, Messages.TotalPages)</span>
                     <button class="btn btn-sm btn-outline-secondary"
                             @onclick="OnNextPage"
-                            disabled="@(!Messages.HasNextPage)">Newer ›</button>
+                            disabled="@(!Messages.HasNextPage)">@GlobalRes.PaginationNewer ›</button>
                 </div>
             </div>
         }
 
-        <div class="chat-messages" @ref="_messageContainer">
+        <div class="chat-messages" @ref="_messageContainer"
+             role="log" aria-live="polite" aria-relevant="additions"
+             aria-label="@ChatRes.Messages">
             @if ( IsLoading )
             {
                 <div class="text-center p-3">
@@ -73,6 +75,7 @@
             <div class="textarea-wrapper">
                 <div class="resize-handle-top" @ref="_resizeHandleRef"></div>
                 <textarea class="form-control" placeholder="@ChatRes.TypeMessage"
+                          aria-label="@ChatRes.TypeMessage"
                           rows="1"
                           @ref="_textareaRef"
                           @bind="_newMessage" @bind:event="oninput"
@@ -80,8 +83,9 @@
                           disabled="@(!IsConnected)"></textarea>
             </div>
             <button class="btn btn-primary" @onclick="SendMessage"
+                    aria-label="@ChatRes.Send"
                     disabled="@(string.IsNullOrWhiteSpace( _newMessage ) || !IsConnected)">
-                <span class="bi bi-send"></span>
+                <span class="bi bi-send" aria-hidden="true"></span>
             </button>
         </div>
     }

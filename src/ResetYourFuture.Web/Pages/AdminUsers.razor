@@ -5,7 +5,7 @@
 <PageTitle>@AdminRes.UserManagement</PageTitle>
 
 <div class="admin-container">
-    <h2>@AdminRes.UserManagement</h2>
+    <h1 class="h2">@AdminRes.UserManagement</h1>
 
     <div class="mb-3">
         <input type="text" class="form-control" placeholder="@AdminRes.SearchByEmailOrName"
@@ -24,7 +24,7 @@
             }
             else
             {
-                <VirtualizedTable Items="pagedResult.Items" TItem="AdminUserDto">
+                <ScrollableTable Items="pagedResult.Items" TItem="AdminUserDto">
                     <HeaderRow>
                         <tr>
                             <SortableColumnHeader ColumnKey="email"     Label="@AdminRes.ColEmail"
@@ -42,9 +42,12 @@
                         <tr @key="user.Id">
                             <td data-label="@AdminRes.ColEmail">@user.Email</td>
                             <td data-label="@AdminRes.ColName">@user.FirstName @user.LastName</td>
-                            <td data-label="@AdminRes.ColEnabled">@(user.IsEnabled ? "✓" : "✗")</td>
+                            <td data-label="@AdminRes.ColEnabled">
+                                <span aria-hidden="true">@(user.IsEnabled ? "✓" : "✗")</span>
+                                <span class="visually-hidden">@(user.IsEnabled ? AdminRes.Yes : AdminRes.No)</span>
+                            </td>
                             <td data-label="@AdminRes.ColRoles">@string.Join(", ", user.Roles)</td>
-                            <td data-label="Actions">
+                            <td data-label="@AdminRes.ColActions">
                                 @if (user.Roles.Contains("Student"))
                                 {
                                     <button class="btn btn-sm btn-primary me-1" @onclick="() => ImpersonateUser(user.Id)">@AdminRes.LoginAs</button>
@@ -79,7 +82,7 @@
                             </td>
                         </tr>
                     </RowTemplate>
-                </VirtualizedTable>
+                </ScrollableTable>
 
                 <AdminPaginationToolbar CurrentPage="pagedResult.Page"
                                         TotalPages="pagedResult.TotalPages"

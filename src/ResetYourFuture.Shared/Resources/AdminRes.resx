@@ -539,4 +539,88 @@
 	<data name="ItemLabelArticles" xml:space="preserve">
 		<value>articles</value>
 	</data>
+	<data name="ConfirmTitle" xml:space="preserve">
+		<value>Confirm</value>
+	</data>
+	<data name="ConfirmDeleteCourse" xml:space="preserve">
+		<value>Are you sure you want to delete this course and all its modules/lessons?</value>
+	</data>
+	<data name="ConfirmDeleteAssessment" xml:space="preserve">
+		<value>Are you sure you want to delete this assessment?</value>
+	</data>
+	<data name="ConfirmDeleteLesson" xml:space="preserve">
+		<value>Delete this lesson?</value>
+	</data>
+	<data name="EditArticle" xml:space="preserve">
+		<value>Edit Article</value>
+	</data>
+	<data name="BlogLangEnglish" xml:space="preserve">
+		<value>English (required)</value>
+	</data>
+	<data name="BlogLangGreek" xml:space="preserve">
+		<value>Greek (optional — falls back to English)</value>
+	</data>
+	<data name="FieldSummary" xml:space="preserve">
+		<value>Summary</value>
+	</data>
+	<data name="FieldAuthorName" xml:space="preserve">
+		<value>Author Name</value>
+	</data>
+	<data name="FieldCoverImage" xml:space="preserve">
+		<value>Cover Image</value>
+	</data>
+	<data name="FieldTags" xml:space="preserve">
+		<value>Tags</value>
+	</data>
+	<data name="SharedFields" xml:space="preserve">
+		<value>Shared fields</value>
+	</data>
+	<data name="SlugHint" xml:space="preserve">
+		<value>Auto-generated from EN title. Must be unique.</value>
+	</data>
+	<data name="TagsHint" xml:space="preserve">
+		<value>Comma-separated</value>
+	</data>
+	<data name="CoverUploadHint" xml:space="preserve">
+		<value>Image will be uploaded after saving the article.</value>
+	</data>
+	<data name="EditTestimonial" xml:space="preserve">
+		<value>Edit Testimonial</value>
+	</data>
+	<data name="FieldFullName" xml:space="preserve">
+		<value>Full Name</value>
+	</data>
+	<data name="FieldRoleTitle" xml:space="preserve">
+		<value>Role / Title</value>
+	</data>
+	<data name="FieldCompanyContext" xml:space="preserve">
+		<value>Company / Context</value>
+	</data>
+	<data name="FieldQuote" xml:space="preserve">
+		<value>Quote</value>
+	</data>
+	<data name="FieldDisplayOrder" xml:space="preserve">
+		<value>Display Order</value>
+	</data>
+	<data name="FieldActiveLandingLabel" xml:space="preserve">
+		<value>Active (visible on landing page)</value>
+	</data>
+	<data name="FieldAvatarPhoto" xml:space="preserve">
+		<value>Avatar / Photo</value>
+	</data>
+	<data name="DisplayOrderHint" xml:space="preserve">
+		<value>Lower number = shown first.</value>
+	</data>
+	<data name="AvatarHint" xml:space="preserve">
+		<value>JPEG, PNG, GIF or WebP · Max 5 MB</value>
+	</data>
+	<data name="AvatarSaveFirstHint" xml:space="preserve">
+		<value>Save the testimonial first, then upload an avatar from the edit form.</value>
+	</data>
+	<data name="RequiredTier" xml:space="preserve">
+		<value>Required Subscription Tier</value>
+	</data>
+	<data name="RequiredTierHint" xml:space="preserve">
+		<value>Users must be on this plan or higher to enroll in this course.</value>
+	</data>
 </root>

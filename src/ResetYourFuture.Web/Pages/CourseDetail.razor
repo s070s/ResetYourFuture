@@ -30,7 +30,12 @@ else
         <div class="progress-section">
             @if (_course.IsEnrolled)
             {
-                <div class="progress-bar-container">
+                <div class="progress-bar-container"
+                     role="progressbar"
+                     aria-valuenow="@_course.ProgressPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+                     aria-label="@string.Format(CourseRes.ProgressFormat, _course.CompletedLessons, _course.TotalLessons, _course.ProgressPercent)">
                     <div class="progress-bar-fill" style="width: @(_course.ProgressPercent)%"></div>
                 </div>
                 <span class="progress-text">
@@ -71,8 +76,10 @@ else
             <div class="card mb-3" @key="module.Id">
                 <div class="card-header d-flex justify-content-between align-items-center collapsible-header"
                      role="button"
+                     tabindex="0"
                      aria-expanded="@isExpanded.ToString().ToLowerInvariant()"
-                     @onclick="() => ToggleModule(module.Id)">
+                     @onclick="() => ToggleModule(module.Id)"
+                     @onkeydown="@(e => { if (e.IsActivationKey()) ToggleModule(module.Id); })">
                     <span class="fw-semibold">@module.SortOrder. @module.Title</span>
                     <i class="bi bi-chevron-down chevron-icon @(isExpanded ? "expanded" : "")"></i>
                 </div>
@@ -87,8 +94,11 @@ else
                                 @foreach (var lesson in module.Lessons.OrderBy(l => l.SortOrder))
                                 {
                                     <li class="lesson-item @(lesson.IsCompleted ? "completed" : "")"
-                                        @onclick="() => ViewLesson(lesson.Id)">
-                                        <span class="lesson-icon">
+                                        role="button"
+                                        tabindex="0"
+                                        @onclick="() => ViewLesson(lesson.Id)"
+                                        @onkeydown="@(e => { if (e.IsActivationKey()) ViewLesson(lesson.Id); })">
+                                        <span class="lesson-icon" aria-hidden="true">
                                             @if (lesson.IsCompleted)
                                             {
                                                 <text>✓</text>

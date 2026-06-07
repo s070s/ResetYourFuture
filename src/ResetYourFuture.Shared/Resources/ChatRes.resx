@@ -87,4 +87,13 @@
 	<data name="UpgradeDescription" xml:space="preserve">
 		<value>Chat is available on the Pro plan. Upgrade to get priority support and direct messaging.</value>
 	</data>
+	<data name="Send" xml:space="preserve">
+		<value>Send</value>
+	</data>
+	<data name="Back" xml:space="preserve">
+		<value>Back</value>
+	</data>
+	<data name="Messages" xml:space="preserve">
+		<value>Messages</value>
+	</data>
 </root>

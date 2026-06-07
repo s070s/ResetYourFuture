@@ -53,7 +53,10 @@ else
         {
             var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;
 
-            <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id" @onclick="() => ViewCourse(course)">
+            <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id"
+                 role="button" tabindex="0"
+                 @onclick="() => ViewCourse(course)"
+                 @onkeydown="@(e => { if (e.IsActivationKey()) ViewCourse(course); })">
                 <div class="course-card-header">
                     <h3>@course.Title</h3>
                     @if (course.RequiredTier != SubscriptionTierEnum.Free)
@@ -75,7 +78,10 @@ else
                     }
                     @if (isLocked)
                     {
-                        <span class="locked-badge" @onclick:stopPropagation="true" @onclick="GoToPricing">
+                        <span class="locked-badge" role="button" tabindex="0"
+                              @onclick:stopPropagation="true" @onclick="GoToPricing"
+                              @onkeydown:stopPropagation="true"
+                              @onkeydown="@(e => { if (e.IsActivationKey()) GoToPricing(); })">
                             @string.Format(CourseRes.UpgradeToFormat, course.RequiredTier)
                         </span>
                     }

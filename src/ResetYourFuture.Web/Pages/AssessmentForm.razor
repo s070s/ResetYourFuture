@@ -1,7 +1,7 @@
 @page "/assessments/{AssessmentId:guid}"
 @attribute [Authorize(Roles = "Student")]
 
-<h3>@assessment?.Title</h3>
+<h1>@assessment?.Title</h1>
 
 @if (assessment == null)
 {
@@ -25,20 +25,20 @@ else
             @foreach (var question in questions)
             {
                 <div class="mb-3">
-                    <label class="form-label">
+                    <label class="form-label" for="@((question.Type is "text" or "choice" or "single-select" or "date") ? $"q-{question.Id}" : null)">
                         <strong>@question.DisplayLabel</strong>
                         @if (question.Required)
                         {
-                            <span class="text-danger"> *</span>
+                            <span class="text-danger" aria-hidden="true"> *</span>
                         }
                     </label>
                     @if (question.Type == "text")
                     {
-                        <input type="text" class="form-control" @bind="answers[question.Id]" />
+                        <input id="@($"q-{question.Id}")" type="text" class="form-control" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]" />
                     }
                     else if (question.Type is "choice" or "single-select")
                     {
-                        <select class="form-select" @bind="answers[question.Id]">
+                        <select id="@($"q-{question.Id}")" class="form-select" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]">
                             <option value="">@AssessmentRes.SelectPlaceholder</option>
                             @foreach (var option in question.Options ?? new List<string>())
                             {
@@ -48,6 +48,7 @@ else
                     }
                     else if (question.Type == "multi-select")
                     {
+                        <div role="group" aria-label="@question.DisplayLabel">
                         @foreach (var option in question.Options ?? new List<string>())
                         {
                             <div class="form-check">
@@ -56,10 +57,11 @@ else
                                 <label class="form-check-label" for="@($"{question.Id}_{option}")">@option</label>
                             </div>
                         }
+                        </div>
                     }
                     else if (question.Type is "rating" or "likert")
                     {
-                        <div class="btn-group" role="group">
+                        <div class="btn-group" role="group" aria-label="@question.DisplayLabel">
                             @for (int i = question.Min; i <= question.Max; i++)
                             {
                                 var value = i;
@@ -71,7 +73,8 @@ else
                     }
                     else if (question.Type == "date")
                     {
-                        <input type="date" class="form-control"
+                        <input id="@($"q-{question.Id}")" type="date" class="form-control"
+                               aria-required="@(question.Required ? "true" : "false")"
                                value="@answers[question.Id]"
                                @onchange="@(e => answers[question.Id] = e.Value?.ToString() ?? string.Empty)" />
                     }

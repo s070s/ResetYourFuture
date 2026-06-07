@@ -5,7 +5,7 @@
 <PageTitle>@AdminRes.BlogArticlesPageTitle</PageTitle>
 
 <div class="admin-container">
-    <h2>@AdminRes.BlogArticlesPageTitle</h2>
+    <h1 class="h2">@AdminRes.BlogArticlesPageTitle</h1>
 
     <div class="d-flex gap-2 mb-3">
         <input type="text" class="form-control" placeholder="@AdminRes.SearchByTitleSlugAuthor"
@@ -25,7 +25,7 @@
             }
             else
             {
-                <VirtualizedTable Items="pagedResult.Items" TItem="AdminBlogArticleDto">
+                <ScrollableTable Items="pagedResult.Items" TItem="AdminBlogArticleDto">
                     <HeaderRow>
                         <tr>
                             <th>@AdminRes.FieldTitle</th>
@@ -45,7 +45,7 @@
                                              InactiveText="@AdminRes.StatusDraft" />
                             </td>
                             <td data-label="@AdminRes.ColPublishedAt">@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
-                            <td data-label="Actions">
+                            <td data-label="@AdminRes.ColActions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditArticle(article.Id)">@AdminRes.Edit</button>
                                 @if (article.IsPublished)
                                 {
@@ -67,7 +67,7 @@
                             </td>
                         </tr>
                     </RowTemplate>
-                </VirtualizedTable>
+                </ScrollableTable>
 
                 <AdminPaginationToolbar CurrentPage="pagedResult.Page"
                                         TotalPages="pagedResult.TotalPages"

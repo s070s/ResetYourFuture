@@ -2,11 +2,11 @@
 
 <div class="pagination-toolbar-admin">
     <small class="text-light-muted">
-        Showing @(((CurrentPage - 1) * PageSize) + 1)–@(Math.Min(CurrentPage * PageSize, TotalCount)) of @TotalCount @ItemLabel
+        @string.Format(GlobalRes.PaginationShowingFormat, ((CurrentPage - 1) * PageSize) + 1, Math.Min(CurrentPage * PageSize, TotalCount), TotalCount, ItemLabel)
     </small>
     <div class="pagination-controls">
-        <label class="form-label mb-0 text-light-muted small">Rows:</label>
-        <select class="form-select form-select-sm" style="width:auto" value="@PageSize" @onchange="HandlePageSizeChanged">
+        <label class="form-label mb-0 text-light-muted small" for="@_pageSizeId">@GlobalRes.PaginationRows</label>
+        <select id="@_pageSizeId" class="form-select form-select-sm" style="width:auto" value="@PageSize" @onchange="HandlePageSizeChanged">
             @foreach (var opt in PageSizeOptions)
             {
                 <option value="@opt">@opt</option>
@@ -14,11 +14,11 @@
         </select>
         <button class="btn btn-sm btn-outline-secondary"
                 @onclick="OnPreviousPage"
-                disabled="@(!HasPreviousPage)">‹ Prev</button>
-        <span class="small">Page @CurrentPage of @TotalPages</span>
+                disabled="@(!HasPreviousPage)">‹ @GlobalRes.PaginationPrev</button>
+        <span class="small">@string.Format(GlobalRes.PaginationPageOfFormat, CurrentPage, TotalPages)</span>
         <button class="btn btn-sm btn-outline-secondary"
                 @onclick="OnNextPage"
-                disabled="@(!HasNextPage)">Next ›</button>
+                disabled="@(!HasNextPage)">@GlobalRes.PaginationNext ›</button>
     </div>
 </div>
 
@@ -34,6 +34,8 @@
     [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
     [Parameter] public EventCallback OnPreviousPage { get; set; }
     [Parameter] public EventCallback OnNextPage { get; set; }
+
+    private readonly string _pageSizeId = "page-size-" + Guid.NewGuid().ToString("N");
 
     private async Task HandlePageSizeChanged(ChangeEventArgs e)
     {

@@ -2,7 +2,7 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
-                <p>You are not authorized to view this page. <a href="/login">Login</a></p>
+                <p role="alert">@GlobalRes.NotAuthorizedMessage <a href="/login">@GlobalRes.Label_Login</a></p>
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />

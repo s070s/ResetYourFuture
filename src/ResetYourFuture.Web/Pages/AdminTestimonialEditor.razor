@@ -2,10 +2,10 @@
 @page "/admin/testimonials/{Id:guid}"
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>@(_isEditMode ? "Edit Testimonial" : "New Testimonial")</PageTitle>
+<PageTitle>@(_isEditMode ? AdminRes.EditTestimonial : AdminRes.NewTestimonial)</PageTitle>
 
 <div class="admin-container">
-    <h2>@(_isEditMode ? "Edit Testimonial" : "New Testimonial")</h2>
+    <h1 class="h2">@(_isEditMode ? AdminRes.EditTestimonial : AdminRes.NewTestimonial)</h1>
 
     @if (_error is not null)
     {
@@ -15,40 +15,40 @@
     <div class="row g-3" style="max-width: 700px;">
 
         <div class="col-12">
-            <label class="form-label">Full Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" @bind="_fullName" maxlength="150"
+            <label class="form-label" for="t-fullname">@AdminRes.FieldFullName <span class="text-danger" aria-hidden="true">*</span></label>
+            <input id="t-fullname" type="text" class="form-control" @bind="_fullName" maxlength="150"
                    placeholder="e.g. Maria Papadopoulou" />
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Role / Title</label>
-            <input type="text" class="form-control" @bind="_roleOrTitle" maxlength="150"
+            <label class="form-label" for="t-role">@AdminRes.FieldRoleTitle</label>
+            <input id="t-role" type="text" class="form-control" @bind="_roleOrTitle" maxlength="150"
                    placeholder="e.g. Career Coach" />
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Company / Context</label>
-            <input type="text" class="form-control" @bind="_companyOrContext" maxlength="150"
+            <label class="form-label" for="t-company">@AdminRes.FieldCompanyContext</label>
+            <input id="t-company" type="text" class="form-control" @bind="_companyOrContext" maxlength="150"
                    placeholder="e.g. Reset Your Future Graduate" />
         </div>
 
         <div class="col-12">
-            <label class="form-label">Quote <span class="text-danger">*</span></label>
-            <textarea class="form-control" rows="4" @bind="_quoteText" maxlength="1000"
+            <label class="form-label" for="t-quote">@AdminRes.FieldQuote <span class="text-danger" aria-hidden="true">*</span></label>
+            <textarea id="t-quote" class="form-control" rows="4" @bind="_quoteText" maxlength="1000"
                       placeholder="The testimonial quote (max 1000 characters)"></textarea>
             <div class="form-text">@(_quoteText?.Length ?? 0) / 1000</div>
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Display Order</label>
-            <input type="number" class="form-control" @bind="_displayOrder" min="1" />
-            <div class="form-text">Lower number = shown first.</div>
+            <label class="form-label" for="t-order">@AdminRes.FieldDisplayOrder</label>
+            <input id="t-order" type="number" class="form-control" @bind="_displayOrder" min="1" />
+            <div class="form-text">@AdminRes.DisplayOrderHint</div>
         </div>
 
         <div class="col-md-4 align-self-end">
             <div class="form-check mb-2">
                 <input type="checkbox" class="form-check-input" id="isActive" @bind="_isActive" />
-                <label class="form-check-label" for="isActive">Active (visible on landing page)</label>
+                <label class="form-check-label" for="isActive">@AdminRes.FieldActiveLandingLabel</label>
             </div>
         </div>
 
@@ -57,7 +57,7 @@
         {
             <div class="col-12">
                 <hr class="my-2" />
-                <label class="form-label">Avatar / Photo</label>
+                <label class="form-label">@AdminRes.FieldAvatarPhoto</label>
 
                 @if (!string.IsNullOrEmpty(_avatarPreviewUrl))
                 {
@@ -65,7 +65,7 @@
                         <img src="@_avatarPreviewUrl" alt="Avatar preview"
                              style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #444;" />
                         <button type="button" class="btn btn-sm btn-outline-danger" @onclick="RemoveAvatar"
-                                disabled="@_isBusy">Remove</button>
+                                disabled="@_isBusy">@AdminRes.Remove</button>
                     </div>
                 }
                 else
@@ -78,15 +78,15 @@
                 }
 
                 <InputFile OnChange="OnAvatarFileSelected" accept="image/*" class="form-control"
-                           style="max-width:300px;" />
-                <div class="form-text">JPEG, PNG, GIF or WebP · Max 5 MB</div>
+                           style="max-width:300px;" aria-label="@AdminRes.FieldAvatarPhoto" />
+                <div class="form-text">@AdminRes.AvatarHint</div>
             </div>
         }
         else
         {
             <div class="col-12">
                 <div class="alert alert-info py-2">
-                    Save the testimonial first, then upload an avatar from the edit form.
+                    @AdminRes.AvatarSaveFirstHint
                 </div>
             </div>
         }
@@ -99,7 +99,7 @@
             {
                 <span class="spinner-border spinner-border-sm me-1" role="status"></span>
             }
-            Save
+            @AdminRes.Save
         </button>
         <button class="btn btn-secondary" @onclick="Cancel" disabled="@_isBusy">@AdminRes.Cancel</button>
     </div>

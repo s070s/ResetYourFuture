@@ -187,6 +187,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to transactions.
+        /// </summary>
+        public static string ItemLabelTransactions {
+            get {
+                return ResourceManager.GetString("ItemLabelTransactions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading billing information....
         /// </summary>
         public static string LoadingBilling {

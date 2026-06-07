@@ -5,6 +5,7 @@
 }
 
 .tier-option {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.4rem;
@@ -16,8 +17,22 @@
     transition: background-color 0.15s, border-color 0.15s;
 }
 
+/* Visually hide the radio but keep it focusable and in the accessibility tree
+   (WCAG 2.1.1) — never use display:none, which removes it from tab order. */
 .tier-option input[type="radio"] {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Surface keyboard focus on the styled label since the input itself is hidden. */
+.tier-option:focus-within {
+    outline: 2px solid var(--text-accent);
+    outline-offset: 2px;
+    border-color: var(--text-accent);
 }
 
 .tier-option:hover:not(.selected) {

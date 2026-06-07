@@ -1,7 +1,7 @@
 @* Renders the upgrade-prompt lock block for subscription-gated features. *@
 
 <div class="upgrade-prompt">
-    <div class="upgrade-icon">🔒</div>
+    <div class="upgrade-icon" aria-hidden="true">🔒</div>
     <h4>@string.Format(PricingRes.PlanRequired, PlanName)</h4>
     <p>@Description</p>
     <a href="@PricingPath" class="btn btn-primary">@UpgradeButtonText</a>

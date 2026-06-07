@@ -38,8 +38,10 @@
             <label for="password" class="form-label">@GlobalRes.Label_Password</label>
             <div class="input-group">
                 <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="loginRequest.Password" />
-                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
-                    <i class="@passwordIconClass"></i>
+                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility"
+                        aria-label="@GlobalRes.ShowHidePassword"
+                        aria-pressed="@(passwordInputType == "text" ? "true" : "false")">
+                    <i class="@passwordIconClass" aria-hidden="true"></i>
                 </button>
             </div>
             <ValidationMessage For="@(() => loginRequest.Password)" />

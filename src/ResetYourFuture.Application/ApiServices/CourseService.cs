@@ -292,15 +292,19 @@ public class CourseService(
 
         if ( courseCompleted )
         {
-            try
+            var subStatus = await subscriptionService.GetUserStatusAsync( userId );
+            if ( subStatus.Features?.CertificateAccess == true )
             {
-                await certificateService.GetOrGenerateAsync( userId , courseId );
-            }
-            catch ( Exception ex )
-            {
-                logger.LogError( ex ,
-                    "Certificate auto-generation failed for user {UserId} on course {CourseId}." ,
-                    userId , courseId );
+                try
+                {
+                    await certificateService.GetOrGenerateAsync( userId , courseId );
+                }
+                catch ( Exception ex )
+                {
+                    logger.LogError( ex ,
+                        "Certificate auto-generation failed for user {UserId} on course {CourseId}." ,
+                        userId , courseId );
+                }
             }
         }
 

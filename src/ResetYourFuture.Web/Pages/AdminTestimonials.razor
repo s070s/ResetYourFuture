@@ -5,7 +5,7 @@
 <PageTitle>@AdminRes.TestimonialsPageTitle</PageTitle>
 
 <div class="admin-container">
-    <h2>@AdminRes.TestimonialsPageTitle</h2>
+    <h1 class="h2">@AdminRes.TestimonialsPageTitle</h1>
 
     <div class="d-flex gap-2 mb-3">
         <button class="btn btn-primary text-nowrap" @onclick="NewTestimonial">@AdminRes.NewTestimonial</button>
@@ -23,7 +23,7 @@
             }
             else
             {
-                <VirtualizedTable Items="pagedResult.Items" TItem="AdminTestimonialDto">
+                <ScrollableTable Items="pagedResult.Items" TItem="AdminTestimonialDto">
                     <HeaderRow>
                         <tr>
                             <th>@AdminRes.ColOrder</th>
@@ -51,13 +51,13 @@
                                     <span>@item.RoleOrTitle</span>
                                     @if (!string.IsNullOrEmpty(item.RoleOrTitle) && !string.IsNullOrEmpty(item.CompanyOrContext))
                                     {
-                                        <span class="text-muted"> · </span>
+                                        <span class="text-light-muted"> · </span>
                                     }
-                                    <span class="text-muted">@item.CompanyOrContext</span>
+                                    <span class="text-light-muted">@item.CompanyOrContext</span>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">—</span>
+                                    <span class="text-light-muted">—</span>
                                 }
                             </td>
                             <td data-label="@AdminRes.ColStatus">
@@ -65,7 +65,7 @@
                                              ActiveText="@AdminRes.StatusActive"
                                              InactiveText="@AdminRes.StatusInactive" />
                             </td>
-                            <td data-label="Actions">
+                            <td data-label="@AdminRes.ColActions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditTestimonial(item.Id)">@AdminRes.Edit</button>
                                 @if (item.IsActive)
                                 {
@@ -87,7 +87,7 @@
                             </td>
                         </tr>
                     </RowTemplate>
-                </VirtualizedTable>
+                </ScrollableTable>
 
                 <AdminPaginationToolbar CurrentPage="pagedResult.Page"
                                         TotalPages="pagedResult.TotalPages"

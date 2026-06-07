@@ -74,8 +74,10 @@
             <label for="password" class="form-label">@GlobalRes.Label_Password @GlobalRes.Label_Minimum8Chars</label>
             <div class="input-group">
                 <InputText id="password" type="@passwordInputType" class="form-control" autocomplete="new-password" @bind-Value="registerRequest.Password" />
-                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility" tabindex="-1">
-                    <i class="@passwordIconClass"></i>
+                <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility"
+                        aria-label="@GlobalRes.ShowHidePassword"
+                        aria-pressed="@(passwordInputType == "text" ? "true" : "false")">
+                    <i class="@passwordIconClass" aria-hidden="true"></i>
                 </button>
             </div>
             <ValidationMessage For="@(() => registerRequest.Password)" />
@@ -85,8 +87,10 @@
             <label for="confirmPassword" class="form-label">@GlobalRes.Label_ConfirmPassword</label>
             <div class="input-group">
                 <InputText id="confirmPassword" type="@confirmPasswordInputType" class="form-control" autocomplete="new-password" @bind-Value="registerRequest.ConfirmPassword" />
-                <button type="button" class="btn btn-password-toggle" @onclick="ToggleConfirmPasswordVisibility" tabindex="-1">
-                    <i class="@confirmPasswordIconClass"></i>
+                <button type="button" class="btn btn-password-toggle" @onclick="ToggleConfirmPasswordVisibility"
+                        aria-label="@GlobalRes.ShowHidePassword"
+                        aria-pressed="@(confirmPasswordInputType == "text" ? "true" : "false")">
+                    <i class="@confirmPasswordIconClass" aria-hidden="true"></i>
                 </button>
             </div>
             <ValidationMessage For="@(() => registerRequest.ConfirmPassword)" />

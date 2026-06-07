@@ -20,19 +20,19 @@
                                  CssClass="card mb-3">
                     <ChildContent>
                         <div class="mb-3">
-                            <label class="form-label">@ProfileRes.LabelAvatar</label>
+                            <label class="form-label" for="profile-avatar">@ProfileRes.LabelAvatar</label>
                             <div>
                                 @if (!string.IsNullOrEmpty(avatarDataUrl))
                                 {
-                                    <img src="@avatarDataUrl" alt="Avatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
+                                    <img src="@avatarDataUrl" alt="@ProfileRes.LabelAvatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
                                 }
-                                <InputFile OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" />
+                                <InputFile id="profile-avatar" OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" />
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">@ProfileRes.LabelDisplayName</label>
-                            <input type="text" class="form-control" @bind="displayName" placeholder="@profile.Email" />
+                            <label class="form-label" for="profile-display-name">@ProfileRes.LabelDisplayName</label>
+                            <input id="profile-display-name" type="text" class="form-control" @bind="displayName" placeholder="@profile.Email" />
                         </div>
 
                         <p><strong>@ProfileRes.LabelEmail</strong> @profile.Email</p>
@@ -49,16 +49,16 @@
                                  CssClass="card mb-3">
                     <ChildContent>
                         <div class="mb-3">
-                            <label class="form-label">@ProfileRes.LabelCurrentPassword</label>
-                            <input type="password" class="form-control" @bind="currentPassword" />
+                            <label class="form-label" for="profile-current-password">@ProfileRes.LabelCurrentPassword</label>
+                            <input id="profile-current-password" type="password" class="form-control" autocomplete="current-password" @bind="currentPassword" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">@ProfileRes.LabelNewPassword</label>
-                            <input type="password" class="form-control" @bind="newPassword" />
+                            <label class="form-label" for="profile-new-password">@ProfileRes.LabelNewPassword</label>
+                            <input id="profile-new-password" type="password" class="form-control" autocomplete="new-password" @bind="newPassword" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">@ProfileRes.LabelConfirmNewPassword</label>
-                            <input type="password" class="form-control" @bind="confirmPassword" />
+                            <label class="form-label" for="profile-confirm-password">@ProfileRes.LabelConfirmNewPassword</label>
+                            <input id="profile-confirm-password" type="password" class="form-control" autocomplete="new-password" @bind="confirmPassword" />
                         </div>
                         <button class="btn btn-warning" @onclick="ChangePassword" disabled="@isChangingPassword">@ProfileRes.ChangePassword</button>
                     </ChildContent>

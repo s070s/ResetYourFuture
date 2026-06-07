@@ -3,10 +3,10 @@
 @attribute [Authorize(Roles = "Admin")]
 @using ResetYourFuture.Web.Shared
 
-<PageTitle>@(_isEditMode ? "Edit Article" : "New Article")</PageTitle>
+<PageTitle>@(_isEditMode ? AdminRes.EditArticle : AdminRes.NewArticle)</PageTitle>
 
 <div class="admin-container">
-    <h2>@(_isEditMode ? "Edit Article" : "New Article")</h2>
+    <h1 class="h2">@(_isEditMode ? AdminRes.EditArticle : AdminRes.NewArticle)</h1>
 
     @if (_error is not null)
     {
@@ -16,29 +16,29 @@
     <div class="row g-4">
         <!-- Left column: English content -->
         <div class="col-md-6">
-            <h5 class="text-light-muted mb-3">🇬🇧 English (required)</h5>
+            <h5 class="text-light-muted mb-3"><span aria-hidden="true">🇬🇧</span> @AdminRes.BlogLangEnglish</h5>
 
             <div class="mb-3">
-                <label class="form-label">Title <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" value="@_titleEn"
+                <label class="form-label" for="blog-title-en">@AdminRes.FieldTitle <span class="text-danger" aria-hidden="true">*</span></label>
+                <input id="blog-title-en" type="text" class="form-control" value="@_titleEn"
                        @oninput="OnTitleEnInput" placeholder="Article title" />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Summary <span class="text-danger">*</span></label>
-                <textarea class="form-control" rows="3" maxlength="500"
+                <label class="form-label" for="blog-summary-en">@AdminRes.FieldSummary <span class="text-danger" aria-hidden="true">*</span></label>
+                <textarea id="blog-summary-en" class="form-control" rows="3" maxlength="500"
                           @bind="_summaryEn" placeholder="Short description shown on the landing page card"></textarea>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Content <span class="text-danger">*</span></label>
+                <label class="form-label">@AdminRes.FieldContent <span class="text-danger" aria-hidden="true">*</span></label>
                 <QuillEditor @ref="_editorEn" Content="@_contentEn" MinHeight="400px" />
             </div>
         </div>
 
         <!-- Right column: Greek content -->
         <div class="col-md-6">
-            <h5 class="text-light-muted mb-3">🇬🇷 Greek (optional — falls back to English)</h5>
+            <h5 class="text-light-muted mb-3"><span aria-hidden="true">🇬🇷</span> @AdminRes.BlogLangGreek</h5>
 
             <div class="mb-3">
                 <label class="form-label">Τίτλος</label>
@@ -60,35 +60,35 @@
 
     <!-- Shared fields -->
     <hr class="my-4" />
-    <h5 class="text-light-muted mb-3">Shared fields</h5>
+    <h5 class="text-light-muted mb-3">@AdminRes.SharedFields</h5>
 
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">Slug <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" value="@_slug"
+            <label class="form-label" for="blog-slug">@AdminRes.ColSlug <span class="text-danger" aria-hidden="true">*</span></label>
+            <input id="blog-slug" type="text" class="form-control" value="@_slug"
                    @oninput="OnSlugInput" placeholder="url-friendly-slug" />
-            <div class="form-text">Auto-generated from EN title. Must be unique.</div>
+            <div class="form-text">@AdminRes.SlugHint</div>
         </div>
 
         <div class="col-md-6">
-            <label class="form-label">Author Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" @bind="_authorName" placeholder="e.g. Reset Your Future Team" />
+            <label class="form-label" for="blog-author">@AdminRes.FieldAuthorName <span class="text-danger" aria-hidden="true">*</span></label>
+            <input id="blog-author" type="text" class="form-control" @bind="_authorName" placeholder="e.g. Reset Your Future Team" />
         </div>
 
         <div class="col-md-8">
-            <label class="form-label">Cover Image</label>
+            <label class="form-label">@AdminRes.FieldCoverImage</label>
             @if (!string.IsNullOrEmpty(_coverImageUrl))
             {
                 <div class="mb-2">
                     <img src="@_coverImageUrl" alt="Cover preview" class="cover-preview" />
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @onclick="RemoveCover">Remove</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" @onclick="RemoveCover">@AdminRes.Remove</button>
                 </div>
             }
             <div class="d-flex gap-2 align-items-center flex-wrap">
-                <InputFile OnChange="OnCoverFileSelected" accept="image/*" class="form-control" style="max-width:280px;" />
+                <InputFile OnChange="OnCoverFileSelected" accept="image/*" class="form-control" style="max-width:280px;" aria-label="@AdminRes.FieldCoverImage" />
                 @if (!_isEditMode)
                 {
-                    <small class="form-text">Image will be uploaded after saving the article.</small>
+                    <small class="form-text">@AdminRes.CoverUploadHint</small>
                 }
             </div>
             <div class="mt-2">
@@ -97,16 +97,16 @@
         </div>
 
         <div class="col-md-4">
-            <label class="form-label">Tags</label>
-            <input type="text" class="form-control" @bind="_tagsInput"
+            <label class="form-label" for="blog-tags">@AdminRes.FieldTags</label>
+            <input id="blog-tags" type="text" class="form-control" @bind="_tagsInput"
                    placeholder="Career, Mindset, Job Search" />
-            <div class="form-text">Comma-separated</div>
+            <div class="form-text">@AdminRes.TagsHint</div>
         </div>
 
         <div class="col-12">
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="isPublished" @bind="_isPublished" />
-                <label class="form-check-label" for="isPublished">Published</label>
+                <label class="form-check-label" for="isPublished">@AdminRes.StatusPublished</label>
             </div>
         </div>
     </div>
@@ -117,7 +117,7 @@
             {
                 <span class="spinner-border spinner-border-sm me-1" role="status"></span>
             }
-            Save
+            @AdminRes.Save
         </button>
         <button class="btn btn-secondary" @onclick="Cancel" disabled="@_isBusy">@AdminRes.Cancel</button>
     </div>

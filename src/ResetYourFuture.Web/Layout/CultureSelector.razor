@@ -1,4 +1,8 @@
-<div class="culture-selector">
-    <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("en-GB")'>EN</button>
-    <button class="btn btn-sm btn-outline-secondary" @onclick='() => SetCulture("el-GR")'>EL</button>
+<div class="culture-selector" role="group" aria-label="@NavMenuRes.LanguageSelectorLabel">
+    <button class="btn btn-sm btn-outline-secondary" lang="en" hreflang="en"
+            aria-pressed="@(IsActive("en") ? "true" : "false")"
+            @onclick='() => SetCulture("en-GB")'>EN</button>
+    <button class="btn btn-sm btn-outline-secondary" lang="el" hreflang="el"
+            aria-pressed="@(IsActive("el") ? "true" : "false")"
+            @onclick='() => SetCulture("el-GR")'>EL</button>
 </div>

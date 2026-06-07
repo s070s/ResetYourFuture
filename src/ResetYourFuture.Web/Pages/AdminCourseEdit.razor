@@ -6,7 +6,7 @@
 <PageTitle>@(IsNew ? AdminRes.CreateCourse : AdminRes.EditCourse)</PageTitle>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>@(IsNew ? AdminRes.CreateCourse : AdminRes.EditCourse)</h2>
+    <h1 class="h2">@(IsNew ? AdminRes.CreateCourse : AdminRes.EditCourse)</h1>
     <button class="btn btn-secondary" @onclick="Cancel">@AdminRes.BackToCourses</button>
 </div>
 
@@ -21,12 +21,12 @@ else
         <ChildContent>
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                    <input class="form-control" @bind="courseTitleEn" />
+                    <label class="form-label" for="course-title-en">@AdminRes.FieldTitle (EN)</label>
+                    <input id="course-title-en" class="form-control" @bind="courseTitleEn" />
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                    <input class="form-control" @bind="courseTitleEl" />
+                    <label class="form-label" for="course-title-el">@AdminRes.FieldTitle (EL)</label>
+                    <input id="course-title-el" class="form-control" @bind="courseTitleEl" />
                 </div>
             </div>
 
@@ -41,8 +41,8 @@ else
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Required Subscription Tier</label>
-                <div class="tier-selector">
+                <label class="form-label" id="required-tier-label">@AdminRes.RequiredTier</label>
+                <div class="tier-selector" role="radiogroup" aria-labelledby="required-tier-label">
                     @foreach (var tier in Enum.GetValues<SubscriptionTierEnum>())
                     {
                         <label class="tier-option @(courseRequiredTier == tier ? "selected" : "")">
@@ -56,7 +56,7 @@ else
                     }
                 </div>
                 <small class="form-text text-light-muted">
-                    Users must be on this plan or higher to enroll in this course.
+                    @AdminRes.RequiredTierHint
                 </small>
             </div>
 
@@ -232,8 +232,10 @@ else
                    OnSaved="OnLessonSaved" />
 
 <ConfirmModal IsVisible="@(_pendingDeleteModuleId.HasValue || _pendingDeleteLessonId.HasValue)"
-              Title="Confirm"
+              Title="@AdminRes.ConfirmTitle"
               Message="@_pendingDeleteMessage"
+              ConfirmLabel="@AdminRes.Delete"
+              CancelLabel="@AdminRes.Cancel"
               OnConfirm="ExecuteDeleteAsync"
               OnCancel="CancelPendingDelete" />
 

@@ -131,4 +131,28 @@
 	<data name="DownloadFailed" xml:space="preserve">
 		<value>Download failed. Please try again.</value>
 	</data>
+	<data name="VerificationTitle" xml:space="preserve">
+		<value>Certificate Verification</value>
+	</data>
+	<data name="VerificationChecking" xml:space="preserve">
+		<value>Checking certificate…</value>
+	</data>
+	<data name="VerificationUnreachable" xml:space="preserve">
+		<value>Unable to reach the verification service. Please try again later.</value>
+	</data>
+	<data name="VerificationValid" xml:space="preserve">
+		<value>Valid Certificate</value>
+	</data>
+	<data name="VerificationInvalid" xml:space="preserve">
+		<value>Invalid or Revoked Certificate</value>
+	</data>
+	<data name="FieldRecipient" xml:space="preserve">
+		<value>Recipient</value>
+	</data>
+	<data name="FieldCourse" xml:space="preserve">
+		<value>Course</value>
+	</data>
+	<data name="FieldIssuedOn" xml:space="preserve">
+		<value>Issued on</value>
+	</data>
 </root>

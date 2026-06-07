@@ -192,4 +192,37 @@
   <data name="Label_AlreadyHaveAccount" xml:space="preserve">
     <value>Έχετε ήδη λογαριασμό;</value>
   </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Μετάβαση στο περιεχόμενο</value>
+  </data>
+  <data name="ShowHidePassword" xml:space="preserve">
+    <value>Εμφάνιση ή απόκρυψη κωδικού</value>
+  </data>
+  <data name="PaginationRows" xml:space="preserve">
+    <value>Σειρές:</value>
+  </data>
+  <data name="PaginationPrev" xml:space="preserve">
+    <value>Προηγ.</value>
+  </data>
+  <data name="PaginationNext" xml:space="preserve">
+    <value>Επόμ.</value>
+  </data>
+  <data name="PaginationOlder" xml:space="preserve">
+    <value>Παλαιότερα</value>
+  </data>
+  <data name="PaginationNewer" xml:space="preserve">
+    <value>Νεότερα</value>
+  </data>
+  <data name="PaginationShowingFormat" xml:space="preserve">
+    <value>Εμφάνιση {0}–{1} από {2} {3}</value>
+  </data>
+  <data name="PaginationPageOfFormat" xml:space="preserve">
+    <value>Σελίδα {0} από {1}</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Κλείσιμο</value>
+  </data>
+  <data name="NotAuthorizedMessage" xml:space="preserve">
+    <value>Δεν έχετε άδεια για προβολή αυτής της σελίδας.</value>
+  </data>
 </root>

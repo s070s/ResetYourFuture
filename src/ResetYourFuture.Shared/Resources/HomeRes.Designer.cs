@@ -539,5 +539,41 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ZeroStateTitle", resourceCulture);
             }
         }
+
+        public static string BlogTitle {
+            get {
+                return ResourceManager.GetString("BlogTitle", resourceCulture);
+            }
+        }
+
+        public static string BlogTitleHighlight {
+            get {
+                return ResourceManager.GetString("BlogTitleHighlight", resourceCulture);
+            }
+        }
+
+        public static string BlogReadMore {
+            get {
+                return ResourceManager.GetString("BlogReadMore", resourceCulture);
+            }
+        }
+
+        public static string BlogNotFoundTitle {
+            get {
+                return ResourceManager.GetString("BlogNotFoundTitle", resourceCulture);
+            }
+        }
+
+        public static string BlogNotFoundBody {
+            get {
+                return ResourceManager.GetString("BlogNotFoundBody", resourceCulture);
+            }
+        }
+
+        public static string BackToHome {
+            get {
+                return ResourceManager.GetString("BackToHome", resourceCulture);
+            }
+        }
     }
 }

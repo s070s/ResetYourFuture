@@ -281,3 +281,29 @@ input:-webkit-autofill:active {
         margin-bottom: 0.5rem;
     }
 }
+
+/* ================================================
+   Reduced motion (WCAG 2.3.3 / 2.2.2)
+   Honor the user's OS "reduce motion" preference: neutralize
+   looping/continuous animations (compass spinner & boot loader,
+   landing hero/float/pulse, skeleton shimmer) and long transitions.
+   ================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Freeze the compass needle/arc at north so the static spinner still reads as "compass" */
+    .compass-boot__needle-group,
+    .compass-spinner__needle-group,
+    .compass-spinner__arc,
+    .compass-spinner__arc-trail,
+    .compass-boot__svg {
+        animation: none !important;
+    }
+}

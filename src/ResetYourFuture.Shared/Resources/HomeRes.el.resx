@@ -279,4 +279,22 @@
   <data name="FooterCopyright" xml:space="preserve">
     <value>© 2026 Reset Your Future</value>
   </data>
+  <data name="BlogTitle" xml:space="preserve">
+    <value>Πρόσφατα</value>
+  </data>
+  <data name="BlogTitleHighlight" xml:space="preserve">
+    <value>Άρθρα</value>
+  </data>
+  <data name="BlogReadMore" xml:space="preserve">
+    <value>Διαβάστε περισσότερα</value>
+  </data>
+  <data name="BlogNotFoundTitle" xml:space="preserve">
+    <value>Το άρθρο δεν βρέθηκε</value>
+  </data>
+  <data name="BlogNotFoundBody" xml:space="preserve">
+    <value>Το άρθρο που αναζητάτε δεν υπάρχει ή έχει αφαιρεθεί.</value>
+  </data>
+  <data name="BackToHome" xml:space="preserve">
+    <value>Επιστροφή στην αρχική</value>
+  </data>
 </root>

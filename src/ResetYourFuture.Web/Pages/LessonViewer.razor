@@ -32,7 +32,7 @@ else
 
         @if (_lesson.DurationMinutes.HasValue)
         {
-            <p class="duration">⏱ @_lesson.DurationMinutes @LessonRes.Minutes</p>
+            <p class="duration"><span aria-hidden="true">⏱</span> @_lesson.DurationMinutes @LessonRes.Minutes</p>
         }
 
         <div class="lesson-content">

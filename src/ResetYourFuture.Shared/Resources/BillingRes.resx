@@ -108,4 +108,7 @@
 	<data name="ColReference" xml:space="preserve">
 		<value>Reference</value>
 	</data>
+	<data name="ItemLabelTransactions" xml:space="preserve">
+		<value>transactions</value>
+	</data>
 </root>

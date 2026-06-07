@@ -7,7 +7,7 @@
     <button class="btn btn-outline-secondary" @onclick="GoBack">@AdminRes.BackToAssessments</button>
 </div>
 
-<h2>@(assessmentTitle != null ? string.Format(AdminRes.SubmissionsWithTitle, assessmentTitle) : AdminRes.ColSubmissions)</h2>
+<h1 class="h2">@(assessmentTitle != null ? string.Format(AdminRes.SubmissionsWithTitle, assessmentTitle) : AdminRes.ColSubmissions)</h1>
 
 @if (_pagedResult == null)
 {
@@ -19,7 +19,7 @@ else if (_pagedResult.TotalCount == 0)
 }
 else
 {
-    <VirtualizedTable Items="_pagedResult.Items" TItem="AssessmentSubmissionListItemDto" TableCssClass="table table-striped align-middle">
+    <ScrollableTable Items="_pagedResult.Items" TItem="AssessmentSubmissionListItemDto" TableCssClass="table table-striped align-middle">
         <HeaderRow>
             <tr>
                 <th>@AdminRes.ColUser</th>
@@ -33,7 +33,7 @@ else
                 <td data-label="@AdminRes.ColUser">@sub.UserDisplayName</td>
                 <td data-label="@AdminRes.ColEmail">@sub.UserEmail</td>
                 <td data-label="@AdminRes.ColSubmittedAt">@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
-                <td data-label="Actions">
+                <td data-label="@AdminRes.ColActions">
                     <button class="btn btn-sm btn-outline-primary"
                             @onclick="() => ToggleAnswers(sub.Id)">
                         @(expandedSubmissionId == sub.Id ? AdminRes.HideAnswers : AdminRes.ViewAnswers)
@@ -71,7 +71,7 @@ else
                 </tr>
             }
         </RowTemplate>
-    </VirtualizedTable>
+    </ScrollableTable>
 
     <AdminPaginationToolbar CurrentPage="_pagedResult.Page"
                             TotalPages="_pagedResult.TotalPages"

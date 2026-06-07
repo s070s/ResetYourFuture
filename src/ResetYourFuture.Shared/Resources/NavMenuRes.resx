@@ -174,4 +174,7 @@
   <data name="Testimonials" xml:space="preserve">
     <value>Testimonials</value>
   </data>
+  <data name="LanguageSelectorLabel" xml:space="preserve">
+    <value>Select language</value>
+  </data>
 </root>

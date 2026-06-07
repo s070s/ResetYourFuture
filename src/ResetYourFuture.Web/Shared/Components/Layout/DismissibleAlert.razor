@@ -2,11 +2,11 @@
 
 @if (!string.IsNullOrEmpty(Message))
 {
-    <div class="alert alert-@AlertType @(Dismissible ? "alert-dismissible" : "") mt-3">
+    <div class="alert alert-@AlertType @(Dismissible ? "alert-dismissible" : "") mt-3" role="alert">
         @Message
         @if (Dismissible)
         {
-            <button type="button" class="btn-close" @onclick="OnDismiss"></button>
+            <button type="button" class="btn-close" @onclick="OnDismiss" aria-label="@DismissLabel"></button>
         }
     </div>
 }
@@ -16,4 +16,5 @@
     [Parameter] public string AlertType { get; set; } = "info";
     [Parameter] public EventCallback OnDismiss { get; set; }
     [Parameter] public bool Dismissible { get; set; } = true;
+    [Parameter] public string DismissLabel { get; set; } = "Close";
 }

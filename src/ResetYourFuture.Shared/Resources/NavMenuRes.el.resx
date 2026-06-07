@@ -174,4 +174,7 @@
   <data name="Testimonials" xml:space="preserve">
     <value>Ευχαριστημένοι Χρήστες</value>
   </data>
+  <data name="LanguageSelectorLabel" xml:space="preserve">
+    <value>Επιλογή γλώσσας</value>
+  </data>
 </root>

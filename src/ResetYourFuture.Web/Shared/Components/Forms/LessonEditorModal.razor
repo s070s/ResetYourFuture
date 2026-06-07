@@ -11,20 +11,20 @@
         }
         <div class="row">
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EN)</label>
-                <input class="form-control" @bind="_titleEn" />
+                <label class="form-label" for="lesson-title-en">@AdminRes.FieldTitle (EN)</label>
+                <input id="lesson-title-en" class="form-control" @bind="_titleEn" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.FieldTitle (EL)</label>
-                <input class="form-control" @bind="_titleEl" />
+                <label class="form-label" for="lesson-title-el">@AdminRes.FieldTitle (EL)</label>
+                <input id="lesson-title-el" class="form-control" @bind="_titleEl" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.SortOrder</label>
-                <input type="number" class="form-control" @bind="_sortOrder" />
+                <label class="form-label" for="lesson-sort">@AdminRes.SortOrder</label>
+                <input id="lesson-sort" type="number" class="form-control" @bind="_sortOrder" />
             </div>
             <div class="col-md-3 mb-3">
-                <label class="form-label">@AdminRes.DurationMinutes</label>
-                <input type="number" class="form-control" @bind="_duration" />
+                <label class="form-label" for="lesson-duration">@AdminRes.DurationMinutes</label>
+                <input id="lesson-duration" type="number" class="form-control" @bind="_duration" />
             </div>
         </div>
 
@@ -39,23 +39,23 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">@AdminRes.VideoUrlLabel</label>
-            <input class="form-control" @bind="_videoUrl" placeholder="https://www.youtube.com/embed/..." />
+            <label class="form-label" for="lesson-video-url">@AdminRes.VideoUrlLabel</label>
+            <input id="lesson-video-url" class="form-control" @bind="_videoUrl" placeholder="https://www.youtube.com/embed/..." />
             <small class="text-light-muted">@AdminRes.VideoUrlHint</small>
         </div>
 
         <div class="row">
             <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadPdf</label>
-                <InputFile class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
+                <label class="form-label" for="lesson-pdf">@AdminRes.UploadPdf</label>
+                <InputFile id="lesson-pdf" class="form-control" OnChange="OnPdfSelected" accept=".pdf" />
                 @if (!string.IsNullOrEmpty(_existingPdfPath))
                 {
                     <small class="text-success">@AdminRes.Current @_existingPdfPath</small>
                 }
             </div>
             <div class="col-md-6 mb-3">
-                <label class="form-label">@AdminRes.UploadVideo</label>
-                <InputFile class="form-control" OnChange="OnVideoSelected" accept="video/*" />
+                <label class="form-label" for="lesson-video">@AdminRes.UploadVideo</label>
+                <InputFile id="lesson-video" class="form-control" OnChange="OnVideoSelected" accept="video/*" />
                 @if (!string.IsNullOrEmpty(_existingVideoPath))
                 {
                     <small class="text-success">@AdminRes.Current @_existingVideoPath</small>

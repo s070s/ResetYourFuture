@@ -5,6 +5,7 @@
            OnClose="OnClose">
     <Body>
         <input type="text" class="form-control mb-3" placeholder="@ChatRes.SearchUsers"
+               aria-label="@ChatRes.SearchUsers"
                @bind="_searchTerm" @bind:event="oninput"
                @onkeydown="HandleSearchKeyDown" />
 
@@ -27,9 +28,11 @@
             <div class="user-picker-list">
                 @foreach ( var user in _availableUsers )
                 {
-                    <div class="user-picker-item" @onclick="() => PickUser( user )"
+                    <div class="user-picker-item" role="button" tabindex="0"
+                         @onclick="() => PickUser( user )"
+                         @onkeydown="@(async e => { if (e.IsActivationKey()) await PickUser( user ); })"
                          @key="user.Id">
-                        <span class="bi bi-person-circle me-2"></span>
+                        <span class="bi bi-person-circle me-2" aria-hidden="true"></span>
                         <span class="user-picker-name">@user.FullName</span>
                         <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
                     </div>

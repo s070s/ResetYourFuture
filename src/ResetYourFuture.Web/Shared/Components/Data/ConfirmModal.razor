@@ -3,13 +3,15 @@
 @if (IsVisible)
 {
     <div class="modal-backdrop fade show"></div>
-    <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal fade show d-block" tabindex="-1"
+         role="dialog" aria-modal="true" aria-labelledby="@_titleId"
+         @ref="_dialogRef" @onkeydown="HandleKeyDown">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@Title</h5>
+                    <h5 class="modal-title" id="@_titleId">@Title</h5>
                     <button type="button" class="btn-close" @onclick="OnCancel"
-                            disabled="@IsBusy"></button>
+                            disabled="@IsBusy" aria-label="@CancelLabel"></button>
                 </div>
                 <div class="modal-body">
                     @if (BodyContent is not null)
@@ -49,4 +51,29 @@
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
+
+    private ElementReference _dialogRef;
+    private bool _wasVisible;
+    private readonly string _titleId = "confirm-modal-" + Guid.NewGuid().ToString("N");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Move focus into the dialog when it opens so Escape works and focus
+        // does not remain behind the backdrop (WCAG 2.4.3).
+        if (IsVisible && !_wasVisible)
+        {
+            _wasVisible = true;
+            try { await _dialogRef.FocusAsync(); } catch { /* element gone / circuit closed */ }
+        }
+        else if (!IsVisible && _wasVisible)
+        {
+            _wasVisible = false;
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Escape" && !IsBusy)
+            await OnCancel.InvokeAsync();
+    }
 }

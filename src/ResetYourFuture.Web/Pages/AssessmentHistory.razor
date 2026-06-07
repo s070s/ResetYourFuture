@@ -1,7 +1,7 @@
 @page "/assessments/mine"
 @attribute [Authorize(Roles = "Student")]
 
-<h3>@AssessmentRes.HistoryTitle</h3>
+<h1 class="h3">@AssessmentRes.HistoryTitle</h1>
 
 @if (submissions == null)
 {
@@ -31,7 +31,7 @@ else
     }
 
     <h4>@AssessmentRes.AllSubmissions</h4>
-    <VirtualizedTable Items="_sortedSubmissions" TItem="AssessmentSubmissionDto">
+    <ScrollableTable Items="_sortedSubmissions" TItem="AssessmentSubmissionDto">
         <HeaderRow>
             <tr>
                 <th>@AssessmentRes.AssessmentHeader</th>
@@ -48,7 +48,7 @@ else
                 </td>
             </tr>
         </RowTemplate>
-    </VirtualizedTable>
+    </ScrollableTable>
 }
 
 <FormModal IsVisible="@(selectedSubmission != null)"

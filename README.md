@@ -54,6 +54,8 @@ dotnet run --project src/ResetYourFuture.Web
 | API docs | OpenAPI (`Microsoft.AspNetCore.OpenApi`) + Swagger UI — `/swagger` (Development only) |
 | PDF | QuestPDF 2026.2.4 |
 | Localization | English + Greek (`.resx`) |
+| Testing | xUnit + Shouldly + NSubstitute · EF Core InMemory/SQLite · `WebApplicationFactory` |
+| CI | GitHub Actions (`.github/workflows/tests.yml`) |
 | Logging | Custom daily file logger |
 | Email | `StubEmailService` (dev only) — logs to file; a real provider must be registered for production |
 | Security | HSTS · `X-Content-Type-Options` · `X-Frame-Options` · `Referrer-Policy` · `Permissions-Policy` |
@@ -64,13 +66,30 @@ dotnet run --project src/ResetYourFuture.Web
 
 ```
 ResetYourFuture.sln
-└── src/
-    ├── ResetYourFuture.Domain/          Entities, enums, value objects — no framework dependencies
-    ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services
-    ├── ResetYourFuture.Infrastructure/  EF Core DbContext, migrations, service implementations
-    ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
-    └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
+├── src/
+│   ├── ResetYourFuture.Domain/          Entities, enums, value objects — no framework dependencies
+│   ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services
+│   ├── ResetYourFuture.Infrastructure/  EF Core DbContext, migrations, service implementations
+│   ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
+│   └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
+└── tests/                               Unit, integration, and shared test-support projects
 ```
+
+---
+
+## Quality & Tests
+
+Run the full suite locally:
+
+```bash
+dotnet test ResetYourFuture.sln
+```
+
+The test projects mirror the application layers under `tests/`: `Domain.Tests`, `Application.Tests`, `Infrastructure.Tests`, and `Web.Tests`, plus `ResetYourFuture.TestSupport` for shared fixtures. The suite uses free/permissive test dependencies only: xUnit, Shouldly, NSubstitute, EF Core InMemory/SQLite, and `Microsoft.AspNetCore.Mvc.Testing`.
+
+Web integration tests boot the real ASP.NET Core pipeline through `WebApplicationFactory<Program>`. The test host supplies dummy JWT/admin settings, runs in Development, swaps SQL Server for InMemory, and uses SQLite only for provider behaviors InMemory cannot execute, such as `EF.Functions.Like` or `ExecuteUpdateAsync`.
+
+GitHub Actions runs restore, Release build, and `dotnet test` on every push and pull request, then uploads TRX results from `TestResults/*.trx`. There is no coverage gate or coverage artifact yet; the definition of done is a green `dotnet test` locally and in CI.
 
 ---
 
@@ -154,7 +173,7 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
 | `GET` | `api/certificates/my` | List current user's certificates | Yes |
-| `POST` | `api/certificates/issue/{courseId}` | Issue certificate for completed course | Yes |
+| `POST` | `api/certificates/issue/{courseId}` | Issue certificate for completed course (certificate-enabled plan required) | Yes |
 | `GET` | `api/certificates/{certificateId}/download` | Download certificate PDF | Yes |
 | `GET` | `api/certificates/verify/{verificationId}` | Public certificate verification | No |
 

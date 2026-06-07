@@ -61,11 +61,56 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter your email address and we&apos;ll send you a password reset link..
+        /// </summary>
+        public static string ForgotPasswordInstructions {
+            get {
+                return ResourceManager.GetString("ForgotPasswordInstructions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forgot Password.
+        /// </summary>
+        public static string ForgotPasswordTitle {
+            get {
+                return ResourceManager.GetString("ForgotPasswordTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Already have an account?.
+        /// </summary>
+        public static string Label_AlreadyHaveAccount {
+            get {
+                return ResourceManager.GetString("Label_AlreadyHaveAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Confirm Email.
         /// </summary>
         public static string Label_ConfirmEmail {
             get {
                 return ResourceManager.GetString("Label_ConfirmEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm Password.
+        /// </summary>
+        public static string Label_ConfirmPassword {
+            get {
+                return ResourceManager.GetString("Label_ConfirmPassword", resourceCulture);
             }
         }
         
@@ -79,11 +124,38 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Dev Mode:.
+        /// </summary>
+        public static string Label_DevMode {
+            get {
+                return ResourceManager.GetString("Label_DevMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dev: Reset Password.
+        /// </summary>
+        public static string Label_DevResetPassword {
+            get {
+                return ResourceManager.GetString("Label_DevResetPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Forgot Password?.
         /// </summary>
         public static string Label_ForgotPassword {
             get {
                 return ResourceManager.GetString("Label_ForgotPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I consent to the processing of my personal data (required)..
+        /// </summary>
+        public static string Label_GdprConsent {
+            get {
+                return ResourceManager.GetString("Label_GdprConsent", resourceCulture);
             }
         }
         
@@ -151,6 +223,24 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New password.
+        /// </summary>
+        public static string Label_NewPassword {
+            get {
+                return ResourceManager.GetString("Label_NewPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Don&apos;t have an account?.
+        /// </summary>
+        public static string Label_NoAccount {
+            get {
+                return ResourceManager.GetString("Label_NoAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Password.
         /// </summary>
         public static string Label_Password {
@@ -169,6 +259,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Registering....
+        /// </summary>
+        public static string Label_Registering {
+            get {
+                return ResourceManager.GetString("Label_Registering", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remember Me.
         /// </summary>
         public static string Label_RememberMe {
@@ -178,59 +277,14 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Forgot Password.
-        /// </summary>
-        public static string ForgotPasswordTitle {
-            get {
-                return ResourceManager.GetString("ForgotPasswordTitle", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Enter your email address and we'll send you a password reset link.
-        /// </summary>
-        public static string ForgotPasswordInstructions {
-            get {
-                return ResourceManager.GetString("ForgotPasswordInstructions", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Dev Mode:.
-        /// </summary>
-        public static string Label_DevMode {
-            get {
-                return ResourceManager.GetString("Label_DevMode", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to New password.
-        /// </summary>
-        public static string Label_NewPassword {
-            get {
-                return ResourceManager.GetString("Label_NewPassword", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Dev: Reset Password.
-        /// </summary>
-        public static string Label_DevResetPassword {
-            get {
-                return ResourceManager.GetString("Label_DevResetPassword", resourceCulture);
-            }
-        }
-
-        /// <summary>
-        ///   Looks up a localized string similar to Sending...
+        ///   Looks up a localized string similar to Sending....
         /// </summary>
         public static string Label_Sending {
             get {
                 return ResourceManager.GetString("Label_Sending", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Send Reset Link.
         /// </summary>
@@ -239,49 +293,94 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Label_SendResetLink", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Don't have an account?
+        ///   Looks up a localized string similar to You are not authorized to view this page..
         /// </summary>
-        public static string Label_NoAccount {
+        public static string NotAuthorizedMessage {
             get {
-                return ResourceManager.GetString("Label_NoAccount", resourceCulture);
+                return ResourceManager.GetString("NotAuthorizedMessage", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Confirm Password.
+        ///   Looks up a localized string similar to Newer.
         /// </summary>
-        public static string Label_ConfirmPassword {
+        public static string PaginationNewer {
             get {
-                return ResourceManager.GetString("Label_ConfirmPassword", resourceCulture);
+                return ResourceManager.GetString("PaginationNewer", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to I consent to the processing of my personal data (required).
+        ///   Looks up a localized string similar to Next.
         /// </summary>
-        public static string Label_GdprConsent {
+        public static string PaginationNext {
             get {
-                return ResourceManager.GetString("Label_GdprConsent", resourceCulture);
+                return ResourceManager.GetString("PaginationNext", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Registering...
+        ///   Looks up a localized string similar to Older.
         /// </summary>
-        public static string Label_Registering {
+        public static string PaginationOlder {
             get {
-                return ResourceManager.GetString("Label_Registering", resourceCulture);
+                return ResourceManager.GetString("PaginationOlder", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to Already have an account?
+        ///   Looks up a localized string similar to Page {0} of {1}.
         /// </summary>
-        public static string Label_AlreadyHaveAccount {
+        public static string PaginationPageOfFormat {
             get {
-                return ResourceManager.GetString("Label_AlreadyHaveAccount", resourceCulture);
+                return ResourceManager.GetString("PaginationPageOfFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Prev.
+        /// </summary>
+        public static string PaginationPrev {
+            get {
+                return ResourceManager.GetString("PaginationPrev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rows:.
+        /// </summary>
+        public static string PaginationRows {
+            get {
+                return ResourceManager.GetString("PaginationRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Showing {0}–{1} of {2} {3}.
+        /// </summary>
+        public static string PaginationShowingFormat {
+            get {
+                return ResourceManager.GetString("PaginationShowingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show or hide password.
+        /// </summary>
+        public static string ShowHidePassword {
+            get {
+                return ResourceManager.GetString("ShowHidePassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Skip to main content.
+        /// </summary>
+        public static string SkipToContent {
+            get {
+                return ResourceManager.GetString("SkipToContent", resourceCulture);
             }
         }
     }

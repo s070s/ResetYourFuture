@@ -142,11 +142,11 @@
 
                 <div class="pagination-toolbar-admin">
                     <small class="text-light-muted">
-                        Showing @((_overview.Transactions.Page - 1) * _overview.Transactions.PageSize + 1)–@(Math.Min(_overview.Transactions.Page * _overview.Transactions.PageSize, _overview.Transactions.TotalCount)) of @_overview.Transactions.TotalCount transactions
+                        @string.Format(GlobalRes.PaginationShowingFormat, (_overview.Transactions.Page - 1) * _overview.Transactions.PageSize + 1, Math.Min(_overview.Transactions.Page * _overview.Transactions.PageSize, _overview.Transactions.TotalCount), _overview.Transactions.TotalCount, BillingRes.ItemLabelTransactions)
                     </small>
                     <div class="pagination-controls">
-                        <label class="form-label mb-0 text-light-muted small">Rows:</label>
-                        <select class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
+                        <label class="form-label mb-0 text-light-muted small" for="billing-page-size">@GlobalRes.PaginationRows</label>
+                        <select id="billing-page-size" class="form-select form-select-sm" style="width:auto" value="@_pageSize" @onchange="OnPageSizeChanged">
                             @foreach (var opt in PageSizeOptions)
                             {
                                 <option value="@opt">@opt</option>
@@ -154,11 +154,11 @@
                         </select>
                         <button class="btn btn-sm btn-outline-secondary"
                                 @onclick="() => GoToPage(_overview.Transactions.Page - 1)"
-                                disabled="@(!_overview.Transactions.HasPreviousPage)">‹ Prev</button>
-                        <span class="small">Page @_overview.Transactions.Page of @_overview.Transactions.TotalPages</span>
+                                disabled="@(!_overview.Transactions.HasPreviousPage)">‹ @GlobalRes.PaginationPrev</button>
+                        <span class="small">@string.Format(GlobalRes.PaginationPageOfFormat, _overview.Transactions.Page, _overview.Transactions.TotalPages)</span>
                         <button class="btn btn-sm btn-outline-secondary"
                                 @onclick="() => GoToPage(_overview.Transactions.Page + 1)"
-                                disabled="@(!_overview.Transactions.HasNextPage)">Next ›</button>
+                                disabled="@(!_overview.Transactions.HasNextPage)">@GlobalRes.PaginationNext ›</button>
                     </div>
                 </div>
             }

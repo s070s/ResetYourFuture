@@ -230,5 +230,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Testimonials", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Select language.
+        /// </summary>
+        public static string LanguageSelectorLabel {
+            get {
+                return ResourceManager.GetString("LanguageSelectorLabel", resourceCulture);
+            }
+        }
     }
 }
