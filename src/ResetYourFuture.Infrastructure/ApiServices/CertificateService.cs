@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -132,7 +133,9 @@ public class CertificateService : ICertificateService
 
     private async Task<string> GeneratePdfAsync( Certificate cert , CancellationToken cancellationToken )
     {
-        var pdfBytes = BuildDocument( cert );
+        // Render the certificate in the culture active for the current request
+        // (set by UseRequestLocalization). Defaults to English outside a localized request.
+        var pdfBytes = BuildDocument( cert , CultureInfo.CurrentUICulture );
 
         using var stream = new MemoryStream( pdfBytes );
         return await _storage.SaveFileAsync(
@@ -142,8 +145,21 @@ public class CertificateService : ICertificateService
             cancellationToken: cancellationToken );
     }
 
-    private static byte[] BuildDocument( Certificate cert )
+    /// <summary>
+    /// Selects the course title to print for the given culture.
+    /// Greek cultures (el) get the Greek title when one exists; every other culture
+    /// gets the English title. Fixes the prior behaviour that always preferred Greek.
+    /// </summary>
+    public static string ResolveCourseTitle( string titleEn , string? titleEl , CultureInfo culture )
     {
+        var isGreek = culture.TwoLetterISOLanguageName.Equals( "el" , StringComparison.OrdinalIgnoreCase );
+        return isGreek && !string.IsNullOrWhiteSpace( titleEl ) ? titleEl : titleEn;
+    }
+
+    private static byte[] BuildDocument( Certificate cert , CultureInfo culture )
+    {
+        var courseTitle = ResolveCourseTitle( cert.CourseTitleEn , cert.CourseTitleEl , culture );
+
         return Document.Create( container =>
         {
             container.Page( page =>
@@ -192,9 +208,9 @@ public class CertificateService : ICertificateService
                         .FontSize( 13 )
                         .FontColor( "#777777" );
 
-                    // Course title — prefer localised Greek title when available
+                    // Course title — localised for the issuing culture (English by default)
                     col.Item().AlignCenter()
-                        .Text( cert.CourseTitleEl ?? cert.CourseTitleEn )
+                        .Text( courseTitle )
                         .FontSize( 20 )
                         .Bold()
                         .FontColor( "#1e3a5f" );

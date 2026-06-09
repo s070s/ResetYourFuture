@@ -71,6 +71,11 @@ public class MediaController : ControllerBase
         Response.Headers.CacheControl = "public, max-age=86400";
         // Prevent MIME-sniffing attacks and force inline rendering (not download)
         Response.Headers[ "X-Content-Type-Options" ] = "nosniff";
+        // Neutralise script-carrying uploads (e.g. SVG). The `sandbox` directive runs the
+        // response as a sandboxed document with scripts disabled when navigated directly,
+        // while still allowing display via <img>. `default-src 'none'` blocks any outbound
+        // fetch the file might attempt.
+        Response.Headers[ "Content-Security-Policy" ] = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
         var fileName = Path.GetFileName( filePath );
         Response.Headers[ "Content-Disposition" ] = $"inline; filename=\"{fileName}\"";
 

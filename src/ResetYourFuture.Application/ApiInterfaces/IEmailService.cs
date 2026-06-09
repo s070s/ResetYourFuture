@@ -2,6 +2,10 @@ namespace ResetYourFuture.Web.ApiInterfaces;
 
 /// <summary>
 /// Abstraction for sending transactional emails.
+/// NOTE
+/// Only confirmation and password-reset messages exist today.
+/// A production build would likely add welcome, payment-receipt, subscription-change, and
+/// course-completion notifications here.
 /// </summary>
 public interface IEmailService
 {
@@ -11,13 +15,13 @@ public interface IEmailService
     /// <param name="email">User's email address</param>
     /// <param name="confirmationLink">Email confirmation URL</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task SendEmailConfirmationAsync(string email, string confirmationLink, CancellationToken cancellationToken = default);
-    
+    Task SendEmailConfirmationAsync( string email , string confirmationLink , CancellationToken cancellationToken = default );
+
     /// <summary>
     /// Sends a password reset link to a user.
     /// </summary>
     /// <param name="email">User's email address</param>
     /// <param name="resetLink">Password reset URL</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    Task SendPasswordResetAsync(string email, string resetLink, CancellationToken cancellationToken = default);
+    Task SendPasswordResetAsync( string email , string resetLink , CancellationToken cancellationToken = default );
 }

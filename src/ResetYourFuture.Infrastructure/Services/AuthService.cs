@@ -1,13 +1,11 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Identity;
 using ResetYourFuture.Web.Interfaces;
-using ResetYourFuture.Shared.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -168,6 +166,12 @@ public class AuthService : IAuthService
         await _userManager.AddToRoleAsync( user , "Student" );
         await _subscriptionService.AssignFreePlanAsync( user.Id );
 
+        // NOTE:
+        // The confirmation token is generated but deliberately NOT emailed on this Blazor
+        // (cookie) path, which has no IEmailService dependency. In Development users self-confirm
+        // via the dev-only button on the Register/Login pages (/api/auth/dev/confirm-email).
+        // For production: inject IEmailService, send the confirmation link here, and consolidate
+        // with the API path (AuthController.Register already emails) so there is a single flow.
         _ = await _userManager.GenerateEmailConfirmationTokenAsync( user );
         _logger.LogInformation( "User {Email} registered." , request.Email );
 
@@ -272,6 +276,11 @@ public class AuthService : IAuthService
         if ( user is null || !await _userManager.IsEmailConfirmedAsync( user ) )
             return new AuthResponseDto { Success = true , Message = "If the email exists, a reset link has been sent." };
 
+        // NOTE:
+        // The reset token is generated but NOT emailed here, and there is no /reset-password
+        // Blazor page for a link to target. In Development users reset via the dev-only button
+        // on the ForgotPassword page (/api/auth/dev/reset-password). For production: send the
+        // reset email here and add a /reset-password page.
         _ = await _userManager.GeneratePasswordResetTokenAsync( user );
         _logger.LogInformation( "Password reset requested for {Email}." , request.Email );
 

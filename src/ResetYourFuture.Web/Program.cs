@@ -33,9 +33,11 @@ static string? FindEnvFile( string start )
     for ( var i = 0; i < 5; i++ )
     {
         var candidate = Path.Combine( dir , ".env" );
-        if ( File.Exists( candidate ) ) return candidate;
+        if ( File.Exists( candidate ) )
+            return candidate;
         var parent = Directory.GetParent( dir )?.FullName;
-        if ( parent is null || parent == dir ) break;
+        if ( parent is null || parent == dir )
+            break;
         dir = parent;
     }
     return null;
@@ -46,9 +48,11 @@ if ( envFilePath is not null )
     foreach ( var line in File.ReadAllLines( envFilePath ) )
     {
         var trimmed = line.Trim();
-        if ( string.IsNullOrEmpty( trimmed ) || trimmed.StartsWith( '#' ) ) continue;
+        if ( string.IsNullOrEmpty( trimmed ) || trimmed.StartsWith( '#' ) )
+            continue;
         var eq = trimmed.IndexOf( '=' );
-        if ( eq < 1 ) continue;
+        if ( eq < 1 )
+            continue;
         Environment.SetEnvironmentVariable(
             trimmed [ ..eq ].Trim() ,
             trimmed [ ( eq + 1 ).. ].Trim() );
@@ -132,6 +136,33 @@ builder.Services.AddAuthentication( options =>
     options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
         ? CookieSecurePolicy.SameAsRequest
         : CookieSecurePolicy.Always;
+
+    // Re-validate the cookie principal on every request. Without this, a custom cookie
+    // scheme bypasses Identity's SecurityStampValidator, so disabling a user or rotating
+    // their security stamp (password reset / forced logout) would not end an active
+    // session until the 7-day MaxAge. Reject + sign out when the user is gone, disabled,
+    // or the security stamp no longer matches the one embedded in the cookie at sign-in.
+    options.Events.OnValidatePrincipal = async context =>
+    {
+        var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
+        if ( string.IsNullOrEmpty( userId ) )
+        {
+            context.RejectPrincipal();
+            return;
+        }
+
+        var userManager = context.HttpContext.RequestServices
+            .GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByIdAsync( userId );
+        var cookieStamp = context.Principal?.FindFirstValue( "securityStamp" );
+
+        if ( user is null || !user.IsEnabled || user.SecurityStamp != cookieStamp )
+        {
+            context.RejectPrincipal();
+            await context.HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme );
+        }
+    };
 } )
 .AddJwtBearer( JwtBearerDefaults.AuthenticationScheme , options =>
 {
@@ -165,7 +196,8 @@ builder.Services.AddAuthentication( options =>
         OnTokenValidated = async context =>
         {
             var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
-            if ( userId is null ) return;
+            if ( userId is null )
+                return;
 
             var userManager = context.HttpContext.RequestServices
                 .GetRequiredService<UserManager<ApplicationUser>>();
@@ -205,13 +237,19 @@ builder.Services.AddSingleton<Ganss.Xss.IHtmlSanitizer>( _ => new Ganss.Xss.Html
 // --- API Services ---
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
+// NOTE
+// StubEmailService only LOGS emails; it never delivers them. The Blazor cookie auth flow
+// (AuthService.RegisterAsync / ForgotPasswordAsync) also does not call IEmailService at all,
+// so no confirmation/reset email is sent in Development — users self-confirm via the dev-only
+// buttons on the Register/Login/ForgotPassword pages. Before production: implement a real
+// provider (SendGrid/SMTP), register it here, and wire AuthService to send through it.
 if ( builder.Environment.IsDevelopment() )
 {
     builder.Services.AddScoped<IEmailService , StubEmailService>();
 }
 else
 {
-    // In production, wire up a real email provider (SendGrid, SMTP, etc.).
+    // Fail fast: a real email provider must be registered for non-Development environments.
     // Registering StubEmailService in prod would silently swallow all emails.
     throw new InvalidOperationException(
         "No production IEmailService registered. " +
@@ -232,6 +270,13 @@ builder.Services.AddScoped<IChatQueryService , ChatQueryService>();
 builder.Services.AddTransient<SsrApiHandler>();
 
 // --- Consumer registrations (server-side HttpClient calling the same host) ---
+// NOTE
+// The Blazor server renders pages by
+// calling its OWN API over HTTP via these typed consumers. The localhost:7090 default is
+// correct for Development only. In production, SelfBaseUrl MUST point at the real bound base
+// address AND the loopback TLS certificate must be trusted by this in-process HttpClient —
+// otherwise every API-backed page silently renders empty (ApiClientBase swallows non-success
+// responses). Consider calling the application services in-process instead of over HTTP.
 var selfBase = config [ "SelfBaseUrl" ] ?? "https://localhost:7090";
 
 // Named client for dev-only endpoints (no auth handler needed)
@@ -298,6 +343,14 @@ builder.Services.AddRateLimiter( options =>
 } );
 
 builder.Services.AddHttpContextAccessor();
+
+// NOTE
+// Keys are persisted to the local
+// filesystem, fine for single-instance Development. On a multi-instance or container/ephemeral
+// host this breaks sign-in — each instance has its own key ring (so a cookie or auth-completion
+// ticket issued by one instance is rejected by another) and keys are lost on restart. For
+// production, persist to shared storage (Azure Blob / Redis / network share) and protect with a
+// certificate or Key Vault.
 var dpBuilder = builder.Services.AddDataProtection()
     .PersistKeysToFileSystem( new DirectoryInfo(
         Path.Combine( builder.Environment.ContentRootPath , "DataProtection-Keys" ) ) )
@@ -468,10 +521,10 @@ if ( !app.Environment.IsDevelopment() )
 // Security response headers — added before any content is served.
 app.Use( async ( ctx , next ) =>
 {
-    ctx.Response.Headers[ "X-Content-Type-Options" ] = "nosniff";
-    ctx.Response.Headers[ "Referrer-Policy" ] = "strict-origin-when-cross-origin";
-    ctx.Response.Headers[ "X-Frame-Options" ] = "DENY";
-    ctx.Response.Headers[ "Permissions-Policy" ] = "camera=(), microphone=(), geolocation=()";
+    ctx.Response.Headers [ "X-Content-Type-Options" ] = "nosniff";
+    ctx.Response.Headers [ "Referrer-Policy" ] = "strict-origin-when-cross-origin";
+    ctx.Response.Headers [ "X-Frame-Options" ] = "DENY";
+    ctx.Response.Headers [ "Permissions-Policy" ] = "camera=(), microphone=(), geolocation=()";
     await next();
 } );
 

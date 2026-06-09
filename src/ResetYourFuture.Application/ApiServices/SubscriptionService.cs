@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
 using System.Text.Json;
 
 namespace ResetYourFuture.Web.ApiServices;
@@ -137,6 +137,11 @@ public class SubscriptionService : ISubscriptionService
 
         var mockSessionId = $"cs_test_{Guid.NewGuid():N}";
 
+        // NOTE
+        // No real payment provider is integrated.
+        // With MockEnabled off (production default) checkout cannot proceed and returns
+        // "pending_payment". With MockEnabled on (Development) the code below assigns the plan
+        // immediately without any charge. Replace with real Stripe Checkout + webhook for production.
         if ( !_mockPaymentEnabled )
         {
             _logger.LogWarning(
@@ -341,8 +346,10 @@ public class SubscriptionService : ISubscriptionService
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
         string userId , int page = 1 , int pageSize = 10 , CancellationToken cancellationToken = default )
     {
-        if ( page < 1 ) page = 1;
-        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+        if ( page < 1 )
+            page = 1;
+        if ( pageSize < 1 || pageSize > 100 )
+            pageSize = 10;
 
         var status = await GetUserStatusAsync( userId , cancellationToken );
 

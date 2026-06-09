@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Web.ApiInterfaces;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -76,8 +76,14 @@ public class SubscriptionController : ControllerBase
         if ( string.IsNullOrEmpty( session.SessionId ) )
             return BadRequest( session );
 
+        // NOTE: when Payment:MockEnabled is off
+        // (the production default), no real payment provider is wired, so checkout cannot complete
+        // and returns 503. In Development MockEnabled=true assigns the plan instantly, no charge.
         if ( session.Status == "pending_payment" )
-            return StatusCode( 503 , new { message = "Payment processing is not yet available. Please check back later." } );
+            return StatusCode( 503 , new
+            {
+                message = "Payment processing is not yet available. Please check back later."
+            } );
 
         _logger.LogInformation(
             "Checkout session {SessionId} created for user {UserId}" ,
@@ -112,13 +118,19 @@ public class SubscriptionController : ControllerBase
         if ( string.IsNullOrEmpty( signatureHeader ) )
         {
             _logger.LogWarning( "Stripe webhook received without Stripe-Signature header." );
-            return BadRequest( new { error = "Missing Stripe-Signature header." } );
+            return BadRequest( new
+            {
+                error = "Missing Stripe-Signature header."
+            } );
         }
 
         if ( !VerifyStripeSignature( rawBody , signatureHeader , webhookSecret , out var timestamp ) )
         {
             _logger.LogWarning( "Stripe webhook signature verification failed." );
-            return BadRequest( new { error = "Invalid webhook signature." } );
+            return BadRequest( new
+            {
+                error = "Invalid webhook signature."
+            } );
         }
 
         // Reject replayed events older than 5 minutes
@@ -126,10 +138,15 @@ public class SubscriptionController : ControllerBase
         if ( eventAge.TotalMinutes > 5 )
         {
             _logger.LogWarning( "Stripe webhook event is too old ({Age:F0} min) — possible replay attack." , eventAge.TotalMinutes );
-            return BadRequest( new { error = "Webhook event timestamp is too old." } );
+            return BadRequest( new
+            {
+                error = "Webhook event timestamp is too old."
+            } );
         }
 
-        // TODO: deserialise the event and dispatch:
+        // NOTE: signature verification is implemented,
+        // but event dispatch is not. Until it is, a real Stripe payment would be verified here and
+        // then NOT activate any plan. Implement before going live:
         //   checkout.session.completed        → AssignPlanAsync
         //   customer.subscription.updated     → update tier
         //   customer.subscription.deleted     → revert to Free
@@ -150,9 +167,12 @@ public class SubscriptionController : ControllerBase
         foreach ( var part in signatureHeader.Split( ',' ) )
         {
             var kv = part.Split( '=' , 2 );
-            if ( kv.Length != 2 ) continue;
-            if ( kv [ 0 ] == "t" ) timestampStr = kv [ 1 ];
-            else if ( kv [ 0 ] == "v1" ) v1Signatures.Add( kv [ 1 ] );
+            if ( kv.Length != 2 )
+                continue;
+            if ( kv [ 0 ] == "t" )
+                timestampStr = kv [ 1 ];
+            else if ( kv [ 0 ] == "v1" )
+                v1Signatures.Add( kv [ 1 ] );
         }
 
         if ( timestampStr is null || !long.TryParse( timestampStr , out timestamp ) || v1Signatures.Count == 0 )
@@ -192,8 +212,8 @@ public class SubscriptionController : ControllerBase
     [HttpGet( "billing" )]
     [Authorize]
     public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
+        [FromQuery] int page = 1 ,
+        [FromQuery] int pageSize = 10 ,
         CancellationToken cancellationToken = default )
     {
         var overview = await _subscriptionService.GetBillingOverviewAsync( UserId , page , pageSize , cancellationToken );

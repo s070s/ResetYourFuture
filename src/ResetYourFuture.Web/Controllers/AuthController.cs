@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Web.ApiInterfaces;
 using ResetYourFuture.Web.Data;
 using ResetYourFuture.Web.Domain.Entities;
 using ResetYourFuture.Web.Identity;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -116,7 +116,10 @@ public class AuthController : ControllerBase
             token = confirmToken
         } , Request.Scheme );
 
-        // TODO: Send email with confirmUrl. For now, return in response (dev only).
+        // NOTE: confirmUrl resolves to
+        // the JSON API action below (/api/auth/confirm-email), not a user-facing Blazor page,
+        // and in Development StubEmailService only writes it to the log. For production, add a
+        // /confirm-email page and deliver this link through a real email provider.
         _logger.LogInformation( "User {Email} registered. Confirmation email queued." , request.Email );
         await _emailService.SendEmailConfirmationAsync( user.Email! , confirmUrl! );
 
@@ -381,6 +384,11 @@ public class AuthController : ControllerBase
             [ .. roles ] ) );
     }
 
+    // NOTE: these dev-only endpoints back
+    // the self-confirm / self-reset buttons on the Register/Login/ForgotPassword pages, which is
+    // why those flows complete in Development despite no email being delivered. They are compiled
+    // out of Release builds (#if DEBUG) and additionally gated by IsDevelopment() at runtime, so
+    // they provide no fallback in production — the real email flows (AUTH-1/AUTH-2) must be wired.
 #if DEBUG
     /// <summary>
     /// Dev-only: Confirm email without token (development mode only).

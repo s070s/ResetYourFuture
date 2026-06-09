@@ -136,6 +136,20 @@ public class CertificateServiceTests
             Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<long?>(), Arg.Any<CancellationToken>() );
     }
 
+    [Theory]
+    [InlineData( "en-GB", "C# Basics", "Βασικά C#", "C# Basics" )]   // English culture → English title
+    [InlineData( "el-GR", "C# Basics", "Βασικά C#", "Βασικά C#" )]   // Greek culture → Greek title
+    [InlineData( "el-GR", "C# Basics", null, "C# Basics" )]           // Greek culture, no Greek title → English
+    [InlineData( "en-GB", "C# Basics", null, "C# Basics" )]           // English culture, no Greek title → English
+    [InlineData( "fr-FR", "C# Basics", "Βασικά C#", "C# Basics" )]    // Other culture → English (not Greek)
+    public void ResolveCourseTitle_PicksTitleByCulture( string culture, string titleEn, string? titleEl, string expected )
+    {
+        var result = CertificateService.ResolveCourseTitle(
+            titleEn, titleEl, System.Globalization.CultureInfo.GetCultureInfo( culture ) );
+
+        result.ShouldBe( expected );
+    }
+
     [Fact]
     public async Task GetOrGenerate_NoCompletedEnrollment_Throws()
     {
