@@ -104,6 +104,7 @@ public class TokenService : ITokenService
             new("status", ((int)user.Status).ToString()),
             new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
             new("subscriptionTier", ((int)tier).ToString()),
+            new("securityStamp", user.SecurityStamp ?? string.Empty),
             new("impersonatedBy", adminId)
         };
 
