@@ -41,12 +41,16 @@ public class AuthService : IAuthService
     private readonly string? _jwtAudience;
     private readonly double _jwtExpirationMinutes;
     private readonly ITimeLimitedDataProtector _protector;
+    private readonly IDataProtector _adminCookieProtector;
 
     /// <summary>Cookie name used to store the admin's user ID during impersonation.</summary>
     public const string AdminBackupCookieName = ".RYF.AdminUserId";
 
     /// <summary>Data Protection purpose string — changing this invalidates all in-flight tokens.</summary>
     public const string ProtectorPurpose = "ResetYourFuture.AuthCompletion.v2";
+
+    /// <summary>Data Protection purpose for the admin backup cookie value. Changing this invalidates all active impersonation sessions.</summary>
+    public const string AdminBackupCookieProtectorPurpose = "ResetYourFuture.AdminBackupCookie.v1";
 
     private static readonly JwtSecurityTokenHandler TokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 
@@ -73,6 +77,8 @@ public class AuthService : IAuthService
         _protector = dataProtectionProvider
             .CreateProtector( ProtectorPurpose )
             .ToTimeLimitedDataProtector();
+        _adminCookieProtector = dataProtectionProvider
+            .CreateProtector( AdminBackupCookieProtectorPurpose );
     }
 
     private HttpContext HttpContext => _httpContextAccessor.HttpContext
@@ -214,9 +220,20 @@ public class AuthService : IAuthService
     /// </remarks>
     public async Task<string> ExitImpersonationAsync()
     {
-        var adminIdCookieValue = HttpContext.Request.Cookies [ AdminBackupCookieName ];
-        if ( string.IsNullOrEmpty( adminIdCookieValue ) )
+        var rawCookieValue = HttpContext.Request.Cookies [ AdminBackupCookieName ];
+        if ( string.IsNullOrEmpty( rawCookieValue ) )
             return "/";
+
+        string adminIdCookieValue;
+        try
+        {
+            adminIdCookieValue = _adminCookieProtector.Unprotect( rawCookieValue );
+        }
+        catch ( Exception ex )
+        {
+            _logger.LogWarning( ex , "ExitImpersonation: admin backup cookie failed integrity check — signing out." );
+            return "/auth/signout?returnUrl=%2F";
+        }
 
         var admin = await _userManager.FindByIdAsync( adminIdCookieValue );
         if ( admin is null )

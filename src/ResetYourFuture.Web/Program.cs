@@ -681,9 +681,11 @@ app.MapGet( "/auth/complete" , async (
     // --- Write / clear admin backup cookie ---------------------------------------
     if ( !string.IsNullOrEmpty( adminBackupId ) )
     {
+        var adminCookieProtector = dpProvider.CreateProtector(
+            ResetYourFuture.Web.Services.AuthService.AdminBackupCookieProtectorPurpose );
         ctx.Response.Cookies.Append(
             ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName ,
-            adminBackupId ,
+            adminCookieProtector.Protect( adminBackupId ) ,
             new CookieOptions
             {
                 HttpOnly = true ,
