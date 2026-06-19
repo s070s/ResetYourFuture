@@ -525,6 +525,21 @@ app.Use( async ( ctx , next ) =>
     ctx.Response.Headers [ "Referrer-Policy" ] = "strict-origin-when-cross-origin";
     ctx.Response.Headers [ "X-Frame-Options" ] = "DENY";
     ctx.Response.Headers [ "Permissions-Policy" ] = "camera=(), microphone=(), geolocation=()";
+    // 'unsafe-inline' is required for Blazor's circuit initialisation scripts and for the
+    // <link onload="this.media='all'"> lazy-CSS pattern used in App.razor.
+    // This still meaningfully limits XSS by blocking external-domain script/style/frame injection.
+    ctx.Response.Headers [ "Content-Security-Policy" ] =
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+        "font-src 'self' https://cdnjs.cloudflare.com data:; " +
+        "img-src 'self' data: blob:; " +
+        "media-src 'self' blob:; " +
+        "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; " +
+        "connect-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
+        "object-src 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self';";
     await next();
 } );
 
