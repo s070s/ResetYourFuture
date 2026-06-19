@@ -91,7 +91,31 @@ public class CertificateService : ICertificateService
         certificate.PdfPath = await GeneratePdfAsync( certificate , cancellationToken );
 
         _db.Certificates.Add( certificate );
-        await _db.SaveChangesAsync( cancellationToken );
+        try
+        {
+            await _db.SaveChangesAsync( cancellationToken );
+        }
+        catch ( DbUpdateException )
+        {
+            // A concurrent request won the race and inserted first (unique index on UserId+CourseId).
+            // Clean up the PDF we just wrote and return the already-committed certificate.
+            try { await _storage.DeleteFileAsync( certificate.PdfPath , cancellationToken ); }
+            catch ( Exception cleanupEx )
+            {
+                _logger.LogWarning( cleanupEx ,
+                    "Could not delete orphaned PDF {Path} after duplicate-certificate race." ,
+                    certificate.PdfPath );
+            }
+
+            var winner = await _db.Certificates
+                .AsNoTracking()
+                .FirstOrDefaultAsync( c => c.UserId == userId && c.CourseId == courseId , cancellationToken );
+
+            if ( winner is not null )
+                return winner;
+
+            throw; // Unexpected: unique violation but no row found — re-throw the original exception.
+        }
 
         _logger.LogInformation(
             "Certificate {CertificateId} issued for user {UserId} on course {CourseId}." ,
