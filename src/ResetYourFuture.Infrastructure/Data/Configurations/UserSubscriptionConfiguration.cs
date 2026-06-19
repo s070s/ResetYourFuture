@@ -34,11 +34,12 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
         // Index for expiration queries (billing/renewal)
         builder.HasIndex(us => us.ExpiresAt);
 
-        // Filtered unique index: only one active subscription per user
-        // Note: This is enforced via application logic as SQLite doesn't support filtered indexes
-        // For SQL Server, uncomment the following:
-        // builder.HasIndex(us => new { us.UserId, us.IsActive })
-        //     .HasFilter("[IsActive] = 1")
-        //     .IsUnique();
+        // Filtered unique index: only one active subscription per user (SQL Server).
+        // Test projects use SQLite which doesn't support EF Core's HasFilter syntax; the
+        // InMemory/SQLite test DbContext skips this index via a separate configuration.
+        builder.HasIndex( us => us.UserId )
+            .HasFilter( "[IsActive] = 1" )
+            .IsUnique()
+            .HasDatabaseName( "IX_UserSubscriptions_UserId_IsActive_Unique" );
     }
 }

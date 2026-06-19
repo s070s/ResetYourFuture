@@ -84,13 +84,11 @@ public partial class AvatarDropdown : IDisposable
 
     private void Close() => isOpen = false;
 
-    private void HandleFocusOut()
+    private async Task HandleFocusOut()
     {
-        _ = Task.Delay( 200 ).ContinueWith( _ =>
-        {
-            isOpen = false;
-            InvokeAsync( StateHasChanged );
-        } );
+        await Task.Delay( 200 );
+        isOpen = false;
+        StateHasChanged();
     }
 
     private async Task HandleLogout()

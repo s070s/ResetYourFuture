@@ -73,7 +73,7 @@ public class AuthService : IAuthService
         _jwtKey = config [ "Jwt:Key" ] ?? throw new InvalidOperationException( "Jwt:Key not configured" );
         _jwtIssuer = config [ "Jwt:Issuer" ];
         _jwtAudience = config [ "Jwt:Audience" ];
-        _jwtExpirationMinutes = double.Parse( config [ "Jwt:AccessTokenExpirationMinutes" ] ?? "60" );
+        _jwtExpirationMinutes = config.GetValue<double>( "Jwt:AccessTokenExpirationMinutes" , 60 );
         _protector = dataProtectionProvider
             .CreateProtector( ProtectorPurpose )
             .ToTimeLimitedDataProtector();

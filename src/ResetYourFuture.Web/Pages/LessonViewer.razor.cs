@@ -177,20 +177,24 @@ public partial class LessonViewer
         // https://www.youtube.com/watch?v=VIDEO_ID or https://youtube.com/watch?v=VIDEO_ID
         if ( url.Contains( "youtube.com/watch" , StringComparison.OrdinalIgnoreCase ) )
         {
-            var uri = new Uri( url );
-            var query = System.Web.HttpUtility.ParseQueryString( uri.Query );
-            var videoId = query [ "v" ];
-            if ( !string.IsNullOrEmpty( videoId ) )
-                return $"https://www.youtube.com/embed/{videoId}";
+            if ( Uri.TryCreate( url , UriKind.Absolute , out var uri ) )
+            {
+                var query = System.Web.HttpUtility.ParseQueryString( uri.Query );
+                var videoId = query [ "v" ];
+                if ( !string.IsNullOrEmpty( videoId ) )
+                    return $"https://www.youtube.com/embed/{videoId}";
+            }
         }
 
         // https://youtu.be/VIDEO_ID
         if ( url.Contains( "youtu.be/" , StringComparison.OrdinalIgnoreCase ) )
         {
-            var uri = new Uri( url );
-            var videoId = uri.AbsolutePath.TrimStart( '/' );
-            if ( !string.IsNullOrEmpty( videoId ) )
-                return $"https://www.youtube.com/embed/{videoId}";
+            if ( Uri.TryCreate( url , UriKind.Absolute , out var uri ) )
+            {
+                var videoId = uri.AbsolutePath.TrimStart( '/' );
+                if ( !string.IsNullOrEmpty( videoId ) )
+                    return $"https://www.youtube.com/embed/{videoId}";
+            }
         }
 
         // https://www.youtube.com/shorts/VIDEO_ID

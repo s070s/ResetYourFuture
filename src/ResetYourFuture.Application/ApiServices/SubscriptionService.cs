@@ -192,6 +192,7 @@ public class SubscriptionService : ISubscriptionService
             CreatedAt = DateTime.UtcNow
         } );
         await _db.SaveChangesAsync( cancellationToken );
+        _cache.Remove( StatusCacheKey( userId ) );
 
         return new CheckoutSessionDto(
             mockSessionId ,
@@ -241,9 +242,8 @@ public class SubscriptionService : ISubscriptionService
         // NOTE: SaveChangesAsync is intentionally NOT called here.
         // Callers are responsible for persisting — this allows them to add billing transactions
         // and commit everything atomically in a single SaveChangesAsync call.
-
-        // Evict cached status — it will be rebuilt on next GetUserStatusAsync call after the save.
-        _cache.Remove( StatusCacheKey( userId ) );
+        // Cache eviction is also the caller's responsibility (after SaveChangesAsync) so a
+        // concurrent GetUserStatusAsync cannot re-cache stale data in the window before the commit.
 
         _logger.LogInformation(
             "Staged plan assignment {PlanName} (Tier: {Tier}) for user {UserId}" ,
@@ -277,6 +277,7 @@ public class SubscriptionService : ISubscriptionService
             CreatedAt = DateTime.UtcNow
         } );
         await _db.SaveChangesAsync( cancellationToken );
+        _cache.Remove( StatusCacheKey( userId ) );
     }
 
     public async Task<CancelSubscriptionResultDto> CancelSubscriptionAsync(

@@ -41,15 +41,15 @@ public class ChatService : IChatService
         if ( _hub is not null )
             return;
 
-        // Use the circuit's cascaded principal when available (HttpContext is null in circuits).
-        var token = circuitUser is not null
-            ? await _authService.GetTokenAsync( circuitUser )
-            : await _authService.GetTokenAsync();
-
         _hub = new HubConnectionBuilder()
             .WithUrl( _hubUrl , options =>
             {
-                options.AccessTokenProvider = () => Task.FromResult<string?>( token );
+                // Mint a fresh token on every call so reconnects after the JWT expiry succeed.
+                // HttpContext is null inside Blazor Server circuits, so always use the cascaded
+                // principal when one was supplied.
+                options.AccessTokenProvider = () => circuitUser is not null
+                    ? _authService.GetTokenAsync( circuitUser )
+                    : _authService.GetTokenAsync();
             } )
             .WithAutomaticReconnect()
             .Build();

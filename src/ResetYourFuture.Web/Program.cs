@@ -546,15 +546,10 @@ app.Use( async ( ctx , next ) =>
 app.UseStaticFiles();
 app.UseRequestLocalization();
 
-// Middleware: redirect disabled users accessing Blazor pages
-app.Use( async ( context , next ) =>
-{
-    await next();
-    // JWT bearer sets UserDisabled for API requests; cookie auth re-validates on Blazor pages.
-    // If a user's account is disabled and they somehow reach a protected page,
-    // the CookieAuthenticationHandler's ValidatePrincipal should handle it.
-    // The X-User-Disabled header path is for API/SignalR consumers that still use JWT.
-} );
+// Disabled-user enforcement is handled by two mechanisms:
+// - Cookie auth: CookieAuthenticationHandler.OnValidatePrincipal re-validates on every Blazor request.
+// - JWT auth: OnTokenValidated sets context.HttpContext.Items["UserDisabled"] and fails the token;
+//             the OnChallenge handler then adds the X-User-Disabled response header.
 
 app.UseAuthentication();
 app.UseAuthorization();

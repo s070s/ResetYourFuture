@@ -129,7 +129,13 @@ public class ProfileController : ControllerBase
         var path = await _fileStorage.SaveFileAsync( stream , file.FileName , "avatars" );
 
         user.AvatarPath = path;
-        await _userManager.UpdateAsync( user );
+        var updateResult = await _userManager.UpdateAsync( user );
+        if ( !updateResult.Succeeded )
+        {
+            _logger.LogError( "Failed to persist avatar path for user {UserId}: {Errors}" ,
+                UserId , string.Join( ", " , updateResult.Errors.Select( e => e.Description ) ) );
+            return StatusCode( StatusCodes.Status500InternalServerError , "Failed to save avatar." );
+        }
 
         return Ok( new AvatarUploadResultDto( path ) );
     }

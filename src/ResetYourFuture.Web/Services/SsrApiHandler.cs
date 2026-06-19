@@ -29,7 +29,7 @@ public class SsrApiHandler : DelegatingHandler
             ?? throw new InvalidOperationException( "Jwt:Key not configured" );
         _jwtIssuer = config [ "Jwt:Issuer" ];
         _jwtAudience = config [ "Jwt:Audience" ];
-        _expirationMinutes = double.Parse( config [ "Jwt:AccessTokenExpirationMinutes" ] ?? "60" );
+        _expirationMinutes = config.GetValue<double>( "Jwt:AccessTokenExpirationMinutes" , 60 );
     }
 
     protected override Task<HttpResponseMessage> SendAsync(
