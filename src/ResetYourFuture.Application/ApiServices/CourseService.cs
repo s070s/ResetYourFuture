@@ -137,6 +137,9 @@ public class CourseService(
         var maxCourses = userStatus.Features?.MaxCourses ?? 1;
         if ( maxCourses != int.MaxValue )
         {
+            // Note: count-then-insert is a TOCTOU — two concurrent requests for *different* courses
+            // can both pass this gate and briefly exceed the limit. Fixing that requires serializable
+            // isolation; the rare over-count is accepted here as a benign soft-limit edge case.
             var enrollmentCount = await db.Enrollments.CountAsync( e => e.UserId == userId );
             if ( enrollmentCount >= maxCourses )
             {
@@ -163,7 +166,23 @@ public class CourseService(
         };
 
         db.Enrollments.Add( enrollment );
-        await db.SaveChangesAsync();
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch ( DbUpdateException )
+        {
+            // A concurrent request for the same course won the race and hit the unique
+            // (UserId, CourseId) index first. Return the already-committed enrollment.
+            var winner = await db.Enrollments
+                .AsNoTracking()
+                .FirstOrDefaultAsync( e => e.UserId == userId && e.CourseId == courseId );
+
+            if ( winner is not null )
+                return ServiceResult<EnrollmentResultDto>.Ok( new EnrollmentResultDto( true , "Already enrolled" , winner.Id ) );
+
+            throw;
+        }
 
         logger.LogInformation( "User {UserId} enrolled in course {CourseId}" , userId , courseId );
 
