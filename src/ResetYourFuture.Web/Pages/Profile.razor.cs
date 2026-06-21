@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Web.Services;
 using ResetYourFuture.Shared.DTOs;
 using ResetYourFuture.Shared.Resources;
 
@@ -14,6 +15,7 @@ public partial class Profile
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private AvatarChangedNotifier AvatarNotifier { get; set; } = default!;
 
     private ProfileDto? profile;
     private bool _isImpersonating;
@@ -84,6 +86,7 @@ public partial class Profile
             {
                 profile = await ProfileConsumer.GetProfileAsync();
                 await LoadAvatarAsync();
+                AvatarNotifier.Notify();
                 message = ProfileRes.AvatarUploadedSuccess;
             }
             else

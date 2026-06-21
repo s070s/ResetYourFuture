@@ -48,19 +48,21 @@
                                  InitiallyExpanded="false"
                                  CssClass="card mb-3">
                     <ChildContent>
-                        <div class="mb-3">
-                            <label class="form-label" for="profile-current-password">@ProfileRes.LabelCurrentPassword</label>
-                            <input id="profile-current-password" type="password" class="form-control" autocomplete="current-password" @bind="currentPassword" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="profile-new-password">@ProfileRes.LabelNewPassword</label>
-                            <input id="profile-new-password" type="password" class="form-control" autocomplete="new-password" @bind="newPassword" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="profile-confirm-password">@ProfileRes.LabelConfirmNewPassword</label>
-                            <input id="profile-confirm-password" type="password" class="form-control" autocomplete="new-password" @bind="confirmPassword" />
-                        </div>
-                        <button class="btn btn-warning" @onclick="ChangePassword" disabled="@isChangingPassword">@ProfileRes.ChangePassword</button>
+                        <form @onsubmit="ChangePassword" @onsubmit:preventDefault="true">
+                            <div class="mb-3">
+                                <label class="form-label" for="profile-current-password">@ProfileRes.LabelCurrentPassword</label>
+                                <input id="profile-current-password" type="password" class="form-control" autocomplete="current-password" @bind="currentPassword" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="profile-new-password">@ProfileRes.LabelNewPassword</label>
+                                <input id="profile-new-password" type="password" class="form-control" autocomplete="new-password" @bind="newPassword" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="profile-confirm-password">@ProfileRes.LabelConfirmNewPassword</label>
+                                <input id="profile-confirm-password" type="password" class="form-control" autocomplete="new-password" @bind="confirmPassword" />
+                            </div>
+                            <button type="submit" class="btn btn-warning" disabled="@isChangingPassword">@ProfileRes.ChangePassword</button>
+                        </form>
                     </ChildContent>
                 </FormCardSection>
 

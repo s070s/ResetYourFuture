@@ -11,7 +11,24 @@
             <ul class="navbar-nav">
 
                 <AuthorizeView>
-                        <NotAuthorized>
+                    <Authorizing>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                                <span class="bi bi-house" aria-hidden="true"></span> @NavMenuRes.Home
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="login">
+                                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> @NavMenuRes.Login
+                            </NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="register">
+                                <span class="bi bi-person-add" aria-hidden="true"></span> @NavMenuRes.Register
+                            </NavLink>
+                        </li>
+                    </Authorizing>
+                    <NotAuthorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                                 <span class="bi bi-house" aria-hidden="true"></span> @NavMenuRes.Home

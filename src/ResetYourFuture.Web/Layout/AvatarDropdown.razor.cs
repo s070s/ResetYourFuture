@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Web.Services;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Layout;
@@ -12,6 +13,7 @@ public partial class AvatarDropdown : IDisposable
     [Inject] private IAuthService AuthService { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private AvatarChangedNotifier AvatarNotifier { get; set; } = default!;
     [Inject] private ILogger<AvatarDropdown> _logger { get; set; } = default!;
 
     private bool isOpen;
@@ -21,6 +23,20 @@ public partial class AvatarDropdown : IDisposable
     protected override void OnInitialized()
     {
         AuthStateProvider.AuthenticationStateChanged += OnAuthStateChanged;
+        AvatarNotifier.AvatarChanged += HandleAvatarChanged;
+    }
+
+    private async void HandleAvatarChanged()
+    {
+        try
+        {
+            await LoadAvatarAsync();
+            await InvokeAsync( StateHasChanged );
+        }
+        catch ( Exception ex )
+        {
+            _logger.LogError( ex , "Error refreshing avatar after upload." );
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -101,5 +117,6 @@ public partial class AvatarDropdown : IDisposable
     public void Dispose()
     {
         AuthStateProvider.AuthenticationStateChanged -= OnAuthStateChanged;
+        AvatarNotifier.AvatarChanged -= HandleAvatarChanged;
     }
 }
