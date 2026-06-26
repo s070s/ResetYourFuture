@@ -24,19 +24,21 @@ public sealed class SmtpEmailService : IEmailService
 
     public Task SendEmailConfirmationAsync( string email, string confirmationLink, CancellationToken cancellationToken = default )
     {
+        var safeLink = System.Net.WebUtility.HtmlEncode( confirmationLink );
         var html = $"<p>Welcome to Reset Your Future. Please confirm your email address:</p>" +
-                   $"<p><a href=\"{confirmationLink}\">Confirm my email</a></p>" +
-                   $"<p>If the link does not work, copy this URL into your browser:<br>{confirmationLink}</p>";
+                   $"<p><a href=\"{safeLink}\">Confirm my email</a></p>" +
+                   $"<p>If the link does not work, copy this URL into your browser:<br>{safeLink}</p>";
         var text = $"Welcome to Reset Your Future. Confirm your email: {confirmationLink}";
         return SendAsync( email, "Confirm your email", html, text, cancellationToken );
     }
 
     public Task SendPasswordResetAsync( string email, string resetLink, CancellationToken cancellationToken = default )
     {
+        var safeLink = System.Net.WebUtility.HtmlEncode( resetLink );
         var html = $"<p>We received a request to reset your password.</p>" +
-                   $"<p><a href=\"{resetLink}\">Reset my password</a></p>" +
+                   $"<p><a href=\"{safeLink}\">Reset my password</a></p>" +
                    $"<p>If you did not request this, you can ignore this email. " +
-                   $"If the link does not work, copy this URL into your browser:<br>{resetLink}</p>";
+                   $"If the link does not work, copy this URL into your browser:<br>{safeLink}</p>";
         var text = $"Reset your Reset Your Future password: {resetLink}";
         return SendAsync( email, "Reset your password", html, text, cancellationToken );
     }
@@ -46,12 +48,19 @@ public sealed class SmtpEmailService : IEmailService
         var message = BuildMessage( _options, to, subject, htmlBody, textBody );
 
         using var client = new SmtpClient();
-        var socketOptions = _options.Smtp.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
-        await client.ConnectAsync( _options.Smtp.Host, _options.Smtp.Port, socketOptions, ct );
-        if ( !string.IsNullOrEmpty( _options.Smtp.Username ) )
-            await client.AuthenticateAsync( _options.Smtp.Username, _options.Smtp.Password, ct );
-        await client.SendAsync( message, ct );
-        await client.DisconnectAsync( true, ct );
+        try
+        {
+            var socketOptions = _options.Smtp.UseStartTls ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+            await client.ConnectAsync( _options.Smtp.Host, _options.Smtp.Port, socketOptions, ct );
+            if ( !string.IsNullOrEmpty( _options.Smtp.Username ) )
+                await client.AuthenticateAsync( _options.Smtp.Username, _options.Smtp.Password ?? string.Empty, ct );
+            await client.SendAsync( message, ct );
+        }
+        finally
+        {
+            if ( client.IsConnected )
+                await client.DisconnectAsync( true, ct );
+        }
 
         _logger.LogInformation( "Email '{Subject}' sent to {To}.", subject, to );
     }
