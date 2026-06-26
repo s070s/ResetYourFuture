@@ -237,23 +237,23 @@ builder.Services.AddSingleton<Ganss.Xss.IHtmlSanitizer>( _ => new Ganss.Xss.Html
 // --- API Services ---
 builder.Services.AddScoped<ITokenService , TokenService>();
 builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
-// NOTE
-// StubEmailService only LOGS emails; it never delivers them. The Blazor cookie auth flow
-// (AuthService.RegisterAsync / ForgotPasswordAsync) also does not call IEmailService at all,
-// so no confirmation/reset email is sent in Development — users self-confirm via the dev-only
-// buttons on the Register/Login/ForgotPassword pages. Before production: implement a real
-// provider (SendGrid/SMTP), register it here, and wire AuthService to send through it.
-if ( builder.Environment.IsDevelopment() )
+// Email transport. SmtpEmailService (MailKit) is used whenever Email:Smtp:Host is configured —
+// point it at Papercut/Mailhog in Development or a real relay (SES/SendGrid SMTP/etc.) in prod.
+// With no SMTP host configured, Development falls back to StubEmailService (logs only); any other
+// environment fails fast so emails are never silently swallowed in production.
+builder.Services.Configure<EmailOptions>( config.GetSection( EmailOptions.SectionName ) );
+if ( !string.IsNullOrWhiteSpace( config [ "Email:Smtp:Host" ] ) )
+{
+    builder.Services.AddScoped<IEmailService , SmtpEmailService>();
+}
+else if ( builder.Environment.IsDevelopment() )
 {
     builder.Services.AddScoped<IEmailService , StubEmailService>();
 }
 else
 {
-    // Fail fast: a real email provider must be registered for non-Development environments.
-    // Registering StubEmailService in prod would silently swallow all emails.
     throw new InvalidOperationException(
-        "No production IEmailService registered. " +
-        "Implement and register a real email provider before deploying." );
+        "No email transport configured. Set Email:Smtp:Host (and credentials) for production." );
 }
 builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
 builder.Services.AddScoped<ICertificateService , CertificateService>();
@@ -266,6 +266,9 @@ builder.Services.AddScoped<ICourseService , CourseService>();
 builder.Services.AddScoped<IAdminCourseService , AdminCourseService>();
 builder.Services.AddScoped<IChatQueryService , ChatQueryService>();
 builder.Services.AddScoped<AvatarChangedNotifier>();
+// Circuit-scoped bearer-token provider used by ApiClientBase so consumers authenticate
+// from inside the Blazor circuit (where HttpContext/SsrApiHandler is unavailable).
+builder.Services.AddScoped<ApiTokenProvider>();
 
 // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
 builder.Services.AddTransient<SsrApiHandler>();
