@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Consumers;
 
@@ -8,18 +8,18 @@ namespace ResetYourFuture.Web.Consumers;
 public class SubscriptionConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), ISubscriptionConsumer
 {
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync()
-        => await GetAsync<List<SubscriptionPlanDto>>("api/subscription/plans") ?? [];
+        => await GetAsync<List<SubscriptionPlanDto>>("api/subscriptions/plans") ?? [];
 
     public Task<UserSubscriptionStatusDto?> GetStatusAsync()
-        => GetAsync<UserSubscriptionStatusDto>("api/subscription/status");
+        => GetAsync<UserSubscriptionStatusDto>("api/subscriptions/status");
 
     public Task<CheckoutSessionDto?> CheckoutAsync(Guid planId)
         => PostJsonAsync<CreateCheckoutRequest, CheckoutSessionDto>(
-               "api/subscription/checkout", new CreateCheckoutRequest(planId));
+               "api/subscriptions/checkout", new CreateCheckoutRequest(planId));
 
     public Task<CancelSubscriptionResultDto?> CancelAsync()
-        => PostAsync<CancelSubscriptionResultDto>("api/subscription/cancel");
+        => PostAsync<CancelSubscriptionResultDto>("api/subscriptions/cancel");
 
     public Task<BillingOverviewDto?> GetBillingOverviewAsync(int page = 1, int pageSize = 10)
-        => GetAsync<BillingOverviewDto>($"api/subscription/billing?page={page}&pageSize={pageSize}");
+        => GetAsync<BillingOverviewDto>($"api/subscriptions/billing?page={page}&pageSize={pageSize}");
 }

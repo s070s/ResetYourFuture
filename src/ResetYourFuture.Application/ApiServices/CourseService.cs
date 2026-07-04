@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
 /// Handles course discovery, enrollment, and lesson consumption for students.
@@ -17,7 +18,7 @@ public class CourseService(
     ILogger<CourseService> logger) : ICourseService
 {
     public async Task<PagedResult<CourseListItemDto>> GetPublishedCoursesAsync(
-        string userId, int page, int pageSize, string lang)
+        string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default)
     {
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
@@ -26,33 +27,33 @@ public class CourseService(
             .Where(c => c.IsPublished)
             .OrderBy(c => c.TitleEn);
 
-        var totalCount = await query.CountAsync();
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var pageIds = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(c => c.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         // Two batched queries replace per-row correlated subqueries.
         var enrolledCourseIds = await db.Enrollments
             .AsNoTracking()
             .Where(e => e.UserId == userId && pageIds.Contains(e.CourseId))
             .Select(e => e.CourseId)
-            .ToHashSetAsync();
+            .ToHashSetAsync(cancellationToken);
 
         var lessonCountById = await db.Lessons
             .AsNoTracking()
             .Where(l => pageIds.Contains(l.Module.CourseId))
             .GroupBy(l => l.Module.CourseId)
             .Select(g => new { CourseId = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.CourseId, x => x.Count);
+            .ToDictionaryAsync(x => x.CourseId, x => x.Count, cancellationToken);
 
         var courses = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(c => new { c.Id, c.TitleEn, c.TitleEl, c.DescriptionEn, c.DescriptionEl, c.RequiredTier })
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var items = courses.Select(c => new CourseListItemDto(
             c.Id,
@@ -66,7 +67,7 @@ public class CourseService(
         return new PagedResult<CourseListItemDto>(items, totalCount, page, pageSize);
     }
 
-    public async Task<CourseDetailDto?> GetCourseDetailAsync(string userId, Guid courseId, string lang)
+    public async Task<CourseDetailDto?> GetCourseDetailAsync(string userId, Guid courseId, string lang, CancellationToken cancellationToken = default)
     {
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
@@ -75,7 +76,7 @@ public class CourseService(
             .Include(c => c.Modules.OrderBy(m => m.SortOrder))
                 .ThenInclude(m => m.Lessons.OrderBy(l => l.SortOrder))
             .Include(c => c.Enrollments.Where(e => e.UserId == userId))
-            .FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished);
+            .FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished, cancellationToken);
 
         if (course is null)
             return null;
@@ -86,7 +87,7 @@ public class CourseService(
             .AsNoTracking()
             .Where(lc => lc.UserId == userId && allLessonIds.Contains(lc.LessonId))
             .Select(lc => lc.LessonId)
-            .ToHashSetAsync();
+            .ToHashSetAsync(cancellationToken);
 
         var totalLessons = allLessonIds.Count;
         var completedLessons = completedLessonIds.Count;
@@ -119,13 +120,13 @@ public class CourseService(
         );
     }
 
-    public async Task<ServiceResult<EnrollmentResultDto>> EnrollAsync(string userId, Guid courseId)
+    public async Task<ServiceResult<EnrollmentResultDto>> EnrollAsync(string userId, Guid courseId, CancellationToken cancellationToken = default)
     {
-        var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished);
+        var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished, cancellationToken);
         if (course is null)
             return ServiceResult<EnrollmentResultDto>.NotFound(new EnrollmentResultDto(false, "Course not found", null));
 
-        var userStatus = await subscriptionService.GetUserStatusAsync(userId);
+        var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Tier < course.RequiredTier)
         {
             return ServiceResult<EnrollmentResultDto>.Forbidden(new EnrollmentResultDto(
@@ -140,7 +141,7 @@ public class CourseService(
             // Note: count-then-insert is a TOCTOU — two concurrent requests for *different* courses
             // can both pass this gate and briefly exceed the limit. Fixing that requires serializable
             // isolation; the rare over-count is accepted here as a benign soft-limit edge case.
-            var enrollmentCount = await db.Enrollments.CountAsync(e => e.UserId == userId);
+            var enrollmentCount = await db.Enrollments.CountAsync(e => e.UserId == userId, cancellationToken);
             if (enrollmentCount >= maxCourses)
             {
                 return ServiceResult<EnrollmentResultDto>.Forbidden(new EnrollmentResultDto(
@@ -151,7 +152,7 @@ public class CourseService(
         }
 
         var existing = await db.Enrollments
-            .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
+            .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId, cancellationToken);
 
         if (existing is not null)
             return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Already enrolled", existing.Id));
@@ -168,7 +169,7 @@ public class CourseService(
         db.Enrollments.Add(enrollment);
         try
         {
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException)
         {
@@ -176,7 +177,7 @@ public class CourseService(
             // (UserId, CourseId) index first. Return the already-committed enrollment.
             var winner = await db.Enrollments
                 .AsNoTracking()
-                .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
+                .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId, cancellationToken);
 
             if (winner is not null)
                 return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Already enrolled", winner.Id));
@@ -189,7 +190,7 @@ public class CourseService(
         return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Enrolled successfully", enrollment.Id));
     }
 
-    public async Task<ServiceResult<LessonDetailDto>> GetLessonDetailAsync(string userId, Guid lessonId, string lang)
+    public async Task<ServiceResult<LessonDetailDto>> GetLessonDetailAsync(string userId, Guid lessonId, string lang, CancellationToken cancellationToken = default)
     {
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
@@ -197,7 +198,7 @@ public class CourseService(
             .AsNoTracking()
             .Include(l => l.Module)
                 .ThenInclude(m => m.Course)
-            .FirstOrDefaultAsync(l => l.Id == lessonId);
+            .FirstOrDefaultAsync(l => l.Id == lessonId, cancellationToken);
 
         if (lesson is null)
             return ServiceResult<LessonDetailDto>.NotFound(error: "Lesson not found");
@@ -207,13 +208,13 @@ public class CourseService(
             return ServiceResult<LessonDetailDto>.NotFound(error: "Course not found");
 
         var isEnrolled = await db.Enrollments
-            .AnyAsync(e => e.UserId == userId && e.CourseId == course.Id);
+            .AnyAsync(e => e.UserId == userId && e.CourseId == course.Id, cancellationToken);
 
         if (!isEnrolled)
             return ServiceResult<LessonDetailDto>.BadRequest(error: "You must be enrolled in this course to view lessons");
 
         var isCompleted = await db.LessonCompletions
-            .AnyAsync(lc => lc.UserId == userId && lc.LessonId == lessonId);
+            .AnyAsync(lc => lc.UserId == userId && lc.LessonId == lessonId, cancellationToken);
 
         var allLessons = await db.Lessons
             .AsNoTracking()
@@ -221,7 +222,7 @@ public class CourseService(
             .OrderBy(l => l.Module.SortOrder)
             .ThenBy(l => l.SortOrder)
             .Select(l => l.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var currentIndex = allLessons.IndexOf(lessonId);
         var previousLessonId = currentIndex > 0 ? allLessons[currentIndex - 1] : (Guid?)null;
@@ -251,11 +252,11 @@ public class CourseService(
         return ServiceResult<LessonDetailDto>.Ok(dto);
     }
 
-    public async Task<ServiceResult<LessonCompletionResultDto>> CompleteLessonAsync(string userId, Guid lessonId)
+    public async Task<ServiceResult<LessonCompletionResultDto>> CompleteLessonAsync(string userId, Guid lessonId, CancellationToken cancellationToken = default)
     {
         var lesson = await db.Lessons
             .Include(l => l.Module)
-            .FirstOrDefaultAsync(l => l.Id == lessonId);
+            .FirstOrDefaultAsync(l => l.Id == lessonId, cancellationToken);
 
         if (lesson is null)
             return ServiceResult<LessonCompletionResultDto>.NotFound(
@@ -264,14 +265,14 @@ public class CourseService(
         var courseId = lesson.Module.CourseId;
 
         var enrollment = await db.Enrollments
-            .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
+            .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId, cancellationToken);
 
         if (enrollment is null)
             return ServiceResult<LessonCompletionResultDto>.BadRequest(
                 new LessonCompletionResultDto(false, "Not enrolled in this course", 0, 0, 0, false));
 
         var existingCompletion = await db.LessonCompletions
-            .FirstOrDefaultAsync(lc => lc.UserId == userId && lc.LessonId == lessonId);
+            .FirstOrDefaultAsync(lc => lc.UserId == userId && lc.LessonId == lessonId, cancellationToken);
 
         if (existingCompletion is null)
         {
@@ -288,10 +289,10 @@ public class CourseService(
         var allLessonIds = await db.Lessons
             .Where(l => l.Module.CourseId == courseId)
             .Select(l => l.Id)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         var completedCount = await db.LessonCompletions
-            .CountAsync(lc => lc.UserId == userId && allLessonIds.Contains(lc.LessonId));
+            .CountAsync(lc => lc.UserId == userId && allLessonIds.Contains(lc.LessonId), cancellationToken);
 
         if (existingCompletion is null)
             completedCount++;
@@ -307,16 +308,16 @@ public class CourseService(
             logger.LogInformation("User {UserId} completed course {CourseId}", userId, courseId);
         }
 
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         if (courseCompleted)
         {
-            var subStatus = await subscriptionService.GetUserStatusAsync(userId);
+            var subStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
             if (subStatus.Features?.CertificateAccess == true)
             {
                 try
                 {
-                    await certificateService.GetOrGenerateAsync(userId, courseId);
+                    await certificateService.GetOrGenerateAsync(userId, courseId, cancellationToken);
                 }
                 catch (Exception ex)
                 {

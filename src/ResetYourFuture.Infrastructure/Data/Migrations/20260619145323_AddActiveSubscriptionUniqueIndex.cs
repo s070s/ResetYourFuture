@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ResetYourFuture.Web.Data.Migrations
+namespace ResetYourFuture.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
     public partial class AddActiveSubscriptionUniqueIndex : Migration

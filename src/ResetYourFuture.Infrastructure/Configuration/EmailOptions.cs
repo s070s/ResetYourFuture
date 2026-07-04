@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Configuration;
 
 /// <summary>Binds the "Email" configuration section. Secrets (Username/Password) come from
 /// User Secrets / environment variables, never committed appsettings.</summary>

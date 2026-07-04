@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Web.Services;
 using System.Security.Claims;
 

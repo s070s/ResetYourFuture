@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Links a User to a SubscriptionPlan.

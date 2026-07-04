@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Public display DTO for a testimonial shown on the landing page.

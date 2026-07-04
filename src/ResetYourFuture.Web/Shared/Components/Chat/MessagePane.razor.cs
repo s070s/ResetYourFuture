@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Shared.Components.Chat;
 

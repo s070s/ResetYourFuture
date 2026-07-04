@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Token generation service for JWT access tokens and refresh tokens.

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using ResetYourFuture.Web.Interfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources.Messages;
 using System.Net.Http.Json;
 

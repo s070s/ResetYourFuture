@@ -1,11 +1,11 @@
 using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
 /// Admin CRUD operations for courses.
@@ -15,21 +15,21 @@ public class AdminCourseService(
     ILogger<AdminCourseService> logger,
     IHtmlSanitizer sanitizer) : IAdminCourseService
 {
-    public async Task<AdminCourseDto?> GetCourseByIdAsync(Guid id)
+    public async Task<AdminCourseDto?> GetCourseByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses
             .AsNoTracking()
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)
             .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         return course is null ? null : MapToDto(course);
     }
 
-    public async Task<PagedResult<AdminCourseDto>> GetCoursesAsync(int page, int pageSize, CancellationToken ct = default)
+    public async Task<PagedResult<AdminCourseDto>> GetCoursesAsync(int page, int pageSize, CancellationToken cancellationToken = default)
     {
-        var totalCount = await db.Courses.CountAsync(ct);
+        var totalCount = await db.Courses.CountAsync(cancellationToken);
 
         var items = await db.Courses
             .AsNoTracking()
@@ -53,12 +53,12 @@ public class AdminCourseService(
                 c.Enrollments.Count,
                 c.RequiredTier
             ))
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
 
         return new PagedResult<AdminCourseDto>(items, totalCount, page, pageSize);
     }
 
-    public async Task<AdminCourseDto> CreateCourseAsync(SaveCourseRequest request, string userId)
+    public async Task<AdminCourseDto> CreateCourseAsync(SaveCourseRequest request, string userId, CancellationToken cancellationToken = default)
     {
         var course = new Course
         {
@@ -73,7 +73,7 @@ public class AdminCourseService(
         };
 
         db.Courses.Add(course);
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         return new AdminCourseDto(
             course.Id,
@@ -89,13 +89,13 @@ public class AdminCourseService(
         );
     }
 
-    public async Task<AdminCourseDto?> UpdateCourseAsync(Guid id, SaveCourseRequest request, string userId)
+    public async Task<AdminCourseDto?> UpdateCourseAsync(Guid id, SaveCourseRequest request, string userId, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)
             .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         if (course is null)
             return null;
@@ -108,16 +108,16 @@ public class AdminCourseService(
         course.UpdatedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = userId;
 
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         return MapToDto(course);
     }
 
-    public async Task<bool> DeleteCourseAsync(Guid id, string userId)
+    public async Task<bool> DeleteCourseAsync(Guid id, string userId, CancellationToken cancellationToken = default)
     {
         var course = await db.Courses
             .Include(c => c.Enrollments)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         if (course is null)
             return false;
@@ -129,7 +129,7 @@ public class AdminCourseService(
         course.DeletedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = userId;
 
-        await db.SaveChangesAsync();
+        await db.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation("Admin {UserId} soft-deleted course {CourseId} with {Enrollments} enrollment(s)",
             userId, id, course.Enrollments.Count);
@@ -137,9 +137,9 @@ public class AdminCourseService(
         return true;
     }
 
-    public async Task<bool> PublishCourseAsync(Guid id, string userId)
+    public async Task<bool> PublishCourseAsync(Guid id, string userId, CancellationToken cancellationToken = default)
     {
-        var course = await db.Courses.FindAsync(id);
+        var course = await db.Courses.FindAsync([id], cancellationToken);
         if (course is null)
             return false;
 
@@ -148,15 +148,15 @@ public class AdminCourseService(
             course.IsPublished = true;
             course.PublishedAt = DateTimeOffset.UtcNow;
             course.UpdatedByUserId = userId;
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         return true;
     }
 
-    public async Task<bool> UnpublishCourseAsync(Guid id, string userId)
+    public async Task<bool> UnpublishCourseAsync(Guid id, string userId, CancellationToken cancellationToken = default)
     {
-        var course = await db.Courses.FindAsync(id);
+        var course = await db.Courses.FindAsync([id], cancellationToken);
         if (course is null)
             return false;
 
@@ -165,7 +165,7 @@ public class AdminCourseService(
             course.IsPublished = false;
             course.UpdatedAt = DateTimeOffset.UtcNow;
             course.UpdatedByUserId = userId;
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         return true;

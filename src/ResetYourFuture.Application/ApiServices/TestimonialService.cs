@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
 /// Implements ITestimonialService using ApplicationDbContext.

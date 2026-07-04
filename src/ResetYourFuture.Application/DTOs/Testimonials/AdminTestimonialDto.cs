@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Admin read DTO — full testimonial with raw AvatarPath and audit fields.

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Layout;

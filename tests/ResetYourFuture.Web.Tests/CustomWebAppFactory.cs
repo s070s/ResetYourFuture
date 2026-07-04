@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Infrastructure.Seeding;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Xunit;
 
 namespace ResetYourFuture.Web.Tests;
@@ -123,7 +125,7 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
     /// Like <see cref="CreateAuthenticatedClientAsync"/> but assigns the given subscription tier
     /// so plan-gated endpoints (e.g. certificate issuance) can be reached.
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedClientWithPlanAsync(string role, SubscriptionTierEnum tier)
+    public async Task<HttpClient> CreateAuthenticatedClientWithPlanAsync(string role, SubscriptionTier tier)
     {
         var email = $"{role.ToLowerInvariant()}-{Guid.NewGuid():N}@test.com";
         using var scope = Services.CreateScope();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 
 namespace ResetYourFuture.Web.Services;
 

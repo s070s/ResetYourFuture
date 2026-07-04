@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Pages;
 
@@ -37,7 +38,7 @@ public partial class AdminCourseEdit
     private string? courseTitleEl;
     private string? courseDescriptionEn;
     private string? courseDescriptionEl;
-    private SubscriptionTierEnum courseRequiredTier = SubscriptionTierEnum.Free;
+    private SubscriptionTier courseRequiredTier = SubscriptionTier.Free;
     private QuillEditor? descriptionEditorEn;
     private QuillEditor? descriptionEditorEl;
 

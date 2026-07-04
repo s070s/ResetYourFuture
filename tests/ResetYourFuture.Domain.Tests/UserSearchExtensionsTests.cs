@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Extensions;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Extensions;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 

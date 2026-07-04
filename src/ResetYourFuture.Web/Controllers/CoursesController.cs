@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Web.Extensions;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -11,7 +12,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// All endpoints require authentication.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/courses")]
 [Authorize]
 [Tags("Courses")]
 [Produces("application/json")]
@@ -28,14 +29,15 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     public async Task<ActionResult<PagedResult<CourseListItemDto>>> GetCourses(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
-        [FromQuery] string lang = "en")
+        [FromQuery] string lang = "en",
+        CancellationToken cancellationToken = default)
     {
         if (page < 1)
             page = 1;
         if (pageSize < 1 || pageSize > 100)
             pageSize = 10;
 
-        var result = await courseService.GetPublishedCoursesAsync(UserId, page, pageSize, lang);
+        var result = await courseService.GetPublishedCoursesAsync(UserId, page, pageSize, lang, cancellationToken);
         return Ok(result);
     }
 
@@ -43,9 +45,9 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     /// Get full course detail including modules, lessons, and progress.
     /// </summary>
     [HttpGet("{courseId:guid}")]
-    public async Task<ActionResult<CourseDetailDto>> GetCourse(Guid courseId, [FromQuery] string lang = "en")
+    public async Task<ActionResult<CourseDetailDto>> GetCourse(Guid courseId, [FromQuery] string lang = "en", CancellationToken cancellationToken = default)
     {
-        var dto = await courseService.GetCourseDetailAsync(UserId, courseId, lang);
+        var dto = await courseService.GetCourseDetailAsync(UserId, courseId, lang, cancellationToken);
         return dto is not null ? Ok(dto) : NotFound("Course not found");
     }
 
@@ -54,12 +56,12 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     /// Admins cannot enroll - this is for students only.
     /// </summary>
     [HttpPost("{courseId:guid}/enroll")]
-    public async Task<ActionResult<EnrollmentResultDto>> Enroll(Guid courseId)
+    public async Task<ActionResult<EnrollmentResultDto>> Enroll(Guid courseId, CancellationToken cancellationToken = default)
     {
         if (User.IsInRole("Admin"))
             return StatusCode(403, new EnrollmentResultDto(false, "Administrators cannot enroll in courses", null));
 
-        var result = await courseService.EnrollAsync(UserId, courseId);
+        var result = await courseService.EnrollAsync(UserId, courseId, cancellationToken);
         return StatusCode(result.StatusCode, result.Value);
     }
 
@@ -67,21 +69,19 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     /// Get full lesson detail for the lesson viewer.
     /// </summary>
     [HttpGet("lessons/{lessonId:guid}")]
-    public async Task<ActionResult<LessonDetailDto>> GetLesson(Guid lessonId, [FromQuery] string lang = "en")
+    public async Task<ActionResult<LessonDetailDto>> GetLesson(Guid lessonId, [FromQuery] string lang = "en", CancellationToken cancellationToken = default)
     {
-        var result = await courseService.GetLessonDetailAsync(UserId, lessonId, lang);
-        if (!result.IsSuccess)
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        return Ok(result.Value);
+        var result = await courseService.GetLessonDetailAsync(UserId, lessonId, lang, cancellationToken);
+        return result.ToActionResult();
     }
 
     /// <summary>
     /// Mark a lesson as completed.
     /// </summary>
     [HttpPost("lessons/{lessonId:guid}/complete")]
-    public async Task<ActionResult<LessonCompletionResultDto>> CompleteLesson(Guid lessonId)
+    public async Task<ActionResult<LessonCompletionResultDto>> CompleteLesson(Guid lessonId, CancellationToken cancellationToken = default)
     {
-        var result = await courseService.CompleteLessonAsync(UserId, lessonId);
+        var result = await courseService.CompleteLessonAsync(UserId, lessonId, cancellationToken);
         return StatusCode(result.StatusCode, result.Value);
     }
 }

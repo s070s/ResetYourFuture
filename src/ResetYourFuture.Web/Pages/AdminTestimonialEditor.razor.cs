@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Pages;
 

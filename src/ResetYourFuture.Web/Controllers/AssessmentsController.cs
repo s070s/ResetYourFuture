@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -14,7 +14,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// Student-facing assessment endpoints.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/assessments")]
 [Authorize]
 [Tags("Assessments")]
 [Produces("application/json")]

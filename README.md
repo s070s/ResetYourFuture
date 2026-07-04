@@ -177,16 +177,16 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | `GET` | `api/certificates/{certificateId}/download` | Download certificate PDF | Yes |
 | `GET` | `api/certificates/verify/{verificationId}` | Public certificate verification | No |
 
-### Subscriptions — `api/subscription`
+### Subscriptions — `api/subscriptions`
 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
-| `GET` | `api/subscription/plans` | List plans | No |
-| `GET` | `api/subscription/status` | Current user's subscription status | Yes |
-| `POST` | `api/subscription/checkout` | Start checkout | Yes |
-| `POST` | `api/subscription/webhook` | Payment webhook | No |
-| `POST` | `api/subscription/cancel` | Cancel subscription | Yes |
-| `GET` | `api/subscription/billing` | Billing history | Yes |
+| `GET` | `api/subscriptions/plans` | List plans | No |
+| `GET` | `api/subscriptions/status` | Current user's subscription status | Yes |
+| `POST` | `api/subscriptions/checkout` | Start checkout | Yes |
+| `POST` | `api/subscriptions/webhook` | Payment webhook | No |
+| `POST` | `api/subscriptions/cancel` | Cancel subscription | Yes |
+| `GET` | `api/subscriptions/billing` | Billing history | Yes |
 
 ### Chat — `api/chat` + SignalR `/hubs/chat`
 

@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Enums;
+namespace ResetYourFuture.Domain.Enums;
 
 /// <summary>
 /// Represents the validity state of an issued certificate.

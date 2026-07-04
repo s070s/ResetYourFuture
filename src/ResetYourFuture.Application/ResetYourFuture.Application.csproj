@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>ResetYourFuture.Web</RootNamespace>
+    <RootNamespace>ResetYourFuture.Application</RootNamespace>
     <!-- Emit XML docs so the Web project's OpenAPI source generator can read DTO
          <summary>/<example> comments from this referenced project (.NET 10). -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

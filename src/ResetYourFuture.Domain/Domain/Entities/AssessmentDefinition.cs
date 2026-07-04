@@ -1,7 +1,7 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
 
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Defines a psychosocial assessment template with its questions and structure.
@@ -67,7 +67,7 @@ public class AssessmentDefinition : AuditableEntity
     /// Minimum subscription tier required to access this assessment.
     /// Default is Free (all users can access).
     /// </summary>
-    public SubscriptionTierEnum RequiredTier { get; set; } = SubscriptionTierEnum.Free;
+    public SubscriptionTier RequiredTier { get; set; } = SubscriptionTier.Free;
 
     // Navigation
     public ICollection<AssessmentSubmission> Submissions { get; set; } = [];

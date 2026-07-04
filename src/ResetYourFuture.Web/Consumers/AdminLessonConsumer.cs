@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components.Forms;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Consumers;
 

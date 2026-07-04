@@ -1,4 +1,6 @@
-namespace ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Available subscription plan for display in pricing table.
@@ -9,7 +11,7 @@ public record SubscriptionPlanDto(
     string? Description,
     decimal Price,
     string BillingPeriod,
-    SubscriptionTierEnum Tier,
+    SubscriptionTier Tier,
     PlanFeaturesDto? Features,
     bool IsActive
 );
@@ -41,7 +43,7 @@ public record PlanFeaturesDto
 /// Current user's subscription status.
 /// </summary>
 public record UserSubscriptionStatusDto(
-    SubscriptionTierEnum Tier,
+    SubscriptionTier Tier,
     string PlanName,
     DateTime StartedAt,
     DateTime? ExpiresAt,

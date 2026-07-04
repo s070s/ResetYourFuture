@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 public class AuthResponseDto
 {

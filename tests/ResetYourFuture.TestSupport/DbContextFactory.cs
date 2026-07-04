@@ -1,6 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
+using ResetYourFuture.Infrastructure.Data;
 
 namespace ResetYourFuture.TestSupport;
 

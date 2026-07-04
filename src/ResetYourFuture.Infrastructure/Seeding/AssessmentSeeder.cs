@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Seeds assessment definitions from JSON files located in the Shared project's JSON folder.

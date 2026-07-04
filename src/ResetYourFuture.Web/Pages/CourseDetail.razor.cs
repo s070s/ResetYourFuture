@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
@@ -19,7 +20,7 @@ public partial class CourseDetail
     [Inject] private ILogger<CourseDetail> _logger { get; set; } = default!;
 
     private CourseDetailDto? _course;
-    private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
+    private SubscriptionTier _userTier = SubscriptionTier.Free;
     private bool _loading = true;
     private bool _enrolling;
     private string? _error;

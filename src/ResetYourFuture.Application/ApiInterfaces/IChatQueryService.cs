@@ -1,6 +1,7 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.Common;
+using ResetYourFuture.Application.DTOs;
 
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Chat history, conversations, and management queries.

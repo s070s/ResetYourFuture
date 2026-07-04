@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Seeds courses from JSON files located in the Shared project's JSON folder.
@@ -96,9 +97,9 @@ public static class CourseSeeder
             TitleEl = dto.TitleEl,
             DescriptionEn = dto.Description,
             DescriptionEl = dto.DescriptionEl,
-            RequiredTier = Enum.TryParse<SubscriptionTierEnum>(dto.RequiredTier, ignoreCase: true, out var tier)
+            RequiredTier = Enum.TryParse<SubscriptionTier>(dto.RequiredTier, ignoreCase: true, out var tier)
                 ? tier
-                : SubscriptionTierEnum.Free,
+                : SubscriptionTier.Free,
             IsPublished = dto.IsPublished,
             Modules = dto.Modules.Select(MapToModule).ToList()
         };

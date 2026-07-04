@@ -2,8 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.ApiInterfaces;
 
 namespace ResetYourFuture.Web.Controllers;
 

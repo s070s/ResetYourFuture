@@ -1,5 +1,6 @@
 using System.Net;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using Shouldly;
 using Xunit;
 
@@ -60,7 +61,7 @@ public class CertificatesIntegrationTests
     [Fact]
     public async Task Issue_ProPlan_NoCompletedEnrollment_Returns400()
     {
-        var client = await _factory.CreateAuthenticatedClientWithPlanAsync("Student", SubscriptionTierEnum.Pro);
+        var client = await _factory.CreateAuthenticatedClientWithPlanAsync("Student", SubscriptionTier.Pro);
 
         var response = await client.PostAsync($"/api/certificates/issue/{Guid.NewGuid()}", content: null);
 

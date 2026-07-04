@@ -1,4 +1,6 @@
-namespace ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Full course detail including modules and progress.
@@ -13,7 +15,7 @@ public record CourseDetailDto(
     int TotalLessons,
     double ProgressPercent,
     List<ModuleDto> Modules,
-    SubscriptionTierEnum RequiredTier
+    SubscriptionTier RequiredTier
 );
 
 /// <summary>

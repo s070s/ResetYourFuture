@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Represents a testimonial displayed on the public landing page.

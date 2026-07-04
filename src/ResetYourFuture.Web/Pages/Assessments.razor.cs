@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
 using System.Globalization;
 

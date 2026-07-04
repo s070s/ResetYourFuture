@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using Shouldly;
 using Xunit;
 
@@ -18,7 +18,7 @@ public class CourseServiceTests
     private const string UserId = "user-1";
 
     private static UserSubscriptionStatusDto Status(
-        SubscriptionTierEnum tier = SubscriptionTierEnum.Free,
+        SubscriptionTier tier = SubscriptionTier.Free,
         int maxCourses = int.MaxValue,
         bool certificateAccess = false) =>
         new(tier, tier.ToString(), DateTime.UtcNow, null, true,
@@ -37,7 +37,7 @@ public class CourseServiceTests
 
     private static Course CourseWithLessons(
         string titleEn, int lessonCount, bool published = true,
-        SubscriptionTierEnum tier = SubscriptionTierEnum.Free, string? titleEl = null)
+        SubscriptionTier tier = SubscriptionTier.Free, string? titleEl = null)
     {
         var course = new Course
         {
@@ -196,10 +196,10 @@ public class CourseServiceTests
     public async Task Enroll_TierBelowRequired_ReturnsForbidden()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var course = CourseWithLessons("Pro", 0, tier: SubscriptionTierEnum.Pro);
+        var course = CourseWithLessons("Pro", 0, tier: SubscriptionTier.Pro);
         db.Courses.Add(course);
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db, Status(SubscriptionTierEnum.Free));
+        var (svc, _, _) = NewService(db, Status(SubscriptionTier.Free));
 
         (await svc.EnrollAsync(UserId, course.Id)).StatusCode.ShouldBe(403);
     }
@@ -213,7 +213,7 @@ public class CourseServiceTests
         db.Courses.AddRange(existing, target);
         db.Enrollments.Add(new Enrollment { Id = Guid.NewGuid(), UserId = UserId, CourseId = existing.Id });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db, Status(SubscriptionTierEnum.Free, maxCourses: 1));
+        var (svc, _, _) = NewService(db, Status(SubscriptionTier.Free, maxCourses: 1));
 
         (await svc.EnrollAsync(UserId, target.Id)).StatusCode.ShouldBe(403);
     }

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -30,7 +31,7 @@ public class ChatQueryServiceTests
         new() { Id = id, UserName = id, Email = $"{id}@x.com", FirstName = first, LastName = last, IsEnabled = enabled };
 
     private static UserSubscriptionStatusDto Status(bool priority) =>
-        new(SubscriptionTierEnum.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
+        new(SubscriptionTier.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
 
     private static ChatConversation Conversation(string creator, string participant) =>
         new() { Id = Guid.NewGuid(), CreatorId = creator, ParticipantId = participant };

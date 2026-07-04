@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Generic server-side paged result envelope. Reusable across all list endpoints.

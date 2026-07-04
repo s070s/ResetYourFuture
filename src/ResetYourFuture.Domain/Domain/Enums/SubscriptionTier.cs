@@ -1,9 +1,9 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Domain.Enums;
 
 /// <summary>
 /// Subscription tier levels. Stored as int for forward compatibility.
 /// </summary>
-public enum SubscriptionTierEnum
+public enum SubscriptionTier
 {
     Free = 0,
     Plus = 1,

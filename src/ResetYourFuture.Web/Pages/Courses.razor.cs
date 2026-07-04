@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
@@ -14,7 +15,7 @@ public partial class Courses
 
     private PagedResult<CourseListItemDto>? _pagedResult;
     private UserSubscriptionStatusDto? _userStatus;
-    private SubscriptionTierEnum _userTier = SubscriptionTierEnum.Free;
+    private SubscriptionTier _userTier = SubscriptionTier.Free;
     private int _maxCourses = 1;
     private int _enrolledCount;
     private bool _loading = true;

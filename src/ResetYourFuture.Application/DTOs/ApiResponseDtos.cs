@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 // Typed response DTOs replacing anonymous/object return shapes so the OpenAPI schema is
 // accurate. Property names are chosen so System.Text.Json's camelCase output is identical

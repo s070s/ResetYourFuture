@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.ApiServices;
 
 /// <summary>
 /// Stub email service for development.

@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Web.Services;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Web.Pages;

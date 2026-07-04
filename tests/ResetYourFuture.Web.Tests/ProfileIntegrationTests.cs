@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using Shouldly;
 using Xunit;
 

@@ -4,10 +4,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Web.Services;
 using Shouldly;
 using Xunit;
@@ -36,7 +38,7 @@ public class ConsumerTests
     public async Task CourseConsumer_GetCourses_Success_MapsPagedResultAndUrl()
     {
         var body = new PagedResult<CourseListItemDto>(
-            new List<CourseListItemDto> { new(Guid.NewGuid(), "Course A", null, false, 3, SubscriptionTierEnum.Free) },
+            new List<CourseListItemDto> { new(Guid.NewGuid(), "Course A", null, false, 3, SubscriptionTier.Free) },
             1, 1, 10);
         var (client, handler) = TestHttp.Json(HttpStatusCode.OK, body);
         var consumer = new CourseConsumer(client, TokenProvider());

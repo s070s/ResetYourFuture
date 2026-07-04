@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -25,9 +25,9 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
     /// Get a single course by id (published or unpublished) with modules, lessons and enrollments.
     /// </summary>
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<AdminCourseDto>> GetCourseById(Guid id)
+    public async Task<ActionResult<AdminCourseDto>> GetCourseById(Guid id, CancellationToken cancellationToken = default)
     {
-        var dto = await adminCourseService.GetCourseByIdAsync(id);
+        var dto = await adminCourseService.GetCourseByIdAsync(id, cancellationToken);
         return dto is not null ? Ok(dto) : NotFound();
     }
 
@@ -52,9 +52,9 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
     /// </summary>
     [HttpPost]
     [ProducesResponseType<AdminCourseDto>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<AdminCourseDto>> CreateCourse([FromBody] SaveCourseRequest request)
+    public async Task<ActionResult<AdminCourseDto>> CreateCourse([FromBody] SaveCourseRequest request, CancellationToken cancellationToken = default)
     {
-        var dto = await adminCourseService.CreateCourseAsync(request, UserId);
+        var dto = await adminCourseService.CreateCourseAsync(request, UserId, cancellationToken);
         return CreatedAtAction(nameof(GetCourseById), new { id = dto.Id }, dto);
     }
 
@@ -62,9 +62,9 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
     /// Update an existing course.
     /// </summary>
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<AdminCourseDto>> UpdateCourse(Guid id, [FromBody] SaveCourseRequest request)
+    public async Task<ActionResult<AdminCourseDto>> UpdateCourse(Guid id, [FromBody] SaveCourseRequest request, CancellationToken cancellationToken = default)
     {
-        var dto = await adminCourseService.UpdateCourseAsync(id, request, UserId);
+        var dto = await adminCourseService.UpdateCourseAsync(id, request, UserId, cancellationToken);
         return dto is not null ? Ok(dto) : NotFound();
     }
 
@@ -72,26 +72,26 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
     /// Delete a course and its related data.
     /// </summary>
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCourse(Guid id)
+    public async Task<IActionResult> DeleteCourse(Guid id, CancellationToken cancellationToken = default)
     {
-        return await adminCourseService.DeleteCourseAsync(id, UserId) ? NoContent() : NotFound();
+        return await adminCourseService.DeleteCourseAsync(id, UserId, cancellationToken) ? NoContent() : NotFound();
     }
 
     /// <summary>
     /// Publish a course (make it available to students).
     /// </summary>
     [HttpPost("{id:guid}/publish")]
-    public async Task<IActionResult> PublishCourse(Guid id)
+    public async Task<IActionResult> PublishCourse(Guid id, CancellationToken cancellationToken = default)
     {
-        return await adminCourseService.PublishCourseAsync(id, UserId) ? NoContent() : NotFound();
+        return await adminCourseService.PublishCourseAsync(id, UserId, cancellationToken) ? NoContent() : NotFound();
     }
 
     /// <summary>
     /// Unpublish a course (hide it from students).
     /// </summary>
     [HttpPost("{id:guid}/unpublish")]
-    public async Task<IActionResult> UnpublishCourse(Guid id)
+    public async Task<IActionResult> UnpublishCourse(Guid id, CancellationToken cancellationToken = default)
     {
-        return await adminCourseService.UnpublishCourseAsync(id, UserId) ? NoContent() : NotFound();
+        return await adminCourseService.UnpublishCourseAsync(id, UserId, cancellationToken) ? NoContent() : NotFound();
     }
 }

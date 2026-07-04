@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Extensions;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
 /// Chat history, conversations, and management queries.

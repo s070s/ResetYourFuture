@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.ApiInterfaces;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.ApiServices;
 
 /// <summary>
 /// Issues, revokes, and regenerates PDF certificates for completed course enrollments.

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <RootNamespace>ResetYourFuture.Web</RootNamespace>
+    <RootNamespace>ResetYourFuture.Domain</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

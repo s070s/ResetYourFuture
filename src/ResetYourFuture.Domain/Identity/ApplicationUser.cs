@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Web.Identity;
+namespace ResetYourFuture.Domain.Identity;
 
 /// <summary>
 /// Custom user entity. Extend here instead of using raw IdentityUser.

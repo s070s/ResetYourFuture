@@ -1,6 +1,7 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Service for subscription management and entitlement checks.
@@ -21,7 +22,7 @@ public interface ISubscriptionService
     /// <summary>
     /// Get the current user's subscription tier.
     /// </summary>
-    Task<SubscriptionTierEnum> GetUserTierAsync(string userId, CancellationToken cancellationToken = default);
+    Task<SubscriptionTier> GetUserTierAsync(string userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Create a mock checkout session (test mode Stripe stub).

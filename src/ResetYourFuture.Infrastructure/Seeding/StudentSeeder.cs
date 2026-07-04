@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Identity;
-using ResetYourFuture.Web.Identity;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Seeds student users from JSON files for development and testing purposes.

@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Identity;
+namespace ResetYourFuture.Domain.Enums;
 
 /// <summary>
 /// Extensible user status. Add values as needed; avoid removing existing ones.

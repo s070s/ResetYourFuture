@@ -1,11 +1,11 @@
 using Ganss.Xss;
 using Microsoft.Extensions.Logging.Abstractions;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
+using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using Shouldly;
 using Xunit;
 
@@ -19,7 +19,7 @@ public class AdminCourseServiceTests
         new(db, NullLogger<AdminCourseService>.Instance, new HtmlSanitizer());
 
     private static SaveCourseRequest Request(
-        string titleEn = "Title", string? descEn = null, SubscriptionTierEnum tier = SubscriptionTierEnum.Free) =>
+        string titleEn = "Title", string? descEn = null, SubscriptionTier tier = SubscriptionTier.Free) =>
         new(titleEn, null, descEn, null, tier);
 
     [Fact]
@@ -120,10 +120,10 @@ public class AdminCourseServiceTests
         await db.SaveChangesAsync();
 
         var dto = await NewService(db).UpdateCourseAsync(
-            course.Id, Request("Updated", descEn: "<b onclick=\"x\">bold</b>", tier: SubscriptionTierEnum.Pro), Admin);
+            course.Id, Request("Updated", descEn: "<b onclick=\"x\">bold</b>", tier: SubscriptionTier.Pro), Admin);
 
         dto!.TitleEn.ShouldBe("Updated");
-        dto.RequiredTier.ShouldBe(SubscriptionTierEnum.Pro);
+        dto.RequiredTier.ShouldBe(SubscriptionTier.Pro);
         dto.DescriptionEn!.ShouldNotContain("onclick");
     }
 

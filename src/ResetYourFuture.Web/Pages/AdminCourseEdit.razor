@@ -43,7 +43,7 @@ else
             <div class="mb-3">
                 <label class="form-label" id="required-tier-label">@AdminRes.RequiredTier</label>
                 <div class="tier-selector" role="radiogroup" aria-labelledby="required-tier-label">
-                    @foreach (var tier in Enum.GetValues<SubscriptionTierEnum>())
+                    @foreach (var tier in Enum.GetValues<SubscriptionTier>())
                     {
                         <label class="tier-option @(courseRequiredTier == tier ? "selected" : "")">
                             <input type="radio"

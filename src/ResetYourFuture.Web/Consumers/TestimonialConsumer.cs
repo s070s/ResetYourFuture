@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Web.Consumers;

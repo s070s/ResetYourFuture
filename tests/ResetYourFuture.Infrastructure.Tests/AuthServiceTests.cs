@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Identity;
-using ResetYourFuture.Web.Services;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Infrastructure.Services;
 using Shouldly;
 using Xunit;
 

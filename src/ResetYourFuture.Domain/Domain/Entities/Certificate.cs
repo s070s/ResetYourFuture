@@ -1,7 +1,7 @@
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Verifiable certificate issued after a user completes a course.

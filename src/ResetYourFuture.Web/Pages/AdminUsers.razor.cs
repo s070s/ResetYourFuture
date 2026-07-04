@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Web.Pages;

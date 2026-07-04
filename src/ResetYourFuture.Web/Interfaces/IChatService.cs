@@ -1,4 +1,4 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Interfaces;
 

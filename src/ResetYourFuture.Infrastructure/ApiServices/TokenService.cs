@@ -4,10 +4,10 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using ResetYourFuture.Web.Identity;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Application.ApiInterfaces;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.ApiServices;
 
 /// <summary>
 /// Generates JWT access tokens and opaque refresh tokens.

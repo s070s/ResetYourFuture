@@ -1,6 +1,6 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 using Shouldly;
 using Xunit;
 

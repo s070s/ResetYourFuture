@@ -1,6 +1,6 @@
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -13,19 +13,19 @@ namespace ResetYourFuture.Domain.Tests;
 public class EnumValueTests
 {
     [Fact]
-    public void SubscriptionTierEnum_HasStableValues()
+    public void SubscriptionTier_HasStableValues()
     {
-        ((int)SubscriptionTierEnum.Free).ShouldBe(0);
-        ((int)SubscriptionTierEnum.Plus).ShouldBe(1);
-        ((int)SubscriptionTierEnum.Pro).ShouldBe(2);
+        ((int)SubscriptionTier.Free).ShouldBe(0);
+        ((int)SubscriptionTier.Plus).ShouldBe(1);
+        ((int)SubscriptionTier.Pro).ShouldBe(2);
     }
 
     [Fact]
-    public void SubscriptionTierEnum_OrdersFreeBelowPlusBelowPro()
+    public void SubscriptionTier_OrdersFreeBelowPlusBelowPro()
     {
         // Upgrade/downgrade logic in SubscriptionService relies on this ordering.
-        (SubscriptionTierEnum.Free < SubscriptionTierEnum.Plus).ShouldBeTrue();
-        (SubscriptionTierEnum.Plus < SubscriptionTierEnum.Pro).ShouldBeTrue();
+        (SubscriptionTier.Free < SubscriptionTier.Plus).ShouldBeTrue();
+        (SubscriptionTier.Plus < SubscriptionTier.Pro).ShouldBeTrue();
     }
 
     [Fact]

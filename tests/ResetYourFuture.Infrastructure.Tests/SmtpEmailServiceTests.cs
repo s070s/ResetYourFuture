@@ -1,4 +1,5 @@
-using ResetYourFuture.Web.ApiServices;
+using ResetYourFuture.Infrastructure.ApiServices;
+using ResetYourFuture.Infrastructure.Configuration;
 using Shouldly;
 using Xunit;
 

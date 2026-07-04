@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using ResetYourFuture.Web.Interfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 

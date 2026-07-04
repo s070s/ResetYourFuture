@@ -2,12 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
+using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using Shouldly;
 using Xunit;
 
@@ -31,7 +31,7 @@ public class SubscriptionServiceTests
     }
 
     private static SubscriptionPlan Plan(
-        string name, SubscriptionTierEnum tier, decimal price,
+        string name, SubscriptionTier tier, decimal price,
         BillingPeriod period = BillingPeriod.Monthly, bool active = true, string? featuresJson = null) =>
         new()
         {
@@ -54,10 +54,10 @@ public class SubscriptionServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
         db.SubscriptionPlans.AddRange(
-            Plan("PlusDear", SubscriptionTierEnum.Plus, 5m),
-            Plan("Free", SubscriptionTierEnum.Free, 0m),
-            Plan("PlusCheap", SubscriptionTierEnum.Plus, 3m),
-            Plan("InactivePro", SubscriptionTierEnum.Pro, 9m, active: false));
+            Plan("PlusDear", SubscriptionTier.Plus, 5m),
+            Plan("Free", SubscriptionTier.Free, 0m),
+            Plan("PlusCheap", SubscriptionTier.Plus, 3m),
+            Plan("InactivePro", SubscriptionTier.Pro, 9m, active: false));
         await db.SaveChangesAsync();
 
         var plans = await NewService(db).GetPlansAsync();
@@ -69,7 +69,7 @@ public class SubscriptionServiceTests
     public async Task GetPlans_DeserializesFeaturesJson()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.SubscriptionPlans.Add(Plan("Plus", SubscriptionTierEnum.Plus, 5m,
+        db.SubscriptionPlans.Add(Plan("Plus", SubscriptionTier.Plus, 5m,
             featuresJson: """{"MaxCourses":3,"AssessmentAccess":true,"CertificateAccess":true,"PrioritySupport":false}"""));
         await db.SaveChangesAsync();
 
@@ -84,7 +84,7 @@ public class SubscriptionServiceTests
     public async Task GetPlans_MalformedFeaturesJson_ReturnsNullFeatures()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.SubscriptionPlans.Add(Plan("Plus", SubscriptionTierEnum.Plus, 5m, featuresJson: "not-json"));
+        db.SubscriptionPlans.Add(Plan("Plus", SubscriptionTier.Plus, 5m, featuresJson: "not-json"));
         await db.SaveChangesAsync();
 
         (await NewService(db).GetPlansAsync()).Single().Features.ShouldBeNull();
@@ -99,7 +99,7 @@ public class SubscriptionServiceTests
 
         var status = await NewService(db).GetUserStatusAsync(UserId);
 
-        status.Tier.ShouldBe(SubscriptionTierEnum.Free);
+        status.Tier.ShouldBe(SubscriptionTier.Free);
         status.PlanName.ShouldBe("Free");
         status.Features!.MaxCourses.ShouldBe(1);
         status.Features.AssessmentAccess.ShouldBeFalse();
@@ -109,14 +109,14 @@ public class SubscriptionServiceTests
     public async Task GetUserStatus_ActiveSubscription_MapsPlan()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(plan);
         db.UserSubscriptions.Add(ActiveSub(plan));
         await db.SaveChangesAsync();
 
         var status = await NewService(db).GetUserStatusAsync(UserId);
 
-        status.Tier.ShouldBe(SubscriptionTierEnum.Pro);
+        status.Tier.ShouldBe(SubscriptionTier.Pro);
         status.PlanName.ShouldBe("Pro");
     }
 
@@ -124,7 +124,7 @@ public class SubscriptionServiceTests
     public async Task GetUserStatus_SecondCall_ServedFromCache()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         var sub = ActiveSub(plan);
         db.SubscriptionPlans.Add(plan);
         db.UserSubscriptions.Add(sub);
@@ -138,7 +138,7 @@ public class SubscriptionServiceTests
         var second = await svc.GetUserStatusAsync(UserId);
 
         second.Tier.ShouldBe(first.Tier);          // still Pro from cache
-        second.Tier.ShouldBe(SubscriptionTierEnum.Pro);
+        second.Tier.ShouldBe(SubscriptionTier.Pro);
     }
 
     // ---- GetUserTierAsync ----------------------------------------------------
@@ -148,19 +148,19 @@ public class SubscriptionServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTierEnum.Free);
+        (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTier.Free);
     }
 
     [Fact]
     public async Task GetUserTier_ActiveSubscription_ReturnsTier()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Plus", SubscriptionTierEnum.Plus, 5m);
+        var plan = Plan("Plus", SubscriptionTier.Plus, 5m);
         db.SubscriptionPlans.Add(plan);
         db.UserSubscriptions.Add(ActiveSub(plan));
         await db.SaveChangesAsync();
 
-        (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTierEnum.Plus);
+        (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTier.Plus);
     }
 
     // ---- CreateCheckoutSessionAsync -----------------------------------------
@@ -179,7 +179,7 @@ public class SubscriptionServiceTests
     public async Task CreateCheckout_MockDisabled_ReturnsPendingWithoutPersisting()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(plan);
         await db.SaveChangesAsync();
 
@@ -194,7 +194,7 @@ public class SubscriptionServiceTests
     public async Task CreateCheckout_NoCurrentPlan_RecordsPurchase()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(plan);
         await db.SaveChangesAsync();
 
@@ -206,10 +206,10 @@ public class SubscriptionServiceTests
     }
 
     [Theory]
-    [InlineData(SubscriptionTierEnum.Plus, SubscriptionTierEnum.Pro, BillingTransactionType.Upgrade)]
-    [InlineData(SubscriptionTierEnum.Pro, SubscriptionTierEnum.Plus, BillingTransactionType.Downgrade)]
+    [InlineData(SubscriptionTier.Plus, SubscriptionTier.Pro, BillingTransactionType.Upgrade)]
+    [InlineData(SubscriptionTier.Pro, SubscriptionTier.Plus, BillingTransactionType.Downgrade)]
     public async Task CreateCheckout_TierChange_RecordsUpgradeOrDowngrade(
-        SubscriptionTierEnum current, SubscriptionTierEnum target, BillingTransactionType expected)
+        SubscriptionTier current, SubscriptionTier target, BillingTransactionType expected)
     {
         await using var db = DbContextFactory.CreateInMemory();
         var currentPlan = Plan("Current", current, 5m);
@@ -227,7 +227,7 @@ public class SubscriptionServiceTests
     public async Task CreateCheckout_SamePlan_RecordsRenewal()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(plan);
         db.UserSubscriptions.Add(ActiveSub(plan));
         await db.SaveChangesAsync();
@@ -241,8 +241,8 @@ public class SubscriptionServiceTests
     public async Task CreateCheckout_SameTierDifferentPlan_RecordsPlanSwitch()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var monthly = Plan("Plus Monthly", SubscriptionTierEnum.Plus, 5m, BillingPeriod.Monthly);
-        var yearly = Plan("Plus Yearly", SubscriptionTierEnum.Plus, 50m, BillingPeriod.Yearly);
+        var monthly = Plan("Plus Monthly", SubscriptionTier.Plus, 5m, BillingPeriod.Monthly);
+        var yearly = Plan("Plus Yearly", SubscriptionTier.Plus, 50m, BillingPeriod.Yearly);
         db.SubscriptionPlans.AddRange(monthly, yearly);
         db.UserSubscriptions.Add(ActiveSub(monthly));
         await db.SaveChangesAsync();
@@ -258,8 +258,8 @@ public class SubscriptionServiceTests
     public async Task AssignPlan_StagesWithoutPersisting()
     {
         const string dbName = "assign-no-save";
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
-        var existing = Plan("Plus", SubscriptionTierEnum.Plus, 5m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
+        var existing = Plan("Plus", SubscriptionTier.Plus, 5m);
         await using (var seed = DbContextFactory.CreateInMemory(dbName))
         {
             seed.SubscriptionPlans.AddRange(plan, existing);
@@ -296,7 +296,7 @@ public class SubscriptionServiceTests
     public async Task AssignPlan_SetsExpiryPerBillingPeriod(BillingPeriod period, bool expectExpiry)
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("P", SubscriptionTierEnum.Pro, 1m, period);
+        var plan = Plan("P", SubscriptionTier.Pro, 1m, period);
         db.SubscriptionPlans.Add(plan);
         await db.SaveChangesAsync();
 
@@ -313,7 +313,7 @@ public class SubscriptionServiceTests
     public async Task AssignFreePlan_AssignsAndRecordsTransaction()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var free = Plan("Free", SubscriptionTierEnum.Free, 0m);
+        var free = Plan("Free", SubscriptionTier.Free, 0m);
         db.SubscriptionPlans.Add(free);
         await db.SaveChangesAsync();
 
@@ -349,7 +349,7 @@ public class SubscriptionServiceTests
     public async Task Cancel_AlreadyFree_ReturnsFailure()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var free = Plan("Free", SubscriptionTierEnum.Free, 0m);
+        var free = Plan("Free", SubscriptionTier.Free, 0m);
         db.SubscriptionPlans.Add(free);
         db.UserSubscriptions.Add(ActiveSub(free));
         await db.SaveChangesAsync();
@@ -361,7 +361,7 @@ public class SubscriptionServiceTests
     public async Task Cancel_NoFreePlanAvailable_ReturnsFailure()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var pro = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var pro = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(pro);
         db.UserSubscriptions.Add(ActiveSub(pro));
         await db.SaveChangesAsync();
@@ -373,8 +373,8 @@ public class SubscriptionServiceTests
     public async Task Cancel_ActivePaidPlan_DowngradesToFree()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var pro = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
-        var free = Plan("Free", SubscriptionTierEnum.Free, 0m);
+        var pro = Plan("Pro", SubscriptionTier.Pro, 20m);
+        var free = Plan("Free", SubscriptionTier.Free, 0m);
         db.SubscriptionPlans.AddRange(pro, free);
         db.UserSubscriptions.Add(ActiveSub(pro));
         await db.SaveChangesAsync();
@@ -393,7 +393,7 @@ public class SubscriptionServiceTests
     public async Task GetBillingOverview_OrdersTransactionsNewestFirst()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var plan = Plan("Pro", SubscriptionTierEnum.Pro, 20m);
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
         db.SubscriptionPlans.Add(plan);
         db.BillingTransactions.AddRange(
             Txn(plan, "2020", new DateTime(2020, 1, 1)),

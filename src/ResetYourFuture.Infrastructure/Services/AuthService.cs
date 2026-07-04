@@ -1,16 +1,17 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Identity;
-using ResetYourFuture.Web.Interfaces;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ResetYourFuture.Web.Services;
+namespace ResetYourFuture.Infrastructure.Services;
 
 /// <summary>
 /// SSR-compatible auth service.

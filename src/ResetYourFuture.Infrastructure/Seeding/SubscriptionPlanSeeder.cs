@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Seeds the three default subscription plans (Free, Plus, Pro).
@@ -30,7 +30,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Get started with basic access to free courses.",
                 Price = 0m,
                 BillingPeriod = BillingPeriod.Lifetime,
-                Tier = SubscriptionTierEnum.Free,
+                Tier = SubscriptionTier.Free,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = 1,
@@ -48,7 +48,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Unlock all courses and assessments.",
                 Price = 9.99m,
                 BillingPeriod = BillingPeriod.Monthly,
-                Tier = SubscriptionTierEnum.Plus,
+                Tier = SubscriptionTier.Plus,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = 10,
@@ -66,7 +66,7 @@ public static class SubscriptionPlanSeeder
                 Description = "Full access with certificates and priority support.",
                 Price = 19.99m,
                 BillingPeriod = BillingPeriod.Monthly,
-                Tier = SubscriptionTierEnum.Pro,
+                Tier = SubscriptionTier.Pro,
                 FeaturesJson = JsonSerializer.Serialize(new PlanFeaturesDto
                 {
                     MaxCourses = int.MaxValue,

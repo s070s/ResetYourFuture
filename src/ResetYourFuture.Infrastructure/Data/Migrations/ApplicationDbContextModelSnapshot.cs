@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ResetYourFuture.Web.Data;
+using ResetYourFuture.Infrastructure.Data;
 
 #nullable disable
 
-namespace ResetYourFuture.Web.Data.Migrations
+namespace ResetYourFuture.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot

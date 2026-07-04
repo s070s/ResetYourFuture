@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Shared.DTOs;
+namespace ResetYourFuture.Application.DTOs;
 
 /// <summary>
 /// Analytics summary for admin dashboard.
@@ -46,7 +47,7 @@ public record AdminCourseDto(
     int ModuleCount,
     int TotalLessons,
     int EnrollmentCount,
-    SubscriptionTierEnum RequiredTier
+    SubscriptionTier RequiredTier
 );
 
 /// <summary>
@@ -57,7 +58,7 @@ public record SaveCourseRequest(
     [MaxLength(200)] string? TitleEl,
     [MaxLength(1000)] string? DescriptionEn,
     [MaxLength(1000)] string? DescriptionEl,
-    SubscriptionTierEnum RequiredTier
+    SubscriptionTier RequiredTier
 );
 
 /// <summary>

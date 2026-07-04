@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Infrastructure.Seeding;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -41,7 +41,7 @@ public sealed class SeederTests : IDisposable
         var plans = await db.SubscriptionPlans.ToListAsync();
         plans.Count.ShouldBe(3);
         plans.Select(p => p.Tier).ShouldBe(
-            new[] { SubscriptionTierEnum.Free, SubscriptionTierEnum.Plus, SubscriptionTierEnum.Pro }, ignoreOrder: true);
+            new[] { SubscriptionTier.Free, SubscriptionTier.Plus, SubscriptionTier.Pro }, ignoreOrder: true);
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public sealed class SeederTests : IDisposable
     public async Task CourseSeeder_WhenCoursesExist_SkipsSeeding()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.Courses.Add(new Web.Domain.Entities.Course { Id = Guid.NewGuid(), TitleEn = "Existing" });
+        db.Courses.Add(new ResetYourFuture.Domain.Entities.Course { Id = Guid.NewGuid(), TitleEn = "Existing" });
         await db.SaveChangesAsync();
         var dir = TempDirWith("course.json", SampleCourseJson);
 

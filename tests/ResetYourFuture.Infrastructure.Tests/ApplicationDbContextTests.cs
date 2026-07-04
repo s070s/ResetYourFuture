@@ -2,8 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NSubstitute;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
 using Shouldly;
 using Xunit;
 

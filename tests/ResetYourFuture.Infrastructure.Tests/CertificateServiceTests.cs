@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.ApiServices;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 

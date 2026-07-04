@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,7 +14,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// Plans listing is public; status and checkout require authentication.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/subscriptions")]
 [Tags("Subscriptions")]
 [Produces("application/json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]

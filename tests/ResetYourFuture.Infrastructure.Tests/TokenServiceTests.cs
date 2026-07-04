@@ -2,11 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.ApiServices;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.ApiServices;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -35,7 +36,7 @@ public class TokenServiceTests
         SecurityStamp = "stamp-1"
     };
 
-    private static TokenService NewService(SubscriptionTierEnum tier = SubscriptionTierEnum.Pro, params string[] roles)
+    private static TokenService NewService(SubscriptionTier tier = SubscriptionTier.Pro, params string[] roles)
     {
         var um = IdentityMocks.MockUserManager();
         um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(roles.ToList());
@@ -56,7 +57,7 @@ public class TokenServiceTests
     [Fact]
     public async Task GenerateAccessToken_EmbedsExpectedClaims()
     {
-        var svc = NewService(SubscriptionTierEnum.Pro, "Student");
+        var svc = NewService(SubscriptionTier.Pro, "Student");
 
         var (token, _) = await svc.GenerateAccessTokenAsync(User());
 
@@ -82,7 +83,7 @@ public class TokenServiceTests
     [Fact]
     public async Task GenerateImpersonationToken_IncludesImpersonatedByClaim()
     {
-        var svc = NewService(SubscriptionTierEnum.Plus, "Student");
+        var svc = NewService(SubscriptionTier.Plus, "Student");
 
         var (token, _) = await svc.GenerateImpersonationTokenAsync(User(), adminId: "admin-9");
 

@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Domain.Entities;
 
-namespace ResetYourFuture.Web.Data;
+namespace ResetYourFuture.Application.Data;
 
 public interface IApplicationDbContext
 {

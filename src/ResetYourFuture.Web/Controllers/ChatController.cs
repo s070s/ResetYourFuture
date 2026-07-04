@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Web.Extensions;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -12,7 +13,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// Chat requires a Pro subscription (PrioritySupport feature).
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/chat")]
 [Authorize]
 [Tags("Chat")]
 [Produces("application/json")]
@@ -55,9 +56,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var result = await chatService.GetMessagesAsync(UserId, conversationId, page, pageSize, cancellationToken);
-        if (!result.IsSuccess)
-            return StatusCode(result.StatusCode);
-        return Ok(result.Value);
+        return result.ToActionResult();
     }
 
     /// <summary>
@@ -69,9 +68,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         [FromBody] StartConversationRequest request)
     {
         var result = await chatService.StartConversationAsync(UserId, User.IsInRole("Admin"), request);
-        if (!result.IsSuccess)
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        return Ok(result.Value);
+        return result.ToActionResult();
     }
 
     /// <summary>

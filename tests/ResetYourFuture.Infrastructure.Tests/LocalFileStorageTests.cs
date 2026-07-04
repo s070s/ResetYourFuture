@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Web.ApiServices;
+using ResetYourFuture.Infrastructure.ApiServices;
 using Shouldly;
 using Xunit;
 

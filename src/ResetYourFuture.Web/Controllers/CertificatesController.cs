@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -13,7 +13,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// Student-facing and public certificate endpoints.
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/certificates")]
 [Authorize]
 [Tags("Certificates")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Domain.Entities;
 
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Handles certificate issuance, revocation, and PDF regeneration.

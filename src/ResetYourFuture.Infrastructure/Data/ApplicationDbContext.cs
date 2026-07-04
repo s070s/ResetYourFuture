@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Identity;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
-namespace ResetYourFuture.Web.Data;
+namespace ResetYourFuture.Infrastructure.Data;
 
 /// <summary>
 /// EF Core DbContext with ASP.NET Identity configured for ApplicationUser.

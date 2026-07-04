@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Base class for entities that require audit tracking and publishing workflow.

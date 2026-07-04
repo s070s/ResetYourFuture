@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Enums;
+namespace ResetYourFuture.Domain.Enums;
 
 /// <summary>
 /// Defines the type of content a Lesson contains.

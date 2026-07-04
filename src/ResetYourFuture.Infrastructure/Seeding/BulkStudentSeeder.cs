@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Generates a large cohort of realistic Greek-named student accounts for development and load-testing.

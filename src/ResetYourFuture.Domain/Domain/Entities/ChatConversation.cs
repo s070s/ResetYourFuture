@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// A chat conversation between two users (any role combination).

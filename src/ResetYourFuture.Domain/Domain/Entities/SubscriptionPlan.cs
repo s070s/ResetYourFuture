@@ -1,7 +1,6 @@
-using ResetYourFuture.Web.Domain.Enums;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Defines commercial access tiers (Free / Plus / Pro).
@@ -50,7 +49,7 @@ public class SubscriptionPlan
     /// <summary>
     /// The subscription tier this plan belongs to.
     /// </summary>
-    public SubscriptionTierEnum Tier { get; set; } = SubscriptionTierEnum.Free;
+    public SubscriptionTier Tier { get; set; } = SubscriptionTier.Free;
 
     /// <summary>
     /// JSON for flexible feature flags/limits (e.g. max courses, downloads, etc.).

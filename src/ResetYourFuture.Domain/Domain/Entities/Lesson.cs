@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Educational unit within a Module. Contains text, PDF, or video content.

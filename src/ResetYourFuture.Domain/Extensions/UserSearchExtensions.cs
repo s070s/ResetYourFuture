@@ -1,6 +1,6 @@
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.Extensions;
+namespace ResetYourFuture.Domain.Extensions;
 
 public static class UserSearchExtensions
 {

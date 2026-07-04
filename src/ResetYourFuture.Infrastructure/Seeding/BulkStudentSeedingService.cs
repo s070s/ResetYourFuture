@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.Seeding;
 
 /// <summary>
 /// Runs the bulk student seeder as a hosted background service so it does not

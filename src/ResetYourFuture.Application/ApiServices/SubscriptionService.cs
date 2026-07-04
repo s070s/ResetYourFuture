@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using ResetYourFuture.Shared.DTOs;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
-using ResetYourFuture.Web.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using System.Text.Json;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
 /// Subscription management service with stub Stripe integration.
@@ -83,7 +83,7 @@ public class SubscriptionService : ISubscriptionService
         if (activeSub is null)
         {
             status = new UserSubscriptionStatusDto(
-                SubscriptionTierEnum.Free,
+                SubscriptionTier.Free,
                 "Free",
                 DateTime.UtcNow,
                 null,
@@ -107,17 +107,17 @@ public class SubscriptionService : ISubscriptionService
         return status;
     }
 
-    public async Task<SubscriptionTierEnum> GetUserTierAsync(
+    public async Task<SubscriptionTier> GetUserTierAsync(
         string userId, CancellationToken cancellationToken = default)
     {
         var tier = await _db.UserSubscriptions
             .AsNoTracking()
             .Include(us => us.SubscriptionPlan)
             .Where(us => us.UserId == userId && us.IsActive)
-            .Select(us => (SubscriptionTierEnum?)us.SubscriptionPlan.Tier)
+            .Select(us => (SubscriptionTier?)us.SubscriptionPlan.Tier)
             .FirstOrDefaultAsync(cancellationToken);
 
-        return tier ?? SubscriptionTierEnum.Free;
+        return tier ?? SubscriptionTier.Free;
     }
 
     public async Task<CheckoutSessionDto> CreateCheckoutSessionAsync(
@@ -254,7 +254,7 @@ public class SubscriptionService : ISubscriptionService
         string userId, CancellationToken cancellationToken = default)
     {
         var freePlan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTier.Free && sp.IsActive, cancellationToken);
 
         if (freePlan is null)
         {
@@ -288,7 +288,7 @@ public class SubscriptionService : ISubscriptionService
             .Where(us => us.UserId == userId && us.IsActive)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (activeSub is null || activeSub.SubscriptionPlan.Tier == SubscriptionTierEnum.Free)
+        if (activeSub is null || activeSub.SubscriptionPlan.Tier == SubscriptionTier.Free)
         {
             return new CancelSubscriptionResultDto(false, "You are already on the Free plan.");
         }
@@ -301,7 +301,7 @@ public class SubscriptionService : ISubscriptionService
 
         // Assign Free plan
         var freePlan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive, cancellationToken);
+            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTier.Free && sp.IsActive, cancellationToken);
 
         if (freePlan is null)
         {

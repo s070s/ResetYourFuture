@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Stores site-wide configuration settings.

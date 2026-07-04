@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Domain.Entities;
 
-namespace ResetYourFuture.Web.Data.Configurations;
+namespace ResetYourFuture.Infrastructure.Data.Configurations;
 
 /// <summary>
 /// EF Core configuration for Course entity.

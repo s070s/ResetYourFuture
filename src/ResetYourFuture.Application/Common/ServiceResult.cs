@@ -1,4 +1,4 @@
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.Common;
 
 /// <summary>
 /// Thin wrapper that carries a value together with the HTTP status the controller should return.

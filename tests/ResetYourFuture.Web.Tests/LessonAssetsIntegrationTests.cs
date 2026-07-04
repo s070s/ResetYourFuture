@@ -1,5 +1,5 @@
 using System.Net;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Domain.Entities;
 using Shouldly;
 using Xunit;
 

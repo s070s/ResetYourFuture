@@ -1,7 +1,7 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
-namespace ResetYourFuture.Web.Interfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Authentication service interface for SSR auth operations.

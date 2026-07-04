@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Controllers;
 

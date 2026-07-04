@@ -2,9 +2,10 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.Configuration;
 
-namespace ResetYourFuture.Web.ApiServices;
+namespace ResetYourFuture.Infrastructure.ApiServices;
 
 /// <summary>
 /// Sends transactional email over SMTP using MailKit. Provider-agnostic: works against a local

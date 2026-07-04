@@ -1,4 +1,4 @@
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 

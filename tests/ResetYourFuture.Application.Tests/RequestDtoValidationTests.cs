@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 using Shouldly;
 using Xunit;
 

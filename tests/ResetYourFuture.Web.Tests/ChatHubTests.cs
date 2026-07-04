@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Web.ApiInterfaces;
-using ResetYourFuture.Web.Data;
-using ResetYourFuture.Web.Domain.Entities;
+using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Web.Hubs;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -67,7 +68,7 @@ public class ChatHubTests
         new() { Id = Guid.NewGuid(), CreatorId = creator, ParticipantId = participant };
 
     private static UserSubscriptionStatusDto Status(bool priority) =>
-        new(SubscriptionTierEnum.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
+        new(SubscriptionTier.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
 
     [Fact]
     public async Task OnConnected_DisabledUser_Aborts()

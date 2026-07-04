@@ -1,6 +1,6 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
 
-namespace ResetYourFuture.Web.Domain.Entities;
+namespace ResetYourFuture.Domain.Entities;
 
 /// <summary>
 /// Represents a full learning program (e.g. "Reset Your Future").
@@ -49,7 +49,7 @@ public class Course : AuditableEntity
     /// Minimum subscription tier required to access this course.
     /// Default is Free (all users can access).
     /// </summary>
-    public SubscriptionTierEnum RequiredTier { get; set; } = SubscriptionTierEnum.Free;
+    public SubscriptionTier RequiredTier { get; set; } = SubscriptionTier.Free;
 
     // Navigation: one Course has many Modules
     public ICollection<Module> Modules { get; set; } = [];

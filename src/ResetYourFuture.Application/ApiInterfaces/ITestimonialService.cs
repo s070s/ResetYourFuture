@@ -1,6 +1,6 @@
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Application.DTOs;
 
-namespace ResetYourFuture.Web.ApiInterfaces;
+namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
 /// Service contract for testimonial operations.

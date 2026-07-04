@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using ResetYourFuture.Shared.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Application.DTOs;
 using Shouldly;
 using Xunit;
 
@@ -18,7 +19,7 @@ public class SubscriptionIntegrationTests
     {
         var client = _factory.CreateClient();
 
-        (await client.GetAsync("/api/subscription/plans")).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await client.GetAsync("/api/subscriptions/plans")).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -26,7 +27,7 @@ public class SubscriptionIntegrationTests
     {
         var client = _factory.CreateClient();
 
-        (await client.GetAsync("/api/subscription/status")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        (await client.GetAsync("/api/subscriptions/status")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -34,11 +35,11 @@ public class SubscriptionIntegrationTests
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
-        var response = await client.GetAsync("/api/subscription/status");
+        var response = await client.GetAsync("/api/subscriptions/status");
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var status = await response.Content.ReadFromJsonAsync<UserSubscriptionStatusDto>();
-        status!.Tier.ShouldBe(SubscriptionTierEnum.Free);
+        status!.Tier.ShouldBe(SubscriptionTier.Free);
     }
 
     [Fact]
@@ -46,7 +47,7 @@ public class SubscriptionIntegrationTests
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
-        var response = await client.PostAsJsonAsync("/api/subscription/checkout", new CreateCheckoutRequest(Guid.NewGuid()));
+        var response = await client.PostAsJsonAsync("/api/subscriptions/checkout", new CreateCheckoutRequest(Guid.NewGuid()));
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -56,7 +57,7 @@ public class SubscriptionIntegrationTests
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
-        var response = await client.PostAsync("/api/subscription/cancel", content: null);
+        var response = await client.PostAsync("/api/subscriptions/cancel", content: null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
@@ -66,6 +67,6 @@ public class SubscriptionIntegrationTests
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
-        (await client.GetAsync("/api/subscription/billing")).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await client.GetAsync("/api/subscriptions/billing")).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 }

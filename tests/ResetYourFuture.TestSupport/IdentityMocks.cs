@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using ResetYourFuture.Web.Identity;
+using ResetYourFuture.Domain.Identity;
 
 namespace ResetYourFuture.TestSupport;
 

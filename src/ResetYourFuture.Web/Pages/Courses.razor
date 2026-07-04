@@ -60,7 +60,7 @@ else
                  @onkeydown="@(e => { if (e.IsActivationKey()) ViewCourse(course); })">
                 <div class="course-card-header">
                     <h3>@course.Title</h3>
-                    @if (course.RequiredTier != SubscriptionTierEnum.Free)
+                    @if (course.RequiredTier != SubscriptionTier.Free)
                     {
                         <span class="tier-badge tier-@course.RequiredTier.ToString().ToLowerInvariant()">
                             @course.RequiredTier

@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Web.ApiInterfaces;
+using ResetYourFuture.Application.ApiInterfaces;
 
 namespace ResetYourFuture.Web.Controllers;
 

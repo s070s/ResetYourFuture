@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace ResetYourFuture.Web.Data
+namespace ResetYourFuture.Infrastructure.Data
 {
     /// <summary>
     /// Design-time factory for EF tools (dotnet ef) to create ApplicationDbContext.
