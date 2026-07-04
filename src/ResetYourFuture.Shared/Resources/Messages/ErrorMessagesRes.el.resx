@@ -141,4 +141,7 @@
   <data name="BackToLogin" xml:space="preserve">
     <value>Επιστροφή στη Σύνδεση</value>
   </data>
+  <data name="EmailNotConfirmedHint" xml:space="preserve">
+    <value>Η διεύθυνση email σας δεν έχει επιβεβαιωθεί ακόμη. Ελέγξτε τα εισερχόμενά σας για τον σύνδεσμο επιβεβαίωσης.</value>
+  </data>
 </root>

@@ -104,6 +104,24 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("FailedToLoadLesson", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn't save your progress. Please try again..
+        /// </summary>
+        public static string FailedToSaveCompletion {
+            get {
+                return ResourceManager.GetString("FailedToSaveCompletion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This lesson's media is currently unavailable..
+        /// </summary>
+        public static string MediaUnavailable {
+            get {
+                return ResourceManager.GetString("MediaUnavailable", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Lesson.

@@ -6,7 +6,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin testimonials management API.
 /// </summary>
-public class AdminTestimonialConsumer( HttpClient http ) : ApiClientBase( http ), IAdminTestimonialConsumer
+public class AdminTestimonialConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminTestimonialConsumer
 {
     public Task<PagedResult<AdminTestimonialDto>?> GetAllAsync(
         int page = 1, int pageSize = 10, CancellationToken ct = default )

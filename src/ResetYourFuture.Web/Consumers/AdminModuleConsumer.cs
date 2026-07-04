@@ -5,7 +5,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin module management API.
 /// </summary>
-public class AdminModuleConsumer( HttpClient http ) : ApiClientBase( http ), IAdminModuleConsumer
+public class AdminModuleConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminModuleConsumer
 {
     public async Task<List<AdminModuleDto>> GetModulesByCourseAsync( Guid courseId )
         => await GetAsync<List<AdminModuleDto>>( $"api/admin/modules/course/{courseId}" ) ?? [];

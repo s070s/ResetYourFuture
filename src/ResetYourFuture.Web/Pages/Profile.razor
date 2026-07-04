@@ -10,7 +10,15 @@
         <Authorized>
             @if (profile == null)
             {
-                <p>@ProfileRes.Loading</p>
+                @if (_loadError is not null)
+                {
+                    <p class="text-danger">@_loadError</p>
+                    <button class="btn btn-secondary" @onclick="LoadProfileAsync">@GlobalRes.TryAgain</button>
+                }
+                else
+                {
+                    <p>@ProfileRes.Loading</p>
+                }
             }
             else
             {
@@ -26,7 +34,14 @@
                                 {
                                     <img src="@avatarDataUrl" alt="@ProfileRes.LabelAvatar" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;" />
                                 }
-                                <InputFile id="profile-avatar" OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" />
+                                <InputFile id="profile-avatar" OnChange="HandleAvatarUpload" class="form-control mt-2" accept="image/*" disabled="@_uploadingAvatar" />
+                                @if (_uploadingAvatar)
+                                {
+                                    <div class="mt-2 d-flex align-items-center gap-2">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span>@ProfileRes.UploadingAvatar</span>
+                                    </div>
+                                }
                             </div>
                         </div>
 

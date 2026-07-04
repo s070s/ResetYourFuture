@@ -10,6 +10,7 @@
 else if (_error is not null)
 {
     <p class="text-danger">@_error</p>
+    <button class="btn btn-primary me-2" @onclick="LoadAllAsync">@GlobalRes.TryAgain</button>
     <button class="btn btn-secondary" @onclick="GoBack">@CourseRes.BackToCourses</button>
 }
 else if (_course is null)

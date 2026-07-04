@@ -5,7 +5,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin course management API.
 /// </summary>
-public class AdminCourseConsumer( HttpClient http ) : ApiClientBase( http ), IAdminCourseConsumer
+public class AdminCourseConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminCourseConsumer
 {
     public Task<PagedResult<AdminCourseDto>?> GetCoursesAsync( int page = 1, int pageSize = 10 )
         => GetAsync<PagedResult<AdminCourseDto>>( $"api/admin/courses?page={page}&pageSize={pageSize}" );

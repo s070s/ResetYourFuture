@@ -31,6 +31,11 @@ public partial class CourseDetail
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAllAsync();
+    }
+
+    private async Task LoadAllAsync()
+    {
         var tierTask = SubscriptionService.GetStatusAsync();
         await Task.WhenAll( LoadCourse(), tierTask );
 

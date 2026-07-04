@@ -53,12 +53,31 @@ h1 {
     overflow: hidden;
 }
 
-    .video-container iframe {
+    .video-container iframe,
+    .video-container video {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
+    }
+
+    /* Uploaded videos: letterbox within the 16:9 box instead of stretching */
+    .video-container video {
+        object-fit: contain;
+        background: var(--bg-primary);
+    }
+
+    /* Center the "media unavailable" fallback inside the aspect-ratio box */
+    .video-container .media-unavailable {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1rem;
+        margin: 0;
     }
 
 .text-content {

@@ -6,7 +6,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the profile API.
 /// </summary>
-public class ProfileConsumer( HttpClient http ) : ApiClientBase( http ), IProfileConsumer
+public class ProfileConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IProfileConsumer
 {
     public Task<ProfileDto?> GetProfileAsync()
         => GetAsync<ProfileDto>( "api/profile" );
@@ -16,6 +16,7 @@ public class ProfileConsumer( HttpClient http ) : ApiClientBase( http ), IProfil
 
     public async Task<(byte[] Data, string ContentType)?> GetAvatarAsync()
     {
+        await EnsureAuthorizationAsync();
         var response = await Http.GetAsync( "api/profile/avatar" );
         if ( !response.IsSuccessStatusCode )
             return null;

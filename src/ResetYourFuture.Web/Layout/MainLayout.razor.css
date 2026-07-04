@@ -17,7 +17,9 @@ main {
 }
 
 main.content {
-    padding: 1.1rem 1.5rem 2rem;
+    /* Use safe-area insets at all widths so landscape notched devices (which are ≥768px
+       wide and skip the mobile override below) don't tuck content under the notch. */
+    padding: 1.1rem max(1.5rem, env(safe-area-inset-right)) 2rem max(1.5rem, env(safe-area-inset-left));
     min-height: calc(100vh - 3.5rem);
     min-height: calc(100dvh - 3.5rem);
     max-width: 1440px;

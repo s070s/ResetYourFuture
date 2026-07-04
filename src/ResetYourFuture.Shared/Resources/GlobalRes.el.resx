@@ -225,4 +225,10 @@
   <data name="NotAuthorizedMessage" xml:space="preserve">
     <value>Δεν έχετε άδεια για προβολή αυτής της σελίδας.</value>
   </data>
+  <data name="TryAgain" xml:space="preserve">
+    <value>Δοκιμάστε ξανά</value>
+  </data>
+  <data name="PasswordRulesHint" xml:space="preserve">
+    <value>Τουλάχιστον 8 χαρακτήρες, με έναν αριθμό και ένα κεφαλαίο γράμμα.</value>
+  </data>
 </root>

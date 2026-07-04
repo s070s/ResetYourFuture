@@ -11,19 +11,22 @@
     }
 
     @if (unconfirmedEmailPending)
-    { 
+    {
+        <div class="alert alert-warning">@ErrorMessagesRes.EmailNotConfirmedHint</div>
         @if (Env.IsDevelopment())
         {
             <div class="mt-2">
                 <button class="btn btn-sm btn-warning" @onclick="DevConfirmPendingEmail">@GlobalRes.Label_ConfirmEmail</button>
             </div>
         }
-
     }
 
     @if (!string.IsNullOrEmpty(errorMessage) && !unconfirmedEmailPending)
     {
-        <div class="alert alert-danger">@errorMessage</div>
+        <div class="alert alert-danger">
+            @errorMessage
+            <div class="mt-1"><a href="/forgot-password">@GlobalRes.Label_ForgotPassword</a></div>
+        </div>
     }
     <EditForm Model="loginRequest" OnValidSubmit="HandleLogin" autocomplete="off">
         <DataAnnotationsValidator />

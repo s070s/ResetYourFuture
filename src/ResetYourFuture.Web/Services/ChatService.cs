@@ -1,32 +1,40 @@
 using Microsoft.AspNetCore.SignalR.Client;
 using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Shared.DTOs;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Web.Services;
 
 /// <summary>
 /// Chat service combining REST API calls (history) and SignalR (real-time).
-/// Token and hub URL are captured from IHttpContextAccessor during construction
-/// (before the Blazor Server circuit transitions away from the HTTP request context).
+///
+/// The hub URL is captured from IHttpContextAccessor during construction (before the Blazor Server
+/// circuit transitions away from the HTTP request context). Bearer tokens are minted per call —
+/// REST calls via <see cref="ApiTokenProvider"/> and the SignalR hub via its AccessTokenProvider —
+/// because HttpContext (and therefore <c>SsrApiHandler</c>) is null inside the interactive circuit,
+/// where these calls would otherwise go out unauthenticated and 401.
 /// </summary>
 public class ChatService : IChatService
 {
     private readonly HttpClient _http;
     private readonly string _hubUrl;
     private readonly IAuthService _authService;
+    private readonly ApiTokenProvider _tokenProvider;
     private readonly ILogger<ChatService> _logger;
     private HubConnection? _hub;
 
     public event Action<ChatMessageDto>? OnMessageReceived;
     public event Action<ChatNotificationDto>? OnNotificationReceived;
+    public event Action? ConnectionStateChanged;
 
     public bool IsConnected => _hub?.State == HubConnectionState.Connected;
 
-    public ChatService( HttpClient http , IAuthService authService , IHttpContextAccessor httpContextAccessor , ILogger<ChatService> logger )
+    public ChatService( HttpClient http , IAuthService authService , ApiTokenProvider tokenProvider , IHttpContextAccessor httpContextAccessor , ILogger<ChatService> logger )
     {
         _http = http;
         _authService = authService;
+        _tokenProvider = tokenProvider;
         _logger = logger;
 
         // Capture hub URL from the current HTTP request before circuit transition.
@@ -64,15 +72,22 @@ public class ChatService : IChatService
             OnNotificationReceived?.Invoke( notification );
         } );
 
+        // Surface reconnect lifecycle so the UI can show a "reconnecting" indicator.
+        _hub.Reconnecting += _ => { ConnectionStateChanged?.Invoke(); return Task.CompletedTask; };
+        _hub.Reconnected += _ => { ConnectionStateChanged?.Invoke(); return Task.CompletedTask; };
+        _hub.Closed += _ => { ConnectionStateChanged?.Invoke(); return Task.CompletedTask; };
+
         try
         {
             await _hub.StartAsync();
+            ConnectionStateChanged?.Invoke();
         }
         catch ( Exception ex )
         {
             _logger.LogError( ex , "Failed to start SignalR hub connection to {HubUrl}." , _hubUrl );
             await _hub.DisposeAsync();
             _hub = null;
+            ConnectionStateChanged?.Invoke();
         }
     }
 
@@ -86,10 +101,27 @@ public class ChatService : IChatService
         }
     }
 
+    /// <summary>
+    /// Attaches a freshly minted bearer token (or clears it when anonymous) to <see cref="_http"/>
+    /// before a REST call. <see cref="ApiTokenProvider"/> reads the principal from
+    /// <c>AuthenticationStateProvider</c>, which — unlike <c>IHttpContextAccessor</c> /
+    /// <c>SsrApiHandler</c> — is available inside the interactive Blazor Server circuit. The token is
+    /// identical for every call within a circuit, so mutating the default header is safe on the
+    /// single-threaded circuit dispatcher. ChatService does not extend <c>ApiClientBase</c>, so it
+    /// attaches the token itself.
+    /// </summary>
+    private async Task EnsureAuthorizationAsync()
+    {
+        var token = await _tokenProvider.GetTokenAsync();
+        _http.DefaultRequestHeaders.Authorization =
+            string.IsNullOrEmpty( token ) ? null : new AuthenticationHeaderValue( "Bearer" , token );
+    }
+
     public async Task<PagedResult<ChatConversationDto>> GetConversationsAsync( int page = 1 , int pageSize = 10 )
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var response = await _http.GetAsync( $"api/chat/conversations?page={page}&pageSize={pageSize}" );
             if ( response.IsSuccessStatusCode )
             {
@@ -108,6 +140,7 @@ public class ChatService : IChatService
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var response = await _http.GetAsync(
                 $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}" );
             if ( response.IsSuccessStatusCode )
@@ -127,6 +160,7 @@ public class ChatService : IChatService
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var request = new StartConversationRequest( targetUserId , initialMessage );
             var response = await _http.PostAsJsonAsync( "api/chat/conversations/start" , request );
             if ( response.IsSuccessStatusCode )
@@ -145,6 +179,7 @@ public class ChatService : IChatService
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var url = string.IsNullOrWhiteSpace( search )
                 ? "api/chat/users"
                 : $"api/chat/users?search={Uri.EscapeDataString( search )}";
@@ -182,6 +217,7 @@ public class ChatService : IChatService
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var response = await _http.GetAsync( "api/chat/unread-count" );
             if ( response.IsSuccessStatusCode )
             {
@@ -199,6 +235,7 @@ public class ChatService : IChatService
     {
         try
         {
+            await EnsureAuthorizationAsync();
             var response = await _http.DeleteAsync( $"api/chat/conversations/{conversationId}" );
             return response.IsSuccessStatusCode;
         }

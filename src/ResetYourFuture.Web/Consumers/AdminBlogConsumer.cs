@@ -6,7 +6,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin blog management API.
 /// </summary>
-public class AdminBlogConsumer( HttpClient http ) : ApiClientBase( http ), IAdminBlogConsumer
+public class AdminBlogConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminBlogConsumer
 {
     public Task<PagedResult<AdminBlogArticleDto>?> GetArticlesAsync(
         int page = 1, int pageSize = 10, string? search = null, CancellationToken ct = default )

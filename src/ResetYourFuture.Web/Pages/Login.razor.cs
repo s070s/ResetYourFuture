@@ -61,8 +61,9 @@ public partial class Login
                 // Preserve original message
                 errorMessage = result.Message ?? ErrorMessagesRes.LoginError;
 
-                // Detect "email not confirmed" failure and surface a dev-only confirm action.
-                if ( Env.IsDevelopment() && !string.IsNullOrEmpty( result.Message )
+                // Detect "email not confirmed" failure and surface targeted guidance (all
+                // environments). The dev-only self-confirm button is gated separately in the markup.
+                if ( !string.IsNullOrEmpty( result.Message )
                     && result.Message.Contains( "email not confirmed" , StringComparison.OrdinalIgnoreCase ) )
                 {
                     unconfirmedEmailPending = true;

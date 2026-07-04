@@ -5,7 +5,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the subscription API.
 /// </summary>
-public class SubscriptionConsumer( HttpClient http ) : ApiClientBase( http ), ISubscriptionConsumer
+public class SubscriptionConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), ISubscriptionConsumer
 {
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync()
         => await GetAsync<List<SubscriptionPlanDto>>( "api/subscription/plans" ) ?? [];

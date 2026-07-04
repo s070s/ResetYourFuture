@@ -13,6 +13,7 @@ public partial class Billing
     private BillingOverviewDto? _overview;
     private bool _loading = true;
     private bool _cancelling;
+    private bool _showCancelConfirm;
     private string? _error;
     private string? _cancelMessage;
     private bool _cancelSuccess;
@@ -88,8 +89,13 @@ public partial class Billing
         finally
         {
             _cancelling = false;
+            _showCancelConfirm = false;
         }
     }
+
+    private void RequestCancel() => _showCancelConfirm = true;
+
+    private void CloseCancelDialog() => _showCancelConfirm = false;
 
     private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
 }

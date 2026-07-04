@@ -302,7 +302,25 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("NotAuthorizedMessage", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Try again.
+        /// </summary>
+        public static string TryAgain {
+            get {
+                return ResourceManager.GetString("TryAgain", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to At least 8 characters, including a number and an uppercase letter..
+        /// </summary>
+        public static string PasswordRulesHint {
+            get {
+                return ResourceManager.GetString("PasswordRulesHint", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Newer.
         /// </summary>

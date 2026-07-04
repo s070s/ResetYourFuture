@@ -27,25 +27,38 @@ public partial class Profile
     private bool isChangingPassword = false;
     private string message = string.Empty;
     private string? avatarDataUrl;
+    private string? _loadError;
+    private bool _uploadingAvatar;
+
+    private static readonly string[] AllowedAvatarTypes =
+        { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
         _isImpersonating = state.User.FindFirst( "impersonatedBy" ) is not null;
+        await LoadProfileAsync();
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        _loadError = null;
         try
         {
             profile = await ProfileConsumer.GetProfileAsync();
             if ( profile is null )
             {
-                Navigation.NavigateTo( "/login" );
+                // The cookie session is still valid (this page is [Authorize]-gated); a null here
+                // means the API call failed, so show a retry instead of silently bouncing to /login.
+                _loadError = ProfileRes.FailedToLoadProfile;
                 return;
             }
             displayName = profile.DisplayName ?? string.Empty;
             await LoadAvatarAsync();
         }
-        catch
+        catch ( Exception )
         {
-            Navigation.NavigateTo( "/login" );
+            _loadError = ProfileRes.FailedToLoadProfile;
         }
     }
 
@@ -72,6 +85,7 @@ public partial class Profile
 
     private async Task HandleAvatarUpload( InputFileChangeEventArgs e )
     {
+        message = string.Empty;
         var file = e.File;
         if ( file == null || file.Size >= 5 * 1024 * 1024 )
         {
@@ -79,6 +93,13 @@ public partial class Profile
             return;
         }
 
+        if ( !AllowedAvatarTypes.Contains( file.ContentType, StringComparer.OrdinalIgnoreCase ) )
+        {
+            message = ProfileRes.InvalidImageType;
+            return;
+        }
+
+        _uploadingAvatar = true;
         try
         {
             var success = await ProfileConsumer.UploadAvatarAsync( file );
@@ -97,6 +118,10 @@ public partial class Profile
         catch ( Exception ex )
         {
             message = string.Format( ProfileRes.ErrorUploadingAvatarFormat, ex.Message );
+        }
+        finally
+        {
+            _uploadingAvatar = false;
         }
     }
 

@@ -28,6 +28,8 @@ public partial class LessonViewer
     private bool _loading = true;
     private bool _completing;
     private string? _error;
+    private string? _completionError;
+    private bool _mediaError;
     private string? _videoToken;
 
     protected override async Task OnParametersSetAsync()
@@ -40,6 +42,7 @@ public partial class LessonViewer
         _loading = true;
         _error = null;
         _completionResult = null;
+        _mediaError = false;
 
         try
         {
@@ -66,26 +69,38 @@ public partial class LessonViewer
     private async Task MarkComplete()
     {
         _completing = true;
+        _completionError = null;
         try
         {
-            _completionResult = await CourseService.CompleteLessonAsync( LessonId );
-            if ( _completionResult?.Success == true && _lesson is not null )
+            var result = await CourseService.CompleteLessonAsync( LessonId );
+            if ( result?.Success == true && _lesson is not null )
             {
                 // Update local state
+                _completionResult = result;
                 _lesson = _lesson with
                 {
                     IsCompleted = true
                 };
             }
+            else
+            {
+                _completionError = LessonRes.FailedToSaveCompletion;
+            }
         }
         catch ( Exception ex )
         {
+            _completionError = LessonRes.FailedToSaveCompletion;
             _logger.LogError( ex , "Failed to mark lesson {LessonId} as complete." , LessonId );
         }
         finally
         {
             _completing = false;
         }
+    }
+
+    private void OnMediaError()
+    {
+        _mediaError = true;
     }
 
     private void GoToLesson( Guid lessonId )

@@ -6,7 +6,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin user management API.
 /// </summary>
-public class AdminUserConsumer( HttpClient http ) : ApiClientBase( http ), IAdminUserConsumer
+public class AdminUserConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminUserConsumer
 {
     public Task<PagedResult<AdminUserDto>?> GetUsersAsync(
         int page = 1, int pageSize = 10, string? search = null, string sortBy = "email", string sortDir = "asc" )
@@ -24,6 +24,7 @@ public class AdminUserConsumer( HttpClient http ) : ApiClientBase( http ), IAdmi
 
     public async Task<bool?> ToggleEnableAsync( string userId )
     {
+        await EnsureAuthorizationAsync();
         var response = await Http.PostAsync( $"api/admin/users/{userId}/toggle-enable", null );
         if ( !response.IsSuccessStatusCode )
             return null;
@@ -37,6 +38,7 @@ public class AdminUserConsumer( HttpClient http ) : ApiClientBase( http ), IAdmi
 
     public async Task<string?> ForcePasswordResetAsync( string userId )
     {
+        await EnsureAuthorizationAsync();
         var response = await Http.PostAsync( $"api/admin/users/{userId}/force-password-reset", null );
         if ( !response.IsSuccessStatusCode )
             return null;

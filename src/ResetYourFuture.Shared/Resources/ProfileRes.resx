@@ -123,4 +123,13 @@
 	<data name="ErrorFormat" xml:space="preserve">
 		<value>Error: {0}</value>
 	</data>
+	<data name="FailedToLoadProfile" xml:space="preserve">
+		<value>Couldn't load your profile. Please try again.</value>
+	</data>
+	<data name="InvalidImageType" xml:space="preserve">
+		<value>Please choose an image file (JPEG, PNG, GIF, or WebP).</value>
+	</data>
+	<data name="UploadingAvatar" xml:space="preserve">
+		<value>Uploading…</value>
+	</data>
 </root>

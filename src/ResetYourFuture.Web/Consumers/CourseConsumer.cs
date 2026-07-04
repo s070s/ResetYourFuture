@@ -6,7 +6,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the course API.
 /// </summary>
-public class CourseConsumer( HttpClient http ) : ApiClientBase( http ), ICourseConsumer
+public class CourseConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), ICourseConsumer
 {
     public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync( int page = 1, int pageSize = 10, string lang = "en" )
         => await GetAsync<PagedResult<CourseListItemDto>>( $"api/courses?page={page}&pageSize={pageSize}&lang={lang}" )
@@ -17,6 +17,7 @@ public class CourseConsumer( HttpClient http ) : ApiClientBase( http ), ICourseC
 
     public async Task<EnrollmentResultDto?> EnrollAsync( Guid courseId )
     {
+        await EnsureAuthorizationAsync();
         var response = await Http.PostAsync( $"api/courses/{courseId}/enroll", null );
         if ( response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.Forbidden )
             return await response.Content.ReadFromJsonAsync<EnrollmentResultDto>();

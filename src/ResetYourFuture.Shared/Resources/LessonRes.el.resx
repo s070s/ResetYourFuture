@@ -143,4 +143,10 @@
 	<data name="BackToCourse" xml:space="preserve">
 		<value>Πίσω στο Μάθημα</value>
 	</data>
+	<data name="FailedToSaveCompletion" xml:space="preserve">
+		<value>Δεν ήταν δυνατή η αποθήκευση της προόδου σας. Δοκιμάστε ξανά.</value>
+	</data>
+	<data name="MediaUnavailable" xml:space="preserve">
+		<value>Το περιεχόμενο αυτού του μαθήματος δεν είναι διαθέσιμο αυτή τη στιγμή.</value>
+	</data>
 </root>

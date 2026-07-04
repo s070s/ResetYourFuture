@@ -123,4 +123,13 @@
 	<data name="ErrorFormat" xml:space="preserve">
 		<value>Σφάλμα: {0}</value>
 	</data>
+	<data name="FailedToLoadProfile" xml:space="preserve">
+		<value>Δεν ήταν δυνατή η φόρτωση του προφίλ σας. Δοκιμάστε ξανά.</value>
+	</data>
+	<data name="InvalidImageType" xml:space="preserve">
+		<value>Επιλέξτε αρχείο εικόνας (JPEG, PNG, GIF ή WebP).</value>
+	</data>
+	<data name="UploadingAvatar" xml:space="preserve">
+		<value>Μεταφόρτωση…</value>
+	</data>
 </root>

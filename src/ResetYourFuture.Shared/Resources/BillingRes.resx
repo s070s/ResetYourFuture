@@ -111,4 +111,16 @@
 	<data name="ItemLabelTransactions" xml:space="preserve">
 		<value>transactions</value>
 	</data>
+	<data name="CancelConfirmTitle" xml:space="preserve">
+		<value>Cancel subscription?</value>
+	</data>
+	<data name="CancelConfirmBody" xml:space="preserve">
+		<value>Are you sure you want to cancel your {0} plan?</value>
+	</data>
+	<data name="CancelConfirmAccessUntil" xml:space="preserve">
+		<value>You'll keep access until {0}.</value>
+	</data>
+	<data name="KeepSubscription" xml:space="preserve">
+		<value>Keep subscription</value>
+	</data>
 </root>

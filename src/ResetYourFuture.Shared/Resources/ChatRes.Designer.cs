@@ -68,6 +68,15 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Conversations", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Connection lost. Reconnecting….
+        /// </summary>
+        public static string Reconnecting {
+            get {
+                return ResourceManager.GetString("Reconnecting", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to New.

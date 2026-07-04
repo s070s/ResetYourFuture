@@ -5,7 +5,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the user-facing assessment API.
 /// </summary>
-public class AssessmentConsumer( HttpClient http ) : ApiClientBase( http ), IAssessmentConsumer
+public class AssessmentConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAssessmentConsumer
 {
     public async Task<PagedResult<AssessmentDefinitionDto>> GetAssessmentsAsync( int page = 1, int pageSize = 10, string lang = "en" )
         => await GetAsync<PagedResult<AssessmentDefinitionDto>>( $"api/assessments?page={page}&pageSize={pageSize}&lang={lang}" )

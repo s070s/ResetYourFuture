@@ -40,7 +40,11 @@ else
             {
                 @* Video lesson *@
                 <div class="video-container">
-                    @if (IsYouTubeUrl(_lesson.Content))
+                    @if (_mediaError)
+                    {
+                        <p class="text-danger media-unavailable" role="alert">@LessonRes.MediaUnavailable</p>
+                    }
+                    else if (IsYouTubeUrl(_lesson.Content))
                     {
                         <iframe
                             src="@ToEmbedUrl(_lesson.Content)"
@@ -52,7 +56,7 @@ else
                     }
                     else
                     {
-                        <video controls controlsList="nodownload" oncontextmenu="return false;" preload="metadata" style="width:100%">
+                        <video controls controlsList="nodownload" oncontextmenu="return false;" preload="metadata" style="width:100%" @onerror="OnMediaError">
                             <source src="@VideoAssetUrl" />
                         </video>
                     }
@@ -88,6 +92,11 @@ else
             else
             {
                 <span class="completed-indicator">@LessonRes.CompletedIndicator</span>
+            }
+
+            @if (_completionError is not null)
+            {
+                <p class="text-danger mt-2" role="alert">@_completionError</p>
             }
 
             @if (_completionResult is not null)

@@ -111,4 +111,16 @@
 	<data name="ItemLabelTransactions" xml:space="preserve">
 		<value>συναλλαγές</value>
 	</data>
+	<data name="CancelConfirmTitle" xml:space="preserve">
+		<value>Ακύρωση συνδρομής;</value>
+	</data>
+	<data name="CancelConfirmBody" xml:space="preserve">
+		<value>Είστε σίγουροι ότι θέλετε να ακυρώσετε το πρόγραμμα {0};</value>
+	</data>
+	<data name="CancelConfirmAccessUntil" xml:space="preserve">
+		<value>Θα διατηρήσετε την πρόσβαση έως {0}.</value>
+	</data>
+	<data name="KeepSubscription" xml:space="preserve">
+		<value>Διατήρηση συνδρομής</value>
+	</data>
 </root>

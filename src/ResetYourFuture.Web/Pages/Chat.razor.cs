@@ -59,6 +59,7 @@ public partial class Chat : IAsyncDisposable
 
         ChatService.OnMessageReceived += HandleMessageReceived;
         ChatService.OnNotificationReceived += HandleNotification;
+        ChatService.ConnectionStateChanged += HandleConnectionStateChanged;
 
         await ChatService.StartAsync( user );
         await LoadConversationsAsync();
@@ -262,6 +263,11 @@ public partial class Chat : IAsyncDisposable
         // This hook is available for toast/audio in the future.
     }
 
+    private void HandleConnectionStateChanged()
+    {
+        InvokeAsync( StateHasChanged );
+    }
+
     private void UpdateConversationUnread( Guid conversationId , int? explicitCount )
     {
         if ( _conversations is null )
@@ -321,6 +327,7 @@ public partial class Chat : IAsyncDisposable
         {
             ChatService.OnMessageReceived -= HandleMessageReceived;
             ChatService.OnNotificationReceived -= HandleNotification;
+            ChatService.ConnectionStateChanged -= HandleConnectionStateChanged;
             await ChatService.DisposeAsync();
         }
 

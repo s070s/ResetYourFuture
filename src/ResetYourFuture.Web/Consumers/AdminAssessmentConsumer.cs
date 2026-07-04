@@ -5,7 +5,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// <summary>
 /// HTTP consumer for the admin assessment management API.
 /// </summary>
-public class AdminAssessmentConsumer( HttpClient http ) : ApiClientBase( http ), IAdminAssessmentConsumer
+public class AdminAssessmentConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), IAdminAssessmentConsumer
 {
     public Task<PagedResult<AssessmentDefinitionListItemDto>?> GetAssessmentsAsync( int page = 1, int pageSize = 10 )
         => GetAsync<PagedResult<AssessmentDefinitionListItemDto>>( $"api/admin/assessments?page={page}&pageSize={pageSize}" );

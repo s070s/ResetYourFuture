@@ -141,4 +141,7 @@
   <data name="BackToLogin" xml:space="preserve">
     <value>Back to Login</value>
   </data>
+  <data name="EmailNotConfirmedHint" xml:space="preserve">
+    <value>Your email address isn't confirmed yet. Please check your inbox for the confirmation link.</value>
+  </data>
 </root>

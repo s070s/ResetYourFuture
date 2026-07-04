@@ -86,6 +86,42 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("CancelSubscription", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel subscription?.
+        /// </summary>
+        public static string CancelConfirmTitle {
+            get {
+                return ResourceManager.GetString("CancelConfirmTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to cancel your {0} plan?.
+        /// </summary>
+        public static string CancelConfirmBody {
+            get {
+                return ResourceManager.GetString("CancelConfirmBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You'll keep access until {0}..
+        /// </summary>
+        public static string CancelConfirmAccessUntil {
+            get {
+                return ResourceManager.GetString("CancelConfirmAccessUntil", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep subscription.
+        /// </summary>
+        public static string KeepSubscription {
+            get {
+                return ResourceManager.GetString("KeepSubscription", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Change Plan.

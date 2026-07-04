@@ -68,6 +68,33 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("AvatarUploadedSuccess", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn't load your profile. Please try again..
+        /// </summary>
+        public static string FailedToLoadProfile {
+            get {
+                return ResourceManager.GetString("FailedToLoadProfile", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Please choose an image file (JPEG, PNG, GIF, or WebP)..
+        /// </summary>
+        public static string InvalidImageType {
+            get {
+                return ResourceManager.GetString("InvalidImageType", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Uploading….
+        /// </summary>
+        public static string UploadingAvatar {
+            get {
+                return ResourceManager.GetString("UploadingAvatar", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Basic Information.

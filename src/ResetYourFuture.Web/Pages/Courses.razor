@@ -12,6 +12,7 @@
 else if (_error is not null)
 {
     <p class="text-danger">@_error</p>
+    <button class="btn btn-secondary" @onclick="LoadCoursesAsync">@GlobalRes.TryAgain</button>
 }
 else if (_pagedResult is null || _pagedResult.TotalCount == 0)
 {

@@ -71,6 +71,14 @@
             }
         </div>
 
+        @if (!IsConnected)
+        {
+            <div class="d-flex align-items-center gap-2 px-3 py-1 small text-warning" role="status" aria-live="polite">
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span>@ChatRes.Reconnecting</span>
+            </div>
+        }
+
         <div class="chat-input">
             <div class="textarea-wrapper">
                 <div class="resize-handle-top" @ref="_resizeHandleRef"></div>

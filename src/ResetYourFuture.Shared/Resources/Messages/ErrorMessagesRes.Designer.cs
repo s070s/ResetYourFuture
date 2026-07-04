@@ -131,5 +131,14 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("BackToLogin", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your email address isn't confirmed yet. Please check your inbox for the confirmation link..
+        /// </summary>
+        public static string EmailNotConfirmedHint {
+            get {
+                return ResourceManager.GetString("EmailNotConfirmedHint", resourceCulture);
+            }
+        }
     }
 }

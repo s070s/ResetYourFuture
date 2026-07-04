@@ -21,9 +21,9 @@
                 </div>
             }        
     }
-    else
+    else if (!string.IsNullOrEmpty(successMessage))
     {
-        <div>@SuccessMessagesRes.RegistrationSuccess</div>
+        <div class="alert alert-success">@SuccessMessagesRes.RegistrationSuccess</div>
     }
 
     @if (!string.IsNullOrEmpty(errorMessage))
@@ -71,15 +71,16 @@
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label">@GlobalRes.Label_Password @GlobalRes.Label_Minimum8Chars</label>
+            <label for="password" class="form-label">@GlobalRes.Label_Password</label>
             <div class="input-group">
-                <InputText id="password" type="@passwordInputType" class="form-control" autocomplete="new-password" @bind-Value="registerRequest.Password" />
+                <InputText id="password" type="@passwordInputType" class="form-control" autocomplete="new-password" aria-describedby="password-help" @bind-Value="registerRequest.Password" />
                 <button type="button" class="btn btn-password-toggle" @onclick="TogglePasswordVisibility"
                         aria-label="@GlobalRes.ShowHidePassword"
                         aria-pressed="@(passwordInputType == "text" ? "true" : "false")">
                     <i class="@passwordIconClass" aria-hidden="true"></i>
                 </button>
             </div>
+            <div class="form-text" id="password-help">@GlobalRes.PasswordRulesHint</div>
             <ValidationMessage For="@(() => registerRequest.Password)" />
         </div>
 

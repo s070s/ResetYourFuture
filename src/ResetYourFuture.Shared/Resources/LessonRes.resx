@@ -143,4 +143,10 @@
 	<data name="BackToCourse" xml:space="preserve">
 		<value>Back to Course</value>
 	</data>
+	<data name="FailedToSaveCompletion" xml:space="preserve">
+		<value>Couldn't save your progress. Please try again.</value>
+	</data>
+	<data name="MediaUnavailable" xml:space="preserve">
+		<value>This lesson's media is currently unavailable.</value>
+	</data>
 </root>

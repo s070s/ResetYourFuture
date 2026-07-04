@@ -13,6 +13,7 @@
     else if (_error is not null)
     {
         <p class="text-danger">@_error</p>
+        <button class="btn btn-secondary" @onclick="LoadBillingOverviewAsync">@GlobalRes.TryAgain</button>
     }
     else if (_overview is not null)
     {
@@ -68,8 +69,8 @@
                     <button class="btn btn-primary" @onclick="GoToPricing">@BillingRes.ChangePlan</button>
                     @if (_overview.CurrentSubscription?.Tier > SubscriptionTierEnum.Free)
                     {
-                        <button class="btn btn-outline-warning" @onclick="CancelSubscription" disabled="@_cancelling">
-                            @(_cancelling ? BillingRes.Cancelling : BillingRes.CancelSubscription)
+                        <button class="btn btn-outline-warning" @onclick="RequestCancel" disabled="@_cancelling">
+                            @BillingRes.CancelSubscription
                         </button>
                     }
                 </div>
@@ -80,6 +81,23 @@
                         @_cancelMessage
                     </div>
                 }
+
+                <ConfirmModal IsVisible="_showCancelConfirm"
+                              Title="@BillingRes.CancelConfirmTitle"
+                              ConfirmLabel="@BillingRes.CancelSubscription"
+                              CancelLabel="@BillingRes.KeepSubscription"
+                              ConfirmButtonClass="btn-warning"
+                              IsBusy="_cancelling"
+                              OnConfirm="CancelSubscription"
+                              OnCancel="CloseCancelDialog">
+                    <BodyContent>
+                        <p>@string.Format(BillingRes.CancelConfirmBody, _overview.CurrentSubscription?.PlanName)</p>
+                        @if (_overview.CurrentSubscription?.ExpiresAt is not null)
+                        {
+                            <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy"))</p>
+                        }
+                    </BodyContent>
+                </ConfirmModal>
             </div>
         </div>
 

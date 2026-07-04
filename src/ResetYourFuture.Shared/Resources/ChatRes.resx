@@ -96,4 +96,7 @@
 	<data name="Messages" xml:space="preserve">
 		<value>Messages</value>
 	</data>
+	<data name="Reconnecting" xml:space="preserve">
+		<value>Connection lost. Reconnecting…</value>
+	</data>
 </root>

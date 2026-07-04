@@ -96,4 +96,7 @@
 	<data name="Messages" xml:space="preserve">
 		<value>Μηνύματα</value>
 	</data>
+	<data name="Reconnecting" xml:space="preserve">
+		<value>Η σύνδεση χάθηκε. Επανασύνδεση…</value>
+	</data>
 </root>

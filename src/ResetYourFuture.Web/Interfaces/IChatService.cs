@@ -18,6 +18,12 @@ public interface IChatService : IAsyncDisposable
     event Action<ChatNotificationDto>? OnNotificationReceived;
 
     /// <summary>
+    /// Fired when the SignalR connection state changes (connected, reconnecting, closed) so the UI
+    /// can reflect it. Read <see cref="IsConnected"/> for the current state.
+    /// </summary>
+    event Action? ConnectionStateChanged;
+
+    /// <summary>
     /// True when the SignalR connection is active.
     /// </summary>
     bool IsConnected
