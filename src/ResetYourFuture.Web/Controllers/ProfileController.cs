@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Web.Extensions;
 
 using System.Security.Claims;
 
@@ -18,19 +17,8 @@ namespace ResetYourFuture.Web.Controllers;
 [Tags("Profile")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public class ProfileController : ControllerBase
+public class ProfileController(IProfileService profileService) : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IFileStorage _fileStorage;
-    private readonly ILogger<ProfileController> _logger;
-
-    public ProfileController(UserManager<ApplicationUser> userManager, IFileStorage fileStorage, ILogger<ProfileController> logger)
-    {
-        _userManager = userManager;
-        _fileStorage = fileStorage;
-        _logger = logger;
-    }
-
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? throw new UnauthorizedAccessException("User ID not found");
 
@@ -40,23 +28,8 @@ public class ProfileController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ProfileDto>> GetProfile()
     {
-        var user = await _userManager.FindByIdAsync(UserId);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var dto = new ProfileDto(
-            user.Id,
-            user.Email ?? "",
-            user.FirstName,
-            user.LastName,
-            user.DisplayName,
-            user.AvatarPath,
-            user.DateOfBirth
-        );
-
-        return Ok(dto);
+        var dto = await profileService.GetProfileAsync(UserId);
+        return dto is not null ? Ok(dto) : NotFound();
     }
 
     /// <summary>
@@ -65,41 +38,15 @@ public class ProfileController : ControllerBase
     [HttpPut]
     public async Task<ActionResult<ProfileDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
-        var user = await _userManager.FindByIdAsync(UserId);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        user.FirstName = request.FirstName.Trim();
-        user.LastName = request.LastName.Trim();
-        user.DisplayName = request.DisplayName?.Trim();
-        user.DateOfBirth = request.DateOfBirth;
-
-        var result = await _userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors);
-        }
-
-        var dto = new ProfileDto(
-            user.Id,
-            user.Email ?? "",
-            user.FirstName,
-            user.LastName,
-            user.DisplayName,
-            user.AvatarPath,
-            user.DateOfBirth
-        );
-
-        return Ok(dto);
+        var result = await profileService.UpdateProfileAsync(UserId, request);
+        return result.ToActionResult();
     }
 
     /// <summary>
     /// Upload user avatar.
     /// </summary>
     [HttpPost("avatar")]
-    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    public async Task<ActionResult<AvatarUploadResultDto>> UploadAvatar(IFormFile file)
     {
         if (file == null || file.Length == 0)
             return BadRequest("No file provided");
@@ -112,32 +59,9 @@ public class ProfileController : ControllerBase
         if (!allowedAvatarTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
             return BadRequest("Only image files are allowed (jpeg, png, gif, webp).");
 
-        var user = await _userManager.FindByIdAsync(UserId);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        // Delete old avatar if exists
-        if (!string.IsNullOrEmpty(user.AvatarPath))
-        {
-            await _fileStorage.DeleteFileAsync(user.AvatarPath);
-        }
-
-        // Save new avatar
         using var stream = file.OpenReadStream();
-        var path = await _fileStorage.SaveFileAsync(stream, file.FileName, "avatars");
-
-        user.AvatarPath = path;
-        var updateResult = await _userManager.UpdateAsync(user);
-        if (!updateResult.Succeeded)
-        {
-            _logger.LogError("Failed to persist avatar path for user {UserId}: {Errors}",
-                UserId, string.Join(", ", updateResult.Errors.Select(e => e.Description)));
-            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to save avatar.");
-        }
-
-        return Ok(new AvatarUploadResultDto(path));
+        var result = await profileService.UploadAvatarAsync(UserId, stream, file.FileName);
+        return result.ToActionResult();
     }
 
     /// <summary>
@@ -146,18 +70,11 @@ public class ProfileController : ControllerBase
     [HttpGet("avatar")]
     public async Task<IActionResult> GetAvatar()
     {
-        var user = await _userManager.FindByIdAsync(UserId);
-        if (user == null || string.IsNullOrEmpty(user.AvatarPath))
-        {
+        var avatar = await profileService.GetAvatarAsync(UserId);
+        if (avatar is null)
             return NotFound();
-        }
 
-        if (!_fileStorage.FileExists(user.AvatarPath))
-        {
-            return NotFound();
-        }
-
-        var (stream, contentType) = await _fileStorage.GetFileAsync(user.AvatarPath);
+        var (stream, contentType) = avatar.Value;
         return File(stream, contentType);
     }
 
@@ -165,20 +82,9 @@ public class ProfileController : ControllerBase
     /// Change password.
     /// </summary>
     [HttpPost("change-password")]
-    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    public async Task<ActionResult<bool>> ChangePassword([FromBody] ChangePasswordRequest request)
     {
-        var user = await _userManager.FindByIdAsync(UserId);
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors.Select(e => e.Description));
-        }
-
-        return NoContent();
+        var result = await profileService.ChangePasswordAsync(UserId, request);
+        return result.ToActionResult();
     }
 }

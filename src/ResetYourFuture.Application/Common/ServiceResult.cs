@@ -13,5 +13,6 @@ public record ServiceResult<T>(T? Value, int StatusCode = 200, string? ErrorMess
     public static ServiceResult<T> NotFound(T? value = default, string? error = null) => new(value, 404, error);
     public static ServiceResult<T> Forbidden(T? value = default, string? error = null) => new(value, 403, error);
     public static ServiceResult<T> BadRequest(T? value = default, string? error = null) => new(value, 400, error);
+    public static ServiceResult<T> Unauthorized(T? value = default, string? error = null) => new(value, 401, error);
     public static ServiceResult<T> NoContent() => new(default, 204);
 }

@@ -55,9 +55,13 @@ public static class ServiceRegistrationExtensions
 
         // --- Web Services ---
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IAuthApiService, AuthApiService>();
         builder.Services.AddScoped<ICourseService, CourseService>();
         builder.Services.AddScoped<IAdminCourseService, AdminCourseService>();
+        builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
+        builder.Services.AddScoped<IProfileService, ProfileService>();
+        builder.Services.AddScoped<IAssessmentService, AssessmentService>();
         builder.Services.AddScoped<AvatarChangedNotifier>();
         // Circuit-scoped bearer-token provider used by ApiClientBase so consumers authenticate
         // from inside the Blazor circuit (where HttpContext/SsrApiHandler is unavailable).
