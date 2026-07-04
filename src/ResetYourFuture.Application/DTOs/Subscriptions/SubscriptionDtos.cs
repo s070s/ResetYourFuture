@@ -4,13 +4,13 @@ namespace ResetYourFuture.Shared.DTOs;
 /// Available subscription plan for display in pricing table.
 /// </summary>
 public record SubscriptionPlanDto(
-    Guid Id ,
-    string Name ,
-    string? Description ,
-    decimal Price ,
-    string BillingPeriod ,
-    SubscriptionTierEnum Tier ,
-    PlanFeaturesDto? Features ,
+    Guid Id,
+    string Name,
+    string? Description,
+    decimal Price,
+    string BillingPeriod,
+    SubscriptionTierEnum Tier,
+    PlanFeaturesDto? Features,
     bool IsActive
 );
 
@@ -41,11 +41,11 @@ public record PlanFeaturesDto
 /// Current user's subscription status.
 /// </summary>
 public record UserSubscriptionStatusDto(
-    SubscriptionTierEnum Tier ,
-    string PlanName ,
-    DateTime StartedAt ,
-    DateTime? ExpiresAt ,
-    bool IsActive ,
+    SubscriptionTierEnum Tier,
+    string PlanName,
+    DateTime StartedAt,
+    DateTime? ExpiresAt,
+    bool IsActive,
     PlanFeaturesDto? Features
 );
 
@@ -53,8 +53,8 @@ public record UserSubscriptionStatusDto(
 /// Result of a checkout session creation.
 /// </summary>
 public record CheckoutSessionDto(
-    string SessionId ,
-    string? CheckoutUrl ,
+    string SessionId,
+    string? CheckoutUrl,
     string Status
 );
 

@@ -12,38 +12,38 @@ namespace ResetYourFuture.Domain.Tests;
 /// </summary>
 public class ApplicationUserTests
 {
-    private static ApplicationUser WithDob( DateOnly? dob ) =>
+    private static ApplicationUser WithDob(DateOnly? dob) =>
         new() { FirstName = "Test", LastName = "User", DateOfBirth = dob };
 
-    private static DateOnly Today => DateOnly.FromDateTime( DateTime.UtcNow );
+    private static DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);
 
     [Fact]
     public void Age_NullDateOfBirth_ReturnsNull()
     {
-        WithDob( null ).Age.ShouldBeNull();
+        WithDob(null).Age.ShouldBeNull();
     }
 
     [Fact]
     public void Age_BirthdayIsToday_ReturnsExactYears()
     {
-        WithDob( Today.AddYears( -25 ) ).Age.ShouldBe( 25 );
+        WithDob(Today.AddYears(-25)).Age.ShouldBe(25);
     }
 
     [Fact]
     public void Age_BirthdayWasYesterday_ReturnsExactYears()
     {
-        WithDob( Today.AddYears( -25 ).AddDays( -1 ) ).Age.ShouldBe( 25 );
+        WithDob(Today.AddYears(-25).AddDays(-1)).Age.ShouldBe(25);
     }
 
     [Fact]
     public void Age_BirthdayIsTomorrow_ReturnsYearsMinusOne()
     {
-        WithDob( Today.AddYears( -25 ).AddDays( 1 ) ).Age.ShouldBe( 24 );
+        WithDob(Today.AddYears(-25).AddDays(1)).Age.ShouldBe(24);
     }
 
     [Fact]
     public void Age_YoungChild_ReturnsYears()
     {
-        WithDob( Today.AddYears( -5 ) ).Age.ShouldBe( 5 );
+        WithDob(Today.AddYears(-5)).Age.ShouldBe(5);
     }
 }

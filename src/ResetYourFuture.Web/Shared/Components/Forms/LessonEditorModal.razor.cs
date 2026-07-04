@@ -39,14 +39,14 @@ public partial class LessonEditorModal
         var justOpened = IsVisible && !_wasVisible;
         _wasVisible = IsVisible;
 
-        if ( !justOpened )
+        if (!justOpened)
             return;
 
         _errorMessage = string.Empty;
         _pendingPdf = null;
         _pendingVideo = null;
 
-        if ( EditingLesson is not null )
+        if (EditingLesson is not null)
         {
             _titleEn = EditingLesson.TitleEn;
             _titleEl = EditingLesson.TitleEl;
@@ -72,12 +72,12 @@ public partial class LessonEditorModal
         }
     }
 
-    private void OnPdfSelected( InputFileChangeEventArgs e ) => _pendingPdf = e.File;
-    private void OnVideoSelected( InputFileChangeEventArgs e ) => _pendingVideo = e.File;
+    private void OnPdfSelected(InputFileChangeEventArgs e) => _pendingPdf = e.File;
+    private void OnVideoSelected(InputFileChangeEventArgs e) => _pendingVideo = e.File;
 
     private async Task SaveAsync()
     {
-        if ( string.IsNullOrWhiteSpace( _titleEn ) )
+        if (string.IsNullOrWhiteSpace(_titleEn))
         {
             _errorMessage = "Lesson title is required.";
             return;
@@ -96,14 +96,14 @@ public partial class LessonEditorModal
                 : _contentEl;
 
             var request = new SaveLessonRequest(
-                _titleEn , _titleEl , contentEn , contentEl , _videoUrl , _duration , _sortOrder , ModuleId );
+                _titleEn, _titleEl, contentEn, contentEl, _videoUrl, _duration, _sortOrder, ModuleId);
 
             Guid lessonId;
 
-            if ( EditingLesson is null )
+            if (EditingLesson is null)
             {
-                var created = await LessonConsumer.CreateLessonAsync( request );
-                if ( created is null )
+                var created = await LessonConsumer.CreateLessonAsync(request);
+                if (created is null)
                 {
                     _errorMessage = "Error creating lesson.";
                     return;
@@ -113,8 +113,8 @@ public partial class LessonEditorModal
             else
             {
                 lessonId = EditingLesson.Id;
-                var updated = await LessonConsumer.UpdateLessonAsync( lessonId , request );
-                if ( updated is null )
+                var updated = await LessonConsumer.UpdateLessonAsync(lessonId, request);
+                if (updated is null)
                 {
                     _errorMessage = "Error updating lesson.";
                     return;
@@ -123,19 +123,19 @@ public partial class LessonEditorModal
 
             var uploadErrors = new System.Text.StringBuilder();
 
-            if ( _pendingPdf != null )
+            if (_pendingPdf != null)
             {
-                var result = await LessonConsumer.UploadPdfAsync( lessonId , _pendingPdf );
-                if ( result is null ) uploadErrors.AppendLine( "Error uploading pdf." );
+                var result = await LessonConsumer.UploadPdfAsync(lessonId, _pendingPdf);
+                if (result is null) uploadErrors.AppendLine("Error uploading pdf.");
             }
 
-            if ( _pendingVideo != null )
+            if (_pendingVideo != null)
             {
-                var result = await LessonConsumer.UploadVideoAsync( lessonId , _pendingVideo );
-                if ( result is null ) uploadErrors.AppendLine( "Error uploading video." );
+                var result = await LessonConsumer.UploadVideoAsync(lessonId, _pendingVideo);
+                if (result is null) uploadErrors.AppendLine("Error uploading video.");
             }
 
-            if ( uploadErrors.Length > 0 )
+            if (uploadErrors.Length > 0)
             {
                 _errorMessage = uploadErrors.ToString().Trim();
                 return;
@@ -143,7 +143,7 @@ public partial class LessonEditorModal
 
             await OnSaved.InvokeAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _errorMessage = $"Error: {ex.Message}";
         }

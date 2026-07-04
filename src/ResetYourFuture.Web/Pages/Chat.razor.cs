@@ -39,10 +39,10 @@ public partial class Chat : IAsyncDisposable
     {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        _currentUserId = user.FindFirst( ClaimTypes.NameIdentifier )?.Value ?? string.Empty;
+        _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
-        var isAdmin = user.IsInRole( "Admin" );
-        if ( isAdmin )
+        var isAdmin = user.IsInRole("Admin");
+        if (isAdmin)
         {
             _chatAccess = true;
         }
@@ -54,18 +54,18 @@ public partial class Chat : IAsyncDisposable
 
         _accessChecked = true;
 
-        if ( !_chatAccess )
+        if (!_chatAccess)
             return;
 
         ChatService.OnMessageReceived += HandleMessageReceived;
         ChatService.OnNotificationReceived += HandleNotification;
         ChatService.ConnectionStateChanged += HandleConnectionStateChanged;
 
-        await ChatService.StartAsync( user );
+        await ChatService.StartAsync(user);
         await LoadConversationsAsync();
     }
 
-    private async Task SelectConversation( ChatConversationDto conversation )
+    private async Task SelectConversation(ChatConversationDto conversation)
     {
         _selectedConversation = conversation;
         _messagesPage = 1;
@@ -75,14 +75,14 @@ public partial class Chat : IAsyncDisposable
         await LoadMessagesAsync();
 
         // Jump straight to the last (newest) page.
-        if ( _pagedMessages is { TotalPages: > 1 } )
+        if (_pagedMessages is { TotalPages: > 1 })
         {
             _messagesPage = _pagedMessages.TotalPages;
             await LoadMessagesAsync();
         }
 
-        await ChatService.MarkAsReadAsync( conversation.Id );
-        UpdateConversationUnread( conversation.Id , 0 );
+        await ChatService.MarkAsReadAsync(conversation.Id);
+        UpdateConversationUnread(conversation.Id, 0);
 
         _isLoadingMessages = false;
         StateHasChanged();
@@ -90,16 +90,16 @@ public partial class Chat : IAsyncDisposable
 
     private async Task LoadConversationsAsync()
     {
-        _conversations = await ChatService.GetConversationsAsync( _conversationsPage , _conversationsPageSize );
+        _conversations = await ChatService.GetConversationsAsync(_conversationsPage, _conversationsPageSize);
     }
 
     private async Task LoadMessagesAsync()
     {
-        if ( _selectedConversation is null ) return;
-        _pagedMessages = await ChatService.GetMessagesAsync( _selectedConversation.Id , _messagesPage , _messagesPageSize );
+        if (_selectedConversation is null) return;
+        _pagedMessages = await ChatService.GetMessagesAsync(_selectedConversation.Id, _messagesPage, _messagesPageSize);
     }
 
-    private async Task GoToMessagePage( int page )
+    private async Task GoToMessagePage(int page)
     {
         _messagesPage = page;
         _isLoadingMessages = true;
@@ -111,23 +111,23 @@ public partial class Chat : IAsyncDisposable
 
     private async Task PreviousMessagePage()
     {
-        if ( _messagesPage > 1 )
-            await GoToMessagePage( _messagesPage - 1 );
+        if (_messagesPage > 1)
+            await GoToMessagePage(_messagesPage - 1);
     }
 
     private async Task NextMessagePage()
     {
-        if ( _pagedMessages is { HasNextPage: true } )
-            await GoToMessagePage( _messagesPage + 1 );
+        if (_pagedMessages is { HasNextPage: true })
+            await GoToMessagePage(_messagesPage + 1);
     }
 
-    private async Task OnMessagePageSizeChanged( int size )
+    private async Task OnMessagePageSizeChanged(int size)
     {
         _messagesPageSize = size;
         // Load page 1 to get the new TotalPages, then jump to last page.
         _messagesPage = 1;
         await LoadMessagesAsync();
-        if ( _pagedMessages is { TotalPages: > 1 } )
+        if (_pagedMessages is { TotalPages: > 1 })
         {
             _messagesPage = _pagedMessages.TotalPages;
             await LoadMessagesAsync();
@@ -137,7 +137,7 @@ public partial class Chat : IAsyncDisposable
 
     // --- Conversation Pagination ---
 
-    private async Task GoToConversationPage( int page )
+    private async Task GoToConversationPage(int page)
     {
         _conversationsPage = page;
         await LoadConversationsAsync();
@@ -146,21 +146,21 @@ public partial class Chat : IAsyncDisposable
 
     private async Task PreviousConversationPage()
     {
-        if ( _conversationsPage > 1 )
-            await GoToConversationPage( _conversationsPage - 1 );
+        if (_conversationsPage > 1)
+            await GoToConversationPage(_conversationsPage - 1);
     }
 
     private async Task NextConversationPage()
     {
-        if ( _conversations is { HasNextPage: true } )
-            await GoToConversationPage( _conversationsPage + 1 );
+        if (_conversations is { HasNextPage: true })
+            await GoToConversationPage(_conversationsPage + 1);
     }
 
-    private async Task OnConversationPageSizeChanged( int size )
+    private async Task OnConversationPageSizeChanged(int size)
     {
         _conversationsPageSize = size;
         _conversationsPage = 1;
-        await GoToConversationPage( 1 );
+        await GoToConversationPage(1);
     }
 
     // --- User Picker ---
@@ -169,7 +169,7 @@ public partial class Chat : IAsyncDisposable
 
     private void CloseUserPicker() => _showUserPicker = false;
 
-    private async Task HandleUserPicked( ChatUserDto user )
+    private async Task HandleUserPicked(ChatUserDto user)
     {
         _showUserPicker = false;
         _isStarting = true;
@@ -177,12 +177,12 @@ public partial class Chat : IAsyncDisposable
 
         try
         {
-            var conversation = await ChatService.StartConversationWithAsync( user.Id );
-            if ( conversation is not null )
+            var conversation = await ChatService.StartConversationWithAsync(user.Id);
+            if (conversation is not null)
             {
                 _conversationsPage = 1;
                 await LoadConversationsAsync();
-                await SelectConversation( conversation );
+                await SelectConversation(conversation);
             }
         }
         finally
@@ -194,10 +194,10 @@ public partial class Chat : IAsyncDisposable
 
     // --- Messaging ---
 
-    private async Task HandleSendMessage( string message )
+    private async Task HandleSendMessage(string message)
     {
-        if ( _selectedConversation is null ) return;
-        await ChatService.SendMessageAsync( _selectedConversation.Id , message );
+        if (_selectedConversation is null) return;
+        await ChatService.SendMessageAsync(_selectedConversation.Id, message);
     }
 
     private void HandleBackToList()
@@ -205,59 +205,59 @@ public partial class Chat : IAsyncDisposable
         _selectedConversation = null;
     }
 
-    private void HandleMessageReceived( ChatMessageDto message )
+    private void HandleMessageReceived(ChatMessageDto message)
     {
-        InvokeAsync( () =>
+        InvokeAsync(() =>
         {
-            if ( _selectedConversation is not null && message.ConversationId == _selectedConversation.Id )
+            if (_selectedConversation is not null && message.ConversationId == _selectedConversation.Id)
             {
                 // Only append to the visible list when on the last (newest) page.
                 // Use >= so that an empty conversation (TotalPages == 0) also receives the first message.
-                if ( _pagedMessages is not null && _messagesPage >= _pagedMessages.TotalPages )
+                if (_pagedMessages is not null && _messagesPage >= _pagedMessages.TotalPages)
                 {
-                    _pagedMessages.Items.Add( message );
+                    _pagedMessages.Items.Add(message);
                     _pagedMessages = _pagedMessages with { TotalCount = _pagedMessages.TotalCount + 1 };
                 }
 
-                if ( message.SenderId != _currentUserId )
+                if (message.SenderId != _currentUserId)
                 {
-                    _ = ChatService.MarkAsReadAsync( message.ConversationId );
+                    _ = ChatService.MarkAsReadAsync(message.ConversationId);
                 }
             }
             else
             {
                 // Increment unread for that conversation.
-                UpdateConversationUnread( message.ConversationId , null );
+                UpdateConversationUnread(message.ConversationId, null);
             }
 
             // Update last message in sidebar.
-            if ( _conversations is not null )
+            if (_conversations is not null)
             {
-                var idx = _conversations.Items.FindIndex( c => c.Id == message.ConversationId );
-                if ( idx >= 0 )
+                var idx = _conversations.Items.FindIndex(c => c.Id == message.ConversationId);
+                if (idx >= 0)
                 {
-                    var old = _conversations.Items [ idx ];
-                    _conversations.Items [ idx ] = old with
+                    var old = _conversations.Items[idx];
+                    _conversations.Items[idx] = old with
                     {
-                        LastMessageContent = message.Content ,
+                        LastMessageContent = message.Content,
                         LastMessageAt = message.SentAt
                     };
 
                     // Move to top.
-                    if ( idx > 0 )
+                    if (idx > 0)
                     {
-                        var item = _conversations.Items [ idx ];
-                        _conversations.Items.RemoveAt( idx );
-                        _conversations.Items.Insert( 0 , item );
+                        var item = _conversations.Items[idx];
+                        _conversations.Items.RemoveAt(idx);
+                        _conversations.Items.Insert(0, item);
                     }
                 }
             }
 
             StateHasChanged();
-        } );
+        });
     }
 
-    private void HandleNotification( ChatNotificationDto notification )
+    private void HandleNotification(ChatNotificationDto notification)
     {
         // Notification handling is done via HandleMessageReceived above.
         // This hook is available for toast/audio in the future.
@@ -265,26 +265,26 @@ public partial class Chat : IAsyncDisposable
 
     private void HandleConnectionStateChanged()
     {
-        InvokeAsync( StateHasChanged );
+        InvokeAsync(StateHasChanged);
     }
 
-    private void UpdateConversationUnread( Guid conversationId , int? explicitCount )
+    private void UpdateConversationUnread(Guid conversationId, int? explicitCount)
     {
-        if ( _conversations is null )
+        if (_conversations is null)
             return;
 
-        var idx = _conversations.Items.FindIndex( c => c.Id == conversationId );
-        if ( idx < 0 )
+        var idx = _conversations.Items.FindIndex(c => c.Id == conversationId);
+        if (idx < 0)
             return;
 
-        var old = _conversations.Items [ idx ];
-        var newCount = explicitCount ?? ( old.UnreadCount + 1 );
-        _conversations.Items [ idx ] = old with { UnreadCount = newCount };
+        var old = _conversations.Items[idx];
+        var newCount = explicitCount ?? (old.UnreadCount + 1);
+        _conversations.Items[idx] = old with { UnreadCount = newCount };
     }
 
     // --- Delete Conversation ---
 
-    private void ConfirmDeleteConversation( ChatConversationDto conversation )
+    private void ConfirmDeleteConversation(ChatConversationDto conversation)
     {
         _conversationToDelete = conversation;
     }
@@ -296,17 +296,17 @@ public partial class Chat : IAsyncDisposable
 
     private async Task ExecuteDeleteConversationAsync()
     {
-        if ( _conversationToDelete is null ) return;
+        if (_conversationToDelete is null) return;
 
         _isDeleting = true;
         StateHasChanged();
 
         var id = _conversationToDelete.Id;
-        var success = await ChatService.DeleteConversationAsync( id );
+        var success = await ChatService.DeleteConversationAsync(id);
 
-        if ( success )
+        if (success)
         {
-            if ( _selectedConversation?.Id == id )
+            if (_selectedConversation?.Id == id)
             {
                 _selectedConversation = null;
                 _pagedMessages = null;
@@ -323,7 +323,7 @@ public partial class Chat : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if ( _chatAccess )
+        if (_chatAccess)
         {
             ChatService.OnMessageReceived -= HandleMessageReceived;
             ChatService.OnNotificationReceived -= HandleNotification;
@@ -331,6 +331,6 @@ public partial class Chat : IAsyncDisposable
             await ChatService.DisposeAsync();
         }
 
-        GC.SuppressFinalize( this );
+        GC.SuppressFinalize(this);
     }
 }

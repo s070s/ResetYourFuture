@@ -25,7 +25,7 @@ public partial class AdminAssessmentSubmissions
     private string? assessmentTitle;
 
     /// <summary>Maps question id → label from the assessment schema.</summary>
-    private Dictionary<string , string> questionLabels = new();
+    private Dictionary<string, string> questionLabels = new();
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -37,15 +37,15 @@ public partial class AdminAssessmentSubmissions
         try
         {
             // Load the assessment definition once to get schema + title
-            var definition = await AssessmentConsumer.GetAssessmentAsync( AssessmentId );
+            var definition = await AssessmentConsumer.GetAssessmentAsync(AssessmentId);
 
-            if ( definition != null )
+            if (definition != null)
             {
                 assessmentTitle = definition.TitleEn;
-                BuildQuestionLabels( definition.SchemaJson );
+                BuildQuestionLabels(definition.SchemaJson);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"Error loading assessment: {ex.Message}";
         }
@@ -57,39 +57,39 @@ public partial class AdminAssessmentSubmissions
     {
         try
         {
-            _pagedResult = await AssessmentConsumer.GetSubmissionsAsync( AssessmentId , _page , _pageSize )
-                ?? new PagedResult<AssessmentSubmissionListItemDto>( [] , 0 , _page , _pageSize );
+            _pagedResult = await AssessmentConsumer.GetSubmissionsAsync(AssessmentId, _page, _pageSize)
+                ?? new PagedResult<AssessmentSubmissionListItemDto>([], 0, _page, _pageSize);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"Error loading submissions: {ex.Message}";
-            _pagedResult = new PagedResult<AssessmentSubmissionListItemDto>( [] , 0 , _page , _pageSize );
+            _pagedResult = new PagedResult<AssessmentSubmissionListItemDto>([], 0, _page, _pageSize);
         }
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         _pageSize = size;
         _page = 1;
         await LoadSubmissions();
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
         _page = page;
         await LoadSubmissions();
     }
 
-    private void BuildQuestionLabels( string schemaJson )
+    private void BuildQuestionLabels(string schemaJson)
     {
         try
         {
-            var schema = JsonSerializer.Deserialize<SchemaRoot>( schemaJson , JsonOptions );
-            if ( schema?.Questions != null )
+            var schema = JsonSerializer.Deserialize<SchemaRoot>(schemaJson, JsonOptions);
+            if (schema?.Questions != null)
             {
-                foreach ( var q in schema.Questions )
+                foreach (var q in schema.Questions)
                 {
-                    questionLabels [ q.Id ] = q.Label ?? q.Text ?? q.Id;
+                    questionLabels[q.Id] = q.Label ?? q.Text ?? q.Id;
                 }
             }
         }
@@ -99,14 +99,14 @@ public partial class AdminAssessmentSubmissions
         }
     }
 
-    private string ResolveLabel( string questionId )
-        => questionLabels.TryGetValue( questionId , out var label ) ? label : questionId;
+    private string ResolveLabel(string questionId)
+        => questionLabels.TryGetValue(questionId, out var label) ? label : questionId;
 
-    private static Dictionary<string , string> ParseAnswers( string answersJson )
+    private static Dictionary<string, string> ParseAnswers(string answersJson)
     {
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string , string>>( answersJson , JsonOptions )
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(answersJson, JsonOptions)
                    ?? new();
         }
         catch
@@ -115,14 +115,14 @@ public partial class AdminAssessmentSubmissions
         }
     }
 
-    private void ToggleAnswers( Guid submissionId )
+    private void ToggleAnswers(Guid submissionId)
     {
         expandedSubmissionId = expandedSubmissionId == submissionId ? null : submissionId;
     }
 
     private void GoBack()
     {
-        Nav.NavigateTo( "/admin/assessments" );
+        Nav.NavigateTo("/admin/assessments");
     }
 
     private class SchemaRoot

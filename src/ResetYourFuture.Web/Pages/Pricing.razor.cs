@@ -26,10 +26,10 @@ public partial class Pricing
             _plans = await SubscriptionService.GetPlansAsync();
             _currentStatus = await SubscriptionService.GetStatusAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = PricingRes.FailedToLoadPlans;
-            _logger.LogError( ex , "Failed to load pricing plans." );
+            _logger.LogError(ex, "Failed to load pricing plans.");
         }
         finally
         {
@@ -37,16 +37,16 @@ public partial class Pricing
         }
     }
 
-    private async Task Checkout( Guid planId )
+    private async Task Checkout(Guid planId)
     {
         _processing = true;
         _cancelMessage = null;
         try
         {
-            var session = await SubscriptionService.CheckoutAsync( planId );
-            if ( session is not null && !string.IsNullOrEmpty( session.CheckoutUrl ) )
+            var session = await SubscriptionService.CheckoutAsync(planId);
+            if (session is not null && !string.IsNullOrEmpty(session.CheckoutUrl))
             {
-                Navigation.NavigateTo( session.CheckoutUrl , forceLoad: false );
+                Navigation.NavigateTo(session.CheckoutUrl, forceLoad: false);
             }
             else
             {
@@ -55,10 +55,10 @@ public partial class Pricing
                 _error = null;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = PricingRes.CheckoutFailed;
-            _logger.LogError( ex , "Checkout failed for plan {PlanId}." , planId );
+            _logger.LogError(ex, "Checkout failed for plan {PlanId}.", planId);
         }
         finally
         {
@@ -73,22 +73,22 @@ public partial class Pricing
         try
         {
             var result = await SubscriptionService.CancelAsync();
-            if ( result is not null )
+            if (result is not null)
             {
                 _cancelSuccess = result.Success;
                 _cancelMessage = result.Message;
 
-                if ( result.Success )
+                if (result.Success)
                 {
                     _currentStatus = await SubscriptionService.GetStatusAsync();
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _cancelSuccess = false;
             _cancelMessage = PricingRes.FailedToCancel;
-            _logger.LogError( ex , "Failed to cancel subscription." );
+            _logger.LogError(ex, "Failed to cancel subscription.");
         }
         finally
         {
@@ -98,6 +98,6 @@ public partial class Pricing
 
     private void NavigateToRegister()
     {
-        Navigation.NavigateTo( "/register" );
+        Navigation.NavigateTo("/register");
     }
 }

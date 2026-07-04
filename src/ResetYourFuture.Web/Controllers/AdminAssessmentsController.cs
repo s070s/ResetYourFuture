@@ -14,12 +14,12 @@ namespace ResetYourFuture.Web.Controllers;
 /// Admin endpoints for managing assessment definitions.
 /// </summary>
 [ApiController]
-[Route( "api/admin/assessments" )]
-[Authorize( Policy = "AdminOnly" )]
-[Tags( "Admin · Assessments" )]
-[Produces( "application/json" )]
-[ProducesResponseType( StatusCodes.Status400BadRequest )]
-[ProducesResponseType( StatusCodes.Status404NotFound )]
+[Route("api/admin/assessments")]
+[Authorize(Policy = "AdminOnly")]
+[Tags("Admin · Assessments")]
+[Produces("application/json")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminAssessmentsController : ControllerBase
 {
     // EF Core DB context used to read and write application data
@@ -27,7 +27,7 @@ public class AdminAssessmentsController : ControllerBase
     private readonly ILogger<AdminAssessmentsController> _logger;
     private readonly IHtmlSanitizer _sanitizer;
 
-    public AdminAssessmentsController( IApplicationDbContext db , ILogger<AdminAssessmentsController> logger , IHtmlSanitizer sanitizer )
+    public AdminAssessmentsController(IApplicationDbContext db, ILogger<AdminAssessmentsController> logger, IHtmlSanitizer sanitizer)
     {
         _db = db;
         _logger = logger;
@@ -35,8 +35,8 @@ public class AdminAssessmentsController : ControllerBase
     }
 
     // Helper property to get the current authenticated user's ID or throw if missing
-    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
-        ?? throw new UnauthorizedAccessException( "User ID not found" );
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new UnauthorizedAccessException("User ID not found");
 
     /// <summary>
     /// Get a paged list of assessment definitions (published and unpublished).
@@ -44,142 +44,142 @@ public class AdminAssessmentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<AssessmentDefinitionListItemDto>>> GetAssessments(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10 )
+        [FromQuery] int pageSize = 10)
     {
-        if ( page < 1 ) page = 1;
-        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
         var query = _db.AssessmentDefinitions
             .AsNoTracking()
-            .OrderByDescending( a => a.CreatedAt );
+            .OrderByDescending(a => a.CreatedAt);
 
         var totalCount = await query.CountAsync();
 
         var items = await query
-            .Skip( ( page - 1 ) * pageSize )
-            .Take( pageSize )
-            .Select( a => new AssessmentDefinitionListItemDto(
-                a.Id ,
-                a.Key ,
-                a.TitleEn ,
-                a.IsPublished ,
-                a.Submissions.Count ,
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(a => new AssessmentDefinitionListItemDto(
+                a.Id,
+                a.Key,
+                a.TitleEn,
+                a.IsPublished,
+                a.Submissions.Count,
                 a.CreatedAt
-            ) )
+            ))
             .ToListAsync();
 
-        return Ok( new PagedResult<AssessmentDefinitionListItemDto>( items , totalCount , page , pageSize ) );
+        return Ok(new PagedResult<AssessmentDefinitionListItemDto>(items, totalCount, page, pageSize));
     }
 
     /// <summary>
     /// Get a single assessment definition by id.
     /// </summary>
-    [HttpGet( "{id:guid}" )]
-    public async Task<ActionResult<AdminAssessmentDefinitionDto>> GetAssessmentById( Guid id )
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminAssessmentDefinitionDto>> GetAssessmentById(Guid id)
     {
         var assessment = await _db.AssessmentDefinitions
             .AsNoTracking()
-            .FirstOrDefaultAsync( a => a.Id == id );
-        if ( assessment == null )
+            .FirstOrDefaultAsync(a => a.Id == id);
+        if (assessment == null)
         {
             return NotFound();
         }
 
         var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id ,
-            assessment.Key ,
-            assessment.TitleEn ,
-            assessment.TitleEl ,
-            assessment.DescriptionEn ,
-            assessment.DescriptionEl ,
-            assessment.SchemaJson ,
-            assessment.IsPublished ,
-            assessment.CreatedAt ,
-            assessment.UpdatedAt ,
+            assessment.Id,
+            assessment.Key,
+            assessment.TitleEn,
+            assessment.TitleEl,
+            assessment.DescriptionEn,
+            assessment.DescriptionEl,
+            assessment.SchemaJson,
+            assessment.IsPublished,
+            assessment.CreatedAt,
+            assessment.UpdatedAt,
             assessment.PublishedAt
         );
 
-        return Ok( dto );
+        return Ok(dto);
     }
 
     /// <summary>
     /// Create a new assessment definition.
     /// </summary>
     [HttpPost]
-    [ProducesResponseType<AdminAssessmentDefinitionDto>( StatusCodes.Status201Created )]
-    public async Task<ActionResult<AssessmentDefinitionDto>> CreateAssessment( [FromBody] SaveAssessmentDefinitionRequest request )
+    [ProducesResponseType<AdminAssessmentDefinitionDto>(StatusCodes.Status201Created)]
+    public async Task<ActionResult<AssessmentDefinitionDto>> CreateAssessment([FromBody] SaveAssessmentDefinitionRequest request)
     {
         // Ensure the requested key is unique to avoid duplicates
-        if ( await _db.AssessmentDefinitions.AnyAsync( a => a.Key == request.Key ) )
+        if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key))
         {
-            return BadRequest( $"Assessment with key '{request.Key}' already exists" );
+            return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
         // Build a new assessment entity with provided data and initial metadata
         var assessment = new AssessmentDefinition
         {
-            Id = Guid.NewGuid() ,
-            Key = request.Key ,
-            TitleEn = request.TitleEn ,
-            TitleEl = request.TitleEl ,
-            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null ,
-            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null ,
-            SchemaJson = request.SchemaJson ,
-            IsPublished = false ,
+            Id = Guid.NewGuid(),
+            Key = request.Key,
+            TitleEn = request.TitleEn,
+            TitleEl = request.TitleEl,
+            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null,
+            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null,
+            SchemaJson = request.SchemaJson,
+            IsPublished = false,
             UpdatedByUserId = UserId
         };
 
         // Add and persist the new entity
-        _db.AssessmentDefinitions.Add( assessment );
+        _db.AssessmentDefinitions.Add(assessment);
         await _db.SaveChangesAsync();
 
         // Map persisted entity to DTO for response
         var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id ,
-            assessment.Key ,
-            assessment.TitleEn ,
-            assessment.TitleEl ,
-            assessment.DescriptionEn ,
-            assessment.DescriptionEl ,
-            assessment.SchemaJson ,
-            assessment.IsPublished ,
-            assessment.CreatedAt ,
-            assessment.UpdatedAt ,
+            assessment.Id,
+            assessment.Key,
+            assessment.TitleEn,
+            assessment.TitleEl,
+            assessment.DescriptionEn,
+            assessment.DescriptionEl,
+            assessment.SchemaJson,
+            assessment.IsPublished,
+            assessment.CreatedAt,
+            assessment.UpdatedAt,
             assessment.PublishedAt
         );
 
         // Return 201 Created with location header pointing to the assessments list endpoint
-        return CreatedAtAction( nameof( GetAssessments ) , new
+        return CreatedAtAction(nameof(GetAssessments), new
         {
             id = assessment.Id
-        } , dto );
+        }, dto);
     }
 
     /// <summary>
     /// Update an existing assessment definition.
     /// </summary>
-    [HttpPut( "{id:guid}" )]
-    public async Task<ActionResult<AssessmentDefinitionDto>> UpdateAssessment( Guid id , [FromBody] SaveAssessmentDefinitionRequest request )
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<AssessmentDefinitionDto>> UpdateAssessment(Guid id, [FromBody] SaveAssessmentDefinitionRequest request)
     {
         // Try to find the assessment by id and return 404 if not found
-        var assessment = await _db.AssessmentDefinitions.FindAsync( id );
-        if ( assessment == null )
+        var assessment = await _db.AssessmentDefinitions.FindAsync(id);
+        if (assessment == null)
         {
             return NotFound();
         }
 
         // Ensure the new key does not clash with another assessment
-        if ( await _db.AssessmentDefinitions.AnyAsync( a => a.Key == request.Key && a.Id != id ) )
+        if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key && a.Id != id))
         {
-            return BadRequest( $"Assessment with key '{request.Key}' already exists" );
+            return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
         // Apply updates and metadata (updated time and user)
         assessment.Key = request.Key;
         assessment.TitleEn = request.TitleEn;
         assessment.TitleEl = request.TitleEl;
-        assessment.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null;
-        assessment.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null;
+        assessment.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null;
+        assessment.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null;
         assessment.SchemaJson = request.SchemaJson;
         assessment.UpdatedAt = DateTimeOffset.UtcNow;
         assessment.UpdatedByUserId = UserId;
@@ -189,37 +189,37 @@ public class AdminAssessmentsController : ControllerBase
 
         // Map updated entity to DTO and return 200 OK
         var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id ,
-            assessment.Key ,
-            assessment.TitleEn ,
-            assessment.TitleEl ,
-            assessment.DescriptionEn ,
-            assessment.DescriptionEl ,
-            assessment.SchemaJson ,
-            assessment.IsPublished ,
-            assessment.CreatedAt ,
-            assessment.UpdatedAt ,
+            assessment.Id,
+            assessment.Key,
+            assessment.TitleEn,
+            assessment.TitleEl,
+            assessment.DescriptionEn,
+            assessment.DescriptionEl,
+            assessment.SchemaJson,
+            assessment.IsPublished,
+            assessment.CreatedAt,
+            assessment.UpdatedAt,
             assessment.PublishedAt
         );
 
-        return Ok( dto );
+        return Ok(dto);
     }
 
     /// <summary>
     /// Publish an assessment (make it available to students).
     /// </summary>
-    [HttpPost( "{id:guid}/publish" )]
-    public async Task<IActionResult> PublishAssessment( Guid id )
+    [HttpPost("{id:guid}/publish")]
+    public async Task<IActionResult> PublishAssessment(Guid id)
     {
         // Find the assessment or return 404
-        var assessment = await _db.AssessmentDefinitions.FindAsync( id );
-        if ( assessment == null )
+        var assessment = await _db.AssessmentDefinitions.FindAsync(id);
+        if (assessment == null)
         {
             return NotFound();
         }
 
         // If not already published, mark published, set timestamps and user, then save
-        if ( !assessment.IsPublished )
+        if (!assessment.IsPublished)
         {
             assessment.IsPublished = true;
             assessment.PublishedAt = DateTimeOffset.UtcNow;
@@ -234,16 +234,16 @@ public class AdminAssessmentsController : ControllerBase
     /// <summary>
     /// Unpublish an assessment (hide it from students).
     /// </summary>
-    [HttpPost( "{id:guid}/unpublish" )]
-    public async Task<IActionResult> UnpublishAssessment( Guid id )
+    [HttpPost("{id:guid}/unpublish")]
+    public async Task<IActionResult> UnpublishAssessment(Guid id)
     {
-        var assessment = await _db.AssessmentDefinitions.FindAsync( id );
-        if ( assessment == null )
+        var assessment = await _db.AssessmentDefinitions.FindAsync(id);
+        if (assessment == null)
         {
             return NotFound();
         }
 
-        if ( assessment.IsPublished )
+        if (assessment.IsPublished)
         {
             assessment.IsPublished = false;
             assessment.PublishedAt = null;
@@ -258,20 +258,20 @@ public class AdminAssessmentsController : ControllerBase
     /// <summary>
     /// Delete an assessment definition and all its submissions.
     /// </summary>
-    [HttpDelete( "{id:guid}" )]
-    public async Task<IActionResult> DeleteAssessment( Guid id )
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteAssessment(Guid id)
     {
         var assessment = await _db.AssessmentDefinitions
-            .Include( a => a.Submissions )
-            .FirstOrDefaultAsync( a => a.Id == id );
+            .Include(a => a.Submissions)
+            .FirstOrDefaultAsync(a => a.Id == id);
 
-        if ( assessment == null )
+        if (assessment == null)
         {
             return NotFound();
         }
 
-        _db.AssessmentSubmissions.RemoveRange( assessment.Submissions );
-        _db.AssessmentDefinitions.Remove( assessment );
+        _db.AssessmentSubmissions.RemoveRange(assessment.Submissions);
+        _db.AssessmentDefinitions.Remove(assessment);
         await _db.SaveChangesAsync();
 
         return NoContent();
@@ -280,44 +280,44 @@ public class AdminAssessmentsController : ControllerBase
     /// <summary>
     /// Get a paged list of submissions for a specific assessment.
     /// </summary>
-    [HttpGet( "{id:guid}/submissions" )]
+    [HttpGet("{id:guid}/submissions")]
     public async Task<ActionResult<PagedResult<AssessmentSubmissionListItemDto>>> GetSubmissions(
         Guid id,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10 )
+        [FromQuery] int pageSize = 10)
     {
-        if ( page < 1 ) page = 1;
-        if ( pageSize < 1 || pageSize > 100 ) pageSize = 10;
+        if (page < 1) page = 1;
+        if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
         // Ensure the assessment exists before querying submissions
-        var assessmentExists = await _db.AssessmentDefinitions.AnyAsync( a => a.Id == id );
-        if ( !assessmentExists )
+        var assessmentExists = await _db.AssessmentDefinitions.AnyAsync(a => a.Id == id);
+        if (!assessmentExists)
         {
             return NotFound();
         }
 
         var query = _db.AssessmentSubmissions
             .AsNoTracking()
-            .Where( s => s.AssessmentDefinitionId == id );
+            .Where(s => s.AssessmentDefinitionId == id);
 
         var totalCount = await query.CountAsync();
 
         // Order, paginate, then project to DTO — EF Core resolves the User navigation via SELECT JOIN
         var items = await query
-            .OrderByDescending( s => s.SubmittedAt )
-            .Skip( ( page - 1 ) * pageSize )
-            .Take( pageSize )
-            .Select( s => new AssessmentSubmissionListItemDto(
-                s.Id ,
-                s.UserId ,
-                s.User.Email ?? "N/A" ,
-                s.User.DisplayName ?? $"{s.User.FirstName} {s.User.LastName}" ,
-                s.AnswersJson ,
-                s.SummaryJson ,
+            .OrderByDescending(s => s.SubmittedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(s => new AssessmentSubmissionListItemDto(
+                s.Id,
+                s.UserId,
+                s.User.Email ?? "N/A",
+                s.User.DisplayName ?? $"{s.User.FirstName} {s.User.LastName}",
+                s.AnswersJson,
+                s.SummaryJson,
                 s.SubmittedAt
-            ) )
+            ))
             .ToListAsync();
 
-        return Ok( new PagedResult<AssessmentSubmissionListItemDto>( items , totalCount , page , pageSize ) );
+        return Ok(new PagedResult<AssessmentSubmissionListItemDto>(items, totalCount, page, pageSize));
     }
 }

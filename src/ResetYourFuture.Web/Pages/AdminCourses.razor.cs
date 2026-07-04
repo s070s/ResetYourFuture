@@ -25,15 +25,15 @@ public partial class AdminCourses
     {
         try
         {
-            pagedResult = await CourseConsumer.GetCoursesAsync( currentPage , pageSize );
+            pagedResult = await CourseConsumer.GetCoursesAsync(currentPage, pageSize);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading courses: {ex.Message}";
         }
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         pageSize = size;
         currentPage = 1;
@@ -42,7 +42,7 @@ public partial class AdminCourses
 
     private async Task PreviousPage()
     {
-        if ( currentPage > 1 )
+        if (currentPage > 1)
         {
             currentPage--;
             await LoadCourses();
@@ -51,7 +51,7 @@ public partial class AdminCourses
 
     private async Task NextPage()
     {
-        if ( pagedResult is { HasNextPage: true } )
+        if (pagedResult is { HasNextPage: true })
         {
             currentPage++;
             await LoadCourses();
@@ -60,61 +60,61 @@ public partial class AdminCourses
 
     private void CreateCourse()
     {
-        Nav.NavigateTo( "/admin/courses/new" );
+        Nav.NavigateTo("/admin/courses/new");
     }
 
-    private void EditCourse( Guid id )
+    private void EditCourse(Guid id)
     {
-        Nav.NavigateTo( $"/admin/courses/{id}" );
+        Nav.NavigateTo($"/admin/courses/{id}");
     }
 
-    private async Task PublishCourse( Guid id )
+    private async Task PublishCourse(Guid id)
     {
         try
         {
-            if ( await CourseConsumer.PublishCourseAsync( id ) )
+            if (await CourseConsumer.PublishCourseAsync(id))
             {
                 await LoadCourses();
                 message = "Course published";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task UnpublishCourse( Guid id )
+    private async Task UnpublishCourse(Guid id)
     {
         try
         {
-            if ( await CourseConsumer.UnpublishCourseAsync( id ) )
+            if (await CourseConsumer.UnpublishCourseAsync(id))
             {
                 await LoadCourses();
                 message = "Course unpublished";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private void DeleteCourse( Guid id )
+    private void DeleteCourse(Guid id)
     {
         _pendingDeleteId = id;
     }
 
     private async Task ExecuteDeleteAsync()
     {
-        if ( _pendingDeleteId is not { } id )
+        if (_pendingDeleteId is not { } id)
             return;
 
         _pendingDeleteId = null;
 
         try
         {
-            if ( await CourseConsumer.DeleteCourseAsync( id ) )
+            if (await CourseConsumer.DeleteCourseAsync(id))
             {
                 await LoadCourses();
                 message = "Course deleted";
@@ -124,7 +124,7 @@ public partial class AdminCourses
                 message = "Error deleting course";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }

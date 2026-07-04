@@ -19,9 +19,9 @@ public partial class SubscriptionSuccess
         {
             _status = await SubscriptionService.GetStatusAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Failed to load subscription status on success page." );
+            _logger.LogError(ex, "Failed to load subscription status on success page.");
         }
         finally
         {
@@ -29,6 +29,6 @@ public partial class SubscriptionSuccess
         }
     }
 
-    private void GoToCourses() => Navigation.NavigateTo( "/courses" );
-    private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
+    private void GoToCourses() => Navigation.NavigateTo("/courses");
+    private void GoToPricing() => Navigation.NavigateTo("/pricing");
 }

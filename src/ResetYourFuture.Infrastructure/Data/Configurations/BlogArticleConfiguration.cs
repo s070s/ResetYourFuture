@@ -6,48 +6,48 @@ namespace ResetYourFuture.Web.Data.Configurations;
 
 public class BlogArticleConfiguration : IEntityTypeConfiguration<BlogArticle>
 {
-    public void Configure( EntityTypeBuilder<BlogArticle> builder )
+    public void Configure(EntityTypeBuilder<BlogArticle> builder)
     {
-        builder.HasKey( a => a.Id );
+        builder.HasKey(a => a.Id);
 
-        builder.Property( a => a.TitleEn )
+        builder.Property(a => a.TitleEn)
             .IsRequired()
-            .HasMaxLength( 200 );
+            .HasMaxLength(200);
 
-        builder.Property( a => a.TitleEl )
-            .HasMaxLength( 200 );
+        builder.Property(a => a.TitleEl)
+            .HasMaxLength(200);
 
-        builder.Property( a => a.Slug )
+        builder.Property(a => a.Slug)
             .IsRequired()
-            .HasMaxLength( 220 );
+            .HasMaxLength(220);
 
-        builder.Property( a => a.SummaryEn )
+        builder.Property(a => a.SummaryEn)
             .IsRequired()
-            .HasMaxLength( 500 );
+            .HasMaxLength(500);
 
-        builder.Property( a => a.SummaryEl )
-            .HasMaxLength( 500 );
+        builder.Property(a => a.SummaryEl)
+            .HasMaxLength(500);
 
-        builder.Property( a => a.ContentEn )
+        builder.Property(a => a.ContentEn)
             .IsRequired();
 
         // ContentEl has no DB length cap
 
-        builder.Property( a => a.CoverImageUrl )
-            .HasMaxLength( 500 );
+        builder.Property(a => a.CoverImageUrl)
+            .HasMaxLength(500);
 
-        builder.Property( a => a.AuthorName )
+        builder.Property(a => a.AuthorName)
             .IsRequired()
-            .HasMaxLength( 100 );
+            .HasMaxLength(100);
 
-        builder.Property( a => a.IsPublished )
-            .HasDefaultValue( false );
+        builder.Property(a => a.IsPublished)
+            .HasDefaultValue(false);
 
-        builder.HasIndex( a => a.Slug )
+        builder.HasIndex(a => a.Slug)
             .IsUnique()
-            .HasDatabaseName( "IX_BlogArticles_Slug" );
+            .HasDatabaseName("IX_BlogArticles_Slug");
 
-        builder.HasIndex( a => new { a.IsPublished, a.PublishedAt } )
-            .HasDatabaseName( "IX_BlogArticles_Published_PublishedAt" );
+        builder.HasIndex(a => new { a.IsPublished, a.PublishedAt })
+            .HasDatabaseName("IX_BlogArticles_Published_PublishedAt");
     }
 }

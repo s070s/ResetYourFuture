@@ -18,7 +18,7 @@ public partial class AdminUsers : IAsyncDisposable
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string searchTerm = string.Empty;
     private string message = string.Empty;
-    private string _sortBy  = "email";
+    private string _sortBy = "email";
     private string _sortDir = "asc";
     private string? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
@@ -36,13 +36,13 @@ public partial class AdminUsers : IAsyncDisposable
         await LoadUsers();
     }
 
-    private async Task OnSort( string columnKey )
+    private async Task OnSort(string columnKey)
     {
-        if ( _sortBy == columnKey )
+        if (_sortBy == columnKey)
             _sortDir = _sortDir == "asc" ? "desc" : "asc";
         else
         {
-            _sortBy  = columnKey;
+            _sortBy = columnKey;
             _sortDir = "asc";
         }
         currentPage = 1;
@@ -54,26 +54,26 @@ public partial class AdminUsers : IAsyncDisposable
         try
         {
             pagedResult = await UserConsumer.GetUsersAsync(
-                currentPage ,
-                pageSize ,
-                string.IsNullOrEmpty( searchTerm ) ? null : searchTerm ,
-                _sortBy ,
-                _sortDir );
+                currentPage,
+                pageSize,
+                string.IsNullOrEmpty(searchTerm) ? null : searchTerm,
+                _sortBy,
+                _sortDir);
         }
-        catch ( HttpRequestException ex ) when ( ex.StatusCode == System.Net.HttpStatusCode.Forbidden )
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
         {
             message = "Access denied";
         }
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         pageSize = size;
         currentPage = 1;
         await LoadUsers();
     }
 
-    private async Task OnSearchInput( ChangeEventArgs e )
+    private async Task OnSearchInput(ChangeEventArgs e)
     {
         searchTerm = e.Value?.ToString() ?? string.Empty;
         currentPage = 1;
@@ -85,13 +85,13 @@ public partial class AdminUsers : IAsyncDisposable
 
         try
         {
-            await Task.Delay( 300, _searchCts.Token );
+            await Task.Delay(300, _searchCts.Token);
             await LoadUsers();
         }
-        catch ( OperationCanceledException ) { }
+        catch (OperationCanceledException) { }
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
         currentPage = page;
         await LoadUsers();
@@ -99,7 +99,7 @@ public partial class AdminUsers : IAsyncDisposable
 
     private async Task PreviousPage()
     {
-        if ( currentPage > 1 )
+        if (currentPage > 1)
         {
             currentPage--;
             await LoadUsers();
@@ -108,21 +108,21 @@ public partial class AdminUsers : IAsyncDisposable
 
     private async Task NextPage()
     {
-        if ( pagedResult is { HasNextPage: true } )
+        if (pagedResult is { HasNextPage: true })
         {
             currentPage++;
             await LoadUsers();
         }
     }
 
-    private async Task ImpersonateUser( string userId )
+    private async Task ImpersonateUser(string userId)
     {
-        var result = await AuthService.ImpersonateAsync( userId );
-        if ( result.Success )
+        var result = await AuthService.ImpersonateAsync(userId);
+        if (result.Success)
         {
             Navigation.NavigateTo(
-                $"/auth/complete?ticket={Uri.EscapeDataString( result.Token! )}&returnUrl=%2F" ,
-                forceLoad: true );
+                $"/auth/complete?ticket={Uri.EscapeDataString(result.Token!)}&returnUrl=%2F",
+                forceLoad: true);
         }
         else
         {
@@ -130,7 +130,7 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private void OpenResetPasswordModal( AdminUserDto user )
+    private void OpenResetPasswordModal(AdminUserDto user)
     {
         _resetPwdUserId = user.Id;
         _resetPwdEmail = user.Email;
@@ -151,13 +151,13 @@ public partial class AdminUsers : IAsyncDisposable
 
     private async Task SubmitResetPassword()
     {
-        if ( string.IsNullOrWhiteSpace( _resetPwdNew ) || _resetPwdNew.Length < 8 )
+        if (string.IsNullOrWhiteSpace(_resetPwdNew) || _resetPwdNew.Length < 8)
         {
             _resetPwdError = "Password must be at least 8 characters.";
             return;
         }
 
-        if ( _resetPwdNew != _resetPwdConfirm )
+        if (_resetPwdNew != _resetPwdConfirm)
         {
             _resetPwdError = AdminRes.PasswordMismatch;
             return;
@@ -168,8 +168,8 @@ public partial class AdminUsers : IAsyncDisposable
 
         try
         {
-            var success = await UserConsumer.SetPasswordAsync( _resetPwdUserId! , _resetPwdNew );
-            if ( success )
+            var success = await UserConsumer.SetPasswordAsync(_resetPwdUserId!, _resetPwdNew);
+            if (success)
             {
                 message = AdminRes.PasswordUpdated;
                 CloseResetPasswordModal();
@@ -179,7 +179,7 @@ public partial class AdminUsers : IAsyncDisposable
                 _resetPwdError = "Failed to update password. Check password requirements.";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _resetPwdError = $"Error: {ex.Message}";
         }
@@ -189,12 +189,12 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private async Task ToggleEnable( string userId )
+    private async Task ToggleEnable(string userId)
     {
         try
         {
-            var result = await UserConsumer.ToggleEnableAsync( userId );
-            if ( result.HasValue )
+            var result = await UserConsumer.ToggleEnableAsync(userId);
+            if (result.HasValue)
             {
                 await LoadUsers();
                 message = "User enable/disable toggled";
@@ -204,18 +204,18 @@ public partial class AdminUsers : IAsyncDisposable
                 message = "Error toggling user";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task DeleteUser( string userId )
+    private async Task DeleteUser(string userId)
     {
         try
         {
-            var success = await UserConsumer.DeleteUserAsync( userId );
-            if ( success )
+            var success = await UserConsumer.DeleteUserAsync(userId);
+            if (success)
             {
                 confirmDeleteId = null;
                 await LoadUsers();
@@ -226,7 +226,7 @@ public partial class AdminUsers : IAsyncDisposable
                 message = "Error deleting user";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }

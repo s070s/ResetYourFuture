@@ -17,10 +17,10 @@ namespace ResetYourFuture.Application.Tests;
 /// </summary>
 public class RequestDtoValidationTests
 {
-    private static bool IsValid( object model )
+    private static bool IsValid(object model)
     {
-        var ctx = new ValidationContext( model );
-        return Validator.TryValidateObject( model, ctx, new List<ValidationResult>(), validateAllProperties: true );
+        var ctx = new ValidationContext(model);
+        return Validator.TryValidateObject(model, ctx, new List<ValidationResult>(), validateAllProperties: true);
     }
 
     private static RegisterRequestDto ValidRegister() => new()
@@ -34,14 +34,14 @@ public class RequestDtoValidationTests
     };
 
     [Fact]
-    public void Register_Valid_Passes() => IsValid( ValidRegister() ).ShouldBeTrue();
+    public void Register_Valid_Passes() => IsValid(ValidRegister()).ShouldBeTrue();
 
     [Fact]
     public void Register_InvalidEmail_Fails()
     {
         var dto = ValidRegister();
         dto.Email = "not-an-email";
-        IsValid( dto ).ShouldBeFalse();
+        IsValid(dto).ShouldBeFalse();
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class RequestDtoValidationTests
     {
         var dto = ValidRegister();
         dto.Password = dto.ConfirmPassword = "Ab1";
-        IsValid( dto ).ShouldBeFalse();
+        IsValid(dto).ShouldBeFalse();
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class RequestDtoValidationTests
     {
         var dto = ValidRegister();
         dto.ConfirmPassword = "Different1";
-        IsValid( dto ).ShouldBeFalse();
+        IsValid(dto).ShouldBeFalse();
     }
 
     [Fact]
@@ -65,56 +65,56 @@ public class RequestDtoValidationTests
     {
         var dto = ValidRegister();
         dto.GdprConsent = false;
-        IsValid( dto ).ShouldBeFalse();
+        IsValid(dto).ShouldBeFalse();
     }
 
     [Fact]
     public void Register_FirstNameTooLong_Fails()
     {
         var dto = ValidRegister();
-        dto.FirstName = new string( 'x', 101 );
-        IsValid( dto ).ShouldBeFalse();
+        dto.FirstName = new string('x', 101);
+        IsValid(dto).ShouldBeFalse();
     }
 
     [Fact]
     public void Login_Valid_Passes() =>
-        IsValid( new LoginRequestDto { Email = "u@x.com", Password = "secret" } ).ShouldBeTrue();
+        IsValid(new LoginRequestDto { Email = "u@x.com", Password = "secret" }).ShouldBeTrue();
 
     [Fact]
     public void Login_MissingEmail_Fails() =>
-        IsValid( new LoginRequestDto { Email = "", Password = "secret" } ).ShouldBeFalse();
+        IsValid(new LoginRequestDto { Email = "", Password = "secret" }).ShouldBeFalse();
 
     [Fact]
     public void Login_InvalidEmail_Fails() =>
-        IsValid( new LoginRequestDto { Email = "nope", Password = "secret" } ).ShouldBeFalse();
+        IsValid(new LoginRequestDto { Email = "nope", Password = "secret" }).ShouldBeFalse();
 
     [Fact]
     public void ResetPassword_Valid_Passes() =>
-        IsValid( new ResetPasswordRequestDto
+        IsValid(new ResetPasswordRequestDto
         {
             Email = "u@x.com",
             Token = "tok",
             NewPassword = "Password1",
             ConfirmPassword = "Password1"
-        } ).ShouldBeTrue();
+        }).ShouldBeTrue();
 
     [Fact]
     public void ResetPassword_Mismatch_Fails() =>
-        IsValid( new ResetPasswordRequestDto
+        IsValid(new ResetPasswordRequestDto
         {
             Email = "u@x.com",
             Token = "tok",
             NewPassword = "Password1",
             ConfirmPassword = "Nope12345"
-        } ).ShouldBeFalse();
+        }).ShouldBeFalse();
 
     [Fact]
     public void ResetPassword_ShortPassword_Fails() =>
-        IsValid( new ResetPasswordRequestDto
+        IsValid(new ResetPasswordRequestDto
         {
             Email = "u@x.com",
             Token = "tok",
             NewPassword = "Ab1",
             ConfirmPassword = "Ab1"
-        } ).ShouldBeFalse();
+        }).ShouldBeFalse();
 }

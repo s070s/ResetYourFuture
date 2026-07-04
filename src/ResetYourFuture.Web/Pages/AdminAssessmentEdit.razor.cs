@@ -34,7 +34,7 @@ public partial class AdminAssessmentEdit
 
     protected override async Task OnInitializedAsync()
     {
-        if ( !IsNew )
+        if (!IsNew)
         {
             await LoadAssessment();
         }
@@ -45,102 +45,102 @@ public partial class AdminAssessmentEdit
     {
         try
         {
-            var assessment = await AssessmentConsumer.GetAssessmentAsync( AssessmentId );
-            if ( assessment != null )
+            var assessment = await AssessmentConsumer.GetAssessmentAsync(AssessmentId);
+            if (assessment != null)
             {
                 assessmentKey = assessment.Key;
                 assessmentTitleEn = assessment.TitleEn;
                 assessmentTitleEl = assessment.TitleEl;
                 assessmentDescriptionEn = assessment.DescriptionEn;
                 assessmentDescriptionEl = assessment.DescriptionEl;
-                ParseSchemaToQuestions( assessment.SchemaJson );
+                ParseSchemaToQuestions(assessment.SchemaJson);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading assessment: {ex.Message}";
         }
     }
 
-    private void ParseSchemaToQuestions( string? schemaJson )
+    private void ParseSchemaToQuestions(string? schemaJson)
     {
-        if ( string.IsNullOrWhiteSpace( schemaJson ) )
+        if (string.IsNullOrWhiteSpace(schemaJson))
             return;
 
         try
         {
-            using var doc = JsonDocument.Parse( schemaJson );
+            using var doc = JsonDocument.Parse(schemaJson);
             var root = doc.RootElement;
 
             // Support both flat {"questions":[...]} and sectioned {"sections":[{"questions":[...]}]} schemas
             var questionElements = new List<JsonElement>();
 
-            if ( root.TryGetProperty( "questions" , out var flatQuestions ) )
+            if (root.TryGetProperty("questions", out var flatQuestions))
             {
-                foreach ( var qEl in flatQuestions.EnumerateArray() )
-                    questionElements.Add( qEl );
+                foreach (var qEl in flatQuestions.EnumerateArray())
+                    questionElements.Add(qEl);
             }
-            else if ( root.TryGetProperty( "sections" , out var sections ) )
+            else if (root.TryGetProperty("sections", out var sections))
             {
-                foreach ( var section in sections.EnumerateArray() )
+                foreach (var section in sections.EnumerateArray())
                 {
-                    if ( section.TryGetProperty( "questions" , out var sectionQuestions ) )
+                    if (section.TryGetProperty("questions", out var sectionQuestions))
                     {
-                        foreach ( var qEl in sectionQuestions.EnumerateArray() )
-                            questionElements.Add( qEl );
+                        foreach (var qEl in sectionQuestions.EnumerateArray())
+                            questionElements.Add(qEl);
                     }
                 }
             }
 
-            foreach ( var qEl in questionElements )
+            foreach (var qEl in questionElements)
             {
-                var rawType = qEl.TryGetProperty( "type" , out var typeEl ) ? typeEl.GetString() ?? "text" : "text";
+                var rawType = qEl.TryGetProperty("type", out var typeEl) ? typeEl.GetString() ?? "text" : "text";
                 // Normalise multiselect → choice; the editor treats them identically
                 var editorType = rawType == "multiselect" ? "choice" : rawType;
 
                 var q = new QuestionModel
                 {
-                    Id = qEl.TryGetProperty( "id" , out var idEl ) ? idEl.GetString() ?? "" : "" ,
-                    Type = editorType ,
-                    LabelEn = qEl.TryGetProperty( "labelEn" , out var labelEnEl ) ? labelEnEl.GetString() ?? ""
-                        : ( qEl.TryGetProperty( "label" , out var labelEl ) ? labelEl.GetString() ?? "" : "" ) ,
-                    LabelEl = qEl.TryGetProperty( "labelEl" , out var labelElEl ) ? labelElEl.GetString() : null ,
-                    Required = qEl.TryGetProperty( "required" , out var reqEl ) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
+                    Id = qEl.TryGetProperty("id", out var idEl) ? idEl.GetString() ?? "" : "",
+                    Type = editorType,
+                    LabelEn = qEl.TryGetProperty("labelEn", out var labelEnEl) ? labelEnEl.GetString() ?? ""
+                        : (qEl.TryGetProperty("label", out var labelEl) ? labelEl.GetString() ?? "" : ""),
+                    LabelEl = qEl.TryGetProperty("labelEl", out var labelElEl) ? labelElEl.GetString() : null,
+                    Required = qEl.TryGetProperty("required", out var reqEl) ? reqEl.GetBoolean().ToString().ToLowerInvariant() : "false"
                 };
 
-                if ( q.Type == "rating" )
+                if (q.Type == "rating")
                 {
-                    q.Min = qEl.TryGetProperty( "min" , out var minEl ) ? minEl.GetInt32() : 1;
-                    q.Max = qEl.TryGetProperty( "max" , out var maxEl ) ? maxEl.GetInt32() : 5;
+                    q.Min = qEl.TryGetProperty("min", out var minEl) ? minEl.GetInt32() : 1;
+                    q.Max = qEl.TryGetProperty("max", out var maxEl) ? maxEl.GetInt32() : 5;
                 }
 
-                if ( q.Type == "choice" )
+                if (q.Type == "choice")
                 {
-                    if ( qEl.TryGetProperty( "optionsEn" , out var optEnEl ) )
+                    if (qEl.TryGetProperty("optionsEn", out var optEnEl))
                     {
                         var options = new List<string>();
-                        foreach ( var opt in optEnEl.EnumerateArray() )
-                            options.Add( opt.GetString() ?? "" );
-                        q.OptionsTextEn = string.Join( "\n" , options );
+                        foreach (var opt in optEnEl.EnumerateArray())
+                            options.Add(opt.GetString() ?? "");
+                        q.OptionsTextEn = string.Join("\n", options);
                     }
-                    else if ( qEl.TryGetProperty( "options" , out var optEl ) )
+                    else if (qEl.TryGetProperty("options", out var optEl))
                     {
                         var options = new List<string>();
-                        foreach ( var opt in optEl.EnumerateArray() )
-                            options.Add( opt.GetString() ?? "" );
-                        q.OptionsTextEn = string.Join( "\n" , options );
+                        foreach (var opt in optEl.EnumerateArray())
+                            options.Add(opt.GetString() ?? "");
+                        q.OptionsTextEn = string.Join("\n", options);
                     }
 
-                    if ( qEl.TryGetProperty( "optionsEl" , out var optElEl ) )
+                    if (qEl.TryGetProperty("optionsEl", out var optElEl))
                     {
                         var options = new List<string>();
-                        foreach ( var opt in optElEl.EnumerateArray() )
-                            options.Add( opt.GetString() ?? "" );
-                        q.OptionsTextEl = string.Join( "\n" , options );
+                        foreach (var opt in optElEl.EnumerateArray())
+                            options.Add(opt.GetString() ?? "");
+                        q.OptionsTextEl = string.Join("\n", options);
                     }
                 }
 
-                questions.Add( q );
+                questions.Add(q);
             }
         }
         catch
@@ -154,31 +154,31 @@ public partial class AdminAssessmentEdit
     {
         var nextNum = questions.Count + 1;
         var q = new QuestionModel { Id = $"q{nextNum}" };
-        questions.Add( q );
-        _expandedQuestions.Add( q.TempId );
+        questions.Add(q);
+        _expandedQuestions.Add(q.TempId);
     }
 
-    private void RemoveQuestion( int index )
+    private void RemoveQuestion(int index)
     {
-        if ( index >= 0 && index < questions.Count )
+        if (index >= 0 && index < questions.Count)
         {
-            _expandedQuestions.Remove( questions [ index ].TempId );
-            questions.RemoveAt( index );
+            _expandedQuestions.Remove(questions[index].TempId);
+            questions.RemoveAt(index);
         }
     }
 
-    private void ToggleQuestion( string tempId )
+    private void ToggleQuestion(string tempId)
     {
-        if ( !_expandedQuestions.Remove( tempId ) )
-            _expandedQuestions.Add( tempId );
+        if (!_expandedQuestions.Remove(tempId))
+            _expandedQuestions.Add(tempId);
     }
 
-    private void MoveQuestion( int index , int direction )
+    private void MoveQuestion(int index, int direction)
     {
         var newIndex = index + direction;
-        if ( newIndex < 0 || newIndex >= questions.Count )
+        if (newIndex < 0 || newIndex >= questions.Count)
             return;
-        (questions [ index ] , questions [ newIndex ]) = (questions [ newIndex ] , questions [ index ]);
+        (questions[index], questions[newIndex]) = (questions[newIndex], questions[index]);
     }
 
     private async Task SaveAssessment()
@@ -198,26 +198,26 @@ public partial class AdminAssessmentEdit
             var schemaJson = GenerateSchemaJson();
 
             var request = new SaveAssessmentDefinitionRequest(
-                assessmentKey ,
-                assessmentTitleEn ,
-                assessmentTitleEl ,
-                descEn ,
-                descEl ,
+                assessmentKey,
+                assessmentTitleEn,
+                assessmentTitleEl,
+                descEn,
+                descEl,
                 schemaJson
             );
 
             AdminAssessmentDefinitionDto? result;
-            if ( IsNew )
-                result = await AssessmentConsumer.CreateAssessmentAsync( request );
+            if (IsNew)
+                result = await AssessmentConsumer.CreateAssessmentAsync(request);
             else
-                result = await AssessmentConsumer.UpdateAssessmentAsync( AssessmentId , request );
+                result = await AssessmentConsumer.UpdateAssessmentAsync(AssessmentId, request);
 
-            if ( result is not null )
-                Nav.NavigateTo( "/admin/assessments" );
+            if (result is not null)
+                Nav.NavigateTo("/admin/assessments");
             else
                 message = "Error saving assessment";
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
@@ -229,53 +229,53 @@ public partial class AdminAssessmentEdit
 
     private void GoBack()
     {
-        Nav.NavigateTo( "/admin/assessments" );
+        Nav.NavigateTo("/admin/assessments");
     }
 
     private string GenerateSchemaJson()
     {
         var schema = new
         {
-            id = assessmentKey ,
-            title = assessmentTitleEn ,
-            version = "1.0" ,
-            questions = questions.Select( q =>
+            id = assessmentKey,
+            title = assessmentTitleEn,
+            version = "1.0",
+            questions = questions.Select(q =>
             {
-                var dict = new Dictionary<string , object>
+                var dict = new Dictionary<string, object>
                 {
-                    [ "id" ] = q.Id ,
-                    [ "type" ] = q.Type ,
-                    [ "labelEn" ] = q.LabelEn ,
-                    [ "required" ] = q.Required == "true"
+                    ["id"] = q.Id,
+                    ["type"] = q.Type,
+                    ["labelEn"] = q.LabelEn,
+                    ["required"] = q.Required == "true"
                 };
 
-                if ( !string.IsNullOrEmpty( q.LabelEl ) )
-                    dict [ "labelEl" ] = q.LabelEl;
+                if (!string.IsNullOrEmpty(q.LabelEl))
+                    dict["labelEl"] = q.LabelEl;
 
-                if ( q.Type == "rating" )
+                if (q.Type == "rating")
                 {
-                    dict [ "min" ] = q.Min;
-                    dict [ "max" ] = q.Max;
+                    dict["min"] = q.Min;
+                    dict["max"] = q.Max;
                 }
 
-                if ( q.Type == "choice" )
+                if (q.Type == "choice")
                 {
-                    dict [ "optionsEn" ] = q.GetOptionsEn();
+                    dict["optionsEn"] = q.GetOptionsEn();
                     var optionsEl = q.GetOptionsEl();
-                    if ( optionsEl.Count > 0 )
-                        dict [ "optionsEl" ] = optionsEl;
+                    if (optionsEl.Count > 0)
+                        dict["optionsEl"] = optionsEl;
                 }
 
                 return dict;
-            } ).ToList()
+            }).ToList()
         };
 
-        return JsonSerializer.Serialize( schema , new JsonSerializerOptions { WriteIndented = true } );
+        return JsonSerializer.Serialize(schema, new JsonSerializerOptions { WriteIndented = true });
     }
 
     private class QuestionModel
     {
-        public string TempId { get; } = Guid.NewGuid().ToString( "N" );
+        public string TempId { get; } = Guid.NewGuid().ToString("N");
         public string Id { get; set; } = string.Empty;
         public string Type { get; set; } = "text";
         public string LabelEn { get; set; } = string.Empty;
@@ -293,9 +293,9 @@ public partial class AdminAssessmentEdit
         }
 
         public List<string> GetOptionsEn() =>
-            OptionsTextEn.Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();
+            OptionsTextEn.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
 
         public List<string> GetOptionsEl() =>
-            ( OptionsTextEl ?? string.Empty ).Split( '\n' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries ).ToList();
+            (OptionsTextEl ?? string.Empty).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
     }
 }

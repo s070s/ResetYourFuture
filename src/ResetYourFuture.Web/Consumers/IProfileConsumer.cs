@@ -9,8 +9,8 @@ namespace ResetYourFuture.Web.Consumers;
 public interface IProfileConsumer
 {
     Task<ProfileDto?> GetProfileAsync();
-    Task<ProfileDto?> UpdateProfileAsync( UpdateProfileRequest request );
+    Task<ProfileDto?> UpdateProfileAsync(UpdateProfileRequest request);
     Task<(byte[] Data, string ContentType)?> GetAvatarAsync();
-    Task<bool> UploadAvatarAsync( IBrowserFile file );
-    Task<bool> ChangePasswordAsync( ChangePasswordRequest request );
+    Task<bool> UploadAvatarAsync(IBrowserFile file);
+    Task<bool> ChangePasswordAsync(ChangePasswordRequest request);
 }

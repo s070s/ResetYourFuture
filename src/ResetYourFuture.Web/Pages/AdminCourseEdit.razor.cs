@@ -21,7 +21,7 @@ public partial class AdminCourseEdit
     private bool IsNew => CourseId == Guid.Empty;
     private AdminCourseDto? course;
     private List<AdminModuleDto>? modules;
-    private Dictionary<Guid , List<AdminLessonDto>> lessonsMap = new();
+    private Dictionary<Guid, List<AdminLessonDto>> lessonsMap = new();
     private HashSet<Guid> expandedModules = new();
     private bool isSaving;
     private string message = string.Empty;
@@ -56,7 +56,7 @@ public partial class AdminCourseEdit
     protected override async Task OnParametersSetAsync()
     {
         // Guard: only reload when CourseId actually changes (handles same-component navigation)
-        if ( CourseId == _lastLoadedCourseId )
+        if (CourseId == _lastLoadedCourseId)
             return;
 
         _lastLoadedCourseId = CourseId;
@@ -68,7 +68,7 @@ public partial class AdminCourseEdit
         expandedModules = new();
         message = string.Empty;
 
-        if ( !IsNew )
+        if (!IsNew)
         {
             await LoadCourse();
             await LoadModulesAndLessons();
@@ -81,8 +81,8 @@ public partial class AdminCourseEdit
     {
         try
         {
-            course = await CourseConsumer.GetCourseAsync( CourseId );
-            if ( course != null )
+            course = await CourseConsumer.GetCourseAsync(CourseId);
+            if (course != null)
             {
                 courseTitleEn = course.TitleEn;
                 courseTitleEl = course.TitleEl;
@@ -91,7 +91,7 @@ public partial class AdminCourseEdit
                 courseRequiredTier = course.RequiredTier;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading course: {ex.Message}";
         }
@@ -101,38 +101,38 @@ public partial class AdminCourseEdit
     {
         try
         {
-            modules = await ModuleConsumer.GetModulesByCourseAsync( CourseId );
+            modules = await ModuleConsumer.GetModulesByCourseAsync(CourseId);
             lessonsMap = new();
-            if ( modules != null )
+            if (modules != null)
             {
-                modules = [.. modules.OrderBy( m => m.SortOrder )];
-                await Task.WhenAll( modules.Select( m => LoadLessonsForModule( m.Id ) ) );
+                modules = [.. modules.OrderBy(m => m.SortOrder)];
+                await Task.WhenAll(modules.Select(m => LoadLessonsForModule(m.Id)));
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading modules: {ex.Message}";
         }
     }
 
-    private async Task LoadLessonsForModule( Guid moduleId )
+    private async Task LoadLessonsForModule(Guid moduleId)
     {
         try
         {
-            var lessons = await LessonConsumer.GetLessonsByModuleAsync( moduleId );
-            lessonsMap [ moduleId ] = [.. lessons.OrderBy( l => l.SortOrder )];
+            var lessons = await LessonConsumer.GetLessonsByModuleAsync(moduleId);
+            lessonsMap[moduleId] = [.. lessons.OrderBy(l => l.SortOrder)];
         }
         catch
         {
-            lessonsMap [ moduleId ] = [];
+            lessonsMap[moduleId] = [];
         }
     }
 
-    private void ToggleModule( Guid moduleId )
+    private void ToggleModule(Guid moduleId)
     {
-        if ( !expandedModules.Remove( moduleId ) )
+        if (!expandedModules.Remove(moduleId))
         {
-            expandedModules.Add( moduleId );
+            expandedModules.Add(moduleId);
         }
     }
 
@@ -152,22 +152,22 @@ public partial class AdminCourseEdit
                 ? await descriptionEditorEl.GetContentAsync()
                 : courseDescriptionEl;
 
-            var request = new SaveCourseRequest( courseTitleEn , courseTitleEl , descEn , descEl , courseRequiredTier );
+            var request = new SaveCourseRequest(courseTitleEn, courseTitleEl, descEn, descEl, courseRequiredTier);
 
-            if ( IsNew )
+            if (IsNew)
             {
-                var created = await CourseConsumer.CreateCourseAsync( request );
-                if ( created is not null )
+                var created = await CourseConsumer.CreateCourseAsync(request);
+                if (created is not null)
                 {
-                    Nav.NavigateTo( $"/admin/courses/{created.Id}" );
+                    Nav.NavigateTo($"/admin/courses/{created.Id}");
                     return;
                 }
                 message = "Error saving course";
             }
             else
             {
-                var updated = await CourseConsumer.UpdateCourseAsync( CourseId , request );
-                if ( updated is not null )
+                var updated = await CourseConsumer.UpdateCourseAsync(CourseId, request);
+                if (updated is not null)
                 {
                     await LoadCourse();
                     message = "Course saved successfully";
@@ -178,7 +178,7 @@ public partial class AdminCourseEdit
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
@@ -188,7 +188,7 @@ public partial class AdminCourseEdit
         }
     }
 
-    private void Cancel() => Nav.NavigateTo( "/admin/courses" );
+    private void Cancel() => Nav.NavigateTo("/admin/courses");
 
     // ── Module modal ──
 
@@ -198,7 +198,7 @@ public partial class AdminCourseEdit
         _showModuleModal = true;
     }
 
-    private void ShowEditModule( AdminModuleDto module )
+    private void ShowEditModule(AdminModuleDto module)
     {
         _editingModule = module;
         _showModuleModal = true;
@@ -215,15 +215,15 @@ public partial class AdminCourseEdit
 
     // ── Lesson modal ──
 
-    private void ShowAddLesson( Guid moduleId )
+    private void ShowAddLesson(Guid moduleId)
     {
         _editingLesson = null;
         _lessonModalModuleId = moduleId;
-        _lessonModalDefaultSortOrder = ( lessonsMap.GetValueOrDefault( moduleId )?.Count ?? 0 ) + 1;
+        _lessonModalDefaultSortOrder = (lessonsMap.GetValueOrDefault(moduleId)?.Count ?? 0) + 1;
         _showLessonModal = true;
     }
 
-    private void ShowEditLesson( AdminLessonDto lesson )
+    private void ShowEditLesson(AdminLessonDto lesson)
     {
         _editingLesson = lesson;
         _lessonModalModuleId = lesson.ModuleId;
@@ -241,13 +241,13 @@ public partial class AdminCourseEdit
 
     // ── Delete ──
 
-    private void DeleteModule( Guid moduleId )
+    private void DeleteModule(Guid moduleId)
     {
         _pendingDeleteModuleId = moduleId;
         _pendingDeleteMessage = "Delete this module and all its lessons?";
     }
 
-    private void DeleteLesson( Guid lessonId , Guid moduleId )
+    private void DeleteLesson(Guid lessonId, Guid moduleId)
     {
         _pendingDeleteLessonId = lessonId;
         _pendingDeleteLessonModuleId = moduleId;
@@ -256,16 +256,16 @@ public partial class AdminCourseEdit
 
     private async Task ExecuteDeleteAsync()
     {
-        if ( _pendingDeleteModuleId is { } moduleId )
+        if (_pendingDeleteModuleId is { } moduleId)
         {
             _pendingDeleteModuleId = null;
             _pendingDeleteMessage = string.Empty;
             try
             {
-                var success = await ModuleConsumer.DeleteModuleAsync( moduleId );
-                if ( success )
+                var success = await ModuleConsumer.DeleteModuleAsync(moduleId);
+                if (success)
                 {
-                    lessonsMap.Remove( moduleId );
+                    lessonsMap.Remove(moduleId);
                     await LoadModulesAndLessons();
                     message = "Module deleted";
                 }
@@ -274,20 +274,20 @@ public partial class AdminCourseEdit
                     message = "Error deleting module";
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 message = $"Error: {ex.Message}";
             }
         }
-        else if ( _pendingDeleteLessonId is { } lessonId )
+        else if (_pendingDeleteLessonId is { } lessonId)
         {
             _pendingDeleteLessonId = null;
             _pendingDeleteLessonModuleId = null;
             _pendingDeleteMessage = string.Empty;
             try
             {
-                var success = await LessonConsumer.DeleteLessonAsync( lessonId );
-                if ( success )
+                var success = await LessonConsumer.DeleteLessonAsync(lessonId);
+                if (success)
                 {
                     await LoadModulesAndLessons();
                     message = "Lesson deleted";
@@ -297,7 +297,7 @@ public partial class AdminCourseEdit
                     message = "Error deleting lesson";
                 }
             }
-            catch ( Exception ex )
+            catch (Exception ex)
             {
                 message = $"Error: {ex.Message}";
             }
@@ -318,13 +318,13 @@ public partial class AdminCourseEdit
     {
         try
         {
-            if ( await CourseConsumer.PublishCourseAsync( CourseId ) )
+            if (await CourseConsumer.PublishCourseAsync(CourseId))
             {
                 await LoadCourse();
                 message = "Course published";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
@@ -334,16 +334,16 @@ public partial class AdminCourseEdit
     {
         try
         {
-            if ( await CourseConsumer.UnpublishCourseAsync( CourseId ) )
+            if (await CourseConsumer.UnpublishCourseAsync(CourseId))
             {
                 await LoadCourse();
                 message = "Course unpublished";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    }
+}

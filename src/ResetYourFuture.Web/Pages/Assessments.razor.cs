@@ -31,7 +31,7 @@ public partial class Assessments
         var status = await SubscriptionService.GetStatusAsync();
         _assessmentAccess = status?.Features?.AssessmentAccess == true;
 
-        if ( _assessmentAccess )
+        if (_assessmentAccess)
             await LoadAssessmentsAsync();
         else
             _loading = false;
@@ -43,12 +43,12 @@ public partial class Assessments
         _error = null;
         try
         {
-            _pagedResult = await AssessmentService.GetAssessmentsAsync( _page, _pageSize, CurrentLang );
+            _pagedResult = await AssessmentService.GetAssessmentsAsync(_page, _pageSize, CurrentLang);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = AssessmentRes.FailedToLoad;
-            _logger.LogError( ex , "Failed to load assessments." );
+            _logger.LogError(ex, "Failed to load assessments.");
         }
         finally
         {
@@ -56,23 +56,23 @@ public partial class Assessments
         }
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
-        if ( page < 1 || ( _pagedResult is not null && page > _pagedResult.TotalPages ) )
+        if (page < 1 || (_pagedResult is not null && page > _pagedResult.TotalPages))
             return;
         _page = page;
         await LoadAssessmentsAsync();
     }
 
-    private async Task ChangePageSize( int newSize )
+    private async Task ChangePageSize(int newSize)
     {
         _pageSize = newSize;
         _page = 1;
         await LoadAssessmentsAsync();
     }
 
-    private void StartAssessment( Guid id )
+    private void StartAssessment(Guid id)
     {
-        Nav.NavigateTo( $"/assessments/{id}" );
+        Nav.NavigateTo($"/assessments/{id}");
     }
 }

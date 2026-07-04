@@ -17,9 +17,9 @@ public partial class AdminAnalytics
         {
             stats = await Analytics.GetSummaryAsync();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error loading analytics." );
+            _logger.LogError(ex, "Error loading analytics.");
         }
     }
 }

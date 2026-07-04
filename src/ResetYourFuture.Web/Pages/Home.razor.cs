@@ -26,11 +26,11 @@ public partial class Home : IDisposable
 
     private PersistingComponentStateSubscription _persistSub;
 
-    private string InstagramUrl => Configuration [ "Social:Instagram" ] ?? "https://instagram.com/yourprofile";
-    private string YoutubeUrl => Configuration [ "Social:Youtube" ] ?? "https://youtube.com";
+    private string InstagramUrl => Configuration["Social:Instagram"] ?? "https://instagram.com/yourprofile";
+    private string YoutubeUrl => Configuration["Social:Youtube"] ?? "https://youtube.com";
 
     private string? backgroundImageUrl = "/images/background.png";
-    private string heroBackgroundStyle => !string.IsNullOrEmpty( backgroundImageUrl )
+    private string heroBackgroundStyle => !string.IsNullOrEmpty(backgroundImageUrl)
         ? $"background-image: url('{backgroundImageUrl}'); background-size: cover; background-position: center;"
         : string.Empty;
 
@@ -41,33 +41,33 @@ public partial class Home : IDisposable
     // exactly matches the SSR pre-rendered HTML — seamless hydration, zero flash.
     // OnInitializedAsync fires after the first render and would introduce a loading-state
     // mismatch if GetAuthenticationStateAsync() ever suspends (intermittent flicker).
-    public override async Task SetParametersAsync( ParameterView parameters )
+    public override async Task SetParametersAsync(ParameterView parameters)
     {
-        if ( ApplicationState.TryTakeFromJson<bool>( "home-isAuthenticated" , out var isAuth ) )
+        if (ApplicationState.TryTakeFromJson<bool>("home-isAuthenticated", out var isAuth))
         {
             _isAuthenticated = isAuth;
-            ApplicationState.TryTakeFromJson<string?>( "home-userName" , out _authenticatedUserName );
+            ApplicationState.TryTakeFromJson<string?>("home-userName", out _authenticatedUserName);
             _authRestored = true;
         }
-        if ( ApplicationState.TryTakeFromJson<List<TestimonialDto>>( "home-testimonials" , out var t ) )
+        if (ApplicationState.TryTakeFromJson<List<TestimonialDto>>("home-testimonials", out var t))
         {
             _testimonials = t;
             _testimonialsLoading = false;
         }
-        if ( ApplicationState.TryTakeFromJson<List<BlogArticleSummaryDto>>( "home-blog" , out var b ) )
+        if (ApplicationState.TryTakeFromJson<List<BlogArticleSummaryDto>>("home-blog", out var b))
         {
             _blogSummaries = b;
             _blogLoading = false;
         }
-        await base.SetParametersAsync( parameters );
+        await base.SetParametersAsync(parameters);
     }
 
     protected override async Task OnInitializedAsync()
     {
-        _persistSub = ApplicationState.RegisterOnPersisting( PersistHomeData );
+        _persistSub = ApplicationState.RegisterOnPersisting(PersistHomeData);
 
         // Resolve auth state only when not already restored from prerender persistence
-        if ( !_authRestored )
+        if (!_authRestored)
         {
             var state = await AuthStateProvider.GetAuthenticationStateAsync();
             _isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
@@ -77,18 +77,18 @@ public partial class Home : IDisposable
         // Load only what wasn't already restored — flags are false when SetParametersAsync
         // successfully restored the data, so no duplicate API calls occur.
         var tasks = new List<Task>();
-        if ( _blogLoading ) tasks.Add( LoadBlogAsync() );
-        if ( _testimonialsLoading ) tasks.Add( LoadTestimonialsAsync() );
-        if ( tasks.Count > 0 )
-            await Task.WhenAll( tasks );
+        if (_blogLoading) tasks.Add(LoadBlogAsync());
+        if (_testimonialsLoading) tasks.Add(LoadTestimonialsAsync());
+        if (tasks.Count > 0)
+            await Task.WhenAll(tasks);
     }
 
     private Task PersistHomeData()
     {
-        ApplicationState.PersistAsJson( "home-isAuthenticated" , _isAuthenticated );
-        ApplicationState.PersistAsJson( "home-userName" , _authenticatedUserName );
-        ApplicationState.PersistAsJson( "home-testimonials" , _testimonials );
-        ApplicationState.PersistAsJson( "home-blog" , _blogSummaries );
+        ApplicationState.PersistAsJson("home-isAuthenticated", _isAuthenticated);
+        ApplicationState.PersistAsJson("home-userName", _authenticatedUserName);
+        ApplicationState.PersistAsJson("home-testimonials", _testimonials);
+        ApplicationState.PersistAsJson("home-blog", _blogSummaries);
         return Task.CompletedTask;
     }
 
@@ -96,7 +96,7 @@ public partial class Home : IDisposable
     {
         try
         {
-            _blogSummaries = await BlogConsumer.GetSummariesAsync( count: 6 , lang: CurrentLang );
+            _blogSummaries = await BlogConsumer.GetSummariesAsync(count: 6, lang: CurrentLang);
         }
         catch
         {
@@ -124,18 +124,18 @@ public partial class Home : IDisposable
         }
     }
 
-    private static string TestimonialInitials( string fullName )
+    private static string TestimonialInitials(string fullName)
     {
-        if ( string.IsNullOrWhiteSpace( fullName ) ) return "?";
+        if (string.IsNullOrWhiteSpace(fullName)) return "?";
         return string.Concat(
-            fullName.Split( ' ' , StringSplitOptions.RemoveEmptyEntries )
-                    .Take( 2 )
-                    .Select( w => char.ToUpperInvariant( w [ 0 ] ) ) );
+            fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Take(2)
+                    .Select(w => char.ToUpperInvariant(w[0])));
     }
 
     private void NavigateToRegister()
     {
-        Navigation.NavigateTo( "/register" );
+        Navigation.NavigateTo("/register");
     }
 
     public void Dispose() => _persistSub.Dispose();

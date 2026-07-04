@@ -37,10 +37,10 @@ public partial class CourseDetail
     private async Task LoadAllAsync()
     {
         var tierTask = SubscriptionService.GetStatusAsync();
-        await Task.WhenAll( LoadCourse(), tierTask );
+        await Task.WhenAll(LoadCourse(), tierTask);
 
         var status = await tierTask;
-        if ( status is not null )
+        if (status is not null)
             _userTier = status.Tier;
     }
 
@@ -53,22 +53,22 @@ public partial class CourseDetail
 
         try
         {
-            _course = await CourseService.GetCourseAsync( CourseId, CurrentLang );
-            if ( _course is null )
+            _course = await CourseService.GetCourseAsync(CourseId, CurrentLang);
+            if (_course is null)
             {
                 _error = "Course not found.";
             }
             else
             {
-                var firstModule = _course.Modules.OrderBy( m => m.SortOrder ).FirstOrDefault();
-                if ( firstModule is not null )
-                    _expandedModules.Add( firstModule.Id );
+                var firstModule = _course.Modules.OrderBy(m => m.SortOrder).FirstOrDefault();
+                if (firstModule is not null)
+                    _expandedModules.Add(firstModule.Id);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = "Failed to load course. Please try again.";
-            _logger.LogError( ex , "Failed to load course {CourseId}." , CourseId );
+            _logger.LogError(ex, "Failed to load course {CourseId}.", CourseId);
         }
         finally
         {
@@ -76,10 +76,10 @@ public partial class CourseDetail
         }
     }
 
-    private void ToggleModule( Guid moduleId )
+    private void ToggleModule(Guid moduleId)
     {
-        if ( !_expandedModules.Remove( moduleId ) )
-            _expandedModules.Add( moduleId );
+        if (!_expandedModules.Remove(moduleId))
+            _expandedModules.Add(moduleId);
     }
 
     private async Task EnrollInCourse()
@@ -88,8 +88,8 @@ public partial class CourseDetail
         _enrollError = null;
         try
         {
-            var result = await CourseService.EnrollAsync( CourseId );
-            if ( result?.Success == true )
+            var result = await CourseService.EnrollAsync(CourseId);
+            if (result?.Success == true)
             {
                 await LoadCourse();
             }
@@ -98,10 +98,10 @@ public partial class CourseDetail
                 _enrollError = result?.Message ?? "Failed to enroll. Please try again.";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _enrollError = "Failed to enroll. Please try again.";
-            _logger.LogError( ex , "Failed to enroll in course {CourseId}." , CourseId );
+            _logger.LogError(ex, "Failed to enroll in course {CourseId}.", CourseId);
         }
         finally
         {
@@ -109,21 +109,21 @@ public partial class CourseDetail
         }
     }
 
-    private void ViewLesson( Guid lessonId )
+    private void ViewLesson(Guid lessonId)
     {
-        if ( _course?.IsEnrolled == true )
+        if (_course?.IsEnrolled == true)
         {
-            Navigation.NavigateTo( $"/lessons/{lessonId}" );
+            Navigation.NavigateTo($"/lessons/{lessonId}");
         }
     }
 
     private void GoBack()
     {
-        Navigation.NavigateTo( "/courses" );
+        Navigation.NavigateTo("/courses");
     }
 
     private void GoToPricing()
     {
-        Navigation.NavigateTo( "/pricing" );
+        Navigation.NavigateTo("/pricing");
     }
 }

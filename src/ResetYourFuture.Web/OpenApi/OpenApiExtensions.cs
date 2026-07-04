@@ -14,9 +14,9 @@ namespace ResetYourFuture.Web.OpenApi;
 /// </summary>
 internal static class OpenApiExtensions
 {
-    public static IServiceCollection AddResetYourFutureOpenApi( this IServiceCollection services )
+    public static IServiceCollection AddResetYourFutureOpenApi(this IServiceCollection services)
     {
-        services.AddOpenApi( "v1" , options =>
+        services.AddOpenApi("v1", options =>
         {
             // Top-level document info + the reusable "Bearer" security scheme.
             options.AddDocumentTransformer<ApiInfoAndSecuritySchemeTransformer>();
@@ -26,7 +26,7 @@ internal static class OpenApiExtensions
             options.AddOperationTransformer<ParameterAndResponseDocsTransformer>();
             // Attaches request-body examples to the request DTOs (drives Swagger UI "Try it out" prefill).
             options.AddSchemaTransformer<RequestExampleSchemaTransformer>();
-        } );
+        });
 
         return services;
     }
@@ -38,19 +38,19 @@ internal static class OpenApiExtensions
 /// <c>components.securitySchemes</c> when JWT bearer authentication is configured.
 /// </summary>
 internal sealed class ApiInfoAndSecuritySchemeTransformer(
-    IAuthenticationSchemeProvider authenticationSchemeProvider )
+    IAuthenticationSchemeProvider authenticationSchemeProvider)
     : IOpenApiDocumentTransformer
 {
     public async Task TransformAsync(
-        OpenApiDocument document ,
-        OpenApiDocumentTransformerContext context ,
-        CancellationToken cancellationToken )
+        OpenApiDocument document,
+        OpenApiDocumentTransformerContext context,
+        CancellationToken cancellationToken)
     {
         // --- API metadata (info block) ---
         document.Info = new OpenApiInfo
         {
-            Title = "ResetYourFuture API" ,
-            Version = "v1" ,
+            Title = "ResetYourFuture API",
+            Version = "v1",
             Description =
                 "REST API for the ResetYourFuture learning platform: authentication, courses, " +
                 "lessons, assessments, certificates, subscriptions, profiles, blog, testimonials, " +
@@ -80,12 +80,12 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
                 "conn.on('ReceiveMessage', m => console.log(m));\n" +
                 "await conn.start();\n" +
                 "await conn.invoke('SendMessage', conversationId, 'Hello');\n" +
-                "```" ,
+                "```",
             Contact = new OpenApiContact
             {
-                Name = "ResetYourFuture Support" ,
+                Name = "ResetYourFuture Support",
                 Email = "support@resetyourfuture.local"
-            } ,
+            },
             License = new OpenApiLicense
             {
                 Name = "Proprietary — © ResetYourFuture"
@@ -94,16 +94,16 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
 
         // --- JWT bearer security scheme (drives the Swagger UI "Authorize" button) ---
         var schemes = await authenticationSchemeProvider.GetAllSchemesAsync();
-        if ( schemes.Any( s => s.Name == "Bearer" ) )
+        if (schemes.Any(s => s.Name == "Bearer"))
         {
             document.Components ??= new OpenApiComponents();
-            document.Components.SecuritySchemes ??= new Dictionary<string , IOpenApiSecurityScheme>();
-            document.Components.SecuritySchemes [ "Bearer" ] = new OpenApiSecurityScheme
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+            document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
             {
-                Type = SecuritySchemeType.Http ,
-                Scheme = "bearer" ,
-                In = ParameterLocation.Header ,
-                BearerFormat = "JWT" ,
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                In = ParameterLocation.Header,
+                BearerFormat = "JWT",
                 Description =
                     "JWT Authorization header using the Bearer scheme. Obtain a token from " +
                     "POST /api/auth/login and paste only the token value (the 'Bearer ' prefix is added automatically)."
@@ -115,17 +115,17 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
         // so neither is guaranteed to reach components/schemas via the REST endpoints. Register
         // them explicitly so the "Realtime chat (SignalR)" section above can reference their shapes.
         document.Components ??= new OpenApiComponents();
-        foreach ( var (name, type) in new (string Name, Type Type) []
+        foreach (var (name, type) in new (string Name, Type Type)[]
         {
             ( "ChatMessageDto" , typeof( ChatMessageDto ) ) ,
             ( "ChatNotificationDto" , typeof( ChatNotificationDto ) ) ,
-        } )
+        })
         {
-            if ( document.Components.Schemas?.ContainsKey( name ) == true )
+            if (document.Components.Schemas?.ContainsKey(name) == true)
                 continue;
 
-            var schema = await context.GetOrCreateSchemaAsync( type , null , cancellationToken );
-            document.AddComponent( name , schema );
+            var schema = await context.GetOrCreateSchemaAsync(type, null, cancellationToken);
+            document.AddComponent(name, schema);
         }
     }
 }
@@ -139,40 +139,40 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
 internal sealed class BearerSecurityRequirementTransformer : IOpenApiOperationTransformer
 {
     public Task TransformAsync(
-        OpenApiOperation operation ,
-        OpenApiOperationTransformerContext context ,
-        CancellationToken cancellationToken )
+        OpenApiOperation operation,
+        OpenApiOperationTransformerContext context,
+        CancellationToken cancellationToken)
     {
         operation.Responses ??= new OpenApiResponses();
 
         // Every operation can surface an unhandled server error (ProblemDetails in production).
-        operation.Responses.TryAdd( "500" , new OpenApiResponse
+        operation.Responses.TryAdd("500", new OpenApiResponse
         {
             Description = "Server error — an unexpected error occurred."
-        } );
+        });
 
         var metadata = context.Description.ActionDescriptor.EndpointMetadata;
 
         var allowsAnonymous = metadata.OfType<IAllowAnonymous>().Any();
         var requiresAuthorization = metadata.OfType<IAuthorizeData>().Any();
 
-        if ( allowsAnonymous || !requiresAuthorization )
+        if (allowsAnonymous || !requiresAuthorization)
             return Task.CompletedTask;
 
         operation.Security ??= [];
-        operation.Security.Add( new OpenApiSecurityRequirement
+        operation.Security.Add(new OpenApiSecurityRequirement
         {
-            [ new OpenApiSecuritySchemeReference( "Bearer" , context.Document ) ] = []
-        } );
+            [new OpenApiSecuritySchemeReference("Bearer", context.Document)] = []
+        });
 
-        operation.Responses.TryAdd( "401" , new OpenApiResponse
+        operation.Responses.TryAdd("401", new OpenApiResponse
         {
             Description = "Unauthorized — a valid JWT bearer token is required."
-        } );
-        operation.Responses.TryAdd( "403" , new OpenApiResponse
+        });
+        operation.Responses.TryAdd("403", new OpenApiResponse
         {
             Description = "Forbidden — the authenticated user lacks the required role or permission."
-        } );
+        });
 
         return Task.CompletedTask;
     }
@@ -186,75 +186,75 @@ internal sealed class BearerSecurityRequirementTransformer : IOpenApiOperationTr
 /// </summary>
 internal sealed class ParameterAndResponseDocsTransformer : IOpenApiOperationTransformer
 {
-    private static readonly Dictionary<string , string> ParameterDocs = new( StringComparer.OrdinalIgnoreCase )
+    private static readonly Dictionary<string, string> ParameterDocs = new(StringComparer.OrdinalIgnoreCase)
     {
-        [ "id" ] = "Unique identifier (GUID) of the resource." ,
-        [ "courseId" ] = "Course identifier (GUID)." ,
-        [ "moduleId" ] = "Module identifier (GUID)." ,
-        [ "lessonId" ] = "Lesson identifier (GUID)." ,
-        [ "certificateId" ] = "Certificate identifier (GUID)." ,
-        [ "conversationId" ] = "Conversation identifier (GUID)." ,
-        [ "verificationId" ] = "Public certificate verification identifier (GUID)." ,
-        [ "assessmentId" ] = "Assessment definition identifier (GUID)." ,
-        [ "userId" ] = "User identifier." ,
-        [ "roleName" ] = "Role name (e.g. 'Admin' or 'Student')." ,
-        [ "page" ] = "1-based page number. Defaults to 1." ,
-        [ "pageSize" ] = "Number of items per page (1–100). Defaults to 10." ,
-        [ "lang" ] = "Language code: 'en' or 'el'. Defaults to 'en'." ,
-        [ "search" ] = "Optional case-insensitive search term." ,
-        [ "query" ] = "Search term matched against email or name." ,
-        [ "count" ] = "Maximum number of items to return." ,
-        [ "slug" ] = "URL slug of the article." ,
-        [ "type" ] = "Asset type: 'pdf' or 'video'." ,
-        [ "filePath" ] = "Relative path of the public media file." ,
-        [ "sortBy" ] = "Field to sort by (e.g. 'email')." ,
-        [ "sortDir" ] = "Sort direction: 'asc' or 'desc'." ,
+        ["id"] = "Unique identifier (GUID) of the resource.",
+        ["courseId"] = "Course identifier (GUID).",
+        ["moduleId"] = "Module identifier (GUID).",
+        ["lessonId"] = "Lesson identifier (GUID).",
+        ["certificateId"] = "Certificate identifier (GUID).",
+        ["conversationId"] = "Conversation identifier (GUID).",
+        ["verificationId"] = "Public certificate verification identifier (GUID).",
+        ["assessmentId"] = "Assessment definition identifier (GUID).",
+        ["userId"] = "User identifier.",
+        ["roleName"] = "Role name (e.g. 'Admin' or 'Student').",
+        ["page"] = "1-based page number. Defaults to 1.",
+        ["pageSize"] = "Number of items per page (1–100). Defaults to 10.",
+        ["lang"] = "Language code: 'en' or 'el'. Defaults to 'en'.",
+        ["search"] = "Optional case-insensitive search term.",
+        ["query"] = "Search term matched against email or name.",
+        ["count"] = "Maximum number of items to return.",
+        ["slug"] = "URL slug of the article.",
+        ["type"] = "Asset type: 'pdf' or 'video'.",
+        ["filePath"] = "Relative path of the public media file.",
+        ["sortBy"] = "Field to sort by (e.g. 'email').",
+        ["sortDir"] = "Sort direction: 'asc' or 'desc'.",
     };
 
-    private static readonly Dictionary<string , string> ResponseDocs = new()
+    private static readonly Dictionary<string, string> ResponseDocs = new()
     {
-        [ "200" ] = "Success." ,
-        [ "201" ] = "Created." ,
-        [ "204" ] = "Success — no content returned." ,
-        [ "400" ] = "Validation failed — see the error payload for details." ,
-        [ "404" ] = "The requested resource was not found." ,
-        [ "409" ] = "Conflict — the resource already exists or violates a uniqueness constraint." ,
+        ["200"] = "Success.",
+        ["201"] = "Created.",
+        ["204"] = "Success — no content returned.",
+        ["400"] = "Validation failed — see the error payload for details.",
+        ["404"] = "The requested resource was not found.",
+        ["409"] = "Conflict — the resource already exists or violates a uniqueness constraint.",
     };
 
     // ASP.NET Core's default inferred descriptions that we consider "generic" and safe to replace.
-    private static readonly HashSet<string> GenericDescriptions = new( StringComparer.OrdinalIgnoreCase )
+    private static readonly HashSet<string> GenericDescriptions = new(StringComparer.OrdinalIgnoreCase)
     {
         "" , "OK" , "Created" , "No Content" , "Bad Request" , "Not Found" , "Conflict" ,
     };
 
     public Task TransformAsync(
-        OpenApiOperation operation ,
-        OpenApiOperationTransformerContext context ,
-        CancellationToken cancellationToken )
+        OpenApiOperation operation,
+        OpenApiOperationTransformerContext context,
+        CancellationToken cancellationToken)
     {
-        if ( operation.Parameters is not null )
+        if (operation.Parameters is not null)
         {
-            foreach ( var parameter in operation.Parameters )
+            foreach (var parameter in operation.Parameters)
             {
-                if ( !string.IsNullOrWhiteSpace( parameter.Description ) )
+                if (!string.IsNullOrWhiteSpace(parameter.Description))
                     continue;
 
                 var name = parameter.Name ?? string.Empty;
-                parameter.Description = ParameterDocs.TryGetValue( name , out var doc )
+                parameter.Description = ParameterDocs.TryGetValue(name, out var doc)
                     ? doc
-                    : Humanize( name );
+                    : Humanize(name);
             }
         }
 
-        if ( operation.Responses is not null )
+        if (operation.Responses is not null)
         {
-            foreach ( var (code, response) in operation.Responses )
+            foreach (var (code, response) in operation.Responses)
             {
-                if ( !string.IsNullOrWhiteSpace( response.Description ) &&
-                     !GenericDescriptions.Contains( response.Description ) )
+                if (!string.IsNullOrWhiteSpace(response.Description) &&
+                     !GenericDescriptions.Contains(response.Description))
                     continue;
 
-                if ( ResponseDocs.TryGetValue( code , out var doc ) )
+                if (ResponseDocs.TryGetValue(code, out var doc))
                     response.Description = doc;
             }
         }
@@ -264,18 +264,18 @@ internal sealed class ParameterAndResponseDocsTransformer : IOpenApiOperationTra
 
     // "pageSize" -> "Page size.", "moduleId" -> "Module id." — a readable fallback for any
     // parameter not in the curated dictionary.
-    private static string Humanize( string name )
+    private static string Humanize(string name)
     {
-        if ( string.IsNullOrEmpty( name ) ) return string.Empty;
+        if (string.IsNullOrEmpty(name)) return string.Empty;
         var sb = new System.Text.StringBuilder();
-        sb.Append( char.ToUpperInvariant( name [ 0 ] ) );
-        for ( var i = 1; i < name.Length; i++ )
+        sb.Append(char.ToUpperInvariant(name[0]));
+        for (var i = 1; i < name.Length; i++)
         {
-            var c = name [ i ];
-            if ( char.IsUpper( c ) ) sb.Append( ' ' ).Append( char.ToLowerInvariant( c ) );
-            else sb.Append( c );
+            var c = name[i];
+            if (char.IsUpper(c)) sb.Append(' ').Append(char.ToLowerInvariant(c));
+            else sb.Append(c);
         }
-        sb.Append( '.' );
+        sb.Append('.');
         return sb.ToString();
     }
 }
@@ -286,127 +286,127 @@ internal sealed class ParameterAndResponseDocsTransformer : IOpenApiOperationTra
 /// </summary>
 internal sealed class RequestExampleSchemaTransformer : IOpenApiSchemaTransformer
 {
-    private static readonly IReadOnlyDictionary<Type , Func<JsonNode>> Examples = new Dictionary<Type , Func<JsonNode>>
+    private static readonly IReadOnlyDictionary<Type, Func<JsonNode>> Examples = new Dictionary<Type, Func<JsonNode>>
     {
-        [ typeof( RefreshTokenRequestDto ) ] = () => new JsonObject
+        [typeof(RefreshTokenRequestDto)] = () => new JsonObject
         {
-            [ "refreshToken" ] = "9f8c1e2b7a6d4f3e0b5c8a1d2e3f4a5b6c7d8e9f0a1b2c3d"
-        } ,
-        [ typeof( ForgotPasswordRequestDto ) ] = () => new JsonObject
+            ["refreshToken"] = "9f8c1e2b7a6d4f3e0b5c8a1d2e3f4a5b6c7d8e9f0a1b2c3d"
+        },
+        [typeof(ForgotPasswordRequestDto)] = () => new JsonObject
         {
-            [ "email" ] = "student@example.com"
-        } ,
-        [ typeof( ResetPasswordRequestDto ) ] = () => new JsonObject
+            ["email"] = "student@example.com"
+        },
+        [typeof(ResetPasswordRequestDto)] = () => new JsonObject
         {
-            [ "email" ] = "student@example.com" ,
-            [ "token" ] = "CfDJ8N…password-reset-token" ,
-            [ "newPassword" ] = "P@ssw0rd123" ,
-            [ "confirmPassword" ] = "P@ssw0rd123"
-        } ,
-        [ typeof( DevResetPasswordRequestDto ) ] = () => new JsonObject
+            ["email"] = "student@example.com",
+            ["token"] = "CfDJ8N…password-reset-token",
+            ["newPassword"] = "P@ssw0rd123",
+            ["confirmPassword"] = "P@ssw0rd123"
+        },
+        [typeof(DevResetPasswordRequestDto)] = () => new JsonObject
         {
-            [ "email" ] = "student@example.com" ,
-            [ "newPassword" ] = "P@ssw0rd123"
-        } ,
-        [ typeof( AdminSetPasswordDto ) ] = () => new JsonObject
+            ["email"] = "student@example.com",
+            ["newPassword"] = "P@ssw0rd123"
+        },
+        [typeof(AdminSetPasswordDto)] = () => new JsonObject
         {
-            [ "newPassword" ] = "P@ssw0rd123"
-        } ,
-        [ typeof( UpdateProfileRequest ) ] = () => new JsonObject
+            ["newPassword"] = "P@ssw0rd123"
+        },
+        [typeof(UpdateProfileRequest)] = () => new JsonObject
         {
-            [ "firstName" ] = "Maria" ,
-            [ "lastName" ] = "Papadopoulou" ,
-            [ "displayName" ] = "Maria P." ,
-            [ "dateOfBirth" ] = "1998-04-12"
-        } ,
-        [ typeof( ChangePasswordRequest ) ] = () => new JsonObject
+            ["firstName"] = "Maria",
+            ["lastName"] = "Papadopoulou",
+            ["displayName"] = "Maria P.",
+            ["dateOfBirth"] = "1998-04-12"
+        },
+        [typeof(ChangePasswordRequest)] = () => new JsonObject
         {
-            [ "currentPassword" ] = "OldP@ssw0rd1" ,
-            [ "newPassword" ] = "NewP@ssw0rd2"
-        } ,
-        [ typeof( StartConversationRequest ) ] = () => new JsonObject
+            ["currentPassword"] = "OldP@ssw0rd1",
+            ["newPassword"] = "NewP@ssw0rd2"
+        },
+        [typeof(StartConversationRequest)] = () => new JsonObject
         {
-            [ "targetUserId" ] = "a1b2c3d4-e5f6-7890-abcd-ef1234567890" ,
-            [ "initialMessage" ] = "Hi, I have a question about the resilience course."
-        } ,
-        [ typeof( CreateCheckoutRequest ) ] = () => new JsonObject
+            ["targetUserId"] = "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            ["initialMessage"] = "Hi, I have a question about the resilience course."
+        },
+        [typeof(CreateCheckoutRequest)] = () => new JsonObject
         {
-            [ "planId" ] = "3f2504e0-4f89-11d3-9a0c-0305e82c3301"
-        } ,
-        [ typeof( SubmitAssessmentRequest ) ] = () => new JsonObject
+            ["planId"] = "3f2504e0-4f89-11d3-9a0c-0305e82c3301"
+        },
+        [typeof(SubmitAssessmentRequest)] = () => new JsonObject
         {
-            [ "answersJson" ] = "{\"q1\":\"sometimes\",\"q2\":4}" ,
-            [ "summaryJson" ] = "{\"score\":72,\"band\":\"moderate\"}"
-        } ,
-        [ typeof( SaveAssessmentDefinitionRequest ) ] = () => new JsonObject
+            ["answersJson"] = "{\"q1\":\"sometimes\",\"q2\":4}",
+            ["summaryJson"] = "{\"score\":72,\"band\":\"moderate\"}"
+        },
+        [typeof(SaveAssessmentDefinitionRequest)] = () => new JsonObject
         {
-            [ "key" ] = "burnout-check" ,
-            [ "titleEn" ] = "Burnout Self-Check" ,
-            [ "titleEl" ] = "Αυτοέλεγχος Εξουθένωσης" ,
-            [ "descriptionEn" ] = "A short self-assessment of burnout risk." ,
-            [ "descriptionEl" ] = "Σύντομη αυτοαξιολόγηση κινδύνου εξουθένωσης." ,
-            [ "schemaJson" ] = "{\"questions\":[{\"key\":\"q1\",\"labelEn\":\"How often do you feel exhausted?\"}]}"
-        } ,
-        [ typeof( SaveCourseRequest ) ] = () => new JsonObject
+            ["key"] = "burnout-check",
+            ["titleEn"] = "Burnout Self-Check",
+            ["titleEl"] = "Αυτοέλεγχος Εξουθένωσης",
+            ["descriptionEn"] = "A short self-assessment of burnout risk.",
+            ["descriptionEl"] = "Σύντομη αυτοαξιολόγηση κινδύνου εξουθένωσης.",
+            ["schemaJson"] = "{\"questions\":[{\"key\":\"q1\",\"labelEn\":\"How often do you feel exhausted?\"}]}"
+        },
+        [typeof(SaveCourseRequest)] = () => new JsonObject
         {
-            [ "titleEn" ] = "Foundations of Resilience" ,
-            [ "titleEl" ] = "Θεμέλια Ανθεκτικότητας" ,
-            [ "descriptionEn" ] = "An introductory course on building personal resilience." ,
-            [ "descriptionEl" ] = "Εισαγωγικό μάθημα για την ανθεκτικότητα." ,
-            [ "requiredTier" ] = 0
-        } ,
-        [ typeof( SaveModuleRequest ) ] = () => new JsonObject
+            ["titleEn"] = "Foundations of Resilience",
+            ["titleEl"] = "Θεμέλια Ανθεκτικότητας",
+            ["descriptionEn"] = "An introductory course on building personal resilience.",
+            ["descriptionEl"] = "Εισαγωγικό μάθημα για την ανθεκτικότητα.",
+            ["requiredTier"] = 0
+        },
+        [typeof(SaveModuleRequest)] = () => new JsonObject
         {
-            [ "titleEn" ] = "Week 1 — Getting Started" ,
-            [ "titleEl" ] = "Εβδομάδα 1 — Ξεκινώντας" ,
-            [ "descriptionEn" ] = "Orientation and goals." ,
-            [ "descriptionEl" ] = "Προσανατολισμός και στόχοι." ,
-            [ "sortOrder" ] = 1 ,
-            [ "courseId" ] = "3f2504e0-4f89-11d3-9a0c-0305e82c3301"
-        } ,
-        [ typeof( SaveLessonRequest ) ] = () => new JsonObject
+            ["titleEn"] = "Week 1 — Getting Started",
+            ["titleEl"] = "Εβδομάδα 1 — Ξεκινώντας",
+            ["descriptionEn"] = "Orientation and goals.",
+            ["descriptionEl"] = "Προσανατολισμός και στόχοι.",
+            ["sortOrder"] = 1,
+            ["courseId"] = "3f2504e0-4f89-11d3-9a0c-0305e82c3301"
+        },
+        [typeof(SaveLessonRequest)] = () => new JsonObject
         {
-            [ "titleEn" ] = "What is resilience?" ,
-            [ "titleEl" ] = "Τι είναι η ανθεκτικότητα;" ,
-            [ "contentEn" ] = "<p>Resilience is the capacity to recover from difficulties.</p>" ,
-            [ "contentEl" ] = "<p>Η ανθεκτικότητα είναι η ικανότητα ανάκαμψης.</p>" ,
-            [ "videoUrl" ] = "https://videos.example.com/lesson-1.mp4" ,
-            [ "durationMinutes" ] = 12 ,
-            [ "sortOrder" ] = 1 ,
-            [ "moduleId" ] = "5a7b9c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d"
-        } ,
-        [ typeof( SaveBlogArticleRequest ) ] = () => new JsonObject
+            ["titleEn"] = "What is resilience?",
+            ["titleEl"] = "Τι είναι η ανθεκτικότητα;",
+            ["contentEn"] = "<p>Resilience is the capacity to recover from difficulties.</p>",
+            ["contentEl"] = "<p>Η ανθεκτικότητα είναι η ικανότητα ανάκαμψης.</p>",
+            ["videoUrl"] = "https://videos.example.com/lesson-1.mp4",
+            ["durationMinutes"] = 12,
+            ["sortOrder"] = 1,
+            ["moduleId"] = "5a7b9c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d"
+        },
+        [typeof(SaveBlogArticleRequest)] = () => new JsonObject
         {
-            [ "titleEn" ] = "Five habits that build resilience" ,
-            [ "titleEl" ] = "Πέντε συνήθειες ανθεκτικότητας" ,
-            [ "slug" ] = "five-habits-that-build-resilience" ,
-            [ "summaryEn" ] = "Small daily habits that compound into lasting resilience." ,
-            [ "summaryEl" ] = "Μικρές καθημερινές συνήθειες." ,
-            [ "contentEn" ] = "<p>Full article body…</p>" ,
-            [ "contentEl" ] = "<p>Πλήρες κείμενο…</p>" ,
-            [ "coverImageUrl" ] = "blog/covers/resilience.jpg" ,
-            [ "authorName" ] = "Dr. A. Mentor" ,
-            [ "tags" ] = new JsonArray( "mindset" , "habits" ) ,
-            [ "isPublished" ] = false
-        } ,
-        [ typeof( SaveTestimonialRequest ) ] = () => new JsonObject
+            ["titleEn"] = "Five habits that build resilience",
+            ["titleEl"] = "Πέντε συνήθειες ανθεκτικότητας",
+            ["slug"] = "five-habits-that-build-resilience",
+            ["summaryEn"] = "Small daily habits that compound into lasting resilience.",
+            ["summaryEl"] = "Μικρές καθημερινές συνήθειες.",
+            ["contentEn"] = "<p>Full article body…</p>",
+            ["contentEl"] = "<p>Πλήρες κείμενο…</p>",
+            ["coverImageUrl"] = "blog/covers/resilience.jpg",
+            ["authorName"] = "Dr. A. Mentor",
+            ["tags"] = new JsonArray("mindset", "habits"),
+            ["isPublished"] = false
+        },
+        [typeof(SaveTestimonialRequest)] = () => new JsonObject
         {
-            [ "fullName" ] = "Alex Doe" ,
-            [ "roleOrTitle" ] = "Career Changer" ,
-            [ "companyOrContext" ] = "2025 Cohort" ,
-            [ "quoteText" ] = "This program completely reset my career direction." ,
-            [ "displayOrder" ] = 1 ,
-            [ "isActive" ] = true
-        } ,
+            ["fullName"] = "Alex Doe",
+            ["roleOrTitle"] = "Career Changer",
+            ["companyOrContext"] = "2025 Cohort",
+            ["quoteText"] = "This program completely reset my career direction.",
+            ["displayOrder"] = 1,
+            ["isActive"] = true
+        },
     };
 
     public Task TransformAsync(
-        OpenApiSchema schema ,
-        OpenApiSchemaTransformerContext context ,
-        CancellationToken cancellationToken )
+        OpenApiSchema schema,
+        OpenApiSchemaTransformerContext context,
+        CancellationToken cancellationToken)
     {
-        if ( schema.Example is null &&
-             Examples.TryGetValue( context.JsonTypeInfo.Type , out var factory ) )
+        if (schema.Example is null &&
+             Examples.TryGetValue(context.JsonTypeInfo.Type, out var factory))
         {
             schema.Example = factory();
         }

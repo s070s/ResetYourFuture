@@ -30,7 +30,7 @@ public class ChatService : IChatService
 
     public bool IsConnected => _hub?.State == HubConnectionState.Connected;
 
-    public ChatService( HttpClient http , IAuthService authService , ApiTokenProvider tokenProvider , IHttpContextAccessor httpContextAccessor , ILogger<ChatService> logger )
+    public ChatService(HttpClient http, IAuthService authService, ApiTokenProvider tokenProvider, IHttpContextAccessor httpContextAccessor, ILogger<ChatService> logger)
     {
         _http = http;
         _authService = authService;
@@ -44,33 +44,33 @@ public class ChatService : IChatService
         _hubUrl = $"{scheme}://{host}/hubs/chat";
     }
 
-    public async Task StartAsync( System.Security.Claims.ClaimsPrincipal? circuitUser = null )
+    public async Task StartAsync(System.Security.Claims.ClaimsPrincipal? circuitUser = null)
     {
-        if ( _hub is not null )
+        if (_hub is not null)
             return;
 
         _hub = new HubConnectionBuilder()
-            .WithUrl( _hubUrl , options =>
+            .WithUrl(_hubUrl, options =>
             {
                 // Mint a fresh token on every call so reconnects after the JWT expiry succeed.
                 // HttpContext is null inside Blazor Server circuits, so always use the cascaded
                 // principal when one was supplied.
                 options.AccessTokenProvider = () => circuitUser is not null
-                    ? _authService.GetTokenAsync( circuitUser )
+                    ? _authService.GetTokenAsync(circuitUser)
                     : _authService.GetTokenAsync();
-            } )
+            })
             .WithAutomaticReconnect()
             .Build();
 
-        _hub.On<ChatMessageDto>( "ReceiveMessage" , message =>
+        _hub.On<ChatMessageDto>("ReceiveMessage", message =>
         {
-            OnMessageReceived?.Invoke( message );
-        } );
+            OnMessageReceived?.Invoke(message);
+        });
 
-        _hub.On<ChatNotificationDto>( "ChatNotification" , notification =>
+        _hub.On<ChatNotificationDto>("ChatNotification", notification =>
         {
-            OnNotificationReceived?.Invoke( notification );
-        } );
+            OnNotificationReceived?.Invoke(notification);
+        });
 
         // Surface reconnect lifecycle so the UI can show a "reconnecting" indicator.
         _hub.Reconnecting += _ => { ConnectionStateChanged?.Invoke(); return Task.CompletedTask; };
@@ -82,9 +82,9 @@ public class ChatService : IChatService
             await _hub.StartAsync();
             ConnectionStateChanged?.Invoke();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Failed to start SignalR hub connection to {HubUrl}." , _hubUrl );
+            _logger.LogError(ex, "Failed to start SignalR hub connection to {HubUrl}.", _hubUrl);
             await _hub.DisposeAsync();
             _hub = null;
             ConnectionStateChanged?.Invoke();
@@ -93,7 +93,7 @@ public class ChatService : IChatService
 
     public async Task StopAsync()
     {
-        if ( _hub is not null )
+        if (_hub is not null)
         {
             await _hub.StopAsync();
             await _hub.DisposeAsync();
@@ -114,102 +114,102 @@ public class ChatService : IChatService
     {
         var token = await _tokenProvider.GetTokenAsync();
         _http.DefaultRequestHeaders.Authorization =
-            string.IsNullOrEmpty( token ) ? null : new AuthenticationHeaderValue( "Bearer" , token );
+            string.IsNullOrEmpty(token) ? null : new AuthenticationHeaderValue("Bearer", token);
     }
 
-    public async Task<PagedResult<ChatConversationDto>> GetConversationsAsync( int page = 1 , int pageSize = 10 )
+    public async Task<PagedResult<ChatConversationDto>> GetConversationsAsync(int page = 1, int pageSize = 10)
     {
         try
         {
             await EnsureAuthorizationAsync();
-            var response = await _http.GetAsync( $"api/chat/conversations?page={page}&pageSize={pageSize}" );
-            if ( response.IsSuccessStatusCode )
+            var response = await _http.GetAsync($"api/chat/conversations?page={page}&pageSize={pageSize}");
+            if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<PagedResult<ChatConversationDto>>()
-                       ?? new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
+                       ?? new PagedResult<ChatConversationDto>([], 0, page, pageSize);
             }
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to fetch conversations (page={Page}).", page );
+            _logger.LogError(ex, "Failed to fetch conversations (page={Page}).", page);
         }
-        return new PagedResult<ChatConversationDto>( [] , 0 , page , pageSize );
+        return new PagedResult<ChatConversationDto>([], 0, page, pageSize);
     }
 
-    public async Task<PagedResult<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int page = 1 , int pageSize = 20 )
+    public async Task<PagedResult<ChatMessageDto>> GetMessagesAsync(Guid conversationId, int page = 1, int pageSize = 20)
     {
         try
         {
             await EnsureAuthorizationAsync();
             var response = await _http.GetAsync(
-                $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}" );
-            if ( response.IsSuccessStatusCode )
+                $"api/chat/conversations/{conversationId}/messages?page={page}&pageSize={pageSize}");
+            if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<PagedResult<ChatMessageDto>>()
-                       ?? new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
+                       ?? new PagedResult<ChatMessageDto>([], 0, page, pageSize);
             }
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to fetch messages for conversation {ConversationId} (page={Page}).", conversationId , page );
+            _logger.LogError(ex, "Failed to fetch messages for conversation {ConversationId} (page={Page}).", conversationId, page);
         }
-        return new PagedResult<ChatMessageDto>( [] , 0 , page , pageSize );
+        return new PagedResult<ChatMessageDto>([], 0, page, pageSize);
     }
 
-    public async Task<ChatConversationDto?> StartConversationWithAsync( string targetUserId , string? initialMessage = null )
+    public async Task<ChatConversationDto?> StartConversationWithAsync(string targetUserId, string? initialMessage = null)
     {
         try
         {
             await EnsureAuthorizationAsync();
-            var request = new StartConversationRequest( targetUserId , initialMessage );
-            var response = await _http.PostAsJsonAsync( "api/chat/conversations/start" , request );
-            if ( response.IsSuccessStatusCode )
+            var request = new StartConversationRequest(targetUserId, initialMessage);
+            var response = await _http.PostAsJsonAsync("api/chat/conversations/start", request);
+            if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<ChatConversationDto>();
             }
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to start conversation with user {TargetUserId}.", targetUserId );
+            _logger.LogError(ex, "Failed to start conversation with user {TargetUserId}.", targetUserId);
         }
         return null;
     }
 
-    public async Task<List<ChatUserDto>> GetAvailableUsersAsync( string? search = null )
+    public async Task<List<ChatUserDto>> GetAvailableUsersAsync(string? search = null)
     {
         try
         {
             await EnsureAuthorizationAsync();
-            var url = string.IsNullOrWhiteSpace( search )
+            var url = string.IsNullOrWhiteSpace(search)
                 ? "api/chat/users"
-                : $"api/chat/users?search={Uri.EscapeDataString( search )}";
+                : $"api/chat/users?search={Uri.EscapeDataString(search)}";
 
-            var response = await _http.GetAsync( url );
-            if ( response.IsSuccessStatusCode )
+            var response = await _http.GetAsync(url);
+            if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<List<ChatUserDto>>() ?? [];
             }
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to fetch available chat users (search={Search}).", search );
+            _logger.LogError(ex, "Failed to fetch available chat users (search={Search}).", search);
         }
         return [];
     }
 
-    public async Task SendMessageAsync( Guid conversationId , string content )
+    public async Task SendMessageAsync(Guid conversationId, string content)
     {
-        if ( _hub is not null && IsConnected )
+        if (_hub is not null && IsConnected)
         {
-            await _hub.InvokeAsync( "SendMessage" , conversationId , content );
+            await _hub.InvokeAsync("SendMessage", conversationId, content);
         }
     }
 
-    public async Task MarkAsReadAsync( Guid conversationId )
+    public async Task MarkAsReadAsync(Guid conversationId)
     {
-        if ( _hub is not null && IsConnected )
+        if (_hub is not null && IsConnected)
         {
-            await _hub.InvokeAsync( "MarkAsRead" , conversationId );
+            await _hub.InvokeAsync("MarkAsRead", conversationId);
         }
     }
 
@@ -218,30 +218,30 @@ public class ChatService : IChatService
         try
         {
             await EnsureAuthorizationAsync();
-            var response = await _http.GetAsync( "api/chat/unread-count" );
-            if ( response.IsSuccessStatusCode )
+            var response = await _http.GetAsync("api/chat/unread-count");
+            if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<int>();
             }
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to fetch unread message count." );
+            _logger.LogError(ex, "Failed to fetch unread message count.");
         }
         return 0;
     }
 
-    public async Task<bool> DeleteConversationAsync( Guid conversationId )
+    public async Task<bool> DeleteConversationAsync(Guid conversationId)
     {
         try
         {
             await EnsureAuthorizationAsync();
-            var response = await _http.DeleteAsync( $"api/chat/conversations/{conversationId}" );
+            var response = await _http.DeleteAsync($"api/chat/conversations/{conversationId}");
             return response.IsSuccessStatusCode;
         }
-        catch ( HttpRequestException ex )
+        catch (HttpRequestException ex)
         {
-            _logger.LogError( ex , "Failed to delete conversation {ConversationId}.", conversationId );
+            _logger.LogError(ex, "Failed to delete conversation {ConversationId}.", conversationId);
         }
         return false;
     }

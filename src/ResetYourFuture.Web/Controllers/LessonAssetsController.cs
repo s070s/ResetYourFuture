@@ -14,9 +14,9 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/lessons")]
 [Authorize]
-[Tags( "Lesson Assets" )]
-[ProducesResponseType( StatusCodes.Status200OK )]
-[ProducesResponseType( StatusCodes.Status404NotFound )]
+[Tags("Lesson Assets")]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public class LessonAssetsController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
@@ -60,7 +60,7 @@ public class LessonAssetsController : ControllerBase
         {
             // NOTE: Forbid(string) treats its argument as an auth scheme name (not a message),
             // which throws and yields a 500. Use an explicit 403 like the other controllers.
-            return StatusCode( StatusCodes.Status403Forbidden, "You must be enrolled in this course to access lesson assets" );
+            return StatusCode(StatusCodes.Status403Forbidden, "You must be enrolled in this course to access lesson assets");
         }
 
         // Get file path based on type

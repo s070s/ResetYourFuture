@@ -31,15 +31,15 @@ public interface IChatService : IAsyncDisposable
         get;
     }
 
-    Task StartAsync( System.Security.Claims.ClaimsPrincipal? circuitUser = null );
+    Task StartAsync(System.Security.Claims.ClaimsPrincipal? circuitUser = null);
     Task StopAsync();
 
-    Task<PagedResult<ChatConversationDto>> GetConversationsAsync( int page = 1 , int pageSize = 10 );
-    Task<PagedResult<ChatMessageDto>> GetMessagesAsync( Guid conversationId , int page = 1 , int pageSize = 20 );
-    Task<ChatConversationDto?> StartConversationWithAsync( string targetUserId , string? initialMessage = null );
-    Task<List<ChatUserDto>> GetAvailableUsersAsync( string? search = null );
-    Task SendMessageAsync( Guid conversationId , string content );
-    Task MarkAsReadAsync( Guid conversationId );
+    Task<PagedResult<ChatConversationDto>> GetConversationsAsync(int page = 1, int pageSize = 10);
+    Task<PagedResult<ChatMessageDto>> GetMessagesAsync(Guid conversationId, int page = 1, int pageSize = 20);
+    Task<ChatConversationDto?> StartConversationWithAsync(string targetUserId, string? initialMessage = null);
+    Task<List<ChatUserDto>> GetAvailableUsersAsync(string? search = null);
+    Task SendMessageAsync(Guid conversationId, string content);
+    Task MarkAsReadAsync(Guid conversationId);
     Task<int> GetUnreadCountAsync();
-    Task<bool> DeleteConversationAsync( Guid conversationId );
+    Task<bool> DeleteConversationAsync(Guid conversationId);
 }

@@ -16,10 +16,10 @@ public sealed class BulkStudentSeedingService : BackgroundService
     private readonly ILogger<BulkStudentSeedingService> _logger;
 
     public BulkStudentSeedingService(
-        IServiceProvider services ,
-        IConfiguration config ,
-        IWebHostEnvironment env ,
-        ILogger<BulkStudentSeedingService> logger )
+        IServiceProvider services,
+        IConfiguration config,
+        IWebHostEnvironment env,
+        ILogger<BulkStudentSeedingService> logger)
     {
         _services = services;
         _config = config;
@@ -27,26 +27,26 @@ public sealed class BulkStudentSeedingService : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync( CancellationToken stoppingToken )
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if ( !_env.IsDevelopment() || !_config.GetValue<bool>( "SeedData:Enabled" ) )
+        if (!_env.IsDevelopment() || !_config.GetValue<bool>("SeedData:Enabled"))
             return;
 
         // Brief delay so the app is fully started and accepting requests before
         // the expensive seeding work begins.
-        await Task.Delay( TimeSpan.FromSeconds( 3 ) , stoppingToken );
+        await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
 
         using var scope = _services.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var bulkCount = _config.GetValue<int>( "SeedData:BulkStudentCount" , 10 );
-        var studentPassword = _config [ "SeedData:StudentPassword" ];
-        if ( string.IsNullOrWhiteSpace( studentPassword ) )
+        var bulkCount = _config.GetValue<int>("SeedData:BulkStudentCount", 10);
+        var studentPassword = _config["SeedData:StudentPassword"];
+        if (string.IsNullOrWhiteSpace(studentPassword))
         {
-            _logger.LogError( "BulkStudentSeeder: SeedData:StudentPassword is not set. Skipping bulk seed." );
+            _logger.LogError("BulkStudentSeeder: SeedData:StudentPassword is not set. Skipping bulk seed.");
             return;
         }
 
-        await BulkStudentSeeder.SeedAsync( userManager , bulkCount , studentPassword , _logger , stoppingToken );
+        await BulkStudentSeeder.SeedAsync(userManager, bulkCount, studentPassword, _logger, stoppingToken);
     }
 }

@@ -10,3 +10,5 @@ Logs/
 *.db-wal
 App_Data/
 DataProtection-Keys/
+*.user
+TestResults/

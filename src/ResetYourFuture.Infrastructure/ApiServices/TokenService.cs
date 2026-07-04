@@ -31,10 +31,10 @@ public class TokenService : ITokenService
         _userManager = userManager;
         _subscriptionService = subscriptionService;
         var jwtKey = config["Jwt:Key"];
-        if ( string.IsNullOrWhiteSpace( jwtKey ) )
+        if (string.IsNullOrWhiteSpace(jwtKey))
             throw new InvalidOperationException(
-                "Jwt:Key is required. Set it via User Secrets (dev) or environment variable Jwt__Key (prod)." );
-        _signingKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( jwtKey ) );
+                "Jwt:Key is required. Set it via User Secrets (dev) or environment variable Jwt__Key (prod).");
+        _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         _accessTokenExpirationMinutes = config.GetValue<double>("Jwt:AccessTokenExpirationMinutes", 60);
         _jwtIssuer = config["Jwt:Issuer"];
         _jwtAudience = config["Jwt:Audience"];

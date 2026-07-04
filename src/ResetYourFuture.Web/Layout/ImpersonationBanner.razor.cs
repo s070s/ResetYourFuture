@@ -19,33 +19,33 @@ public partial class ImpersonationBanner : IDisposable
     protected override async Task OnInitializedAsync()
     {
         AuthState.AuthenticationStateChanged += OnAuthStateChangedAsync;
-        await RefreshAsync( await AuthState.GetAuthenticationStateAsync() );
+        await RefreshAsync(await AuthState.GetAuthenticationStateAsync());
     }
 
-    private async void OnAuthStateChangedAsync( Task<AuthenticationState> task )
+    private async void OnAuthStateChangedAsync(Task<AuthenticationState> task)
     {
         try
         {
-            await RefreshAsync( await task );
-            await InvokeAsync( StateHasChanged );
+            await RefreshAsync(await task);
+            await InvokeAsync(StateHasChanged);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error refreshing impersonation state." );
+            _logger.LogError(ex, "Error refreshing impersonation state.");
         }
     }
 
-    private Task RefreshAsync( AuthenticationState state )
+    private Task RefreshAsync(AuthenticationState state)
     {
         // Read the impersonatedBy claim directly from the cascaded principal —
         // avoids touching HttpContext which is null inside a Blazor Server circuit.
-        _isImpersonating = state.User.FindFirst( "impersonatedBy" ) is not null;
-        if ( _isImpersonating )
+        _isImpersonating = state.User.FindFirst("impersonatedBy") is not null;
+        if (_isImpersonating)
         {
-            _impersonatedEmail = state.User.FindFirst( ClaimTypes.Email )?.Value
-                                 ?? state.User.FindFirst( "email" )?.Value ?? "";
-            var firstName = state.User.FindFirst( "firstName" )?.Value ?? "";
-            var lastName = state.User.FindFirst( "lastName" )?.Value ?? "";
+            _impersonatedEmail = state.User.FindFirst(ClaimTypes.Email)?.Value
+                                 ?? state.User.FindFirst("email")?.Value ?? "";
+            var firstName = state.User.FindFirst("firstName")?.Value ?? "";
+            var lastName = state.User.FindFirst("lastName")?.Value ?? "";
             _impersonatedName = $"{firstName} {lastName}".Trim();
         }
         else
@@ -60,7 +60,7 @@ public partial class ImpersonationBanner : IDisposable
     private async Task ExitAsync()
     {
         var url = await AuthService.ExitImpersonationAsync();
-        Navigation.NavigateTo( url , forceLoad: true );
+        Navigation.NavigateTo(url, forceLoad: true);
     }
 
     public void Dispose()

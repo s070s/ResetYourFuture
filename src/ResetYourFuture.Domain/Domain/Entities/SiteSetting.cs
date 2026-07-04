@@ -7,19 +7,19 @@ namespace ResetYourFuture.Web.Domain.Entities;
 public class SiteSetting
 {
     public Guid Id { get; set; }
-    
+
     /// <summary>
     /// Unique setting key (e.g., "LandingBackgroundImage").
     /// </summary>
     public required string Key { get; set; }
-    
+
     /// <summary>
     /// Setting value (file path, JSON, or plain text).
     /// </summary>
     public string? Value { get; set; }
-    
+
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
-    
+
     /// <summary>
     /// User who last updated this setting (admin).
     /// </summary>

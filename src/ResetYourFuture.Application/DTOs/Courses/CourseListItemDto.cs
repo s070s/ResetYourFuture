@@ -1,4 +1,4 @@
-  
+
 namespace ResetYourFuture.Shared.DTOs;
 
 /// <summary>

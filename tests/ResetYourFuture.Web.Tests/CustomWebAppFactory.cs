@@ -25,50 +25,50 @@ namespace ResetYourFuture.Web.Tests;
 /// </summary>
 public class CustomWebAppFactory : WebApplicationFactory<Program>
 {
-    private readonly string _dbName = "web-tests-" + Guid.NewGuid().ToString( "N" );
+    private readonly string _dbName = "web-tests-" + Guid.NewGuid().ToString("N");
 
     public const string TestPassword = "Test-Pass-1!";
 
     static CustomWebAppFactory()
     {
-        Environment.SetEnvironmentVariable( "Jwt__Key", "integration-test-signing-key-minimum-32-bytes-1234567890" );
-        Environment.SetEnvironmentVariable( "Jwt__Issuer", "ResetYourFuture.Tests" );
-        Environment.SetEnvironmentVariable( "Jwt__Audience", "ResetYourFuture.Tests" );
-        Environment.SetEnvironmentVariable( "AdminUser__Password", "Admin-Test-1!" );
-        Environment.SetEnvironmentVariable( "ConnectionStrings__DefaultConnection", "Server=(localdb)\\dummy;Database=dummy;Trusted_Connection=True;" );
-        Environment.SetEnvironmentVariable( "Payment__MockEnabled", "true" );
-        Environment.SetEnvironmentVariable( "Sitemap__BaseUrl", "https://tests.local" );
+        Environment.SetEnvironmentVariable("Jwt__Key", "integration-test-signing-key-minimum-32-bytes-1234567890");
+        Environment.SetEnvironmentVariable("Jwt__Issuer", "ResetYourFuture.Tests");
+        Environment.SetEnvironmentVariable("Jwt__Audience", "ResetYourFuture.Tests");
+        Environment.SetEnvironmentVariable("AdminUser__Password", "Admin-Test-1!");
+        Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", "Server=(localdb)\\dummy;Database=dummy;Trusted_Connection=True;");
+        Environment.SetEnvironmentVariable("Payment__MockEnabled", "true");
+        Environment.SetEnvironmentVariable("Sitemap__BaseUrl", "https://tests.local");
     }
 
-    protected override void ConfigureWebHost( IWebHostBuilder builder )
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseEnvironment( "Development" );
+        builder.UseEnvironment("Development");
 
-        builder.ConfigureTestServices( services =>
+        builder.ConfigureTestServices(services =>
         {
             // Swap SQL Server for InMemory. The options-configuration delegate (which calls
             // UseSqlServer) must also be removed, otherwise EF Core applies BOTH providers
             // and throws "Only a single database provider can be registered". That type is
             // internal, so it is matched by name.
-            var efDescriptors = services.Where( d =>
-                d.ServiceType == typeof( DbContextOptions<ApplicationDbContext> ) ||
-                d.ServiceType == typeof( DbContextOptions ) ||
-                d.ServiceType == typeof( ApplicationDbContext ) ||
-                ( d.ServiceType.FullName?.Contains( "IDbContextOptionsConfiguration" ) ?? false ) ).ToList();
-            foreach ( var d in efDescriptors )
-                services.Remove( d );
+            var efDescriptors = services.Where(d =>
+                d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>) ||
+                d.ServiceType == typeof(DbContextOptions) ||
+                d.ServiceType == typeof(ApplicationDbContext) ||
+                (d.ServiceType.FullName?.Contains("IDbContextOptionsConfiguration") ?? false)).ToList();
+            foreach (var d in efDescriptors)
+                services.Remove(d);
 
-            services.AddDbContext<ApplicationDbContext>( o => o.UseInMemoryDatabase( _dbName ) );
+            services.AddDbContext<ApplicationDbContext>(o => o.UseInMemoryDatabase(_dbName));
 
             // The bulk student seeder hosted service is irrelevant to tests.
-            var hosted = services.Where( d => d.ImplementationType == typeof( BulkStudentSeedingService ) ).ToList();
-            foreach ( var d in hosted )
-                services.Remove( d );
-        } );
+            var hosted = services.Where(d => d.ImplementationType == typeof(BulkStudentSeedingService)).ToList();
+            foreach (var d in hosted)
+                services.Remove(d);
+        });
     }
 
     /// <summary>Creates an HttpClient carrying a valid Bearer token for a freshly-seeded user in the given role.</summary>
-    public async Task<HttpClient> CreateAuthenticatedClientAsync( string role )
+    public async Task<HttpClient> CreateAuthenticatedClientAsync(string role)
     {
         var email = $"{role.ToLowerInvariant()}-{Guid.NewGuid():N}@test.com";
         using var scope = Services.CreateScope();
@@ -82,19 +82,19 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             EmailConfirmed = true,
             IsEnabled = true
         };
-        await um.CreateAsync( user, TestPassword );
-        await um.AddToRoleAsync( user, role );
+        await um.CreateAsync(user, TestPassword);
+        await um.AddToRoleAsync(user, role);
 
         var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
-        var (token, _) = await tokenService.GenerateAccessTokenAsync( user );
+        var (token, _) = await tokenService.GenerateAccessTokenAsync(user);
 
         var client = CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", token );
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return client;
     }
 
     /// <summary>Like <see cref="CreateAuthenticatedClientAsync"/> but also returns the seeded user's id (for seeding owned data).</summary>
-    public async Task<(HttpClient Client, string UserId)> CreateAuthenticatedClientWithIdAsync( string role )
+    public async Task<(HttpClient Client, string UserId)> CreateAuthenticatedClientWithIdAsync(string role)
     {
         var email = $"{role.ToLowerInvariant()}-{Guid.NewGuid():N}@test.com";
         using var scope = Services.CreateScope();
@@ -108,14 +108,14 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             EmailConfirmed = true,
             IsEnabled = true
         };
-        await um.CreateAsync( user, TestPassword );
-        await um.AddToRoleAsync( user, role );
+        await um.CreateAsync(user, TestPassword);
+        await um.AddToRoleAsync(user, role);
 
         var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
-        var (token, _) = await tokenService.GenerateAccessTokenAsync( user );
+        var (token, _) = await tokenService.GenerateAccessTokenAsync(user);
 
         var client = CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", token );
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return (client, user.Id);
     }
 
@@ -123,7 +123,7 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
     /// Like <see cref="CreateAuthenticatedClientAsync"/> but assigns the given subscription tier
     /// so plan-gated endpoints (e.g. certificate issuance) can be reached.
     /// </summary>
-    public async Task<HttpClient> CreateAuthenticatedClientWithPlanAsync( string role , SubscriptionTierEnum tier )
+    public async Task<HttpClient> CreateAuthenticatedClientWithPlanAsync(string role, SubscriptionTierEnum tier)
     {
         var email = $"{role.ToLowerInvariant()}-{Guid.NewGuid():N}@test.com";
         using var scope = Services.CreateScope();
@@ -137,34 +137,34 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             EmailConfirmed = true,
             IsEnabled = true
         };
-        await um.CreateAsync( user, TestPassword );
-        await um.AddToRoleAsync( user, role );
+        await um.CreateAsync(user, TestPassword);
+        await um.AddToRoleAsync(user, role);
 
         var subService = scope.ServiceProvider.GetRequiredService<ISubscriptionService>();
         var plans = await subService.GetPlansAsync();
-        var plan = plans.First( p => p.Tier == tier );
-        await subService.AssignPlanAsync( user.Id, plan.Id );
+        var plan = plans.First(p => p.Tier == tier);
+        await subService.AssignPlanAsync(user.Id, plan.Id);
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await db.SaveChangesAsync();
 
         var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
-        var (token, _) = await tokenService.GenerateAccessTokenAsync( user );
+        var (token, _) = await tokenService.GenerateAccessTokenAsync(user);
 
         var client = CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue( "Bearer", token );
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         return client;
     }
 
     /// <summary>Runs an arbitrary seeding action against the shared InMemory database.</summary>
-    public async Task SeedAsync( Func<ApplicationDbContext, Task> seed )
+    public async Task SeedAsync(Func<ApplicationDbContext, Task> seed)
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await seed( db );
+        await seed(db);
     }
 
     /// <summary>Seeds an email-confirmed, enabled user (for endpoints like /login that require confirmation).</summary>
-    public async Task CreateConfirmedUserAsync( string email, string password, string role = "Student" )
+    public async Task CreateConfirmedUserAsync(string email, string password, string role = "Student")
     {
         using var scope = Services.CreateScope();
         var um = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -177,10 +177,10 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             EmailConfirmed = true,
             IsEnabled = true
         };
-        await um.CreateAsync( user, password );
-        await um.AddToRoleAsync( user, role );
+        await um.CreateAsync(user, password);
+        await um.AddToRoleAsync(user, role);
     }
 }
 
-[CollectionDefinition( "web" )]
+[CollectionDefinition("web")]
 public sealed class WebCollection : ICollectionFixture<CustomWebAppFactory>;

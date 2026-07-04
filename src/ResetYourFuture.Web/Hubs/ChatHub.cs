@@ -23,10 +23,10 @@ public class ChatHub : Hub
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
-        IApplicationDbContext db ,
-        UserManager<ApplicationUser> userManager ,
-        ISubscriptionService subscriptionService ,
-        ILogger<ChatHub> logger )
+        IApplicationDbContext db,
+        UserManager<ApplicationUser> userManager,
+        ISubscriptionService subscriptionService,
+        ILogger<ChatHub> logger)
     {
         _db = db;
         _userManager = userManager;
@@ -37,140 +37,140 @@ public class ChatHub : Hub
     public override async Task OnConnectedAsync()
     {
         var userId = Context.UserIdentifier;
-        if ( userId is not null )
+        if (userId is not null)
         {
-            var user = await _userManager.FindByIdAsync( userId );
-            if ( user is null || !user.IsEnabled )
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null || !user.IsEnabled)
             {
-                _logger.LogWarning( "Chat: Rejected connection for disabled/unknown user {UserId}." , userId );
+                _logger.LogWarning("Chat: Rejected connection for disabled/unknown user {UserId}.", userId);
                 Context.Abort();
                 return;
             }
 
-            await Groups.AddToGroupAsync( Context.ConnectionId , $"user_{userId}" );
-            _logger.LogInformation( "Chat: User {UserId} connected." , userId );
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
+            _logger.LogInformation("Chat: User {UserId} connected.", userId);
         }
 
         await base.OnConnectedAsync();
     }
 
-    public override async Task OnDisconnectedAsync( Exception? exception )
+    public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var userId = Context.UserIdentifier;
-        if ( userId is not null )
+        if (userId is not null)
         {
-            await Groups.RemoveFromGroupAsync( Context.ConnectionId , $"user_{userId}" );
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");
         }
 
-        await base.OnDisconnectedAsync( exception );
+        await base.OnDisconnectedAsync(exception);
     }
 
     /// <summary>
     /// Send a message in an existing conversation.
     /// </summary>
-    public async Task SendMessage( Guid conversationId , string content )
+    public async Task SendMessage(Guid conversationId, string content)
     {
         var userId = Context.UserIdentifier;
-        if ( string.IsNullOrEmpty( userId ) || string.IsNullOrWhiteSpace( content ) )
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(content))
             return;
 
         // Hard cap: 4 000 chars max per message. Prevents storage abuse and abnormally large payloads.
-        if ( content.Length > 4_000 )
+        if (content.Length > 4_000)
         {
-            await Clients.Caller.SendAsync( "ChatError" , "Message exceeds the 4,000 character limit." );
+            await Clients.Caller.SendAsync("ChatError", "Message exceeds the 4,000 character limit.");
             return;
         }
 
-        var isAdmin = Context.User?.IsInRole( "Admin" ) == true;
-        if ( !isAdmin )
+        var isAdmin = Context.User?.IsInRole("Admin") == true;
+        if (!isAdmin)
         {
-            var userStatus = await _subscriptionService.GetUserStatusAsync( userId );
-            if ( userStatus.Features?.PrioritySupport != true )
+            var userStatus = await _subscriptionService.GetUserStatusAsync(userId);
+            if (userStatus.Features?.PrioritySupport != true)
             {
-                await Clients.Caller.SendAsync( "ChatError" , "Chat requires a Pro subscription." );
+                await Clients.Caller.SendAsync("ChatError", "Chat requires a Pro subscription.");
                 return;
             }
         }
 
         var conversation = await _db.ChatConversations
-            .FirstOrDefaultAsync( c => c.Id == conversationId );
+            .FirstOrDefaultAsync(c => c.Id == conversationId);
 
-        if ( conversation is null )
+        if (conversation is null)
             return;
 
         // Verify the caller is a participant.
-        if ( conversation.CreatorId != userId && conversation.ParticipantId != userId )
+        if (conversation.CreatorId != userId && conversation.ParticipantId != userId)
             return;
 
-        var sender = await _userManager.FindByIdAsync( userId );
-        if ( sender is null || !sender.IsEnabled )
+        var sender = await _userManager.FindByIdAsync(userId);
+        if (sender is null || !sender.IsEnabled)
         {
             Context.Abort();
             return;
         }
 
-        var roles = await _userManager.GetRolesAsync( sender );
+        var roles = await _userManager.GetRolesAsync(sender);
         var senderRole = roles.FirstOrDefault() ?? "User";
 
         var message = new ChatMessage
         {
-            ConversationId = conversationId ,
-            SenderId = userId ,
-            Content = content.Trim() ,
+            ConversationId = conversationId,
+            SenderId = userId,
+            Content = content.Trim(),
             SentAt = DateTime.UtcNow
         };
 
-        _db.ChatMessages.Add( message );
+        _db.ChatMessages.Add(message);
 
         // Update conversation's last-message cache.
         conversation.LastMessageContent = message.Content.Length > 500
-            ? message.Content [ ..497 ] + "..."
+            ? message.Content[..497] + "..."
             : message.Content;
         conversation.LastMessageAt = message.SentAt;
 
         await _db.SaveChangesAsync();
 
         var dto = new ChatMessageDto(
-            message.Id ,
-            message.ConversationId ,
-            userId ,
-            $"{sender.FirstName} {sender.LastName}" ,
-            senderRole ,
-            message.Content ,
-            message.SentAt ,
-            false );
+            message.Id,
+            message.ConversationId,
+            userId,
+            $"{sender.FirstName} {sender.LastName}",
+            senderRole,
+            message.Content,
+            message.SentAt,
+            false);
 
         // Send to both participants.
         var recipientId = conversation.CreatorId == userId
             ? conversation.ParticipantId
             : conversation.CreatorId;
 
-        await Clients.Group( $"user_{userId}" ).SendAsync( "ReceiveMessage" , dto );
-        await Clients.Group( $"user_{recipientId}" ).SendAsync( "ReceiveMessage" , dto );
+        await Clients.Group($"user_{userId}").SendAsync("ReceiveMessage", dto);
+        await Clients.Group($"user_{recipientId}").SendAsync("ReceiveMessage", dto);
 
         // Send notification to recipient.
         var notification = new ChatNotificationDto(
-            conversationId ,
-            $"{sender.FirstName} {sender.LastName}" ,
-            message.Content.Length > 80 ? message.Content [ ..77 ] + "..." : message.Content ,
-            message.SentAt );
+            conversationId,
+            $"{sender.FirstName} {sender.LastName}",
+            message.Content.Length > 80 ? message.Content[..77] + "..." : message.Content,
+            message.SentAt);
 
-        await Clients.Group( $"user_{recipientId}" ).SendAsync( "ChatNotification" , notification );
+        await Clients.Group($"user_{recipientId}").SendAsync("ChatNotification", notification);
     }
 
     /// <summary>
     /// Mark all messages in a conversation as read for the current user.
     /// </summary>
-    public async Task MarkAsRead( Guid conversationId )
+    public async Task MarkAsRead(Guid conversationId)
     {
         var userId = Context.UserIdentifier;
-        if ( string.IsNullOrEmpty( userId ) )
+        if (string.IsNullOrEmpty(userId))
             return;
 
         await _db.ChatMessages
-            .Where( m => m.ConversationId == conversationId
+            .Where(m => m.ConversationId == conversationId
                       && m.SenderId != userId
-                      && !m.IsRead )
-            .ExecuteUpdateAsync( s => s.SetProperty( m => m.IsRead , true ) );
+                      && !m.IsRead)
+            .ExecuteUpdateAsync(s => s.SetProperty(m => m.IsRead, true));
     }
 }

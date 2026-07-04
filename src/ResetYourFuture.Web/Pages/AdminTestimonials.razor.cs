@@ -23,10 +23,10 @@ public partial class AdminTestimonials
 
     private async Task LoadTestimonials()
     {
-        pagedResult = await TestimonialConsumer.GetAllAsync( currentPage, pageSize );
+        pagedResult = await TestimonialConsumer.GetAllAsync(currentPage, pageSize);
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         pageSize = size;
         currentPage = 1;
@@ -35,7 +35,7 @@ public partial class AdminTestimonials
 
     private async Task PreviousPage()
     {
-        if ( currentPage > 1 )
+        if (currentPage > 1)
         {
             currentPage--;
             await LoadTestimonials();
@@ -44,23 +44,23 @@ public partial class AdminTestimonials
 
     private async Task NextPage()
     {
-        if ( pagedResult is { HasNextPage: true } )
+        if (pagedResult is { HasNextPage: true })
         {
             currentPage++;
             await LoadTestimonials();
         }
     }
 
-    private void NewTestimonial() => Navigation.NavigateTo( "/admin/testimonials/new" );
+    private void NewTestimonial() => Navigation.NavigateTo("/admin/testimonials/new");
 
-    private void EditTestimonial( Guid id ) => Navigation.NavigateTo( $"/admin/testimonials/{id}" );
+    private void EditTestimonial(Guid id) => Navigation.NavigateTo($"/admin/testimonials/{id}");
 
-    private async Task ToggleActive( Guid id )
+    private async Task ToggleActive(Guid id)
     {
         try
         {
-            var result = await TestimonialConsumer.ToggleActiveAsync( id );
-            if ( result is not null )
+            var result = await TestimonialConsumer.ToggleActiveAsync(id);
+            if (result is not null)
             {
                 message = result.IsActive ? "Testimonial activated." : "Testimonial deactivated.";
                 await LoadTestimonials();
@@ -70,44 +70,44 @@ public partial class AdminTestimonials
                 message = "Failed to update testimonial status.";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task MoveUp( Guid id )
+    private async Task MoveUp(Guid id)
     {
         try
         {
-            await TestimonialConsumer.MoveUpAsync( id );
+            await TestimonialConsumer.MoveUpAsync(id);
             await LoadTestimonials();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task MoveDown( Guid id )
+    private async Task MoveDown(Guid id)
     {
         try
         {
-            await TestimonialConsumer.MoveDownAsync( id );
+            await TestimonialConsumer.MoveDownAsync(id);
             await LoadTestimonials();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task DeleteTestimonial( Guid id )
+    private async Task DeleteTestimonial(Guid id)
     {
         try
         {
-            var success = await TestimonialConsumer.DeleteAsync( id );
-            if ( success )
+            var success = await TestimonialConsumer.DeleteAsync(id);
+            if (success)
             {
                 confirmDeleteId = null;
                 message = "Testimonial deleted.";
@@ -118,7 +118,7 @@ public partial class AdminTestimonials
                 message = "Error deleting testimonial.";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }

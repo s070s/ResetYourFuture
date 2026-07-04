@@ -15,7 +15,7 @@ namespace ResetYourFuture.Web.Services;
 /// Previously those calls went out unauthenticated, the API answered 401, and the consumer helpers
 /// silently returned null, which surfaced to the user as empty/blank pages.
 /// </summary>
-public sealed class ApiTokenProvider( AuthenticationStateProvider authStateProvider, IAuthService authService )
+public sealed class ApiTokenProvider(AuthenticationStateProvider authStateProvider, IAuthService authService)
 {
     /// <summary>
     /// Returns a freshly minted bearer token for the current user, or <c>null</c> when the request is
@@ -25,6 +25,6 @@ public sealed class ApiTokenProvider( AuthenticationStateProvider authStateProvi
     public async Task<string?> GetTokenAsync()
     {
         var state = await authStateProvider.GetAuthenticationStateAsync();
-        return await authService.GetTokenAsync( state.User );
+        return await authService.GetTokenAsync(state.User);
     }
 }

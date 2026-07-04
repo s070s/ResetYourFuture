@@ -9,25 +9,25 @@ namespace ResetYourFuture.Web.Data
     /// </summary>
     public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
-        public ApplicationDbContext CreateDbContext( string [] args )
+        public ApplicationDbContext CreateDbContext(string[] args)
         {
-            var env = Environment.GetEnvironmentVariable( "ASPNETCORE_ENVIRONMENT" ) ?? "Development";
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
             var builder = new ConfigurationBuilder()
-                .SetBasePath( Directory.GetCurrentDirectory() )
-                .AddJsonFile( "appsettings.json" , optional: true )
-                .AddJsonFile( $"appsettings.{env}.json" , optional: true )
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile($"appsettings.{env}.json", optional: true)
                 .AddEnvironmentVariables();
 
             var configuration = builder.Build();
-            var connectionString = configuration.GetConnectionString( "DefaultConnection" );
-            if ( string.IsNullOrWhiteSpace( connectionString ) )
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (string.IsNullOrWhiteSpace(connectionString))
                 connectionString = "Server=(localdb)\\MSSQLLocalDB;Database=ResetYourFutureDb;Trusted_Connection=True;TrustServerCertificate=True;";
 
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseSqlServer( connectionString )
+                .UseSqlServer(connectionString)
                 .Options;
 
-            return new ApplicationDbContext( options );
+            return new ApplicationDbContext(options);
         }
     }
 }

@@ -22,35 +22,35 @@ public class SsrApiHandler : DelegatingHandler
 
     private static readonly JwtSecurityTokenHandler TokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 
-    public SsrApiHandler( IHttpContextAccessor httpContextAccessor , IConfiguration config )
+    public SsrApiHandler(IHttpContextAccessor httpContextAccessor, IConfiguration config)
     {
         _httpContextAccessor = httpContextAccessor;
-        _jwtKey = config [ "Jwt:Key" ]
-            ?? throw new InvalidOperationException( "Jwt:Key not configured" );
-        _jwtIssuer = config [ "Jwt:Issuer" ];
-        _jwtAudience = config [ "Jwt:Audience" ];
-        _expirationMinutes = config.GetValue<double>( "Jwt:AccessTokenExpirationMinutes" , 60 );
+        _jwtKey = config["Jwt:Key"]
+            ?? throw new InvalidOperationException("Jwt:Key not configured");
+        _jwtIssuer = config["Jwt:Issuer"];
+        _jwtAudience = config["Jwt:Audience"];
+        _expirationMinutes = config.GetValue<double>("Jwt:AccessTokenExpirationMinutes", 60);
     }
 
     protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request , CancellationToken cancellationToken )
+        HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var principal = _httpContextAccessor.HttpContext?.User;
-        if ( principal?.Identity?.IsAuthenticated == true )
+        if (principal?.Identity?.IsAuthenticated == true)
         {
-            var key = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( _jwtKey ) );
-            var creds = new SigningCredentials( key , SecurityAlgorithms.HmacSha256 );
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var jwt = new JwtSecurityToken(
-                issuer: _jwtIssuer ,
-                audience: _jwtAudience ,
-                claims: principal.Claims ,
-                expires: DateTime.UtcNow.AddMinutes( _expirationMinutes ) ,
-                signingCredentials: creds );
+                issuer: _jwtIssuer,
+                audience: _jwtAudience,
+                claims: principal.Claims,
+                expires: DateTime.UtcNow.AddMinutes(_expirationMinutes),
+                signingCredentials: creds);
 
             request.Headers.Authorization =
-                new AuthenticationHeaderValue( "Bearer" , TokenHandler.WriteToken( jwt ) );
+                new AuthenticationHeaderValue("Bearer", TokenHandler.WriteToken(jwt));
         }
 
-        return base.SendAsync( request , cancellationToken );
+        return base.SendAsync(request, cancellationToken);
     }
 }

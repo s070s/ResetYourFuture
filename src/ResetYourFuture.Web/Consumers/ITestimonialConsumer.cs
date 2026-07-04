@@ -8,5 +8,5 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface ITestimonialConsumer
 {
-    Task<IReadOnlyList<TestimonialDto>?> GetActiveAsync( CancellationToken ct = default );
+    Task<IReadOnlyList<TestimonialDto>?> GetActiveAsync(CancellationToken ct = default);
 }

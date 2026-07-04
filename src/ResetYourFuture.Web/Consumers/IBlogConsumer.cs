@@ -7,6 +7,6 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IBlogConsumer
 {
-    Task<IReadOnlyList<BlogArticleSummaryDto>?> GetSummariesAsync( int count = 6, string lang = "en", CancellationToken ct = default );
-    Task<BlogArticleDto?> GetBySlugAsync( string slug, string lang = "en", CancellationToken ct = default );
+    Task<IReadOnlyList<BlogArticleSummaryDto>?> GetSummariesAsync(int count = 6, string lang = "en", CancellationToken ct = default);
+    Task<BlogArticleDto?> GetBySlugAsync(string slug, string lang = "en", CancellationToken ct = default);
 }

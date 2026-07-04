@@ -45,54 +45,54 @@ public partial class AdminBlogEditor
 
     protected override async Task OnParametersSetAsync()
     {
-        if ( _isEditMode )
+        if (_isEditMode)
         {
-            var article = await BlogConsumer.GetArticleAsync( Id!.Value );
-            if ( article is not null )
+            var article = await BlogConsumer.GetArticleAsync(Id!.Value);
+            if (article is not null)
             {
-                _titleEn      = article.TitleEn;
-                _titleEl      = article.TitleEl ?? string.Empty;
-                _slug         = article.Slug;
-                _summaryEn    = article.SummaryEn;
-                _summaryEl    = article.SummaryEl ?? string.Empty;
-                _contentEn    = article.ContentEn;
-                _contentEl    = article.ContentEl ?? string.Empty;
+                _titleEn = article.TitleEn;
+                _titleEl = article.TitleEl ?? string.Empty;
+                _slug = article.Slug;
+                _summaryEn = article.SummaryEn;
+                _summaryEl = article.SummaryEl ?? string.Empty;
+                _contentEn = article.ContentEn;
+                _contentEl = article.ContentEl ?? string.Empty;
                 _coverImageUrl = article.CoverImageUrl;
-                _authorName   = article.AuthorName;
-                _tagsInput    = string.Join( ", ", article.Tags );
-                _isPublished  = article.IsPublished;
+                _authorName = article.AuthorName;
+                _tagsInput = string.Join(", ", article.Tags);
+                _isPublished = article.IsPublished;
                 _slugManuallyEdited = true;
             }
         }
     }
 
-    private void OnTitleEnInput( ChangeEventArgs e )
+    private void OnTitleEnInput(ChangeEventArgs e)
     {
         _titleEn = e.Value?.ToString() ?? string.Empty;
-        if ( !_slugManuallyEdited )
-            _slug = GenerateSlug( _titleEn );
+        if (!_slugManuallyEdited)
+            _slug = GenerateSlug(_titleEn);
     }
 
-    private void OnSlugInput( ChangeEventArgs e )
+    private void OnSlugInput(ChangeEventArgs e)
     {
         _slug = e.Value?.ToString() ?? string.Empty;
         _slugManuallyEdited = true;
     }
 
-    private async Task OnCoverFileSelected( InputFileChangeEventArgs e )
+    private async Task OnCoverFileSelected(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if ( file is null ) return;
+        if (file is null) return;
 
-        if ( _isEditMode )
+        if (_isEditMode)
         {
             // In edit mode: upload immediately
             _isBusy = true;
             _error = null;
             try
             {
-                var path = await BlogConsumer.UploadCoverImageAsync( Id!.Value, file );
-                if ( path is not null )
+                var path = await BlogConsumer.UploadCoverImageAsync(Id!.Value, file);
+                if (path is not null)
                     _coverImageUrl = path;
                 else
                     _error = "Cover image upload failed.";
@@ -127,9 +127,9 @@ public partial class AdminBlogEditor
             var contentEn = _editorEn is not null ? await _editorEn.GetContentAsync() : _contentEn;
             var contentEl = _editorEl is not null ? await _editorEl.GetContentAsync() : _contentEl;
 
-            var tags = string.IsNullOrWhiteSpace( _tagsInput )
+            var tags = string.IsNullOrWhiteSpace(_tagsInput)
                 ? null
-                : _tagsInput.Split( ',' , StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries );
+                : _tagsInput.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             // For new articles with a pending file, don't send the filename as the URL
             var coverUrl = _pendingCoverFile is not null && !_isEditMode
@@ -138,39 +138,39 @@ public partial class AdminBlogEditor
 
             var request = new SaveBlogArticleRequest(
                 TitleEn: _titleEn,
-                TitleEl: string.IsNullOrWhiteSpace( _titleEl ) ? null : _titleEl,
+                TitleEl: string.IsNullOrWhiteSpace(_titleEl) ? null : _titleEl,
                 Slug: _slug,
                 SummaryEn: _summaryEn,
-                SummaryEl: string.IsNullOrWhiteSpace( _summaryEl ) ? null : _summaryEl,
+                SummaryEl: string.IsNullOrWhiteSpace(_summaryEl) ? null : _summaryEl,
                 ContentEn: contentEn ?? string.Empty,
-                ContentEl: string.IsNullOrWhiteSpace( contentEl ) ? null : contentEl,
-                CoverImageUrl: string.IsNullOrWhiteSpace( coverUrl ) ? null : coverUrl,
+                ContentEl: string.IsNullOrWhiteSpace(contentEl) ? null : contentEl,
+                CoverImageUrl: string.IsNullOrWhiteSpace(coverUrl) ? null : coverUrl,
                 AuthorName: _authorName,
                 Tags: tags,
-                IsPublished: _isPublished );
+                IsPublished: _isPublished);
 
             AdminBlogArticleDto? result;
 
-            if ( _isEditMode )
-                result = await BlogConsumer.UpdateArticleAsync( Id!.Value, request );
+            if (_isEditMode)
+                result = await BlogConsumer.UpdateArticleAsync(Id!.Value, request);
             else
-                result = await BlogConsumer.CreateArticleAsync( request );
+                result = await BlogConsumer.CreateArticleAsync(request);
 
-            if ( result is null )
+            if (result is null)
             {
                 _error = "Slug already in use. Please choose a different slug.";
                 return;
             }
 
             // Upload pending cover image for newly created articles
-            if ( _pendingCoverFile is not null && !_isEditMode )
+            if (_pendingCoverFile is not null && !_isEditMode)
             {
-                await BlogConsumer.UploadCoverImageAsync( result.Id, _pendingCoverFile );
+                await BlogConsumer.UploadCoverImageAsync(result.Id, _pendingCoverFile);
             }
 
-            Navigation.NavigateTo( "/admin/blog" );
+            Navigation.NavigateTo("/admin/blog");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = $"Error: {ex.Message}";
         }
@@ -180,17 +180,17 @@ public partial class AdminBlogEditor
         }
     }
 
-    private void Cancel() => Navigation.NavigateTo( "/admin/blog" );
+    private void Cancel() => Navigation.NavigateTo("/admin/blog");
 
-    private static string GenerateSlug( string title )
+    private static string GenerateSlug(string title)
     {
-        if ( string.IsNullOrWhiteSpace( title ) )
+        if (string.IsNullOrWhiteSpace(title))
             return string.Empty;
 
         var slug = title.Trim().ToLowerInvariant();
-        slug = Regex.Replace( slug, @"\s+", "-" );
-        slug = Regex.Replace( slug, @"[^a-z0-9\-]", string.Empty );
-        slug = Regex.Replace( slug, @"-{2,}", "-" ).Trim( '-' );
+        slug = Regex.Replace(slug, @"\s+", "-");
+        slug = Regex.Replace(slug, @"[^a-z0-9\-]", string.Empty);
+        slug = Regex.Replace(slug, @"-{2,}", "-").Trim('-');
         return slug;
     }
 }

@@ -16,14 +16,14 @@ namespace ResetYourFuture.Web.Interfaces;
 /// </summary>
 public interface IAuthService
 {
-    Task<AuthResponseDto> RegisterAsync( RegisterRequestDto request );
+    Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
 
     /// <summary>
     /// Validates credentials.  On success, <see cref="AuthResponseDto.Token"/>
     /// holds a short-lived ticket GUID.  Navigate to
     /// <c>/auth/complete?ticket={Token}&amp;returnUrl=…</c> with forceLoad: true.
     /// </summary>
-    Task<AuthResponseDto> LoginAsync( LoginRequestDto request );
+    Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
 
     /// <summary>Returns the URL to navigate to (forceLoad: true) to sign out.</summary>
     Task<string> LogoutAsync();
@@ -40,19 +40,19 @@ public interface IAuthService
     /// Generates a JWT from the supplied principal. Safe to call inside Blazor Server circuits
     /// where HttpContext is unavailable — pass the cascaded AuthenticationState.User.
     /// </summary>
-    Task<string?> GetTokenAsync( ClaimsPrincipal principal );
+    Task<string?> GetTokenAsync(ClaimsPrincipal principal);
 
     /// <summary>
     /// Validates the impersonation target.  On success, <see cref="AuthResponseDto.Token"/>
     /// holds a short-lived ticket GUID.  Navigate to
     /// <c>/auth/complete?ticket={Token}&amp;returnUrl=…</c> with forceLoad: true.
     /// </summary>
-    Task<AuthResponseDto> ImpersonateAsync( string userId );
+    Task<AuthResponseDto> ImpersonateAsync(string userId);
 
     /// <summary>Returns the URL to navigate to (forceLoad: true) to restore the admin session.</summary>
     Task<string> ExitImpersonationAsync();
 
     Task<bool> IsImpersonatingAsync();
-    Task<AuthResponseDto> ForgotPasswordAsync( ForgotPasswordRequestDto request );
-    Task<AuthResponseDto> ResetPasswordAsync( ResetPasswordRequestDto request );
+    Task<AuthResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request);
+    Task<AuthResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request);
 }

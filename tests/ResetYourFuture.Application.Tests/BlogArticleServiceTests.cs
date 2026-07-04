@@ -13,12 +13,12 @@ namespace ResetYourFuture.Application.Tests;
 
 public class BlogArticleServiceTests
 {
-    private static BlogArticleService NewService( ApplicationDbContext db ) =>
-        new( db, NullLogger<BlogArticleService>.Instance, new HtmlSanitizer() );
+    private static BlogArticleService NewService(ApplicationDbContext db) =>
+        new(db, NullLogger<BlogArticleService>.Instance, new HtmlSanitizer());
 
     private static BlogArticle Article(
         string slug, string titleEn = "Title", bool published = false,
-        DateTimeOffset? publishedAt = null, string? titleEl = null ) =>
+        DateTimeOffset? publishedAt = null, string? titleEl = null) =>
         new()
         {
             Id = Guid.NewGuid(),
@@ -34,8 +34,8 @@ public class BlogArticleServiceTests
 
     private static SaveBlogArticleRequest Request(
         string slug = "slug", string titleEn = "Title", string contentEn = "Body",
-        string? contentEl = null, string[]? tags = null, bool published = false ) =>
-        new( titleEn, null, slug, "Summary", null, contentEn, contentEl, null, "Author", tags, published );
+        string? contentEl = null, string[]? tags = null, bool published = false) =>
+        new(titleEn, null, slug, "Summary", null, contentEn, contentEl, null, "Author", tags, published);
 
     // ---- reads ---------------------------------------------------------------
 
@@ -44,48 +44,48 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
         db.BlogArticles.AddRange(
-            Article( "a", "A", published: true, publishedAt: new DateTimeOffset( 2020, 1, 1, 0, 0, 0, TimeSpan.Zero ) ),
-            Article( "b", "B", published: true, publishedAt: new DateTimeOffset( 2022, 1, 1, 0, 0, 0, TimeSpan.Zero ) ),
-            Article( "c", "C", published: true, publishedAt: new DateTimeOffset( 2021, 1, 1, 0, 0, 0, TimeSpan.Zero ) ),
-            Article( "d", "D", published: false ) );
+            Article("a", "A", published: true, publishedAt: new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero)),
+            Article("b", "B", published: true, publishedAt: new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero)),
+            Article("c", "C", published: true, publishedAt: new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero)),
+            Article("d", "D", published: false));
         await db.SaveChangesAsync();
 
-        var summaries = await NewService( db ).GetPublishedSummariesAsync( 2 );
+        var summaries = await NewService(db).GetPublishedSummariesAsync(2);
 
-        summaries.Select( s => s.Title ).ShouldBe( new[] { "B", "C" } );
+        summaries.Select(s => s.Title).ShouldBe(new[] { "B", "C" });
     }
 
     [Fact]
     public async Task GetPublishedBySlug_Unpublished_ReturnsNull()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.BlogArticles.Add( Article( "draft", published: false ) );
+        db.BlogArticles.Add(Article("draft", published: false));
         await db.SaveChangesAsync();
 
-        ( await NewService( db ).GetPublishedBySlugAsync( "draft" ) ).ShouldBeNull();
+        (await NewService(db).GetPublishedBySlugAsync("draft")).ShouldBeNull();
     }
 
     [Fact]
     public async Task GetPublishedBySlug_Published_ReturnsArticle()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.BlogArticles.Add( Article( "live", "Live", published: true ) );
+        db.BlogArticles.Add(Article("live", "Live", published: true));
         await db.SaveChangesAsync();
 
-        ( await NewService( db ).GetPublishedBySlugAsync( "live" ) )!.Title.ShouldBe( "Live" );
+        (await NewService(db).GetPublishedBySlugAsync("live"))!.Title.ShouldBe("Live");
     }
 
     [Fact]
     public async Task GetAllForAdmin_OrdersByCreatedAtDesc_AndClampsPaging()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.BlogArticles.Add( Article( "a" ) );
+        db.BlogArticles.Add(Article("a"));
         await db.SaveChangesAsync();
 
-        var result = await NewService( db ).GetAllForAdminAsync( page: 0, pageSize: 999, search: null );
+        var result = await NewService(db).GetAllForAdminAsync(page: 0, pageSize: 999, search: null);
 
-        result.Page.ShouldBe( 1 );
-        result.PageSize.ShouldBe( 100 ); // clamped to max
+        result.Page.ShouldBe(1);
+        result.PageSize.ShouldBe(100); // clamped to max
     }
 
     [Fact]
@@ -93,13 +93,13 @@ public class BlogArticleServiceTests
     {
         // EF.Functions.Like is unsupported on the InMemory provider — use the relational SQLite fixture.
         await using var db = DbContextFactory.CreateSqlite();
-        db.BlogArticles.Add( Article( "alpha-post", "Alpha" ) );
-        db.BlogArticles.Add( Article( "beta-post", "Beta" ) );
+        db.BlogArticles.Add(Article("alpha-post", "Alpha"));
+        db.BlogArticles.Add(Article("beta-post", "Beta"));
         await db.SaveChangesAsync();
 
-        var result = await NewService( db ).GetAllForAdminAsync( 1, 10, "alpha" );
+        var result = await NewService(db).GetAllForAdminAsync(1, 10, "alpha");
 
-        result.Items.Select( i => i.Slug ).ShouldBe( new[] { "alpha-post" } );
+        result.Items.Select(i => i.Slug).ShouldBe(new[] { "alpha-post" });
     }
 
     // ---- create --------------------------------------------------------------
@@ -108,10 +108,10 @@ public class BlogArticleServiceTests
     public async Task Create_DuplicateSlug_ReturnsNull()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        db.BlogArticles.Add( Article( "taken" ) );
+        db.BlogArticles.Add(Article("taken"));
         await db.SaveChangesAsync();
 
-        ( await NewService( db ).CreateAsync( Request( slug: "taken" ) ) ).ShouldBeNull();
+        (await NewService(db).CreateAsync(Request(slug: "taken"))).ShouldBeNull();
     }
 
     [Fact]
@@ -119,10 +119,10 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        var dto = await NewService( db ).CreateAsync(
-            Request( contentEn: "<script>x</script><p>Body</p>", published: true ) );
+        var dto = await NewService(db).CreateAsync(
+            Request(contentEn: "<script>x</script><p>Body</p>", published: true));
 
-        dto!.ContentEn.ShouldNotContain( "<script" );
+        dto!.ContentEn.ShouldNotContain("<script");
         dto.PublishedAt.ShouldNotBeNull();
     }
 
@@ -131,7 +131,7 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        var dto = await NewService( db ).CreateAsync( Request( published: false ) );
+        var dto = await NewService(db).CreateAsync(Request(published: false));
 
         dto!.PublishedAt.ShouldBeNull();
     }
@@ -141,9 +141,9 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        var dto = await NewService( db ).CreateAsync( Request( tags: new[] { "x", "y" } ) );
+        var dto = await NewService(db).CreateAsync(Request(tags: new[] { "x", "y" }));
 
-        dto!.Tags.ShouldBe( new[] { "x", "y" } );
+        dto!.Tags.ShouldBe(new[] { "x", "y" });
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        var dto = await NewService( db ).CreateAsync( Request( tags: null ) );
+        var dto = await NewService(db).CreateAsync(Request(tags: null));
 
         dto!.Tags.ShouldBeEmpty();
     }
@@ -163,30 +163,30 @@ public class BlogArticleServiceTests
     {
         await using var db = DbContextFactory.CreateInMemory();
 
-        ( await NewService( db ).UpdateAsync( Guid.NewGuid(), Request() ) ).ShouldBeNull();
+        (await NewService(db).UpdateAsync(Guid.NewGuid(), Request())).ShouldBeNull();
     }
 
     [Fact]
     public async Task Update_SlugTakenByOther_ReturnsNull()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var a = Article( "a-slug" );
-        var b = Article( "b-slug" );
-        db.BlogArticles.AddRange( a, b );
+        var a = Article("a-slug");
+        var b = Article("b-slug");
+        db.BlogArticles.AddRange(a, b);
         await db.SaveChangesAsync();
 
-        ( await NewService( db ).UpdateAsync( b.Id, Request( slug: "a-slug" ) ) ).ShouldBeNull();
+        (await NewService(db).UpdateAsync(b.Id, Request(slug: "a-slug"))).ShouldBeNull();
     }
 
     [Fact]
     public async Task Update_PublishTransition_SetsPublishedAtOnce()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var a = Article( "a", published: false );
-        db.BlogArticles.Add( a );
+        var a = Article("a", published: false);
+        db.BlogArticles.Add(a);
         await db.SaveChangesAsync();
 
-        var dto = await NewService( db ).UpdateAsync( a.Id, Request( slug: "a", published: true ) );
+        var dto = await NewService(db).UpdateAsync(a.Id, Request(slug: "a", published: true));
 
         dto!.IsPublished.ShouldBeTrue();
         dto.PublishedAt.ShouldNotBeNull();
@@ -196,15 +196,15 @@ public class BlogArticleServiceTests
     public async Task Publish_Unpublish_Delete_HandleMissingAndState()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var a = Article( "a", published: false );
-        db.BlogArticles.Add( a );
+        var a = Article("a", published: false);
+        db.BlogArticles.Add(a);
         await db.SaveChangesAsync();
-        var svc = NewService( db );
+        var svc = NewService(db);
 
-        ( await svc.PublishAsync( Guid.NewGuid() ) ).ShouldBeFalse();
-        ( await svc.PublishAsync( a.Id ) ).ShouldBeTrue();
-        ( await svc.UnpublishAsync( a.Id ) ).ShouldBeTrue();
-        ( await svc.DeleteAsync( a.Id ) ).ShouldBeTrue();
-        ( await db.BlogArticles.CountAsync() ).ShouldBe( 0 );
+        (await svc.PublishAsync(Guid.NewGuid())).ShouldBeFalse();
+        (await svc.PublishAsync(a.Id)).ShouldBeTrue();
+        (await svc.UnpublishAsync(a.Id)).ShouldBeTrue();
+        (await svc.DeleteAsync(a.Id)).ShouldBeTrue();
+        (await db.BlogArticles.CountAsync()).ShouldBe(0);
     }
 }

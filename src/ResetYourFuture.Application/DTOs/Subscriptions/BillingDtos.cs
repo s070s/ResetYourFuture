@@ -23,7 +23,7 @@ public record BillingOverviewDto
     public UserSubscriptionStatusDto? CurrentSubscription { get; init; }
 
     /// <summary>Paged transaction history, newest first.</summary>
-    public PagedResult<BillingTransactionDto> Transactions { get; init; } = new( [] , 0 , 1 , 10 );
+    public PagedResult<BillingTransactionDto> Transactions { get; init; } = new([], 0, 1, 10);
 }
 
 /// <summary>

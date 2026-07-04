@@ -22,25 +22,25 @@ public static class IdentityMocks
     public static UserManager<ApplicationUser> MockUserManager()
     {
         var store = Substitute.For<IUserStore<ApplicationUser>>();
-        var options = Options.Create( new IdentityOptions() );
+        var options = Options.Create(new IdentityOptions());
 
         return Substitute.For<UserManager<ApplicationUser>>(
-            store, options, null, null, null, null, null, null, null );
+            store, options, null, null, null, null, null, null, null);
     }
 
     /// <summary>
     /// A substitutable <see cref="SignInManager{ApplicationUser}"/> over the given user manager.
     /// Configure virtual members (e.g. <c>CheckPasswordSignInAsync</c>) per test.
     /// </summary>
-    public static SignInManager<ApplicationUser> MockSignInManager( UserManager<ApplicationUser> userManager )
+    public static SignInManager<ApplicationUser> MockSignInManager(UserManager<ApplicationUser> userManager)
     {
         return Substitute.For<SignInManager<ApplicationUser>>(
             userManager,
             Substitute.For<IHttpContextAccessor>(),
             Substitute.For<IUserClaimsPrincipalFactory<ApplicationUser>>(),
-            Options.Create( new IdentityOptions() ),
+            Options.Create(new IdentityOptions()),
             NullLogger<SignInManager<ApplicationUser>>.Instance,
             Substitute.For<IAuthenticationSchemeProvider>(),
-            Substitute.For<IUserConfirmation<ApplicationUser>>() );
+            Substitute.For<IUserConfirmation<ApplicationUser>>());
     }
 }

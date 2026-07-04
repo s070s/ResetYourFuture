@@ -27,55 +27,55 @@ using System.Text;
 // Copy .env.template → .env and fill in secrets. Never commit .env.
 // Walk up from the working directory so the file is found whether the app is launched
 // from the solution root (dotnet run --project …) or the project directory (VS / Rider).
-static string? FindEnvFile( string start )
+static string? FindEnvFile(string start)
 {
     var dir = start;
-    for ( var i = 0; i < 5; i++ )
+    for (var i = 0; i < 5; i++)
     {
-        var candidate = Path.Combine( dir , ".env" );
-        if ( File.Exists( candidate ) )
+        var candidate = Path.Combine(dir, ".env");
+        if (File.Exists(candidate))
             return candidate;
-        var parent = Directory.GetParent( dir )?.FullName;
-        if ( parent is null || parent == dir )
+        var parent = Directory.GetParent(dir)?.FullName;
+        if (parent is null || parent == dir)
             break;
         dir = parent;
     }
     return null;
 }
-var envFilePath = FindEnvFile( Directory.GetCurrentDirectory() );
-if ( envFilePath is not null )
+var envFilePath = FindEnvFile(Directory.GetCurrentDirectory());
+if (envFilePath is not null)
 {
-    foreach ( var line in File.ReadAllLines( envFilePath ) )
+    foreach (var line in File.ReadAllLines(envFilePath))
     {
         var trimmed = line.Trim();
-        if ( string.IsNullOrEmpty( trimmed ) || trimmed.StartsWith( '#' ) )
+        if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith('#'))
             continue;
-        var eq = trimmed.IndexOf( '=' );
-        if ( eq < 1 )
+        var eq = trimmed.IndexOf('=');
+        if (eq < 1)
             continue;
         Environment.SetEnvironmentVariable(
-            trimmed [ ..eq ].Trim() ,
-            trimmed [ ( eq + 1 ).. ].Trim() );
+            trimmed[..eq].Trim(),
+            trimmed[(eq + 1)..].Trim());
     }
 }
 
-var builder = WebApplication.CreateBuilder( args );
+var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 // --- Logging ---
-builder.Logging.AddFileLogger( "Logs" );
+builder.Logging.AddFileLogger("Logs");
 
 // --- Database (SQL Server) ---
-builder.Services.AddDbContext<ApplicationDbContext>( options =>
-    options.UseSqlServer( config.GetConnectionString( "DefaultConnection" ) ,
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(config.GetConnectionString("DefaultConnection"),
         sqlOptions => sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5 ,
-            maxRetryDelay: TimeSpan.FromSeconds( 10 ) ,
-            errorNumbersToAdd: null ) ) );
-builder.Services.AddScoped<IApplicationDbContext>( sp => sp.GetRequiredService<ApplicationDbContext>() );
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null)));
+builder.Services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
 // --- Identity ---
-builder.Services.AddIdentity<ApplicationUser , IdentityRole>( options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
@@ -83,18 +83,18 @@ builder.Services.AddIdentity<ApplicationUser , IdentityRole>( options =>
     options.Password.RequireNonAlphanumeric = false;
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedEmail = true;
-} )
+})
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 // --- Authentication: MultiAuth policy (Cookie for Blazor pages, JWT for API/SignalR) ---
-var jwtKey = config [ "Jwt:Key" ] ?? throw new InvalidOperationException( "JWT Key not configured" );
-if ( Encoding.UTF8.GetByteCount( jwtKey ) < 32 )
-    throw new InvalidOperationException( "Jwt:Key must be at least 32 bytes for HMAC-SHA256 security." );
-var jwtIssuer = config [ "Jwt:Issuer" ];
-var jwtAudience = config [ "Jwt:Audience" ];
+var jwtKey = config["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");
+if (Encoding.UTF8.GetByteCount(jwtKey) < 32)
+    throw new InvalidOperationException("Jwt:Key must be at least 32 bytes for HMAC-SHA256 security.");
+var jwtIssuer = config["Jwt:Issuer"];
+var jwtAudience = config["Jwt:Audience"];
 
-builder.Services.AddAuthentication( options =>
+builder.Services.AddAuthentication(options =>
 {
     // MultiAuth selects JWT when Authorization header is present, Cookie otherwise.
     // This allows the same [Authorize] attribute to work for both Blazor pages and API controllers.
@@ -109,18 +109,18 @@ builder.Services.AddAuthentication( options =>
     options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignOutScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-} )
-.AddPolicyScheme( "MultiAuth" , "MultiAuth" , options =>
+})
+.AddPolicyScheme("MultiAuth", "MultiAuth", options =>
 {
     options.ForwardDefaultSelector = ctx =>
     {
         var authHeader = ctx.Request.Headers.Authorization.ToString();
-        if ( !string.IsNullOrEmpty( authHeader ) && authHeader.StartsWith( "Bearer " , StringComparison.OrdinalIgnoreCase ) )
+        if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             return JwtBearerDefaults.AuthenticationScheme;
         return CookieAuthenticationDefaults.AuthenticationScheme;
     };
-} )
-.AddCookie( CookieAuthenticationDefaults.AuthenticationScheme , options =>
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
     options.Cookie.Name = ".RYF.Auth";
     options.Cookie.HttpOnly = true;
@@ -128,9 +128,9 @@ builder.Services.AddAuthentication( options =>
     options.LoginPath = "/login";
     options.LogoutPath = "/logout";
     // Sliding window: 24 h of activity. MaxAge hard-caps at 7 days regardless of activity.
-    options.ExpireTimeSpan = TimeSpan.FromHours( 24 );
+    options.ExpireTimeSpan = TimeSpan.FromHours(24);
     options.SlidingExpiration = true;
-    options.Cookie.MaxAge = TimeSpan.FromDays( 7 );
+    options.Cookie.MaxAge = TimeSpan.FromDays(7);
 
     // In development allow the cookie over plain HTTP
     options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
@@ -144,8 +144,8 @@ builder.Services.AddAuthentication( options =>
     // or the security stamp no longer matches the one embedded in the cookie at sign-in.
     options.Events.OnValidatePrincipal = async context =>
     {
-        var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
-        if ( string.IsNullOrEmpty( userId ) )
+        var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
         {
             context.RejectPrincipal();
             return;
@@ -153,28 +153,28 @@ builder.Services.AddAuthentication( options =>
 
         var userManager = context.HttpContext.RequestServices
             .GetRequiredService<UserManager<ApplicationUser>>();
-        var user = await userManager.FindByIdAsync( userId );
-        var cookieStamp = context.Principal?.FindFirstValue( "securityStamp" );
+        var user = await userManager.FindByIdAsync(userId);
+        var cookieStamp = context.Principal?.FindFirstValue("securityStamp");
 
-        if ( user is null || !user.IsEnabled || user.SecurityStamp != cookieStamp )
+        if (user is null || !user.IsEnabled || user.SecurityStamp != cookieStamp)
         {
             context.RejectPrincipal();
             await context.HttpContext.SignOutAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme );
+                CookieAuthenticationDefaults.AuthenticationScheme);
         }
     };
-} )
-.AddJwtBearer( JwtBearerDefaults.AuthenticationScheme , options =>
+})
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true ,
-        ValidateAudience = true ,
-        ValidateLifetime = true ,
-        ValidateIssuerSigningKey = true ,
-        ValidIssuer = jwtIssuer ,
-        ValidAudience = jwtAudience ,
-        IssuerSigningKey = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( jwtKey ) ) ,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
         ClockSkew = TimeSpan.Zero
     };
 
@@ -183,88 +183,88 @@ builder.Services.AddAuthentication( options =>
         // Allow SignalR and media asset requests to receive JWT from query string.
         OnMessageReceived = context =>
         {
-            var accessToken = context.Request.Query [ "access_token" ];
+            var accessToken = context.Request.Query["access_token"];
             var path = context.HttpContext.Request.Path;
-            if ( !string.IsNullOrEmpty( accessToken ) &&
-                 ( path.StartsWithSegments( "/hubs/chat" ) ||
-                   path.StartsWithSegments( "/api/lessons" ) ) )
+            if (!string.IsNullOrEmpty(accessToken) &&
+                 (path.StartsWithSegments("/hubs/chat") ||
+                   path.StartsWithSegments("/api/lessons")))
             {
                 context.Token = accessToken;
             }
             return Task.CompletedTask;
-        } ,
+        },
         OnTokenValidated = async context =>
         {
-            var userId = context.Principal?.FindFirstValue( ClaimTypes.NameIdentifier );
-            if ( userId is null )
+            var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId is null)
                 return;
 
             var userManager = context.HttpContext.RequestServices
                 .GetRequiredService<UserManager<ApplicationUser>>();
-            var user = await userManager.FindByIdAsync( userId );
+            var user = await userManager.FindByIdAsync(userId);
 
-            if ( user is null || !user.IsEnabled )
+            if (user is null || !user.IsEnabled)
             {
-                context.Fail( "Account is disabled." );
-                context.HttpContext.Items [ "UserDisabled" ] = true;
+                context.Fail("Account is disabled.");
+                context.HttpContext.Items["UserDisabled"] = true;
                 return;
             }
 
             // Reject tokens minted before a password reset or security-stamp rotation.
-            var tokenStamp = context.Principal?.FindFirstValue( "securityStamp" );
-            if ( tokenStamp != user.SecurityStamp )
-                context.Fail( "Security stamp mismatch — token has been invalidated." );
-        } ,
+            var tokenStamp = context.Principal?.FindFirstValue("securityStamp");
+            if (tokenStamp != user.SecurityStamp)
+                context.Fail("Security stamp mismatch — token has been invalidated.");
+        },
         OnChallenge = context =>
         {
-            if ( context.HttpContext.Items.ContainsKey( "UserDisabled" ) )
+            if (context.HttpContext.Items.ContainsKey("UserDisabled"))
             {
-                context.Response.Headers [ "X-User-Disabled" ] = "true";
+                context.Response.Headers["X-User-Disabled"] = "true";
             }
             return Task.CompletedTask;
         }
     };
-} );
+});
 
 // --- Authorization Policies ---
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy( "AdminOnly" , policy => policy.RequireRole( "Admin" ) )
-    .AddPolicy( "StudentOnly" , policy => policy.RequireRole( "Student" ) );
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+    .AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
 
 // --- HTML Sanitizer (XSS protection for rich-text content) ---
-builder.Services.AddSingleton<Ganss.Xss.IHtmlSanitizer>( _ => new Ganss.Xss.HtmlSanitizer() );
+builder.Services.AddSingleton<Ganss.Xss.IHtmlSanitizer>(_ => new Ganss.Xss.HtmlSanitizer());
 
 // --- API Services ---
-builder.Services.AddScoped<ITokenService , TokenService>();
-builder.Services.AddScoped<IFileStorage , LocalFileStorage>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 // Email transport. SmtpEmailService (MailKit) is used whenever Email:Smtp:Host is configured —
 // point it at Papercut/Mailhog in Development or a real relay (SES/SendGrid SMTP/etc.) in prod.
 // With no SMTP host configured, Development falls back to StubEmailService (logs only); any other
 // environment fails fast so emails are never silently swallowed in production.
-builder.Services.Configure<EmailOptions>( config.GetSection( EmailOptions.SectionName ) );
-if ( !string.IsNullOrWhiteSpace( config [ "Email:Smtp:Host" ] ) )
+builder.Services.Configure<EmailOptions>(config.GetSection(EmailOptions.SectionName));
+if (!string.IsNullOrWhiteSpace(config["Email:Smtp:Host"]))
 {
-    builder.Services.AddScoped<IEmailService , SmtpEmailService>();
+    builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 }
-else if ( builder.Environment.IsDevelopment() )
+else if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddScoped<IEmailService , StubEmailService>();
+    builder.Services.AddScoped<IEmailService, StubEmailService>();
 }
 else
 {
     throw new InvalidOperationException(
-        "No email transport configured. Set Email:Smtp:Host (and credentials) for production." );
+        "No email transport configured. Set Email:Smtp:Host (and credentials) for production.");
 }
-builder.Services.AddScoped<ISubscriptionService , SubscriptionService>();
-builder.Services.AddScoped<ICertificateService , CertificateService>();
-builder.Services.AddScoped<IBlogArticleService , BlogArticleService>();
-builder.Services.AddScoped<ITestimonialService , TestimonialService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<ICertificateService, CertificateService>();
+builder.Services.AddScoped<IBlogArticleService, BlogArticleService>();
+builder.Services.AddScoped<ITestimonialService, TestimonialService>();
 
 // --- Web Services ---
-builder.Services.AddScoped<IAuthService , AuthService>();
-builder.Services.AddScoped<ICourseService , CourseService>();
-builder.Services.AddScoped<IAdminCourseService , AdminCourseService>();
-builder.Services.AddScoped<IChatQueryService , ChatQueryService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IAdminCourseService, AdminCourseService>();
+builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
 builder.Services.AddScoped<AvatarChangedNotifier>();
 // Circuit-scoped bearer-token provider used by ApiClientBase so consumers authenticate
 // from inside the Blazor circuit (where HttpContext/SsrApiHandler is unavailable).
@@ -281,70 +281,70 @@ builder.Services.AddTransient<SsrApiHandler>();
 // address AND the loopback TLS certificate must be trusted by this in-process HttpClient —
 // otherwise every API-backed page silently renders empty (ApiClientBase swallows non-success
 // responses). Consider calling the application services in-process instead of over HTTP.
-var selfBase = config [ "SelfBaseUrl" ] ?? "https://localhost:7090";
+var selfBase = config["SelfBaseUrl"] ?? "https://localhost:7090";
 
 // Named client for dev-only endpoints (no auth handler needed)
-builder.Services.AddHttpClient( "SelfClient" , c => c.BaseAddress = new Uri( selfBase ) );
+builder.Services.AddHttpClient("SelfClient", c => c.BaseAddress = new Uri(selfBase));
 
-builder.Services.AddHttpClient<ICourseConsumer , CourseConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<ICourseConsumer, CourseConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAssessmentConsumer , AssessmentConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAssessmentConsumer, AssessmentConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<ISubscriptionConsumer , SubscriptionConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<ISubscriptionConsumer, SubscriptionConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IProfileConsumer , ProfileConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IProfileConsumer, ProfileConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminAnalyticsConsumer , AdminAnalyticsConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminAnalyticsConsumer, AdminAnalyticsConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminUserConsumer , AdminUserConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminUserConsumer, AdminUserConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminCourseConsumer , AdminCourseConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminCourseConsumer, AdminCourseConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminModuleConsumer , AdminModuleConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminModuleConsumer, AdminModuleConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminLessonConsumer , AdminLessonConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminLessonConsumer, AdminLessonConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IAdminAssessmentConsumer , AdminAssessmentConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<ICertificateConsumer , CertificateConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<ICertificateConsumer, CertificateConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IBlogConsumer , BlogConsumer>( c => c.BaseAddress = new Uri( selfBase ) );
-builder.Services.AddHttpClient<IAdminBlogConsumer , AdminBlogConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IBlogConsumer, BlogConsumer>(c => c.BaseAddress = new Uri(selfBase));
+builder.Services.AddHttpClient<IAdminBlogConsumer, AdminBlogConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<ITestimonialConsumer , TestimonialConsumer>( c => c.BaseAddress = new Uri( selfBase ) );
-builder.Services.AddHttpClient<IAdminTestimonialConsumer , AdminTestimonialConsumer>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<ITestimonialConsumer, TestimonialConsumer>(c => c.BaseAddress = new Uri(selfBase));
+builder.Services.AddHttpClient<IAdminTestimonialConsumer, AdminTestimonialConsumer>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
-builder.Services.AddHttpClient<IChatService , ChatService>( c => c.BaseAddress = new Uri( selfBase ) )
+builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(selfBase))
     .AddHttpMessageHandler<SsrApiHandler>();
 
 // --- Localization ---
 builder.Services.AddLocalization();
-builder.Services.Configure<RequestLocalizationOptions>( options =>
+builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var supportedCultures = new [] { "en-GB" , "el-GR" };
-    options.SetDefaultCulture( "en-GB" )
-        .AddSupportedCultures( supportedCultures )
-        .AddSupportedUICultures( supportedCultures );
-} );
+    var supportedCultures = new[] { "en-GB", "el-GR" };
+    options.SetDefaultCulture("en-GB")
+        .AddSupportedCultures(supportedCultures)
+        .AddSupportedUICultures(supportedCultures);
+});
 
 builder.Services.AddMemoryCache();
-builder.Services.AddSignalR( o => o.MaximumReceiveMessageSize = 32_000 );
+builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 32_000);
 builder.Services.AddControllers();
 // Built-in OpenAPI document ("v1") + API metadata, JWT bearer scheme, and per-operation security.
 builder.Services.AddResetYourFutureOpenApi();
 builder.Services.AddHostedService<BulkStudentSeedingService>();
 
-builder.Services.AddRateLimiter( options =>
+builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter( "auth" , limiterOptions =>
+    options.AddFixedWindowLimiter("auth", limiterOptions =>
     {
         limiterOptions.PermitLimit = 10;
-        limiterOptions.Window = TimeSpan.FromMinutes( 1 );
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
         limiterOptions.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         limiterOptions.QueueLimit = 0;
-    } );
+    });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-} );
+});
 
 builder.Services.AddHttpContextAccessor();
 
@@ -356,13 +356,13 @@ builder.Services.AddHttpContextAccessor();
 // production, persist to shared storage (Azure Blob / Redis / network share) and protect with a
 // certificate or Key Vault.
 var dpBuilder = builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem( new DirectoryInfo(
-        Path.Combine( builder.Environment.ContentRootPath , "DataProtection-Keys" ) ) )
-    .SetApplicationName( "ResetYourFuture" );
+    .PersistKeysToFileSystem(new DirectoryInfo(
+        Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys")))
+    .SetApplicationName("ResetYourFuture");
 
 // On Windows: encrypt keys at rest with DPAPI (user account or machine scope).
 // On Linux/containers: replace this block with ProtectKeysWithCertificate or Azure KeyVault.
-if ( OperatingSystem.IsWindows() )
+if (OperatingSystem.IsWindows())
     dpBuilder.ProtectKeysWithDpapi();
 
 // --- Blazor SSR ---
@@ -375,31 +375,31 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Suppress noisy info-level authorization logs
-builder.Logging.AddFilter( "Microsoft.AspNetCore.Authorization" , LogLevel.Warning );
+builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization", LogLevel.Warning);
 
 var app = builder.Build();
 
 // --- Pre-warm LocalDB ---
-if ( app.Environment.IsDevelopment() )
+if (app.Environment.IsDevelopment())
 {
     try
     {
-        using var proc = System.Diagnostics.Process.Start( new System.Diagnostics.ProcessStartInfo
+        using var proc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
         {
-            FileName = "sqllocaldb" ,
-            Arguments = "start MSSQLLocalDB" ,
-            RedirectStandardOutput = true ,
-            RedirectStandardError = true ,
-            UseShellExecute = false ,
-            CreateNoWindow = true ,
-        } );
-        proc?.WaitForExit( 10_000 );
+            FileName = "sqllocaldb",
+            Arguments = "start MSSQLLocalDB",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        });
+        proc?.WaitForExit(10_000);
     }
     catch { /* sqllocaldb not on PATH — non-fatal */ }
 }
 
 // --- Migrate & Seed ---
-using ( var scope = app.Services.CreateScope() )
+using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var startupLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
@@ -407,77 +407,77 @@ using ( var scope = app.Services.CreateScope() )
     // Relational-only: integration tests swap in the EF Core InMemory provider, which
     // cannot run migrations. Guarding keeps the test host bootable; in production the
     // SQL Server provider is always relational so behavior is unchanged.
-    if ( db.Database.IsRelational() )
+    if (db.Database.IsRelational())
         await db.Database.MigrateAsync();
 
     // Seed Roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string [] roles = [ "Admin" , "Student" ];
-    foreach ( var role in roles )
+    string[] roles = ["Admin", "Student"];
+    foreach (var role in roles)
     {
-        if ( !await roleManager.RoleExistsAsync( role ) )
-            await roleManager.CreateAsync( new IdentityRole( role ) );
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
     }
 
     // Seed Subscription Plans
-    await SubscriptionPlanSeeder.SeedAsync( db , startupLogger );
+    await SubscriptionPlanSeeder.SeedAsync(db, startupLogger);
 
     // Seed Blog Articles
-    await BlogArticleSeeder.SeedAsync( db , startupLogger );
+    await BlogArticleSeeder.SeedAsync(db, startupLogger);
 
     // Seed Admin User
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var adminEmail = config [ "AdminUser:Email" ] ?? "admin@resetyourfuture.local";
-    var adminPassword = config [ "AdminUser:Password" ];
-    if ( string.IsNullOrWhiteSpace( adminPassword ) )
+    var adminEmail = config["AdminUser:Email"] ?? "admin@resetyourfuture.local";
+    var adminPassword = config["AdminUser:Password"];
+    if (string.IsNullOrWhiteSpace(adminPassword))
         throw new InvalidOperationException(
-            "AdminUser:Password is required. Set it via User Secrets (dev) or environment variable AdminUser__Password (prod)." );
+            "AdminUser:Password is required. Set it via User Secrets (dev) or environment variable AdminUser__Password (prod).");
 
-    if ( await userManager.FindByEmailAsync( adminEmail ) is null )
+    if (await userManager.FindByEmailAsync(adminEmail) is null)
     {
         var admin = new ApplicationUser
         {
-            UserName = adminEmail ,
-            Email = adminEmail ,
-            FirstName = "System" ,
-            LastName = "Administrator" ,
-            EmailConfirmed = true ,
-            IsEnabled = true ,
-            GdprConsentGiven = true ,
-            GdprConsentDate = DateTime.UtcNow ,
+            UserName = adminEmail,
+            Email = adminEmail,
+            FirstName = "System",
+            LastName = "Administrator",
+            EmailConfirmed = true,
+            IsEnabled = true,
+            GdprConsentGiven = true,
+            GdprConsentDate = DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow
         };
 
-        var result = await userManager.CreateAsync( admin , adminPassword );
-        if ( result.Succeeded )
+        var result = await userManager.CreateAsync(admin, adminPassword);
+        if (result.Succeeded)
         {
-            await userManager.AddToRoleAsync( admin , "Admin" );
-            startupLogger.LogInformation( "Seeded admin user '{Email}'." , adminEmail );
+            await userManager.AddToRoleAsync(admin, "Admin");
+            startupLogger.LogInformation("Seeded admin user '{Email}'.", adminEmail);
         }
     }
 
     // Development-only seed data
-    if ( app.Environment.IsDevelopment() && config.GetValue<bool>( "SeedData:Enabled" ) )
+    if (app.Environment.IsDevelopment() && config.GetValue<bool>("SeedData:Enabled"))
     {
-        var jsonSeedPath = config.GetValue<string>( "SeedData:JsonPaths:Courses" )
-                           ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Courses" );
-        await CourseSeeder.SeedFromJsonAsync( db , jsonSeedPath , startupLogger );
+        var jsonSeedPath = config.GetValue<string>("SeedData:JsonPaths:Courses")
+                           ?? Path.Combine(app.Environment.ContentRootPath, "..", "ResetYourFuture.Shared", "JSON", "Courses");
+        await CourseSeeder.SeedFromJsonAsync(db, jsonSeedPath, startupLogger);
 
-        var assessmentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Assessments" )
-                                 ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Assessments" );
-        await AssessmentSeeder.SeedFromJsonAsync( db , assessmentJsonPath , startupLogger );
+        var assessmentJsonPath = config.GetValue<string>("SeedData:JsonPaths:Assessments")
+                                 ?? Path.Combine(app.Environment.ContentRootPath, "..", "ResetYourFuture.Shared", "JSON", "Assessments");
+        await AssessmentSeeder.SeedFromJsonAsync(db, assessmentJsonPath, startupLogger);
 
-        var studentJsonPath = config.GetValue<string>( "SeedData:JsonPaths:Students" )
-                              ?? Path.Combine( app.Environment.ContentRootPath , ".." , "ResetYourFuture.Shared" , "JSON" , "Students" );
-        var studentPassword = config [ "SeedData:StudentPassword" ]
+        var studentJsonPath = config.GetValue<string>("SeedData:JsonPaths:Students")
+                              ?? Path.Combine(app.Environment.ContentRootPath, "..", "ResetYourFuture.Shared", "JSON", "Students");
+        var studentPassword = config["SeedData:StudentPassword"]
             ?? throw new InvalidOperationException(
-                "SeedData:StudentPassword is required when SeedData:Enabled=true. Set it via User Secrets." );
-        await StudentSeeder.SeedFromJsonAsync( userManager , studentJsonPath , studentPassword , startupLogger );
+                "SeedData:StudentPassword is required when SeedData:Enabled=true. Set it via User Secrets.");
+        await StudentSeeder.SeedFromJsonAsync(userManager, studentJsonPath, studentPassword, startupLogger);
     }
 }
 
 // --- Pipeline ---
-if ( app.Environment.IsDevelopment() )
+if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 
@@ -486,49 +486,49 @@ if ( app.Environment.IsDevelopment() )
 
     // Swagger UI (Swashbuckle) served at /swagger, pointed at the built-in OpenAPI document.
     // Development only — no AddSwaggerGen needed; the UI consumes /openapi/v1.json directly.
-    app.UseSwaggerUI( options =>
+    app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint( "/openapi/v1.json" , "ResetYourFuture API v1" );
+        options.SwaggerEndpoint("/openapi/v1.json", "ResetYourFuture API v1");
         options.RoutePrefix = "swagger";
         options.DocumentTitle = "ResetYourFuture API — Swagger UI";
         options.EnablePersistAuthorization();
         options.EnableTryItOutByDefault();
-    } );
+    });
 }
 else
 {
-    app.UseExceptionHandler( exceptionHandlerApp =>
+    app.UseExceptionHandler(exceptionHandlerApp =>
     {
-        exceptionHandlerApp.Run( async context =>
+        exceptionHandlerApp.Run(async context =>
         {
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Response.ContentType = "application/problem+json";
-            await context.Response.WriteAsJsonAsync( new Microsoft.AspNetCore.Mvc.ProblemDetails
+            await context.Response.WriteAsJsonAsync(new Microsoft.AspNetCore.Mvc.ProblemDetails
             {
-                Status = StatusCodes.Status500InternalServerError ,
-                Title = "An unexpected error occurred." ,
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "An unexpected error occurred.",
                 Detail = "Please try again later."
-            } );
-        } );
-    } );
+            });
+        });
+    });
 }
 
 app.UseRateLimiter();
 app.UseHttpsRedirection();
 
-if ( !app.Environment.IsDevelopment() )
+if (!app.Environment.IsDevelopment())
 {
     // Enforce HTTPS with a long max-age (1 year). Preload-ready when ready to submit to HSTS lists.
     app.UseHsts();
 }
 
 // Security response headers — added before any content is served.
-app.Use( async ( ctx , next ) =>
+app.Use(async (ctx, next) =>
 {
-    ctx.Response.Headers [ "X-Content-Type-Options" ] = "nosniff";
-    ctx.Response.Headers [ "Referrer-Policy" ] = "strict-origin-when-cross-origin";
-    ctx.Response.Headers [ "X-Frame-Options" ] = "DENY";
-    ctx.Response.Headers [ "Permissions-Policy" ] = "camera=(), microphone=(), geolocation=()";
+    ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    ctx.Response.Headers["X-Frame-Options"] = "DENY";
+    ctx.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
     // 'unsafe-inline' is required for Blazor's circuit initialisation scripts and for the
     // <link onload="this.media='all'"> lazy-CSS pattern used in App.razor.
     // This still meaningfully limits XSS by blocking external-domain script/style/frame injection.
@@ -538,7 +538,7 @@ app.Use( async ( ctx , next ) =>
     var devConnectSrc = app.Environment.IsDevelopment()
         ? " http://localhost:* ws://localhost:*"
         : string.Empty;
-    ctx.Response.Headers [ "Content-Security-Policy" ] =
+    ctx.Response.Headers["Content-Security-Policy"] =
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
         "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; " +
@@ -551,7 +551,7 @@ app.Use( async ( ctx , next ) =>
         "base-uri 'self'; " +
         "form-action 'self';";
     await next();
-} );
+});
 
 app.UseStaticFiles();
 app.UseRequestLocalization();
@@ -566,32 +566,32 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 // --- Culture endpoint ---
-app.MapGet( "/culture/set" , ( string culture , string? returnUrl , HttpContext ctx ) =>
+app.MapGet("/culture/set", (string culture, string? returnUrl, HttpContext ctx) =>
 {
     ctx.Response.Cookies.Append(
-        Microsoft.AspNetCore.Localization.CookieRequestCultureProvider.DefaultCookieName ,
+        Microsoft.AspNetCore.Localization.CookieRequestCultureProvider.DefaultCookieName,
         Microsoft.AspNetCore.Localization.CookieRequestCultureProvider.MakeCookieValue(
-            new Microsoft.AspNetCore.Localization.RequestCulture( culture ) ) ,
-        new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears( 1 ) , IsEssential = true } );
+            new Microsoft.AspNetCore.Localization.RequestCulture(culture)),
+        new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), IsEssential = true });
 
     // NavigationManager.Uri passes an absolute URL; extract the local path so
     // Results.LocalRedirect (which only accepts local paths) doesn't throw.
     var redirect = "/";
-    if ( !string.IsNullOrEmpty( returnUrl ) )
+    if (!string.IsNullOrEmpty(returnUrl))
     {
-        if ( Uri.TryCreate( returnUrl , UriKind.Absolute , out var absolute ) )
+        if (Uri.TryCreate(returnUrl, UriKind.Absolute, out var absolute))
             redirect = absolute.PathAndQuery;
-        else if ( returnUrl.StartsWith( '/' ) )
+        else if (returnUrl.StartsWith('/'))
             redirect = returnUrl;
     }
 
-    return Results.LocalRedirect( redirect );
-} )
-.WithTags( "Infrastructure" )
-.WithName( "SetCulture" )
-.WithSummary( "Set the UI culture cookie and redirect back." )
-.WithDescription( "Writes the ASP.NET Core localization cookie (supported cultures: en-GB, el-GR) and 302-redirects to a local returnUrl. Used by the language switcher; browser-navigation endpoint, not a JSON API." )
-.Produces( StatusCodes.Status302Found );
+    return Results.LocalRedirect(redirect);
+})
+.WithTags("Infrastructure")
+.WithName("SetCulture")
+.WithSummary("Set the UI culture cookie and redirect back.")
+.WithDescription("Writes the ASP.NET Core localization cookie (supported cultures: en-GB, el-GR) and 302-redirects to a local returnUrl. Used by the language switcher; browser-navigation endpoint, not a JSON API.")
+.Produces(StatusCodes.Status302Found);
 
 // --- Auth completion endpoints ---
 // Blazor Server circuits run after the HTTP response has already been committed, so
@@ -600,69 +600,69 @@ app.MapGet( "/culture/set" , ( string culture , string? returnUrl , HttpContext 
 // DataProtection token.  These endpoints decode the token, do a single DB lookup to
 // rebuild the ClaimsPrincipal, then call SignInAsync / SignOutAsync normally.
 
-app.MapGet( "/auth/complete" , async (
-    string ticket ,
-    string? returnUrl ,
-    HttpContext ctx ,
-    IDataProtectionProvider dpProvider ,
-    UserManager<ApplicationUser> userManager ,
-    ISubscriptionService subscriptionService ,
-    ILoggerFactory loggerFactory ) =>
+app.MapGet("/auth/complete", async (
+    string ticket,
+    string? returnUrl,
+    HttpContext ctx,
+    IDataProtectionProvider dpProvider,
+    UserManager<ApplicationUser> userManager,
+    ISubscriptionService subscriptionService,
+    ILoggerFactory loggerFactory) =>
 {
-    var logger = loggerFactory.CreateLogger( "AuthCompletion" );
+    var logger = loggerFactory.CreateLogger("AuthCompletion");
 
     // --- Decode the signed token -------------------------------------------------
     string payload;
     try
     {
         var protector = dpProvider
-            .CreateProtector( ResetYourFuture.Web.Services.AuthService.ProtectorPurpose )
+            .CreateProtector(ResetYourFuture.Web.Services.AuthService.ProtectorPurpose)
             .ToTimeLimitedDataProtector();
-        payload = protector.Unprotect( ticket );
+        payload = protector.Unprotect(ticket);
     }
-    catch ( Exception ex )
+    catch (Exception ex)
     {
-        logger.LogWarning( ex , "Auth completion: token invalid or expired." );
-        return Results.LocalRedirect( "/login?error=session_expired" );
+        logger.LogWarning(ex, "Auth completion: token invalid or expired.");
+        return Results.LocalRedirect("/login?error=session_expired");
     }
 
     // Format: "{userId}|{adminBackupId or empty}|{0 or 1 for deleteAdminBackup}|{securityStamp}"
-    var parts = payload.Split( '|' );
-    if ( parts.Length != 4 )
+    var parts = payload.Split('|');
+    if (parts.Length != 4)
     {
-        logger.LogWarning( "Auth completion: token had unexpected format." );
-        return Results.LocalRedirect( "/login?error=session_expired" );
+        logger.LogWarning("Auth completion: token had unexpected format.");
+        return Results.LocalRedirect("/login?error=session_expired");
     }
 
-    var userId = parts [ 0 ];
-    var adminBackupId = string.IsNullOrEmpty( parts [ 1 ] ) ? null : parts [ 1 ];
-    var deleteAdminBackup = parts [ 2 ] == "1";
-    var tokenStamp = parts [ 3 ];
+    var userId = parts[0];
+    var adminBackupId = string.IsNullOrEmpty(parts[1]) ? null : parts[1];
+    var deleteAdminBackup = parts[2] == "1";
+    var tokenStamp = parts[3];
 
     // --- Rebuild principal from DB -----------------------------------------------
-    var user = await userManager.FindByIdAsync( userId );
-    if ( user is null )
+    var user = await userManager.FindByIdAsync(userId);
+    if (user is null)
     {
-        logger.LogWarning( "Auth completion: user {UserId} not found." , userId );
-        return Results.LocalRedirect( "/login" );
+        logger.LogWarning("Auth completion: user {UserId} not found.", userId);
+        return Results.LocalRedirect("/login");
     }
 
     // Reject if the user changed their password/security stamp since the token was issued.
-    if ( user.SecurityStamp != tokenStamp )
+    if (user.SecurityStamp != tokenStamp)
     {
-        logger.LogWarning( "Auth completion: security stamp mismatch for user {UserId} — token invalidated." , userId );
-        return Results.LocalRedirect( "/login?error=session_expired" );
+        logger.LogWarning("Auth completion: security stamp mismatch for user {UserId} — token invalidated.", userId);
+        return Results.LocalRedirect("/login?error=session_expired");
     }
 
-    var roles = await userManager.GetRolesAsync( user );
+    var roles = await userManager.GetRolesAsync(user);
     SubscriptionTierEnum tier;
     try
     {
-        tier = await subscriptionService.GetUserTierAsync( userId );
+        tier = await subscriptionService.GetUserTierAsync(userId);
     }
-    catch ( Exception ex )
+    catch (Exception ex)
     {
-        logger.LogWarning( ex , "Auth completion: GetUserTierAsync failed for {UserId} — defaulting to Free." , userId );
+        logger.LogWarning(ex, "Auth completion: GetUserTierAsync failed for {UserId} — defaulting to Free.", userId);
         tier = SubscriptionTierEnum.Free;
     }
 
@@ -676,131 +676,131 @@ app.MapGet( "/auth/complete" , async (
         new( "subscriptionTier" , ((int)tier).ToString() ) ,
         new( "securityStamp" , user.SecurityStamp! )
     };
-    claims.AddRange( roles.Select( r => new Claim( ClaimTypes.Role , r ) ) );
-    if ( !string.IsNullOrEmpty( adminBackupId ) )
-        claims.Add( new Claim( "impersonatedBy" , adminBackupId ) );
+    claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+    if (!string.IsNullOrEmpty(adminBackupId))
+        claims.Add(new Claim("impersonatedBy", adminBackupId));
 
-    var identity = new ClaimsIdentity( claims , CookieAuthenticationDefaults.AuthenticationScheme );
-    var principal = new ClaimsPrincipal( identity );
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
 
     // --- Write / clear admin backup cookie ---------------------------------------
-    if ( !string.IsNullOrEmpty( adminBackupId ) )
+    if (!string.IsNullOrEmpty(adminBackupId))
     {
         var adminCookieProtector = dpProvider.CreateProtector(
-            ResetYourFuture.Web.Services.AuthService.AdminBackupCookieProtectorPurpose );
+            ResetYourFuture.Web.Services.AuthService.AdminBackupCookieProtectorPurpose);
         ctx.Response.Cookies.Append(
-            ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName ,
-            adminCookieProtector.Protect( adminBackupId ) ,
+            ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName,
+            adminCookieProtector.Protect(adminBackupId),
             new CookieOptions
             {
-                HttpOnly = true ,
-                SameSite = SameSiteMode.Lax ,
-                Secure = !app.Environment.IsDevelopment() ,
-                Expires = DateTimeOffset.UtcNow.AddHours( 8 ) ,
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = !app.Environment.IsDevelopment(),
+                Expires = DateTimeOffset.UtcNow.AddHours(8),
                 IsEssential = true
-            } );
+            });
     }
-    if ( deleteAdminBackup )
-        ctx.Response.Cookies.Delete( ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName );
+    if (deleteAdminBackup)
+        ctx.Response.Cookies.Delete(ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName);
 
     // --- Issue auth cookie -------------------------------------------------------
     await ctx.SignInAsync(
-        CookieAuthenticationDefaults.AuthenticationScheme ,
-        principal ,
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principal,
         new AuthenticationProperties
         {
-            IsPersistent = true ,
-            ExpiresUtc = DateTimeOffset.UtcNow.AddDays( 7 )
-        } );
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+        });
 
-    logger.LogInformation( "User {UserId} signed in via /auth/complete." , userId );
-    if ( !string.IsNullOrEmpty( adminBackupId ) )
-        logger.LogWarning( "Admin {AdminId} is impersonating user {UserId}." , adminBackupId , userId );
+    logger.LogInformation("User {UserId} signed in via /auth/complete.", userId);
+    if (!string.IsNullOrEmpty(adminBackupId))
+        logger.LogWarning("Admin {AdminId} is impersonating user {UserId}.", adminBackupId, userId);
 
     var redirect = "/";
-    if ( !string.IsNullOrEmpty( returnUrl ) )
+    if (!string.IsNullOrEmpty(returnUrl))
     {
-        if ( Uri.TryCreate( returnUrl , UriKind.Absolute , out var abs ) )
+        if (Uri.TryCreate(returnUrl, UriKind.Absolute, out var abs))
             redirect = abs.PathAndQuery;
-        else if ( returnUrl.StartsWith( '/' ) )
+        else if (returnUrl.StartsWith('/'))
             redirect = returnUrl;
     }
 
-    return Results.LocalRedirect( redirect );
-} ).AllowAnonymous()
-.WithTags( "Infrastructure" )
-.WithName( "CompleteAuth" )
-.WithSummary( "Complete Blazor sign-in and issue the auth cookie." )
-.WithDescription( "Decodes a signed DataProtection ticket, rebuilds the principal from the database, and issues the .RYF.Auth cookie (and admin-backup cookie when impersonating). Invoked via full-page redirect from Blazor after login. Returns a 302 redirect; browser-navigation endpoint, not a JSON API." )
-.Produces( StatusCodes.Status302Found );
+    return Results.LocalRedirect(redirect);
+}).AllowAnonymous()
+.WithTags("Infrastructure")
+.WithName("CompleteAuth")
+.WithSummary("Complete Blazor sign-in and issue the auth cookie.")
+.WithDescription("Decodes a signed DataProtection ticket, rebuilds the principal from the database, and issues the .RYF.Auth cookie (and admin-backup cookie when impersonating). Invoked via full-page redirect from Blazor after login. Returns a 302 redirect; browser-navigation endpoint, not a JSON API.")
+.Produces(StatusCodes.Status302Found);
 
-app.MapGet( "/auth/signout" , async ( string? returnUrl , HttpContext ctx ) =>
+app.MapGet("/auth/signout", async (string? returnUrl, HttpContext ctx) =>
 {
-    await ctx.SignOutAsync( CookieAuthenticationDefaults.AuthenticationScheme );
-    ctx.Response.Cookies.Delete( ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName );
+    await ctx.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    ctx.Response.Cookies.Delete(ResetYourFuture.Web.Services.AuthService.AdminBackupCookieName);
 
     var redirect = "/";
-    if ( !string.IsNullOrEmpty( returnUrl ) )
+    if (!string.IsNullOrEmpty(returnUrl))
     {
-        if ( Uri.TryCreate( returnUrl , UriKind.Absolute , out var abs ) )
+        if (Uri.TryCreate(returnUrl, UriKind.Absolute, out var abs))
             redirect = abs.PathAndQuery;
-        else if ( returnUrl.StartsWith( '/' ) )
+        else if (returnUrl.StartsWith('/'))
             redirect = returnUrl;
     }
 
-    return Results.LocalRedirect( redirect );
-} ).AllowAnonymous()
-.WithTags( "Infrastructure" )
-.WithName( "SignOut" )
-.WithSummary( "Clear the auth cookie and redirect." )
-.WithDescription( "Signs out the cookie session and deletes the admin-backup cookie, then 302-redirects to a local returnUrl. Browser-navigation endpoint, not a JSON API." )
-.Produces( StatusCodes.Status302Found );
+    return Results.LocalRedirect(redirect);
+}).AllowAnonymous()
+.WithTags("Infrastructure")
+.WithName("SignOut")
+.WithSummary("Clear the auth cookie and redirect.")
+.WithDescription("Signs out the cookie session and deletes the admin-backup cookie, then 302-redirects to a local returnUrl. Browser-navigation endpoint, not a JSON API.")
+.Produces(StatusCodes.Status302Found);
 
 app.MapControllers();
-app.MapHub<ChatHub>( "/hubs/chat" );
+app.MapHub<ChatHub>("/hubs/chat");
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 
 // --- Sitemap ---
-app.MapGet( "/sitemap.xml" , async ( IBlogArticleService blog , IConfiguration sitemapConfig , IMemoryCache sitemapCache , HttpContext ctx ) =>
+app.MapGet("/sitemap.xml", async (IBlogArticleService blog, IConfiguration sitemapConfig, IMemoryCache sitemapCache, HttpContext ctx) =>
 {
-    var baseUrl = sitemapConfig [ "Sitemap:BaseUrl" ]
-        ?? throw new InvalidOperationException( "Sitemap:BaseUrl is not configured." );
+    var baseUrl = sitemapConfig["Sitemap:BaseUrl"]
+        ?? throw new InvalidOperationException("Sitemap:BaseUrl is not configured.");
 
     // Cache the rendered XML for 30 minutes — avoids a DB hit + StringBuilder allocation on every crawler request.
-    var xml = await sitemapCache.GetOrCreateAsync( "sitemap.xml" , async entry =>
+    var xml = await sitemapCache.GetOrCreateAsync("sitemap.xml", async entry =>
     {
-        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes( 30 );
-        var articles = await blog.GetPublishedSummariesAsync( 200 , "en" , ctx.RequestAborted );
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+        var articles = await blog.GetPublishedSummariesAsync(200, "en", ctx.RequestAborted);
 
-        var escapedBase = System.Security.SecurityElement.Escape( baseUrl );
+        var escapedBase = System.Security.SecurityElement.Escape(baseUrl);
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
-        sb.AppendLine( "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">" );
-        sb.AppendLine( $"  <url><loc>{escapedBase}/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>" );
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+        sb.AppendLine($"  <url><loc>{escapedBase}/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>");
 
-        foreach ( var article in articles )
+        foreach (var article in articles)
         {
-            var safeSlug = System.Security.SecurityElement.Escape( article.Slug );
-            var lastmod = article.PublishedAt?.ToString( "yyyy-MM-dd" ) ?? DateTime.UtcNow.ToString( "yyyy-MM-dd" );
-            sb.AppendLine( $"  <url><loc>{escapedBase}/blog/{safeSlug}</loc><lastmod>{lastmod}</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>" );
+            var safeSlug = System.Security.SecurityElement.Escape(article.Slug);
+            var lastmod = article.PublishedAt?.ToString("yyyy-MM-dd") ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+            sb.AppendLine($"  <url><loc>{escapedBase}/blog/{safeSlug}</loc><lastmod>{lastmod}</lastmod><priority>0.8</priority><changefreq>monthly</changefreq></url>");
         }
 
-        sb.AppendLine( "</urlset>" );
+        sb.AppendLine("</urlset>");
         return sb.ToString();
-    } );
+    });
 
     ctx.Response.ContentType = "application/xml; charset=utf-8";
-    await ctx.Response.WriteAsync( xml! );
-} ).AllowAnonymous()
-.WithTags( "Infrastructure" )
-.WithName( "Sitemap" )
-.WithSummary( "XML sitemap of public pages and published blog articles." )
-.WithDescription( "Returns an application/xml sitemap for search-engine crawlers. Cached for 30 minutes." )
-.Produces( StatusCodes.Status200OK , contentType: "application/xml" );
+    await ctx.Response.WriteAsync(xml!);
+}).AllowAnonymous()
+.WithTags("Infrastructure")
+.WithName("Sitemap")
+.WithSummary("XML sitemap of public pages and published blog articles.")
+.WithDescription("Returns an application/xml sitemap for search-engine crawlers. Cached for 30 minutes.")
+.Produces(StatusCodes.Status200OK, contentType: "application/xml");
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation( "ResetYourFuture.Web started. Logs: {LogsPath}" , Path.GetFullPath( "Logs" ) );
+logger.LogInformation("ResetYourFuture.Web started. Logs: {LogsPath}", Path.GetFullPath("Logs"));
 
 app.Run();
 

@@ -22,11 +22,11 @@ public partial class VerifyCertificate
     {
         try
         {
-            _result = await CertificateConsumer.VerifyAsync( VerificationId , CurrentLang );
+            _result = await CertificateConsumer.VerifyAsync(VerificationId, CurrentLang);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Failed to verify certificate {VerificationId}." , VerificationId );
+            _logger.LogError(ex, "Failed to verify certificate {VerificationId}.", VerificationId);
         }
         finally
         {

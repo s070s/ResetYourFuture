@@ -31,7 +31,7 @@ public partial class MessagePane
 
     protected override void OnParametersSet()
     {
-        if ( Conversation?.Id != _previousConversationId )
+        if (Conversation?.Id != _previousConversationId)
         {
             _previousConversationId = Conversation?.Id;
             _newMessage = string.Empty;
@@ -39,32 +39,32 @@ public partial class MessagePane
         }
     }
 
-    protected override async Task OnAfterRenderAsync( bool firstRender )
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if ( Conversation is not null && !_resizeInitialized )
+        if (Conversation is not null && !_resizeInitialized)
         {
-            await JS.InvokeVoidAsync( "chatInterop.initTopResize" , _resizeHandleRef , _textareaRef );
+            await JS.InvokeVoidAsync("chatInterop.initTopResize", _resizeHandleRef, _textareaRef);
             _resizeInitialized = true;
         }
     }
 
     private async Task SendMessage()
     {
-        if ( string.IsNullOrWhiteSpace( _newMessage ) ) return;
+        if (string.IsNullOrWhiteSpace(_newMessage)) return;
         var msg = _newMessage;
         _newMessage = string.Empty;
-        await OnSendMessage.InvokeAsync( msg );
+        await OnSendMessage.InvokeAsync(msg);
     }
 
-    private async Task HandleKeyDown( KeyboardEventArgs e )
+    private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if ( e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace( _newMessage ) )
+        if (e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace(_newMessage))
             await SendMessage();
     }
 
-    private async Task HandlePageSizeChange( ChangeEventArgs e )
+    private async Task HandlePageSizeChange(ChangeEventArgs e)
     {
-        if ( int.TryParse( e.Value?.ToString() , out var size ) )
-            await OnPageSizeChanged.InvokeAsync( size );
+        if (int.TryParse(e.Value?.ToString(), out var size))
+            await OnPageSizeChanged.InvokeAsync(size);
     }
 }

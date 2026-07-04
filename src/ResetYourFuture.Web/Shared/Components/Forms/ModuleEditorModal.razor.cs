@@ -29,12 +29,12 @@ public partial class ModuleEditorModal
         var justOpened = IsVisible && !_wasVisible;
         _wasVisible = IsVisible;
 
-        if ( !justOpened )
+        if (!justOpened)
             return;
 
         _errorMessage = string.Empty;
 
-        if ( EditingModule is not null )
+        if (EditingModule is not null)
         {
             _titleEn = EditingModule.TitleEn;
             _titleEl = EditingModule.TitleEl;
@@ -58,18 +58,18 @@ public partial class ModuleEditorModal
         _isSaving = true;
         try
         {
-            var request = new SaveModuleRequest( _titleEn , _titleEl , _descriptionEn , _descriptionEl , _sortOrder , CourseId );
+            var request = new SaveModuleRequest(_titleEn, _titleEl, _descriptionEn, _descriptionEl, _sortOrder, CourseId);
 
             var result = EditingModule is null
-                ? await ModuleConsumer.CreateModuleAsync( request )
-                : await ModuleConsumer.UpdateModuleAsync( EditingModule.Id , request );
+                ? await ModuleConsumer.CreateModuleAsync(request)
+                : await ModuleConsumer.UpdateModuleAsync(EditingModule.Id, request);
 
-            if ( result is not null )
+            if (result is not null)
                 await OnSaved.InvokeAsync();
             else
                 _errorMessage = "Error saving module.";
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _errorMessage = $"Error: {ex.Message}";
         }

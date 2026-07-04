@@ -27,8 +27,8 @@ public partial class ForgotPassword
 
         try
         {
-            var result = await AuthService.ForgotPasswordAsync( forgotPasswordRequest );
-            if ( result.Success )
+            var result = await AuthService.ForgotPasswordAsync(forgotPasswordRequest);
+            if (result.Success)
             {
                 successMessage = result.Message ?? "If the email exists, a reset link has been sent.";
             }
@@ -37,7 +37,7 @@ public partial class ForgotPassword
                 errorMessage = result.Message ?? "Error sending reset link";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"Error: {ex.Message}";
         }
@@ -49,7 +49,7 @@ public partial class ForgotPassword
 
     private async Task DevResetPassword()
     {
-        if ( string.IsNullOrEmpty( devNewPassword ) || string.IsNullOrEmpty( forgotPasswordRequest.Email ) )
+        if (string.IsNullOrEmpty(devNewPassword) || string.IsNullOrEmpty(forgotPasswordRequest.Email))
         {
             errorMessage = "Please enter email and new password";
             return;
@@ -59,12 +59,12 @@ public partial class ForgotPassword
         {
             var request = new
             {
-                Email = forgotPasswordRequest.Email ,
+                Email = forgotPasswordRequest.Email,
                 NewPassword = devNewPassword
             };
-            var response = await Http.PostAsJsonAsync( "api/auth/dev/reset-password" , request );
+            var response = await Http.PostAsJsonAsync("api/auth/dev/reset-password", request);
 
-            if ( response.IsSuccessStatusCode )
+            if (response.IsSuccessStatusCode)
             {
                 successMessage = "Password reset successfully! You can now log in with the new password.";
             }
@@ -73,7 +73,7 @@ public partial class ForgotPassword
                 errorMessage = "Error resetting password";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"Error: {ex.Message}";
         }

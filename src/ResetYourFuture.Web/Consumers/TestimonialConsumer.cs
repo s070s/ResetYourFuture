@@ -8,40 +8,40 @@ namespace ResetYourFuture.Web.Consumers;
 /// Transforms the raw AvatarPath into a fully-qualified media URL so Blazor
 /// components can use it directly as an img src without knowing the API base address.
 /// </summary>
-public class TestimonialConsumer( HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider ) : ApiClientBase( http, tokenProvider ), ITestimonialConsumer
+public class TestimonialConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), ITestimonialConsumer
 {
-    public async Task<IReadOnlyList<TestimonialDto>?> GetActiveAsync( CancellationToken ct = default )
+    public async Task<IReadOnlyList<TestimonialDto>?> GetActiveAsync(CancellationToken ct = default)
     {
-        var response = await Http.GetAsync( "api/testimonials", ct );
-        if ( !response.IsSuccessStatusCode )
+        var response = await Http.GetAsync("api/testimonials", ct);
+        if (!response.IsSuccessStatusCode)
             return null;
 
-        var items = await response.Content.ReadFromJsonAsync<List<AdminTestimonialDto>>( ct );
-        if ( items is null )
+        var items = await response.Content.ReadFromJsonAsync<List<AdminTestimonialDto>>(ct);
+        if (items is null)
             return null;
 
-        var apiBase = Http.BaseAddress?.ToString().TrimEnd( '/' ) ?? string.Empty;
+        var apiBase = Http.BaseAddress?.ToString().TrimEnd('/') ?? string.Empty;
 
-        return items.Select( t => new TestimonialDto(
+        return items.Select(t => new TestimonialDto(
             t.Id,
             t.FullName,
             t.RoleOrTitle,
             t.CompanyOrContext,
             t.QuoteText,
-            BuildAvatarUrl( t.AvatarPath, apiBase ),
+            BuildAvatarUrl(t.AvatarPath, apiBase),
             t.DisplayOrder
-        ) ).ToList();
+        )).ToList();
     }
 
-    private static string? BuildAvatarUrl( string? avatarPath, string apiBase )
+    private static string? BuildAvatarUrl(string? avatarPath, string apiBase)
     {
-        if ( string.IsNullOrWhiteSpace( avatarPath ) )
+        if (string.IsNullOrWhiteSpace(avatarPath))
             return null;
 
         // If it's already a full URL, return as-is
-        if ( avatarPath.StartsWith( "http", StringComparison.OrdinalIgnoreCase ) )
+        if (avatarPath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             return avatarPath;
 
-        return $"{apiBase}/api/media/{avatarPath.TrimStart( '/' )}";
+        return $"{apiBase}/api/media/{avatarPath.TrimStart('/')}";
     }
 }

@@ -18,7 +18,7 @@ public abstract class ApiClientBase
     protected readonly HttpClient Http;
     private readonly ApiTokenProvider _tokenProvider;
 
-    protected ApiClientBase( HttpClient http, ApiTokenProvider tokenProvider )
+    protected ApiClientBase(HttpClient http, ApiTokenProvider tokenProvider)
     {
         Http = http;
         _tokenProvider = tokenProvider;
@@ -35,88 +35,88 @@ public abstract class ApiClientBase
     {
         var token = await _tokenProvider.GetTokenAsync();
         Http.DefaultRequestHeaders.Authorization =
-            string.IsNullOrEmpty( token ) ? null : new AuthenticationHeaderValue( "Bearer", token );
+            string.IsNullOrEmpty(token) ? null : new AuthenticationHeaderValue("Bearer", token);
     }
 
-    protected async Task<T?> GetAsync<T>( string url, CancellationToken ct = default )
+    protected async Task<T?> GetAsync<T>(string url, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.GetAsync( url, ct );
+        var response = await Http.GetAsync(url, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<T>( cancellationToken: ct )
+            ? await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct)
             : default;
     }
 
-    protected async Task<byte[]?> GetBytesAsync( string url, CancellationToken ct = default )
+    protected async Task<byte[]?> GetBytesAsync(string url, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.GetAsync( url, ct );
+        var response = await Http.GetAsync(url, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadAsByteArrayAsync( ct )
+            ? await response.Content.ReadAsByteArrayAsync(ct)
             : null;
     }
 
-    protected async Task<T?> PostAsync<T>( string url, CancellationToken ct = default )
+    protected async Task<T?> PostAsync<T>(string url, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync( url, null, ct );
+        var response = await Http.PostAsync(url, null, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<T>( cancellationToken: ct )
+            ? await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct)
             : default;
     }
 
-    protected async Task<bool> ActionAsync( string url, CancellationToken ct = default )
+    protected async Task<bool> ActionAsync(string url, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync( url, null, ct );
+        var response = await Http.PostAsync(url, null, ct);
         return response.IsSuccessStatusCode;
     }
 
-    protected async Task<TResult?> PostJsonAsync<TBody, TResult>( string url, TBody body, CancellationToken ct = default )
+    protected async Task<TResult?> PostJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsJsonAsync( url, body, ct );
+        var response = await Http.PostAsJsonAsync(url, body, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>( cancellationToken: ct )
+            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
             : default;
     }
 
-    protected async Task<bool> PostJsonActionAsync<TBody>( string url, TBody body, CancellationToken ct = default )
+    protected async Task<bool> PostJsonActionAsync<TBody>(string url, TBody body, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsJsonAsync( url, body, ct );
+        var response = await Http.PostAsJsonAsync(url, body, ct);
         return response.IsSuccessStatusCode;
     }
 
-    protected async Task<TResult?> PutJsonAsync<TBody, TResult>( string url, TBody body, CancellationToken ct = default )
+    protected async Task<TResult?> PutJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PutAsJsonAsync( url, body, ct );
+        var response = await Http.PutAsJsonAsync(url, body, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>( cancellationToken: ct )
+            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
             : default;
     }
 
-    protected async Task<bool> DeleteAsync( string url, CancellationToken ct = default )
+    protected async Task<bool> DeleteAsync(string url, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.DeleteAsync( url, ct );
+        var response = await Http.DeleteAsync(url, ct);
         return response.IsSuccessStatusCode;
     }
 
-    protected async Task<TResult?> PostFormAsync<TResult>( string url, HttpContent form, CancellationToken ct = default )
+    protected async Task<TResult?> PostFormAsync<TResult>(string url, HttpContent form, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync( url, form, ct );
+        var response = await Http.PostAsync(url, form, ct);
         return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>( cancellationToken: ct )
+            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
             : default;
     }
 
-    protected async Task<bool> PostFormActionAsync( string url, HttpContent form, CancellationToken ct = default )
+    protected async Task<bool> PostFormActionAsync(string url, HttpContent form, CancellationToken ct = default)
     {
         await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync( url, form, ct );
+        var response = await Http.PostAsync(url, form, ct);
         return response.IsSuccessStatusCode;
     }
 }

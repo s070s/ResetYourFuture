@@ -11,7 +11,7 @@ public record PagedResult<T>(
     string SortBy = "email",
     string SortDir = "asc")
 {
-    public int TotalPages => PageSize > 0 ? (int)Math.Ceiling( (double)TotalCount / PageSize ) : 0;
+    public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 0;
     public bool HasPreviousPage => Page > 1;
     public bool HasNextPage => Page < TotalPages;
 }

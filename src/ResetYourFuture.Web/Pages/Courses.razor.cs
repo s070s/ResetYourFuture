@@ -31,10 +31,10 @@ public partial class Courses
     protected override async Task OnInitializedAsync()
     {
         var statusTask = SubscriptionService.GetStatusAsync();
-        await Task.WhenAll( LoadCoursesAsync(), statusTask );
+        await Task.WhenAll(LoadCoursesAsync(), statusTask);
 
         _userStatus = await statusTask;
-        if ( _userStatus is not null )
+        if (_userStatus is not null)
         {
             _userTier = _userStatus.Tier;
             _maxCourses = _userStatus.Features?.MaxCourses ?? 1;
@@ -49,13 +49,13 @@ public partial class Courses
         _error = null;
         try
         {
-            _pagedResult = await CourseService.GetCoursesAsync( _page, _pageSize, CurrentLang );
+            _pagedResult = await CourseService.GetCoursesAsync(_page, _pageSize, CurrentLang);
             UpdateEnrolledCount();
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = "Failed to load courses. Please try again.";
-            _logger.LogError( ex , "Failed to load courses." );
+            _logger.LogError(ex, "Failed to load courses.");
         }
         finally
         {
@@ -65,34 +65,34 @@ public partial class Courses
 
     private void UpdateEnrolledCount()
     {
-        _enrolledCount = _pagedResult?.Items.Count( c => c.IsEnrolled ) ?? 0;
+        _enrolledCount = _pagedResult?.Items.Count(c => c.IsEnrolled) ?? 0;
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
-        if ( page < 1 || ( _pagedResult is not null && page > _pagedResult.TotalPages ) )
+        if (page < 1 || (_pagedResult is not null && page > _pagedResult.TotalPages))
             return;
         _page = page;
         await LoadCoursesAsync();
     }
 
-    private async Task ChangePageSize( int newSize )
+    private async Task ChangePageSize(int newSize)
     {
         _pageSize = newSize;
         _page = 1;
         await LoadCoursesAsync();
     }
 
-    private void ViewCourse( CourseListItemDto course )
+    private void ViewCourse(CourseListItemDto course)
     {
         // Enrolled courses are always accessible, even after a plan downgrade
-        if ( _userTier < course.RequiredTier && !course.IsEnrolled )
+        if (_userTier < course.RequiredTier && !course.IsEnrolled)
         {
-            Navigation.NavigateTo( "/pricing" );
+            Navigation.NavigateTo("/pricing");
             return;
         }
-        Navigation.NavigateTo( $"/courses/{course.Id}" );
+        Navigation.NavigateTo($"/courses/{course.Id}");
     }
 
-    private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
+    private void GoToPricing() => Navigation.NavigateTo("/pricing");
 }

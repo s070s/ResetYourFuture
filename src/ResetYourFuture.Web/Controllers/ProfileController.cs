@@ -13,26 +13,26 @@ namespace ResetYourFuture.Web.Controllers;
 /// User profile management endpoints.
 /// </summary>
 [ApiController]
-[Route( "api/profile" )]
+[Route("api/profile")]
 [Authorize]
-[Tags( "Profile" )]
-[ProducesResponseType( StatusCodes.Status400BadRequest )]
-[ProducesResponseType( StatusCodes.Status404NotFound )]
+[Tags("Profile")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public class ProfileController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IFileStorage _fileStorage;
     private readonly ILogger<ProfileController> _logger;
 
-    public ProfileController( UserManager<ApplicationUser> userManager , IFileStorage fileStorage , ILogger<ProfileController> logger )
+    public ProfileController(UserManager<ApplicationUser> userManager, IFileStorage fileStorage, ILogger<ProfileController> logger)
     {
         _userManager = userManager;
         _fileStorage = fileStorage;
         _logger = logger;
     }
 
-    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
-        ?? throw new UnauthorizedAccessException( "User ID not found" );
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new UnauthorizedAccessException("User ID not found");
 
     /// <summary>
     /// Get current user's profile.
@@ -40,33 +40,33 @@ public class ProfileController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ProfileDto>> GetProfile()
     {
-        var user = await _userManager.FindByIdAsync( UserId );
-        if ( user == null )
+        var user = await _userManager.FindByIdAsync(UserId);
+        if (user == null)
         {
             return NotFound();
         }
 
         var dto = new ProfileDto(
-            user.Id ,
-            user.Email ?? "" ,
-            user.FirstName ,
-            user.LastName ,
-            user.DisplayName ,
-            user.AvatarPath ,
+            user.Id,
+            user.Email ?? "",
+            user.FirstName,
+            user.LastName,
+            user.DisplayName,
+            user.AvatarPath,
             user.DateOfBirth
         );
 
-        return Ok( dto );
+        return Ok(dto);
     }
 
     /// <summary>
     /// Update current user's profile.
     /// </summary>
     [HttpPut]
-    public async Task<ActionResult<ProfileDto>> UpdateProfile( [FromBody] UpdateProfileRequest request )
+    public async Task<ActionResult<ProfileDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
-        var user = await _userManager.FindByIdAsync( UserId );
-        if ( user == null )
+        var user = await _userManager.FindByIdAsync(UserId);
+        if (user == null)
         {
             return NotFound();
         }
@@ -76,107 +76,107 @@ public class ProfileController : ControllerBase
         user.DisplayName = request.DisplayName?.Trim();
         user.DateOfBirth = request.DateOfBirth;
 
-        var result = await _userManager.UpdateAsync( user );
-        if ( !result.Succeeded )
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
         {
-            return BadRequest( result.Errors );
+            return BadRequest(result.Errors);
         }
 
         var dto = new ProfileDto(
-            user.Id ,
-            user.Email ?? "" ,
-            user.FirstName ,
-            user.LastName ,
-            user.DisplayName ,
-            user.AvatarPath ,
+            user.Id,
+            user.Email ?? "",
+            user.FirstName,
+            user.LastName,
+            user.DisplayName,
+            user.AvatarPath,
             user.DateOfBirth
         );
 
-        return Ok( dto );
+        return Ok(dto);
     }
 
     /// <summary>
     /// Upload user avatar.
     /// </summary>
-    [HttpPost( "avatar" )]
-    public async Task<IActionResult> UploadAvatar( IFormFile file )
+    [HttpPost("avatar")]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
     {
-        if ( file == null || file.Length == 0 )
-            return BadRequest( "No file provided" );
+        if (file == null || file.Length == 0)
+            return BadRequest("No file provided");
 
         const long maxAvatarSize = 5 * 1024 * 1024; // 5 MB
-        if ( file.Length > maxAvatarSize )
-            return BadRequest( "File too large (max 5 MB)" );
+        if (file.Length > maxAvatarSize)
+            return BadRequest("File too large (max 5 MB)");
 
-        var allowedAvatarTypes = new[] { "image/jpeg" , "image/jpg" , "image/png" , "image/gif" , "image/webp" };
-        if ( !allowedAvatarTypes.Contains( file.ContentType , StringComparer.OrdinalIgnoreCase ) )
-            return BadRequest( "Only image files are allowed (jpeg, png, gif, webp)." );
+        var allowedAvatarTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
+        if (!allowedAvatarTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
+            return BadRequest("Only image files are allowed (jpeg, png, gif, webp).");
 
-        var user = await _userManager.FindByIdAsync( UserId );
-        if ( user == null )
+        var user = await _userManager.FindByIdAsync(UserId);
+        if (user == null)
         {
             return NotFound();
         }
 
         // Delete old avatar if exists
-        if ( !string.IsNullOrEmpty( user.AvatarPath ) )
+        if (!string.IsNullOrEmpty(user.AvatarPath))
         {
-            await _fileStorage.DeleteFileAsync( user.AvatarPath );
+            await _fileStorage.DeleteFileAsync(user.AvatarPath);
         }
 
         // Save new avatar
         using var stream = file.OpenReadStream();
-        var path = await _fileStorage.SaveFileAsync( stream , file.FileName , "avatars" );
+        var path = await _fileStorage.SaveFileAsync(stream, file.FileName, "avatars");
 
         user.AvatarPath = path;
-        var updateResult = await _userManager.UpdateAsync( user );
-        if ( !updateResult.Succeeded )
+        var updateResult = await _userManager.UpdateAsync(user);
+        if (!updateResult.Succeeded)
         {
-            _logger.LogError( "Failed to persist avatar path for user {UserId}: {Errors}" ,
-                UserId , string.Join( ", " , updateResult.Errors.Select( e => e.Description ) ) );
-            return StatusCode( StatusCodes.Status500InternalServerError , "Failed to save avatar." );
+            _logger.LogError("Failed to persist avatar path for user {UserId}: {Errors}",
+                UserId, string.Join(", ", updateResult.Errors.Select(e => e.Description)));
+            return StatusCode(StatusCodes.Status500InternalServerError, "Failed to save avatar.");
         }
 
-        return Ok( new AvatarUploadResultDto( path ) );
+        return Ok(new AvatarUploadResultDto(path));
     }
 
     /// <summary>
     /// Get avatar image for current or specified user.
     /// </summary>
-    [HttpGet( "avatar" )]
+    [HttpGet("avatar")]
     public async Task<IActionResult> GetAvatar()
     {
-        var user = await _userManager.FindByIdAsync( UserId );
-        if ( user == null || string.IsNullOrEmpty( user.AvatarPath ) )
+        var user = await _userManager.FindByIdAsync(UserId);
+        if (user == null || string.IsNullOrEmpty(user.AvatarPath))
         {
             return NotFound();
         }
 
-        if ( !_fileStorage.FileExists( user.AvatarPath ) )
+        if (!_fileStorage.FileExists(user.AvatarPath))
         {
             return NotFound();
         }
 
-        var (stream , contentType) = await _fileStorage.GetFileAsync( user.AvatarPath );
-        return File( stream , contentType );
+        var (stream, contentType) = await _fileStorage.GetFileAsync(user.AvatarPath);
+        return File(stream, contentType);
     }
 
     /// <summary>
     /// Change password.
     /// </summary>
-    [HttpPost( "change-password" )]
-    public async Task<IActionResult> ChangePassword( [FromBody] ChangePasswordRequest request )
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
-        var user = await _userManager.FindByIdAsync( UserId );
-        if ( user == null )
+        var user = await _userManager.FindByIdAsync(UserId);
+        if (user == null)
         {
             return NotFound();
         }
 
-        var result = await _userManager.ChangePasswordAsync( user , request.CurrentPassword , request.NewPassword );
-        if ( !result.Succeeded )
+        var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
         {
-            return BadRequest( result.Errors.Select( e => e.Description ) );
+            return BadRequest(result.Errors.Select(e => e.Description));
         }
 
         return NoContent();

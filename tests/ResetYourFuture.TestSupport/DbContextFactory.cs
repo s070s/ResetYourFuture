@@ -13,14 +13,14 @@ public static class DbContextFactory
     /// <summary>
     /// EF Core InMemory provider on a uniquely-named root (default test database).
     /// </summary>
-    public static ApplicationDbContext CreateInMemory( string? dbName = null )
+    public static ApplicationDbContext CreateInMemory(string? dbName = null)
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase( dbName ?? Guid.NewGuid().ToString( "N" ) )
+            .UseInMemoryDatabase(dbName ?? Guid.NewGuid().ToString("N"))
             .EnableSensitiveDataLogging()
             .Options;
 
-        return new ApplicationDbContext( options );
+        return new ApplicationDbContext(options);
     }
 
     /// <summary>
@@ -31,15 +31,15 @@ public static class DbContextFactory
     /// </summary>
     public static ApplicationDbContext CreateSqlite()
     {
-        var connection = new SqliteConnection( "DataSource=:memory:" );
+        var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlite( connection )
+            .UseSqlite(connection)
             .EnableSensitiveDataLogging()
             .Options;
 
-        var context = new ApplicationDbContext( options );
+        var context = new ApplicationDbContext(options);
         context.Database.EnsureCreated();
         return context;
     }

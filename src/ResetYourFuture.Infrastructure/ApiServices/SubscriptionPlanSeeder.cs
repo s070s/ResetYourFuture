@@ -13,11 +13,11 @@ namespace ResetYourFuture.Web.ApiServices;
 /// </summary>
 public static class SubscriptionPlanSeeder
 {
-    public static async Task SeedAsync( ApplicationDbContext db , ILogger logger )
+    public static async Task SeedAsync(ApplicationDbContext db, ILogger logger)
     {
-        if ( await db.SubscriptionPlans.AnyAsync() )
+        if (await db.SubscriptionPlans.AnyAsync())
         {
-            logger.LogInformation( "Subscription plans already seeded. Skipping." );
+            logger.LogInformation("Subscription plans already seeded. Skipping.");
             return;
         }
 
@@ -79,9 +79,9 @@ public static class SubscriptionPlanSeeder
             }
         };
 
-        db.SubscriptionPlans.AddRange( plans );
+        db.SubscriptionPlans.AddRange(plans);
         await db.SaveChangesAsync();
 
-        logger.LogInformation( "Seeded {Count} subscription plans (Free, Plus, Pro)." , plans.Count );
+        logger.LogInformation("Seeded {Count} subscription plans (Free, Plus, Pro).", plans.Count);
     }
 }

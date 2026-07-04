@@ -31,38 +31,38 @@ public partial class AvatarDropdown : IDisposable
         try
         {
             await LoadAvatarAsync();
-            await InvokeAsync( StateHasChanged );
+            await InvokeAsync(StateHasChanged);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error refreshing avatar after upload." );
+            _logger.LogError(ex, "Error refreshing avatar after upload.");
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        _isImpersonating = IsImpersonating( state.User );
-        if ( state.User.Identity?.IsAuthenticated == true )
+        _isImpersonating = IsImpersonating(state.User);
+        if (state.User.Identity?.IsAuthenticated == true)
             await LoadAvatarAsync();
     }
 
-    private async void OnAuthStateChanged( Task<AuthenticationState> task )
+    private async void OnAuthStateChanged(Task<AuthenticationState> task)
     {
         try
         {
             var state = await task;
-            _isImpersonating = IsImpersonating( state.User );
-            if ( state.User.Identity?.IsAuthenticated == true )
+            _isImpersonating = IsImpersonating(state.User);
+            if (state.User.Identity?.IsAuthenticated == true)
                 await LoadAvatarAsync();
             else
                 avatarDataUrl = null;
 
-            await InvokeAsync( StateHasChanged );
+            await InvokeAsync(StateHasChanged);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error refreshing avatar state." );
+            _logger.LogError(ex, "Error refreshing avatar state.");
         }
     }
 
@@ -70,20 +70,20 @@ public partial class AvatarDropdown : IDisposable
     /// Detects impersonation from the cascaded claims — avoids touching HttpContext
     /// which is unavailable inside a Blazor Server circuit.
     /// </summary>
-    private static bool IsImpersonating( ClaimsPrincipal user )
-        => user.FindFirst( "impersonatedBy" ) is not null;
+    private static bool IsImpersonating(ClaimsPrincipal user)
+        => user.FindFirst("impersonatedBy") is not null;
 
     private async Task LoadAvatarAsync()
     {
         try
         {
             var profile = await ProfileConsumer.GetProfileAsync();
-            if ( profile is not null && !string.IsNullOrEmpty( profile.AvatarPath ) )
+            if (profile is not null && !string.IsNullOrEmpty(profile.AvatarPath))
             {
                 var avatar = await ProfileConsumer.GetAvatarAsync();
-                if ( avatar is not null )
+                if (avatar is not null)
                 {
-                    avatarDataUrl = $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String( avatar.Value.Data )}";
+                    avatarDataUrl = $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String(avatar.Value.Data)}";
                     return;
                 }
             }
@@ -102,7 +102,7 @@ public partial class AvatarDropdown : IDisposable
 
     private async Task HandleFocusOut()
     {
-        await Task.Delay( 200 );
+        await Task.Delay(200);
         isOpen = false;
         StateHasChanged();
     }
@@ -111,7 +111,7 @@ public partial class AvatarDropdown : IDisposable
     {
         isOpen = false;
         var url = await AuthService.LogoutAsync();
-        Navigation.NavigateTo( url , forceLoad: true );
+        Navigation.NavigateTo(url, forceLoad: true);
     }
 
     public void Dispose()

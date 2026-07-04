@@ -51,7 +51,7 @@ public partial class AdminLessonEdit
     {
         try
         {
-            var module = await ModuleConsumer.GetModuleAsync( ModuleId );
+            var module = await ModuleConsumer.GetModuleAsync(ModuleId);
             parentCourseId = module?.CourseId;
         }
         catch { /* parentCourseId remains null, back goes to courses list */ }
@@ -61,9 +61,9 @@ public partial class AdminLessonEdit
     {
         try
         {
-            lessons = await LessonConsumer.GetLessonsByModuleAsync( ModuleId );
+            lessons = await LessonConsumer.GetLessonsByModuleAsync(ModuleId);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading lessons: {ex.Message}";
         }
@@ -77,7 +77,7 @@ public partial class AdminLessonEdit
         lessonContentEn = null;
         lessonContentEl = null;
         lessonVideoUrl = null;
-        lessonSortOrder = ( lessons?.Count ?? 0 ) + 1;
+        lessonSortOrder = (lessons?.Count ?? 0) + 1;
         lessonDuration = null;
         lessonPdfPath = null;
         lessonVideoPath = null;
@@ -86,7 +86,7 @@ public partial class AdminLessonEdit
         showLessonModal = true;
     }
 
-    private void ShowEditLesson( AdminLessonDto lesson )
+    private void ShowEditLesson(AdminLessonDto lesson)
     {
         editingLessonId = lesson.Id;
         lessonTitleEn = lesson.TitleEn;
@@ -108,19 +108,19 @@ public partial class AdminLessonEdit
         showLessonModal = false;
     }
 
-    private void OnPdfSelected( InputFileChangeEventArgs e )
+    private void OnPdfSelected(InputFileChangeEventArgs e)
     {
         pendingPdf = e.File;
     }
 
-    private void OnVideoSelected( InputFileChangeEventArgs e )
+    private void OnVideoSelected(InputFileChangeEventArgs e)
     {
         pendingVideo = e.File;
     }
 
     private async Task SaveLesson()
     {
-        if ( string.IsNullOrWhiteSpace( lessonTitleEn ) )
+        if (string.IsNullOrWhiteSpace(lessonTitleEn))
         {
             message = "Lesson title is required.";
             return;
@@ -138,14 +138,14 @@ public partial class AdminLessonEdit
                 ? await lessonContentEditorEl.GetContentAsync()
                 : lessonContentEl;
 
-            var request = new SaveLessonRequest( lessonTitleEn , lessonTitleEl , contentEn , contentEl , lessonVideoUrl , lessonDuration , lessonSortOrder , ModuleId );
+            var request = new SaveLessonRequest(lessonTitleEn, lessonTitleEl, contentEn, contentEl, lessonVideoUrl, lessonDuration, lessonSortOrder, ModuleId);
 
             Guid lessonId;
 
-            if ( editingLessonId == null )
+            if (editingLessonId == null)
             {
-                var created = await LessonConsumer.CreateLessonAsync( request );
-                if ( created is not null )
+                var created = await LessonConsumer.CreateLessonAsync(request);
+                if (created is not null)
                 {
                     lessonId = created.Id;
                 }
@@ -158,8 +158,8 @@ public partial class AdminLessonEdit
             else
             {
                 lessonId = editingLessonId.Value;
-                var updated = await LessonConsumer.UpdateLessonAsync( lessonId , request );
-                if ( updated is null )
+                var updated = await LessonConsumer.UpdateLessonAsync(lessonId, request);
+                if (updated is null)
                 {
                     message = "Error updating lesson";
                     return;
@@ -168,22 +168,22 @@ public partial class AdminLessonEdit
 
             // Upload files if selected; collect errors so they are visible to the admin.
             var uploadErrors = new System.Text.StringBuilder();
-            if ( pendingPdf != null )
+            if (pendingPdf != null)
             {
-                var err = await UploadFileAsync( lessonId , pendingPdf , "pdf" );
-                if ( err is not null ) uploadErrors.AppendLine( err );
+                var err = await UploadFileAsync(lessonId, pendingPdf, "pdf");
+                if (err is not null) uploadErrors.AppendLine(err);
             }
-            if ( pendingVideo != null )
+            if (pendingVideo != null)
             {
-                var err = await UploadFileAsync( lessonId , pendingVideo , "video" );
-                if ( err is not null ) uploadErrors.AppendLine( err );
+                var err = await UploadFileAsync(lessonId, pendingVideo, "video");
+                if (err is not null) uploadErrors.AppendLine(err);
             }
 
             await LoadLessons();
             CloseLessonModal();
             message = uploadErrors.Length > 0 ? uploadErrors.ToString().Trim() : "Lesson saved";
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
@@ -193,30 +193,30 @@ public partial class AdminLessonEdit
         }
     }
 
-    private async Task<string?> UploadFileAsync( Guid lessonId , IBrowserFile file , string type )
+    private async Task<string?> UploadFileAsync(Guid lessonId, IBrowserFile file, string type)
     {
         var result = type == "pdf"
-            ? await LessonConsumer.UploadPdfAsync( lessonId , file )
-            : await LessonConsumer.UploadVideoAsync( lessonId , file );
+            ? await LessonConsumer.UploadPdfAsync(lessonId, file)
+            : await LessonConsumer.UploadVideoAsync(lessonId, file);
         return result is not null ? null : $"Error uploading {type}";
     }
 
-    private void DeleteLesson( Guid lessonId )
+    private void DeleteLesson(Guid lessonId)
     {
         _pendingDeleteLessonId = lessonId;
     }
 
     private async Task ExecuteDeleteLessonAsync()
     {
-        if ( _pendingDeleteLessonId is not { } id )
+        if (_pendingDeleteLessonId is not { } id)
             return;
 
         _pendingDeleteLessonId = null;
 
         try
         {
-            var success = await LessonConsumer.DeleteLessonAsync( id );
-            if ( success )
+            var success = await LessonConsumer.DeleteLessonAsync(id);
+            if (success)
             {
                 await LoadLessons();
                 message = "Lesson deleted";
@@ -226,7 +226,7 @@ public partial class AdminLessonEdit
                 message = "Error deleting lesson";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
@@ -234,13 +234,13 @@ public partial class AdminLessonEdit
 
     private void GoBack()
     {
-        if ( parentCourseId.HasValue )
+        if (parentCourseId.HasValue)
         {
-            Nav.NavigateTo( $"/admin/courses/{parentCourseId.Value}" );
+            Nav.NavigateTo($"/admin/courses/{parentCourseId.Value}");
         }
         else
         {
-            Nav.NavigateTo( "/admin/courses" );
+            Nav.NavigateTo("/admin/courses");
         }
     }
 }

@@ -16,7 +16,7 @@ public partial class Register : IDisposable
     [Inject] private IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
     // RegisterRequest.DateOfBirth is now DateTime? default to 2000-01-01 as requested
-    private RegisterRequestDto registerRequest = new() { DateOfBirth = new DateTime( 2000 , 1 , 1 ) };
+    private RegisterRequestDto registerRequest = new() { DateOfBirth = new DateTime(2000, 1, 1) };
     private EditContext editContext = default!;
     private string? successMessage;
     private string? errorMessage;
@@ -33,19 +33,19 @@ public partial class Register : IDisposable
 
     protected override void OnInitialized()
     {
-        editContext = new EditContext( registerRequest );
+        editContext = new EditContext(registerRequest);
         editContext.OnFieldChanged += HandleFieldChanged;
     }
 
-    private void HandleFieldChanged( object? sender , FieldChangedEventArgs e )
+    private void HandleFieldChanged(object? sender, FieldChangedEventArgs e)
     {
         successMessage = null;
         errorMessage = null;
         errors.Clear();
 
-        if ( e.FieldIdentifier.FieldName == nameof( RegisterRequestDto.Password ) )
+        if (e.FieldIdentifier.FieldName == nameof(RegisterRequestDto.Password))
         {
-            editContext.NotifyFieldChanged( editContext.Field( nameof( RegisterRequestDto.ConfirmPassword ) ) );
+            editContext.NotifyFieldChanged(editContext.Field(nameof(RegisterRequestDto.ConfirmPassword)));
         }
     }
 
@@ -79,33 +79,33 @@ public partial class Register : IDisposable
         registerRequest.LastName = registerRequest.LastName?.Trim() ?? string.Empty;
 
         registeredEmail = registerRequest.Email;
-        var result = await AuthService.RegisterAsync( registerRequest );
+        var result = await AuthService.RegisterAsync(registerRequest);
 
-        if ( result.Success )
+        if (result.Success)
         {
             successMessage = result.Message ?? SuccessMessagesRes.RegistrationSuccess;
             registerRequest = new()
             {
-                DateOfBirth = new DateTime( 2000 , 1 , 1 )
+                DateOfBirth = new DateTime(2000, 1, 1)
             }; // Reset, keep default DOB
             editContext.OnFieldChanged -= HandleFieldChanged;
-            editContext = new EditContext( registerRequest );
+            editContext = new EditContext(registerRequest);
             editContext.OnFieldChanged += HandleFieldChanged;
         }
         else
         {
             errorMessage = result.Message;
-            if ( result.Errors != null )
+            if (result.Errors != null)
             {
                 // Filter out Identity errors that mention username/UserName because the UI does not expose a username field
                 // and usernames are set to the email server-side. Showing username errors is confusing to users.
                 errors = result.Errors
-                    .Where( e => !( e?.Contains( "username" , StringComparison.OrdinalIgnoreCase ) == true
-                                  || e?.Contains( "user name" , StringComparison.OrdinalIgnoreCase ) == true
-                                  || e?.Contains( "UserName" , StringComparison.OrdinalIgnoreCase ) == true ) )
+                    .Where(e => !(e?.Contains("username", StringComparison.OrdinalIgnoreCase) == true
+                                  || e?.Contains("user name", StringComparison.OrdinalIgnoreCase) == true
+                                  || e?.Contains("UserName", StringComparison.OrdinalIgnoreCase) == true))
                     .ToList();
 
-                if ( errors.Any( e => e.Contains( "already taken" ) || e.Contains( "duplicate" ) || e.Contains( "exists" ) ) )
+                if (errors.Any(e => e.Contains("already taken") || e.Contains("duplicate") || e.Contains("exists")))
                 {
                     errorMessage = ErrorMessagesRes.EmailTakenError;
                 }
@@ -117,14 +117,14 @@ public partial class Register : IDisposable
 
     private async Task DevConfirmEmail()
     {
-        if ( string.IsNullOrEmpty( registeredEmail ) )
+        if (string.IsNullOrEmpty(registeredEmail))
             return;
 
         try
         {
-            var http = HttpClientFactory.CreateClient( "SelfClient" );
-            var response = await http.PostAsJsonAsync( "api/auth/dev/confirm-email" , registeredEmail );
-            if ( response.IsSuccessStatusCode )
+            var http = HttpClientFactory.CreateClient("SelfClient");
+            var response = await http.PostAsJsonAsync("api/auth/dev/confirm-email", registeredEmail);
+            if (response.IsSuccessStatusCode)
             {
                 successMessage = SuccessMessagesRes.EmailConfirmationSuccess;
             }
@@ -133,7 +133,7 @@ public partial class Register : IDisposable
                 errorMessage = ErrorMessagesRes.EmailConfirmationError;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"{ErrorMessagesRes.Error}: {ex.Message}";
         }

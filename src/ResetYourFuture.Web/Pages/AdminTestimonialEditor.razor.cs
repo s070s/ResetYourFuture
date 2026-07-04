@@ -29,45 +29,45 @@ public partial class AdminTestimonialEditor
     private string? _avatarPreviewUrl;
 
     /// <summary>Fallback initials shown when no avatar is set.</summary>
-    private string Initials => string.IsNullOrWhiteSpace( _fullName )
+    private string Initials => string.IsNullOrWhiteSpace(_fullName)
         ? "?"
-        : string.Concat( _fullName.Split( ' ', StringSplitOptions.RemoveEmptyEntries )
-                                  .Take( 2 )
-                                  .Select( w => char.ToUpperInvariant( w[0] ) ) );
+        : string.Concat(_fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                  .Take(2)
+                                  .Select(w => char.ToUpperInvariant(w[0])));
 
     protected override async Task OnParametersSetAsync()
     {
-        if ( _isEditMode )
+        if (_isEditMode)
         {
-            var item = await TestimonialConsumer.GetByIdAsync( Id!.Value );
-            if ( item is not null )
+            var item = await TestimonialConsumer.GetByIdAsync(Id!.Value);
+            if (item is not null)
             {
-                _fullName        = item.FullName;
-                _roleOrTitle     = item.RoleOrTitle ?? string.Empty;
+                _fullName = item.FullName;
+                _roleOrTitle = item.RoleOrTitle ?? string.Empty;
                 _companyOrContext = item.CompanyOrContext ?? string.Empty;
-                _quoteText       = item.QuoteText;
-                _displayOrder    = item.DisplayOrder;
-                _isActive        = item.IsActive;
-                _avatarPath      = item.AvatarPath;
-                _avatarPreviewUrl = BuildPreviewUrl( item.AvatarPath );
+                _quoteText = item.QuoteText;
+                _displayOrder = item.DisplayOrder;
+                _isActive = item.IsActive;
+                _avatarPath = item.AvatarPath;
+                _avatarPreviewUrl = BuildPreviewUrl(item.AvatarPath);
             }
         }
     }
 
-    private async Task OnAvatarFileSelected( InputFileChangeEventArgs e )
+    private async Task OnAvatarFileSelected(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if ( file is null ) return;
+        if (file is null) return;
 
         _isBusy = true;
-        _error  = null;
+        _error = null;
         try
         {
-            var path = await TestimonialConsumer.UploadAvatarAsync( Id!.Value, file );
-            if ( path is not null )
+            var path = await TestimonialConsumer.UploadAvatarAsync(Id!.Value, file);
+            if (path is not null)
             {
-                _avatarPath       = path;
-                _avatarPreviewUrl = BuildPreviewUrl( path );
+                _avatarPath = path;
+                _avatarPreviewUrl = BuildPreviewUrl(path);
             }
             else
             {
@@ -83,13 +83,13 @@ public partial class AdminTestimonialEditor
     private async Task RemoveAvatar()
     {
         _isBusy = true;
-        _error  = null;
+        _error = null;
         try
         {
-            var success = await TestimonialConsumer.RemoveAvatarAsync( Id!.Value );
-            if ( success )
+            var success = await TestimonialConsumer.RemoveAvatarAsync(Id!.Value);
+            if (success)
             {
-                _avatarPath       = null;
+                _avatarPath = null;
                 _avatarPreviewUrl = null;
             }
             else
@@ -107,12 +107,12 @@ public partial class AdminTestimonialEditor
     {
         _error = null;
 
-        if ( string.IsNullOrWhiteSpace( _fullName ) )
+        if (string.IsNullOrWhiteSpace(_fullName))
         {
             _error = "Full Name is required.";
             return;
         }
-        if ( string.IsNullOrWhiteSpace( _quoteText ) )
+        if (string.IsNullOrWhiteSpace(_quoteText))
         {
             _error = "Quote is required.";
             return;
@@ -122,29 +122,29 @@ public partial class AdminTestimonialEditor
         try
         {
             var request = new SaveTestimonialRequest(
-                FullName:         _fullName.Trim(),
-                RoleOrTitle:      string.IsNullOrWhiteSpace( _roleOrTitle ) ? null : _roleOrTitle.Trim(),
-                CompanyOrContext:  string.IsNullOrWhiteSpace( _companyOrContext ) ? null : _companyOrContext.Trim(),
-                QuoteText:        _quoteText.Trim(),
-                DisplayOrder:     _displayOrder,
-                IsActive:         _isActive );
+                FullName: _fullName.Trim(),
+                RoleOrTitle: string.IsNullOrWhiteSpace(_roleOrTitle) ? null : _roleOrTitle.Trim(),
+                CompanyOrContext: string.IsNullOrWhiteSpace(_companyOrContext) ? null : _companyOrContext.Trim(),
+                QuoteText: _quoteText.Trim(),
+                DisplayOrder: _displayOrder,
+                IsActive: _isActive);
 
             AdminTestimonialDto? result;
 
-            if ( _isEditMode )
-                result = await TestimonialConsumer.UpdateAsync( Id!.Value, request );
+            if (_isEditMode)
+                result = await TestimonialConsumer.UpdateAsync(Id!.Value, request);
             else
-                result = await TestimonialConsumer.CreateAsync( request );
+                result = await TestimonialConsumer.CreateAsync(request);
 
-            if ( result is null )
+            if (result is null)
             {
                 _error = "Failed to save testimonial. Please try again.";
                 return;
             }
 
-            Navigation.NavigateTo( "/admin/testimonials" );
+            Navigation.NavigateTo("/admin/testimonials");
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = $"Error: {ex.Message}";
         }
@@ -154,21 +154,21 @@ public partial class AdminTestimonialEditor
         }
     }
 
-    private void Cancel() => Navigation.NavigateTo( "/admin/testimonials" );
+    private void Cancel() => Navigation.NavigateTo("/admin/testimonials");
 
     /// <summary>
     /// Builds a preview URL for the avatar using the API media endpoint.
     /// IConfiguration is injected globally via _Imports.razor.
     /// </summary>
-    private string? BuildPreviewUrl( string? path )
+    private string? BuildPreviewUrl(string? path)
     {
-        if ( string.IsNullOrWhiteSpace( path ) )
+        if (string.IsNullOrWhiteSpace(path))
             return null;
 
-        if ( path.StartsWith( "http", StringComparison.OrdinalIgnoreCase ) )
+        if (path.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             return path;
 
-        var apiBase = Configuration["ApiBaseUrl"]?.TrimEnd( '/' ) ?? string.Empty;
-        return $"{apiBase}/api/media/{path.TrimStart( '/' )}";
+        var apiBase = Configuration["ApiBaseUrl"]?.TrimEnd('/') ?? string.Empty;
+        return $"{apiBase}/api/media/{path.TrimStart('/')}";
     }
 }

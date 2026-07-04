@@ -13,11 +13,11 @@ namespace ResetYourFuture.Web.Controllers;
 /// Student-facing and public certificate endpoints.
 /// </summary>
 [ApiController]
-[Route( "api/[controller]" )]
+[Route("api/[controller]")]
 [Authorize]
-[Tags( "Certificates" )]
-[ProducesResponseType( StatusCodes.Status400BadRequest )]
-[ProducesResponseType( StatusCodes.Status404NotFound )]
+[Tags("Certificates")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public class CertificatesController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
@@ -27,11 +27,11 @@ public class CertificatesController : ControllerBase
     private readonly ILogger<CertificatesController> _logger;
 
     public CertificatesController(
-        IApplicationDbContext db ,
-        ICertificateService certificateService ,
-        ISubscriptionService subscriptionService ,
-        IFileStorage storage ,
-        ILogger<CertificatesController> logger )
+        IApplicationDbContext db,
+        ICertificateService certificateService,
+        ISubscriptionService subscriptionService,
+        IFileStorage storage,
+        ILogger<CertificatesController> logger)
     {
         _db = db;
         _certificateService = certificateService;
@@ -40,105 +40,105 @@ public class CertificatesController : ControllerBase
         _logger = logger;
     }
 
-    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )
-        ?? throw new UnauthorizedAccessException( "User ID not found in claims" );
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? throw new UnauthorizedAccessException("User ID not found in claims");
 
     /// <summary>
     /// Returns all active certificates for the authenticated student.
     /// </summary>
-    [HttpGet( "my" )]
+    [HttpGet("my")]
     public async Task<ActionResult<List<CertificateDto>>> GetMyCertificates(
-        [FromQuery] string lang = "en" )
+        [FromQuery] string lang = "en")
     {
         var userId = UserId;
-        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
         var certificates = await _db.Certificates
             .AsNoTracking()
-            .Where( c => c.UserId == userId && c.Status == CertificateStatus.Active )
-            .OrderByDescending( c => c.IssuedAt )
-            .Select( c => new CertificateDto(
-                c.Id ,
-                c.VerificationId ,
-                c.RecipientName ,
-                isEl ? ( c.CourseTitleEl ?? c.CourseTitleEn ) : c.CourseTitleEn ,
-                c.IssuedAt ,
+            .Where(c => c.UserId == userId && c.Status == CertificateStatus.Active)
+            .OrderByDescending(c => c.IssuedAt)
+            .Select(c => new CertificateDto(
+                c.Id,
+                c.VerificationId,
+                c.RecipientName,
+                isEl ? (c.CourseTitleEl ?? c.CourseTitleEn) : c.CourseTitleEn,
+                c.IssuedAt,
                 c.Status.ToString()
-            ) )
+            ))
             .ToListAsync();
 
-        return Ok( certificates );
+        return Ok(certificates);
     }
 
     /// <summary>
     /// Issues a certificate for a completed course. Idempotent: safe to call multiple times.
     /// </summary>
-    [HttpPost( "issue/{courseId:guid}" )]
+    [HttpPost("issue/{courseId:guid}")]
     public async Task<ActionResult<CertificateDto>> IssueCertificate(
-        Guid courseId ,
-        [FromQuery] string lang = "en" )
+        Guid courseId,
+        [FromQuery] string lang = "en")
     {
         var userId = UserId;
-        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
-        var subStatus = await _subscriptionService.GetUserStatusAsync( userId );
-        if ( subStatus.Features?.CertificateAccess != true )
-            return StatusCode( StatusCodes.Status403Forbidden ,
-                "Your current plan does not include certificate access. Upgrade to Pro." );
+        var subStatus = await _subscriptionService.GetUserStatusAsync(userId);
+        if (subStatus.Features?.CertificateAccess != true)
+            return StatusCode(StatusCodes.Status403Forbidden,
+                "Your current plan does not include certificate access. Upgrade to Pro.");
 
         try
         {
-            var certificate = await _certificateService.GetOrGenerateAsync( userId , courseId );
+            var certificate = await _certificateService.GetOrGenerateAsync(userId, courseId);
             var courseTitle = isEl
-                ? ( certificate.CourseTitleEl ?? certificate.CourseTitleEn )
+                ? (certificate.CourseTitleEl ?? certificate.CourseTitleEn)
                 : certificate.CourseTitleEn;
 
-            return Ok( new CertificateDto(
-                certificate.Id ,
-                certificate.VerificationId ,
-                certificate.RecipientName ,
-                courseTitle ,
-                certificate.IssuedAt ,
+            return Ok(new CertificateDto(
+                certificate.Id,
+                certificate.VerificationId,
+                certificate.RecipientName,
+                courseTitle,
+                certificate.IssuedAt,
                 certificate.Status.ToString()
-            ) );
+            ));
         }
-        catch ( InvalidOperationException ex )
+        catch (InvalidOperationException ex)
         {
-            _logger.LogError( ex , "Certificate issuance failed for user {UserId} on course {CourseId}." ,
-                userId , courseId );
-            return BadRequest( ex.Message );
+            _logger.LogError(ex, "Certificate issuance failed for user {UserId} on course {CourseId}.",
+                userId, courseId);
+            return BadRequest(ex.Message);
         }
     }
 
     /// <summary>
     /// Streams the PDF for a certificate owned by the authenticated student.
     /// </summary>
-    [HttpGet( "{certificateId:guid}/download" )]
-    public async Task<IActionResult> DownloadCertificate( Guid certificateId )
+    [HttpGet("{certificateId:guid}/download")]
+    public async Task<IActionResult> DownloadCertificate(Guid certificateId)
     {
         var userId = UserId;
 
         var certificate = await _db.Certificates
-            .FirstOrDefaultAsync( c => c.Id == certificateId && c.UserId == userId );
+            .FirstOrDefaultAsync(c => c.Id == certificateId && c.UserId == userId);
 
-        if ( certificate is null )
-            return NotFound( "Certificate not found." );
+        if (certificate is null)
+            return NotFound("Certificate not found.");
 
-        if ( certificate.Status == CertificateStatus.Revoked )
-            return BadRequest( "This certificate has been revoked." );
+        if (certificate.Status == CertificateStatus.Revoked)
+            return BadRequest("This certificate has been revoked.");
 
-        if ( string.IsNullOrEmpty( certificate.PdfPath ) || !_storage.FileExists( certificate.PdfPath ) )
-            return NotFound( "Certificate PDF is not available." );
+        if (string.IsNullOrEmpty(certificate.PdfPath) || !_storage.FileExists(certificate.PdfPath))
+            return NotFound("Certificate PDF is not available.");
 
-        var ( stream , contentType ) = await _storage.GetFileAsync( certificate.PdfPath );
-        var fileName = ToSafeFileName( $"Certificate - {certificate.RecipientName} - {certificate.CourseTitleEn}" ) + ".pdf";
-        return File( stream , contentType , fileName );
+        var (stream, contentType) = await _storage.GetFileAsync(certificate.PdfPath);
+        var fileName = ToSafeFileName($"Certificate - {certificate.RecipientName} - {certificate.CourseTitleEn}") + ".pdf";
+        return File(stream, contentType, fileName);
     }
 
-    private static string ToSafeFileName( string input )
+    private static string ToSafeFileName(string input)
     {
         var invalid = System.IO.Path.GetInvalidFileNameChars();
-        var safe = string.Concat( input.Select( c => invalid.Contains( c ) ? '_' : c ) );
+        var safe = string.Concat(input.Select(c => invalid.Contains(c) ? '_' : c));
         return safe.Length > 100 ? safe[..100].TrimEnd() : safe;
     }
 
@@ -146,36 +146,36 @@ public class CertificatesController : ControllerBase
     /// Public endpoint — verifies a certificate by its public VerificationId.
     /// No authentication required; intended for third-party verification.
     /// </summary>
-    [HttpGet( "verify/{verificationId:guid}" )]
+    [HttpGet("verify/{verificationId:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<CertificateVerificationDto>> Verify(
-        Guid verificationId ,
-        [FromQuery] string lang = "en" )
+        Guid verificationId,
+        [FromQuery] string lang = "en")
     {
-        var isEl = string.Equals( lang , "el" , StringComparison.OrdinalIgnoreCase );
+        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
         var certificate = await _db.Certificates
             .AsNoTracking()
-            .FirstOrDefaultAsync( c => c.VerificationId == verificationId );
+            .FirstOrDefaultAsync(c => c.VerificationId == verificationId);
 
-        if ( certificate is null )
+        if (certificate is null)
         {
-            return Ok( new CertificateVerificationDto(
-                false , null , null , null , null , "Certificate not found." ) );
+            return Ok(new CertificateVerificationDto(
+                false, null, null, null, null, "Certificate not found."));
         }
 
         var isRevoked = certificate.Status == CertificateStatus.Revoked;
         var courseTitle = isEl
-            ? ( certificate.CourseTitleEl ?? certificate.CourseTitleEn )
+            ? (certificate.CourseTitleEl ?? certificate.CourseTitleEn)
             : certificate.CourseTitleEn;
 
-        return Ok( new CertificateVerificationDto(
-            !isRevoked ,
-            isRevoked ? null : certificate.RecipientName ,
-            isRevoked ? null : courseTitle ,
-            isRevoked ? null : certificate.IssuedAt ,
-            certificate.Status.ToString() ,
+        return Ok(new CertificateVerificationDto(
+            !isRevoked,
+            isRevoked ? null : certificate.RecipientName,
+            isRevoked ? null : courseTitle,
+            isRevoked ? null : certificate.IssuedAt,
+            certificate.Status.ToString(),
             isRevoked ? "This certificate has been revoked." : "Certificate is valid."
-        ) );
+        ));
     }
 }

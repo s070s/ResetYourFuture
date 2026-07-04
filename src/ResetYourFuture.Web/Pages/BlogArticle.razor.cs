@@ -23,28 +23,28 @@ public partial class BlogArticle : IDisposable
 
     protected override Task OnInitializedAsync()
     {
-        _persistSub = ApplicationState.RegisterOnPersisting( PersistArticle );
+        _persistSub = ApplicationState.RegisterOnPersisting(PersistArticle);
         return Task.CompletedTask;
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        _loading  = true;
+        _loading = true;
         _notFound = false;
-        _article  = null;
+        _article = null;
 
         // Restore from prerender state if available (avoids duplicate API call on circuit connect)
         var key = $"blog-article-{Slug}";
-        if ( ApplicationState.TryTakeFromJson<BlogArticleDto>( key , out var cached ) )
+        if (ApplicationState.TryTakeFromJson<BlogArticleDto>(key, out var cached))
         {
             _article = cached;
         }
         else
         {
-            _article = await BlogConsumer.GetBySlugAsync( Slug , lang: CurrentLang );
+            _article = await BlogConsumer.GetBySlugAsync(Slug, lang: CurrentLang);
         }
 
-        if ( _article is null )
+        if (_article is null)
             _notFound = true;
 
         _loading = false;
@@ -52,7 +52,7 @@ public partial class BlogArticle : IDisposable
 
     private Task PersistArticle()
     {
-        ApplicationState.PersistAsJson( $"blog-article-{Slug}" , _article );
+        ApplicationState.PersistAsJson($"blog-article-{Slug}", _article);
         return Task.CompletedTask;
     }
 

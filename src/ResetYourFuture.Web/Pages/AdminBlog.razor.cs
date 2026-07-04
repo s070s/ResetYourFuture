@@ -28,10 +28,10 @@ public partial class AdminBlog : IAsyncDisposable
         pagedResult = await BlogConsumer.GetArticlesAsync(
             currentPage,
             pageSize,
-            string.IsNullOrEmpty( searchTerm ) ? null : searchTerm );
+            string.IsNullOrEmpty(searchTerm) ? null : searchTerm);
     }
 
-    private async Task OnSearchInput( ChangeEventArgs e )
+    private async Task OnSearchInput(ChangeEventArgs e)
     {
         searchTerm = e.Value?.ToString() ?? string.Empty;
         currentPage = 1;
@@ -43,13 +43,13 @@ public partial class AdminBlog : IAsyncDisposable
 
         try
         {
-            await Task.Delay( 300, _searchCts.Token );
+            await Task.Delay(300, _searchCts.Token);
             await LoadArticles();
         }
-        catch ( OperationCanceledException ) { }
+        catch (OperationCanceledException) { }
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         pageSize = size;
         currentPage = 1;
@@ -58,7 +58,7 @@ public partial class AdminBlog : IAsyncDisposable
 
     private async Task PreviousPage()
     {
-        if ( currentPage > 1 )
+        if (currentPage > 1)
         {
             currentPage--;
             await LoadArticles();
@@ -67,28 +67,28 @@ public partial class AdminBlog : IAsyncDisposable
 
     private async Task NextPage()
     {
-        if ( pagedResult is { HasNextPage: true } )
+        if (pagedResult is { HasNextPage: true })
         {
             currentPage++;
             await LoadArticles();
         }
     }
 
-    private void NewArticle() => Navigation.NavigateTo( "/admin/blog/new" );
+    private void NewArticle() => Navigation.NavigateTo("/admin/blog/new");
 
-    private void EditArticle( Guid id ) => Navigation.NavigateTo( $"/admin/blog/{id}" );
+    private void EditArticle(Guid id) => Navigation.NavigateTo($"/admin/blog/{id}");
 
-    private async Task TogglePublish( AdminBlogArticleDto article )
+    private async Task TogglePublish(AdminBlogArticleDto article)
     {
         try
         {
             bool success;
-            if ( article.IsPublished )
-                success = await BlogConsumer.UnpublishArticleAsync( article.Id );
+            if (article.IsPublished)
+                success = await BlogConsumer.UnpublishArticleAsync(article.Id);
             else
-                success = await BlogConsumer.PublishArticleAsync( article.Id );
+                success = await BlogConsumer.PublishArticleAsync(article.Id);
 
-            if ( success )
+            if (success)
             {
                 message = article.IsPublished ? "Article unpublished" : "Article published";
                 await LoadArticles();
@@ -98,18 +98,18 @@ public partial class AdminBlog : IAsyncDisposable
                 message = "Failed to update publish status";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task DeleteArticle( Guid id )
+    private async Task DeleteArticle(Guid id)
     {
         try
         {
-            var success = await BlogConsumer.DeleteArticleAsync( id );
-            if ( success )
+            var success = await BlogConsumer.DeleteArticleAsync(id);
+            if (success)
             {
                 confirmDeleteId = null;
                 message = "Article deleted";
@@ -120,7 +120,7 @@ public partial class AdminBlog : IAsyncDisposable
                 message = "Error deleting article";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }

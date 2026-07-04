@@ -13,7 +13,7 @@ public record CurrentUserDto(
     string LastName,
     int? Age,
     string Status,
-    IReadOnlyList<string> Roles );
+    IReadOnlyList<string> Roles);
 
 /// <summary>Detailed user record returned by <c>GET /api/admin/users/{userId}</c>.</summary>
 public record AdminUserDetailDto(
@@ -29,7 +29,7 @@ public record AdminUserDetailDto(
     DateTime? GdprConsentDate,
     bool ParentalConsentGiven,
     DateTime CreatedAt,
-    IReadOnlyList<string> Roles );
+    IReadOnlyList<string> Roles);
 
 /// <summary>Lightweight user match returned by <c>GET /api/admin/users/search</c>.</summary>
 public record AdminUserSearchResultDto(
@@ -39,25 +39,25 @@ public record AdminUserSearchResultDto(
     string LastName,
     string? DisplayName,
     bool EmailConfirmed,
-    IReadOnlyList<string> Roles );
+    IReadOnlyList<string> Roles);
 
 /// <summary>Result of toggling a user's enabled state.</summary>
-public record UserEnabledStateDto( bool IsEnabled );
+public record UserEnabledStateDto(bool IsEnabled);
 
 /// <summary>Result of uploading a blog article cover image.</summary>
-public record BlogCoverUploadResultDto( string CoverImageUrl );
+public record BlogCoverUploadResultDto(string CoverImageUrl);
 
 /// <summary>Result of uploading an avatar image (profile or testimonial).</summary>
-public record AvatarUploadResultDto( string AvatarPath );
+public record AvatarUploadResultDto(string AvatarPath);
 
 /// <summary>Result of uploading the landing-page background image.</summary>
-public record BackgroundImageUploadResultDto( string BackgroundImagePath );
+public record BackgroundImageUploadResultDto(string BackgroundImagePath);
 
 /// <summary>Acknowledgement returned to Stripe after a webhook is received.</summary>
-public record StripeWebhookAckDto( bool Received );
+public record StripeWebhookAckDto(bool Received);
 
 /// <summary>Result of uploading a lesson PDF asset.</summary>
-public record LessonPdfUploadResultDto( string PdfPath );
+public record LessonPdfUploadResultDto(string PdfPath);
 
 /// <summary>Result of uploading a lesson video asset.</summary>
-public record LessonVideoUploadResultDto( string VideoPath );
+public record LessonVideoUploadResultDto(string VideoPath);

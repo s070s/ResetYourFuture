@@ -21,116 +21,116 @@ public class SubscriptionService : ISubscriptionService
     private readonly IMemoryCache _cache;
     private readonly bool _mockPaymentEnabled;
 
-    private static string StatusCacheKey( string userId ) => $"sub_status:{userId}";
+    private static string StatusCacheKey(string userId) => $"sub_status:{userId}";
 
-    public SubscriptionService( IApplicationDbContext db , ILogger<SubscriptionService> logger , IMemoryCache cache , IConfiguration configuration )
+    public SubscriptionService(IApplicationDbContext db, ILogger<SubscriptionService> logger, IMemoryCache cache, IConfiguration configuration)
     {
         _db = db;
         _logger = logger;
         _cache = cache;
-        _mockPaymentEnabled = configuration.GetValue<bool>( "Payment:MockEnabled" );
+        _mockPaymentEnabled = configuration.GetValue<bool>("Payment:MockEnabled");
     }
 
-    public async Task<List<SubscriptionPlanDto>> GetPlansAsync( CancellationToken cancellationToken = default )
+    public async Task<List<SubscriptionPlanDto>> GetPlansAsync(CancellationToken cancellationToken = default)
     {
         var raw = await _db.SubscriptionPlans
             .AsNoTracking()
-            .Where( sp => sp.IsActive )
-            .OrderBy( sp => sp.Tier )
-            .ThenBy( sp => sp.Price )
-            .Select( sp => new
+            .Where(sp => sp.IsActive)
+            .OrderBy(sp => sp.Tier)
+            .ThenBy(sp => sp.Price)
+            .Select(sp => new
             {
-                sp.Id ,
-                sp.Name ,
-                sp.Description ,
-                sp.Price ,
-                sp.BillingPeriod ,
-                sp.Tier ,
-                sp.FeaturesJson ,
+                sp.Id,
+                sp.Name,
+                sp.Description,
+                sp.Price,
+                sp.BillingPeriod,
+                sp.Tier,
+                sp.FeaturesJson,
                 sp.IsActive
-            } )
-            .ToListAsync( cancellationToken );
+            })
+            .ToListAsync(cancellationToken);
 
-        var plans = raw.Select( sp => new SubscriptionPlanDto(
-            sp.Id ,
-            sp.Name ,
-            sp.Description ,
-            sp.Price ,
-            sp.BillingPeriod.ToString() ,
-            sp.Tier ,
-            DeserializeFeatures( sp.FeaturesJson ) ,
+        var plans = raw.Select(sp => new SubscriptionPlanDto(
+            sp.Id,
+            sp.Name,
+            sp.Description,
+            sp.Price,
+            sp.BillingPeriod.ToString(),
+            sp.Tier,
+            DeserializeFeatures(sp.FeaturesJson),
             sp.IsActive
-        ) ).ToList();
+        )).ToList();
 
         return plans;
     }
 
     public async Task<UserSubscriptionStatusDto> GetUserStatusAsync(
-        string userId , CancellationToken cancellationToken = default )
+        string userId, CancellationToken cancellationToken = default)
     {
         // Cache the status for 30 s. Explicit invalidation occurs on plan change / cancellation.
-        if ( _cache.TryGetValue( StatusCacheKey( userId ) , out UserSubscriptionStatusDto? cached ) && cached is not null )
+        if (_cache.TryGetValue(StatusCacheKey(userId), out UserSubscriptionStatusDto? cached) && cached is not null)
             return cached;
 
         var activeSub = await _db.UserSubscriptions
             .AsNoTracking()
-            .Include( us => us.SubscriptionPlan )
-            .Where( us => us.UserId == userId && us.IsActive )
-            .FirstOrDefaultAsync( cancellationToken );
+            .Include(us => us.SubscriptionPlan)
+            .Where(us => us.UserId == userId && us.IsActive)
+            .FirstOrDefaultAsync(cancellationToken);
 
         UserSubscriptionStatusDto status;
 
-        if ( activeSub is null )
+        if (activeSub is null)
         {
             status = new UserSubscriptionStatusDto(
-                SubscriptionTierEnum.Free ,
-                "Free" ,
-                DateTime.UtcNow ,
-                null ,
-                true ,
+                SubscriptionTierEnum.Free,
+                "Free",
+                DateTime.UtcNow,
+                null,
+                true,
                 GetDefaultFreeFeatures()
             );
         }
         else
         {
             status = new UserSubscriptionStatusDto(
-                activeSub.SubscriptionPlan.Tier ,
-                activeSub.SubscriptionPlan.Name ,
-                activeSub.StartedAt ,
-                activeSub.ExpiresAt ,
-                activeSub.IsActive ,
-                DeserializeFeatures( activeSub.SubscriptionPlan.FeaturesJson )
+                activeSub.SubscriptionPlan.Tier,
+                activeSub.SubscriptionPlan.Name,
+                activeSub.StartedAt,
+                activeSub.ExpiresAt,
+                activeSub.IsActive,
+                DeserializeFeatures(activeSub.SubscriptionPlan.FeaturesJson)
             );
         }
 
-        _cache.Set( StatusCacheKey( userId ) , status , TimeSpan.FromSeconds( 30 ) );
+        _cache.Set(StatusCacheKey(userId), status, TimeSpan.FromSeconds(30));
         return status;
     }
 
     public async Task<SubscriptionTierEnum> GetUserTierAsync(
-        string userId , CancellationToken cancellationToken = default )
+        string userId, CancellationToken cancellationToken = default)
     {
         var tier = await _db.UserSubscriptions
             .AsNoTracking()
-            .Include( us => us.SubscriptionPlan )
-            .Where( us => us.UserId == userId && us.IsActive )
-            .Select( us => ( SubscriptionTierEnum? ) us.SubscriptionPlan.Tier )
-            .FirstOrDefaultAsync( cancellationToken );
+            .Include(us => us.SubscriptionPlan)
+            .Where(us => us.UserId == userId && us.IsActive)
+            .Select(us => (SubscriptionTierEnum?)us.SubscriptionPlan.Tier)
+            .FirstOrDefaultAsync(cancellationToken);
 
         return tier ?? SubscriptionTierEnum.Free;
     }
 
     public async Task<CheckoutSessionDto> CreateCheckoutSessionAsync(
-        string userId , Guid planId , CancellationToken cancellationToken = default )
+        string userId, Guid planId, CancellationToken cancellationToken = default)
     {
         var plan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync( sp => sp.Id == planId && sp.IsActive , cancellationToken );
+            .FirstOrDefaultAsync(sp => sp.Id == planId && sp.IsActive, cancellationToken);
 
-        if ( plan is null )
+        if (plan is null)
         {
             return new CheckoutSessionDto(
-                string.Empty ,
-                null ,
+                string.Empty,
+                null,
                 "error: plan not found"
             );
         }
@@ -142,15 +142,15 @@ public class SubscriptionService : ISubscriptionService
         // With MockEnabled off (production default) checkout cannot proceed and returns
         // "pending_payment". With MockEnabled on (Development) the code below assigns the plan
         // immediately without any charge. Replace with real Stripe Checkout + webhook for production.
-        if ( !_mockPaymentEnabled )
+        if (!_mockPaymentEnabled)
         {
             _logger.LogWarning(
-                "Checkout attempted for user {UserId}, plan {PlanName} — payment not yet available in production." ,
-                userId , plan.Name );
+                "Checkout attempted for user {UserId}, plan {PlanName} — payment not yet available in production.",
+                userId, plan.Name);
 
             return new CheckoutSessionDto(
-                mockSessionId ,
-                null ,
+                mockSessionId,
+                null,
                 "pending_payment"
             );
         }
@@ -158,10 +158,10 @@ public class SubscriptionService : ISubscriptionService
         // Fetch the current active plan (not just tier) so we can detect same-tier switches (e.g. monthly→yearly).
         var currentPlan = await _db.UserSubscriptions
             .AsNoTracking()
-            .Include( us => us.SubscriptionPlan )
-            .Where( us => us.UserId == userId && us.IsActive )
-            .Select( us => us.SubscriptionPlan )
-            .FirstOrDefaultAsync( cancellationToken );
+            .Include(us => us.SubscriptionPlan)
+            .Where(us => us.UserId == userId && us.IsActive)
+            .Select(us => us.SubscriptionPlan)
+            .FirstOrDefaultAsync(cancellationToken);
 
         var transactionType = currentPlan is null
             ? BillingTransactionType.Purchase
@@ -174,71 +174,71 @@ public class SubscriptionService : ISubscriptionService
                         : BillingTransactionType.PlanSwitch;
 
         _logger.LogInformation(
-            "Mock checkout session created: {SessionId} for user {UserId}, plan {PlanName}" ,
-            mockSessionId , userId , plan.Name );
+            "Mock checkout session created: {SessionId} for user {UserId}, plan {PlanName}",
+            mockSessionId, userId, plan.Name);
 
-        await AssignPlanAsync( userId , planId , cancellationToken );
+        await AssignPlanAsync(userId, planId, cancellationToken);
 
-        _db.BillingTransactions.Add( new BillingTransaction
+        _db.BillingTransactions.Add(new BillingTransaction
         {
-            Id = Guid.NewGuid() ,
-            UserId = userId ,
-            SubscriptionPlanId = planId ,
-            Amount = plan.Price ,
-            Currency = "EUR" ,
-            Type = transactionType ,
-            Description = $"{transactionType} to {plan.Name}" ,
-            StripeSessionId = mockSessionId ,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SubscriptionPlanId = planId,
+            Amount = plan.Price,
+            Currency = "EUR",
+            Type = transactionType,
+            Description = $"{transactionType} to {plan.Name}",
+            StripeSessionId = mockSessionId,
             CreatedAt = DateTime.UtcNow
-        } );
-        await _db.SaveChangesAsync( cancellationToken );
-        _cache.Remove( StatusCacheKey( userId ) );
+        });
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache.Remove(StatusCacheKey(userId));
 
         return new CheckoutSessionDto(
-            mockSessionId ,
-            $"/subscription/success?session_id={mockSessionId}" ,
+            mockSessionId,
+            $"/subscription/success?session_id={mockSessionId}",
             "complete"
         );
     }
 
     public async Task AssignPlanAsync(
-        string userId , Guid planId , CancellationToken cancellationToken = default )
+        string userId, Guid planId, CancellationToken cancellationToken = default)
     {
         // Deactivate any existing active subscription
         var existingActive = await _db.UserSubscriptions
-            .Where( us => us.UserId == userId && us.IsActive )
-            .ToListAsync( cancellationToken );
+            .Where(us => us.UserId == userId && us.IsActive)
+            .ToListAsync(cancellationToken);
 
-        foreach ( var sub in existingActive )
+        foreach (var sub in existingActive)
         {
             sub.IsActive = false;
             sub.CancelledAt = DateTime.UtcNow;
         }
 
         var plan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync( sp => sp.Id == planId , cancellationToken )
-            ?? throw new InvalidOperationException( $"Plan {planId} not found" );
+            .FirstOrDefaultAsync(sp => sp.Id == planId, cancellationToken)
+            ?? throw new InvalidOperationException($"Plan {planId} not found");
 
         var expiresAt = plan.BillingPeriod switch
         {
-            BillingPeriod.Monthly => DateTime.UtcNow.AddMonths( 1 ),
-            BillingPeriod.Quarterly => DateTime.UtcNow.AddMonths( 3 ),
-            BillingPeriod.Yearly => DateTime.UtcNow.AddYears( 1 ),
-            BillingPeriod.Lifetime => ( DateTime? ) null,
-            _ => DateTime.UtcNow.AddMonths( 1 )
+            BillingPeriod.Monthly => DateTime.UtcNow.AddMonths(1),
+            BillingPeriod.Quarterly => DateTime.UtcNow.AddMonths(3),
+            BillingPeriod.Yearly => DateTime.UtcNow.AddYears(1),
+            BillingPeriod.Lifetime => (DateTime?)null,
+            _ => DateTime.UtcNow.AddMonths(1)
         };
 
         var newSub = new UserSubscription
         {
-            Id = Guid.NewGuid() ,
-            UserId = userId ,
-            SubscriptionPlanId = planId ,
-            StartedAt = DateTime.UtcNow ,
-            ExpiresAt = expiresAt ,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SubscriptionPlanId = planId,
+            StartedAt = DateTime.UtcNow,
+            ExpiresAt = expiresAt,
             IsActive = true
         };
 
-        _db.UserSubscriptions.Add( newSub );
+        _db.UserSubscriptions.Add(newSub);
         // NOTE: SaveChangesAsync is intentionally NOT called here.
         // Callers are responsible for persisting — this allows them to add billing transactions
         // and commit everything atomically in a single SaveChangesAsync call.
@@ -246,51 +246,51 @@ public class SubscriptionService : ISubscriptionService
         // concurrent GetUserStatusAsync cannot re-cache stale data in the window before the commit.
 
         _logger.LogInformation(
-            "Staged plan assignment {PlanName} (Tier: {Tier}) for user {UserId}" ,
-            plan.Name , plan.Tier , userId );
+            "Staged plan assignment {PlanName} (Tier: {Tier}) for user {UserId}",
+            plan.Name, plan.Tier, userId);
     }
 
     public async Task AssignFreePlanAsync(
-        string userId , CancellationToken cancellationToken = default )
+        string userId, CancellationToken cancellationToken = default)
     {
         var freePlan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync( sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive , cancellationToken );
+            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive, cancellationToken);
 
-        if ( freePlan is null )
+        if (freePlan is null)
         {
-            _logger.LogWarning( "Free plan not found in database. Skipping assignment for user {UserId}." , userId );
+            _logger.LogWarning("Free plan not found in database. Skipping assignment for user {UserId}.", userId);
             return;
         }
 
-        await AssignPlanAsync( userId , freePlan.Id , cancellationToken );
+        await AssignPlanAsync(userId, freePlan.Id, cancellationToken);
 
         // Record initial free plan assignment
-        _db.BillingTransactions.Add( new BillingTransaction
+        _db.BillingTransactions.Add(new BillingTransaction
         {
-            Id = Guid.NewGuid() ,
-            UserId = userId ,
-            SubscriptionPlanId = freePlan.Id ,
-            Amount = 0m ,
-            Currency = "EUR" ,
-            Type = BillingTransactionType.FreePlanAssignment ,
-            Description = "Free plan assigned on registration" ,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SubscriptionPlanId = freePlan.Id,
+            Amount = 0m,
+            Currency = "EUR",
+            Type = BillingTransactionType.FreePlanAssignment,
+            Description = "Free plan assigned on registration",
             CreatedAt = DateTime.UtcNow
-        } );
-        await _db.SaveChangesAsync( cancellationToken );
-        _cache.Remove( StatusCacheKey( userId ) );
+        });
+        await _db.SaveChangesAsync(cancellationToken);
+        _cache.Remove(StatusCacheKey(userId));
     }
 
     public async Task<CancelSubscriptionResultDto> CancelSubscriptionAsync(
-        string userId , CancellationToken cancellationToken = default )
+        string userId, CancellationToken cancellationToken = default)
     {
         var activeSub = await _db.UserSubscriptions
-            .Include( us => us.SubscriptionPlan )
-            .Where( us => us.UserId == userId && us.IsActive )
-            .FirstOrDefaultAsync( cancellationToken );
+            .Include(us => us.SubscriptionPlan)
+            .Where(us => us.UserId == userId && us.IsActive)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if ( activeSub is null || activeSub.SubscriptionPlan.Tier == SubscriptionTierEnum.Free )
+        if (activeSub is null || activeSub.SubscriptionPlan.Tier == SubscriptionTierEnum.Free)
         {
-            return new CancelSubscriptionResultDto( false , "You are already on the Free plan." );
+            return new CancelSubscriptionResultDto(false, "You are already on the Free plan.");
         }
 
         var previousPlanName = activeSub.SubscriptionPlan.Name;
@@ -301,112 +301,112 @@ public class SubscriptionService : ISubscriptionService
 
         // Assign Free plan
         var freePlan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync( sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive , cancellationToken );
+            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTierEnum.Free && sp.IsActive, cancellationToken);
 
-        if ( freePlan is null )
+        if (freePlan is null)
         {
-            return new CancelSubscriptionResultDto( false , "Free plan not available. Please contact support." );
+            return new CancelSubscriptionResultDto(false, "Free plan not available. Please contact support.");
         }
 
         var newSub = new UserSubscription
         {
-            Id = Guid.NewGuid() ,
-            UserId = userId ,
-            SubscriptionPlanId = freePlan.Id ,
-            StartedAt = DateTime.UtcNow ,
-            ExpiresAt = null ,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SubscriptionPlanId = freePlan.Id,
+            StartedAt = DateTime.UtcNow,
+            ExpiresAt = null,
             IsActive = true
         };
 
-        _db.UserSubscriptions.Add( newSub );
+        _db.UserSubscriptions.Add(newSub);
 
         // Record the downgrade transaction
-        _db.BillingTransactions.Add( new BillingTransaction
+        _db.BillingTransactions.Add(new BillingTransaction
         {
-            Id = Guid.NewGuid() ,
-            UserId = userId ,
-            SubscriptionPlanId = freePlan.Id ,
-            Amount = 0m ,
-            Currency = "EUR" ,
-            Type = BillingTransactionType.Downgrade ,
-            Description = $"Cancelled {previousPlanName} — downgraded to Free" ,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            SubscriptionPlanId = freePlan.Id,
+            Amount = 0m,
+            Currency = "EUR",
+            Type = BillingTransactionType.Downgrade,
+            Description = $"Cancelled {previousPlanName} — downgraded to Free",
             CreatedAt = DateTime.UtcNow
-        } );
+        });
 
-        await _db.SaveChangesAsync( cancellationToken );
+        await _db.SaveChangesAsync(cancellationToken);
 
-        _cache.Remove( StatusCacheKey( userId ) );
+        _cache.Remove(StatusCacheKey(userId));
 
         _logger.LogInformation(
-            "User {UserId} cancelled {PreviousPlan} and downgraded to Free." ,
-            userId , previousPlanName );
+            "User {UserId} cancelled {PreviousPlan} and downgraded to Free.",
+            userId, previousPlanName);
 
-        return new CancelSubscriptionResultDto( true , $"Your {previousPlanName} plan has been cancelled. You are now on the Free plan." );
+        return new CancelSubscriptionResultDto(true, $"Your {previousPlanName} plan has been cancelled. You are now on the Free plan.");
     }
 
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
-        string userId , int page = 1 , int pageSize = 10 , CancellationToken cancellationToken = default )
+        string userId, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        if ( page < 1 )
+        if (page < 1)
             page = 1;
-        if ( pageSize < 1 || pageSize > 100 )
+        if (pageSize < 1 || pageSize > 100)
             pageSize = 10;
 
-        var status = await GetUserStatusAsync( userId , cancellationToken );
+        var status = await GetUserStatusAsync(userId, cancellationToken);
 
         var query = _db.BillingTransactions
             .AsNoTracking()
-            .Include( bt => bt.SubscriptionPlan )
-            .Where( bt => bt.UserId == userId )
-            .OrderByDescending( bt => bt.CreatedAt );
+            .Include(bt => bt.SubscriptionPlan)
+            .Where(bt => bt.UserId == userId)
+            .OrderByDescending(bt => bt.CreatedAt);
 
-        var totalCount = await query.CountAsync( cancellationToken );
+        var totalCount = await query.CountAsync(cancellationToken);
 
         var transactions = await query
-            .Skip( ( page - 1 ) * pageSize )
-            .Take( pageSize )
-            .Select( bt => new BillingTransactionDto(
-                bt.Id ,
-                bt.SubscriptionPlan.Name ,
-                bt.Amount ,
-                bt.Currency ,
-                bt.Type.ToString() ,
-                bt.Description ,
-                bt.StripeSessionId ,
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(bt => new BillingTransactionDto(
+                bt.Id,
+                bt.SubscriptionPlan.Name,
+                bt.Amount,
+                bt.Currency,
+                bt.Type.ToString(),
+                bt.Description,
+                bt.StripeSessionId,
                 bt.CreatedAt
-            ) )
-            .ToListAsync( cancellationToken );
+            ))
+            .ToListAsync(cancellationToken);
 
         return new BillingOverviewDto
         {
-            CurrentSubscription = status ,
-            Transactions = new PagedResult<BillingTransactionDto>( transactions , totalCount , page , pageSize )
+            CurrentSubscription = status,
+            Transactions = new PagedResult<BillingTransactionDto>(transactions, totalCount, page, pageSize)
         };
     }
 
-    private PlanFeaturesDto? DeserializeFeatures( string? json )
+    private PlanFeaturesDto? DeserializeFeatures(string? json)
     {
-        if ( string.IsNullOrWhiteSpace( json ) )
+        if (string.IsNullOrWhiteSpace(json))
             return null;
         try
         {
-            return JsonSerializer.Deserialize<PlanFeaturesDto>( json , new JsonSerializerOptions
+            return JsonSerializer.Deserialize<PlanFeaturesDto>(json, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
-            } );
+            });
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Failed to deserialize plan features JSON." );
+            _logger.LogError(ex, "Failed to deserialize plan features JSON.");
             return null;
         }
     }
 
     private static PlanFeaturesDto GetDefaultFreeFeatures() => new()
     {
-        MaxCourses = 1 ,
-        AssessmentAccess = false ,
-        CertificateAccess = false ,
+        MaxCourses = 1,
+        AssessmentAccess = false,
+        CertificateAccess = false,
         PrioritySupport = false
     };
 }

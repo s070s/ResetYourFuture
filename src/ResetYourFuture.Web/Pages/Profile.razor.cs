@@ -36,7 +36,7 @@ public partial class Profile
     protected override async Task OnInitializedAsync()
     {
         var state = await AuthStateProvider.GetAuthenticationStateAsync();
-        _isImpersonating = state.User.FindFirst( "impersonatedBy" ) is not null;
+        _isImpersonating = state.User.FindFirst("impersonatedBy") is not null;
         await LoadProfileAsync();
     }
 
@@ -46,7 +46,7 @@ public partial class Profile
         try
         {
             profile = await ProfileConsumer.GetProfileAsync();
-            if ( profile is null )
+            if (profile is null)
             {
                 // The cookie session is still valid (this page is [Authorize]-gated); a null here
                 // means the API call failed, so show a retry instead of silently bouncing to /login.
@@ -56,7 +56,7 @@ public partial class Profile
             displayName = profile.DisplayName ?? string.Empty;
             await LoadAvatarAsync();
         }
-        catch ( Exception )
+        catch (Exception)
         {
             _loadError = ProfileRes.FailedToLoadProfile;
         }
@@ -64,7 +64,7 @@ public partial class Profile
 
     private async Task LoadAvatarAsync()
     {
-        if ( profile is null || string.IsNullOrEmpty( profile.AvatarPath ) )
+        if (profile is null || string.IsNullOrEmpty(profile.AvatarPath))
         {
             avatarDataUrl = null;
             return;
@@ -74,7 +74,7 @@ public partial class Profile
         {
             var avatar = await ProfileConsumer.GetAvatarAsync();
             avatarDataUrl = avatar.HasValue
-                ? $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String( avatar.Value.Data )}"
+                ? $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String(avatar.Value.Data)}"
                 : null;
         }
         catch
@@ -83,17 +83,17 @@ public partial class Profile
         }
     }
 
-    private async Task HandleAvatarUpload( InputFileChangeEventArgs e )
+    private async Task HandleAvatarUpload(InputFileChangeEventArgs e)
     {
         message = string.Empty;
         var file = e.File;
-        if ( file == null || file.Size >= 5 * 1024 * 1024 )
+        if (file == null || file.Size >= 5 * 1024 * 1024)
         {
             message = ProfileRes.FileTooLarge;
             return;
         }
 
-        if ( !AllowedAvatarTypes.Contains( file.ContentType, StringComparer.OrdinalIgnoreCase ) )
+        if (!AllowedAvatarTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
         {
             message = ProfileRes.InvalidImageType;
             return;
@@ -102,8 +102,8 @@ public partial class Profile
         _uploadingAvatar = true;
         try
         {
-            var success = await ProfileConsumer.UploadAvatarAsync( file );
-            if ( success )
+            var success = await ProfileConsumer.UploadAvatarAsync(file);
+            if (success)
             {
                 profile = await ProfileConsumer.GetProfileAsync();
                 await LoadAvatarAsync();
@@ -115,9 +115,9 @@ public partial class Profile
                 message = ProfileRes.ErrorUploadingAvatar;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            message = string.Format( ProfileRes.ErrorUploadingAvatarFormat, ex.Message );
+            message = string.Format(ProfileRes.ErrorUploadingAvatarFormat, ex.Message);
         }
         finally
         {
@@ -127,7 +127,7 @@ public partial class Profile
 
     private async Task UpdateProfile()
     {
-        if ( profile is null )
+        if (profile is null)
             return;
 
         isSaving = true;
@@ -135,15 +135,15 @@ public partial class Profile
         try
         {
             var updateRequest = new UpdateProfileRequest(
-                profile.FirstName ,
-                profile.LastName ,
-                string.IsNullOrWhiteSpace( displayName ) ? null : displayName ,
+                profile.FirstName,
+                profile.LastName,
+                string.IsNullOrWhiteSpace(displayName) ? null : displayName,
                 profile.DateOfBirth
             );
 
-            var updated = await ProfileConsumer.UpdateProfileAsync( updateRequest );
+            var updated = await ProfileConsumer.UpdateProfileAsync(updateRequest);
 
-            if ( updated is not null )
+            if (updated is not null)
             {
                 profile = updated;
                 message = ProfileRes.ProfileUpdatedSuccess;
@@ -153,9 +153,9 @@ public partial class Profile
                 message = ProfileRes.ErrorUpdatingProfile;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            message = string.Format( ProfileRes.ErrorFormat, ex.Message );
+            message = string.Format(ProfileRes.ErrorFormat, ex.Message);
         }
         finally
         {
@@ -165,13 +165,13 @@ public partial class Profile
 
     private async Task ChangePassword()
     {
-        if ( string.IsNullOrEmpty( currentPassword ) || string.IsNullOrEmpty( newPassword ) )
+        if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword))
         {
             message = ProfileRes.FillAllPasswordFields;
             return;
         }
 
-        if ( newPassword != confirmPassword )
+        if (newPassword != confirmPassword)
         {
             message = ProfileRes.PasswordsDoNotMatch;
             return;
@@ -181,11 +181,11 @@ public partial class Profile
         message = string.Empty;
         try
         {
-            var changeRequest = new ChangePasswordRequest( currentPassword , newPassword );
+            var changeRequest = new ChangePasswordRequest(currentPassword, newPassword);
 
-            var success = await ProfileConsumer.ChangePasswordAsync( changeRequest );
+            var success = await ProfileConsumer.ChangePasswordAsync(changeRequest);
 
-            if ( success )
+            if (success)
             {
                 message = ProfileRes.PasswordChangedSuccess;
                 currentPassword = string.Empty;
@@ -197,9 +197,9 @@ public partial class Profile
                 message = ProfileRes.ErrorChangingPassword;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            message = string.Format( ProfileRes.ErrorFormat, ex.Message );
+            message = string.Format(ProfileRes.ErrorFormat, ex.Message);
         }
         finally
         {
@@ -210,6 +210,6 @@ public partial class Profile
     private async Task Logout()
     {
         var url = await AuthService.LogoutAsync();
-        Navigation.NavigateTo( url , forceLoad: true );
+        Navigation.NavigateTo(url, forceLoad: true);
     }
 }

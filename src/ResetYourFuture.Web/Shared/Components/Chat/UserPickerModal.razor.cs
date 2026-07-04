@@ -24,7 +24,7 @@ public partial class UserPickerModal : IDisposable
         var justOpened = IsVisible && !_wasVisible;
         _wasVisible = IsVisible;
 
-        if ( justOpened )
+        if (justOpened)
         {
             _searchTerm = string.Empty;
             _availableUsers = [];
@@ -32,7 +32,7 @@ public partial class UserPickerModal : IDisposable
         }
     }
 
-    private async Task HandleSearchKeyDown( KeyboardEventArgs e )
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
     {
         _searchCts?.Cancel();
         _searchCts = new CancellationTokenSource();
@@ -40,10 +40,10 @@ public partial class UserPickerModal : IDisposable
 
         try
         {
-            await Task.Delay( 300 , token );
+            await Task.Delay(300, token);
             await SearchUsersAsync();
         }
-        catch ( TaskCanceledException )
+        catch (TaskCanceledException)
         {
             // Expected when typing quickly.
         }
@@ -54,15 +54,15 @@ public partial class UserPickerModal : IDisposable
         _isSearching = true;
         StateHasChanged();
 
-        _availableUsers = await ChatService.GetAvailableUsersAsync( _searchTerm );
+        _availableUsers = await ChatService.GetAvailableUsersAsync(_searchTerm);
 
         _isSearching = false;
         StateHasChanged();
     }
 
-    private async Task PickUser( ChatUserDto user )
+    private async Task PickUser(ChatUserDto user)
     {
-        await OnUserPicked.InvokeAsync( user );
+        await OnUserPicked.InvokeAsync(user);
     }
 
     public void Dispose()

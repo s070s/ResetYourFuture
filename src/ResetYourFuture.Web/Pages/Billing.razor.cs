@@ -32,12 +32,12 @@ public partial class Billing
         _error = null;
         try
         {
-            _overview = await SubscriptionService.GetBillingOverviewAsync( _page , _pageSize );
+            _overview = await SubscriptionService.GetBillingOverviewAsync(_page, _pageSize);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = "Failed to load billing information. Please try again.";
-            _logger.LogError( ex , "Failed to load billing overview." );
+            _logger.LogError(ex, "Failed to load billing overview.");
         }
         finally
         {
@@ -45,15 +45,15 @@ public partial class Billing
         }
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
         _page = page;
         await LoadBillingOverviewAsync();
     }
 
-    private async Task OnPageSizeChanged( ChangeEventArgs e )
+    private async Task OnPageSizeChanged(ChangeEventArgs e)
     {
-        if ( int.TryParse( e.Value?.ToString() , out var size ) )
+        if (int.TryParse(e.Value?.ToString(), out var size))
         {
             _pageSize = size;
             _page = 1;
@@ -68,23 +68,23 @@ public partial class Billing
         try
         {
             var result = await SubscriptionService.CancelAsync();
-            if ( result is not null )
+            if (result is not null)
             {
                 _cancelSuccess = result.Success;
                 _cancelMessage = result.Message;
 
-                if ( result.Success )
+                if (result.Success)
                 {
                     _page = 1;
                     await LoadBillingOverviewAsync();
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _cancelSuccess = false;
             _cancelMessage = "Failed to cancel. Please try again.";
-            _logger.LogError( ex , "Failed to cancel subscription." );
+            _logger.LogError(ex, "Failed to cancel subscription.");
         }
         finally
         {
@@ -97,5 +97,5 @@ public partial class Billing
 
     private void CloseCancelDialog() => _showCancelConfirm = false;
 
-    private void GoToPricing() => Navigation.NavigateTo( "/pricing" );
+    private void GoToPricing() => Navigation.NavigateTo("/pricing");
 }

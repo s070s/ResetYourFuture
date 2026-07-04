@@ -13,125 +13,125 @@ namespace ResetYourFuture.Web.Controllers;
 /// Admin endpoints for managing modules within courses.
 /// </summary>
 [ApiController]
-[Route( "api/admin/modules" )]
-[Authorize( Policy = "AdminOnly" )]
-[Tags( "Admin · Modules" )]
-[Produces( "application/json" )]
-[ProducesResponseType( StatusCodes.Status400BadRequest )]
-[ProducesResponseType( StatusCodes.Status404NotFound )]
+[Route("api/admin/modules")]
+[Authorize(Policy = "AdminOnly")]
+[Tags("Admin · Modules")]
+[Produces("application/json")]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminModulesController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
     private readonly IHtmlSanitizer _sanitizer;
 
-    public AdminModulesController( IApplicationDbContext db , IHtmlSanitizer sanitizer )
+    public AdminModulesController(IApplicationDbContext db, IHtmlSanitizer sanitizer)
     {
         _db = db;
         _sanitizer = sanitizer;
     }
 
-    private string UserId => User.FindFirstValue( ClaimTypes.NameIdentifier )!;
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
     /// <summary>Get all modules for a course (with lesson counts), ordered by sort order.</summary>
-    [HttpGet( "course/{courseId:guid}" )]
-    public async Task<ActionResult<List<AdminModuleDto>>> GetModulesByCourse( Guid courseId )
+    [HttpGet("course/{courseId:guid}")]
+    public async Task<ActionResult<List<AdminModuleDto>>> GetModulesByCourse(Guid courseId)
     {
         var modules = await _db.Modules
             .AsNoTracking()
-            .Where( m => m.CourseId == courseId )
-            .Include( m => m.Lessons )
-            .OrderBy( m => m.SortOrder )
-            .Select( m => new AdminModuleDto(
-                m.Id ,
-                m.TitleEn ,
-                m.TitleEl ,
-                m.DescriptionEn ,
-                m.DescriptionEl ,
-                m.SortOrder ,
-                m.CourseId ,
+            .Where(m => m.CourseId == courseId)
+            .Include(m => m.Lessons)
+            .OrderBy(m => m.SortOrder)
+            .Select(m => new AdminModuleDto(
+                m.Id,
+                m.TitleEn,
+                m.TitleEl,
+                m.DescriptionEn,
+                m.DescriptionEl,
+                m.SortOrder,
+                m.CourseId,
                 m.Lessons.Count
-            ) )
+            ))
             .ToListAsync();
 
-        return Ok( modules );
+        return Ok(modules);
     }
 
     /// <summary>Get a single module (with lesson count) by id.</summary>
-    [HttpGet( "{id:guid}" )]
-    public async Task<ActionResult<AdminModuleDto>> GetModuleById( Guid id )
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminModuleDto>> GetModuleById(Guid id)
     {
         var module = await _db.Modules
             .AsNoTracking()
-            .Include( m => m.Lessons )
-            .FirstOrDefaultAsync( m => m.Id == id );
+            .Include(m => m.Lessons)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
-        if ( module == null )
+        if (module == null)
             return NotFound();
 
-        return Ok( new AdminModuleDto(
-            module.Id ,
-            module.TitleEn ,
-            module.TitleEl ,
-            module.DescriptionEn ,
-            module.DescriptionEl ,
-            module.SortOrder ,
-            module.CourseId ,
+        return Ok(new AdminModuleDto(
+            module.Id,
+            module.TitleEn,
+            module.TitleEl,
+            module.DescriptionEn,
+            module.DescriptionEl,
+            module.SortOrder,
+            module.CourseId,
             module.Lessons.Count
-        ) );
+        ));
     }
 
     /// <summary>Create a new module within a course.</summary>
     [HttpPost]
-    [ProducesResponseType<AdminModuleDto>( StatusCodes.Status201Created )]
-    public async Task<ActionResult<AdminModuleDto>> CreateModule( [FromBody] SaveModuleRequest request )
+    [ProducesResponseType<AdminModuleDto>(StatusCodes.Status201Created)]
+    public async Task<ActionResult<AdminModuleDto>> CreateModule([FromBody] SaveModuleRequest request)
     {
         var module = new Module
         {
-            Id = Guid.NewGuid() ,
-            TitleEn = request.TitleEn ,
-            TitleEl = request.TitleEl ,
-            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null ,
-            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null ,
-            SortOrder = request.SortOrder ,
-            CourseId = request.CourseId ,
+            Id = Guid.NewGuid(),
+            TitleEn = request.TitleEn,
+            TitleEl = request.TitleEl,
+            DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null,
+            DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null,
+            SortOrder = request.SortOrder,
+            CourseId = request.CourseId,
             UpdatedByUserId = UserId
         };
 
-        _db.Modules.Add( module );
+        _db.Modules.Add(module);
         await _db.SaveChangesAsync();
 
         var dto = new AdminModuleDto(
-            module.Id ,
-            module.TitleEn ,
-            module.TitleEl ,
-            module.DescriptionEn ,
-            module.DescriptionEl ,
-            module.SortOrder ,
-            module.CourseId ,
+            module.Id,
+            module.TitleEn,
+            module.TitleEl,
+            module.DescriptionEn,
+            module.DescriptionEl,
+            module.SortOrder,
+            module.CourseId,
             0
         );
 
-        return CreatedAtAction( nameof( GetModulesByCourse ) , new
+        return CreatedAtAction(nameof(GetModulesByCourse), new
         {
             courseId = module.CourseId
-        } , dto );
+        }, dto);
     }
 
     /// <summary>Update an existing module by id.</summary>
-    [HttpPut( "{id:guid}" )]
-    public async Task<ActionResult<AdminModuleDto>> UpdateModule( Guid id , [FromBody] SaveModuleRequest request )
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<AdminModuleDto>> UpdateModule(Guid id, [FromBody] SaveModuleRequest request)
     {
         var module = await _db.Modules
-            .Include( m => m.Lessons )
-            .FirstOrDefaultAsync( m => m.Id == id );
+            .Include(m => m.Lessons)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
-        if ( module == null )
+        if (module == null)
             return NotFound();
 
         module.TitleEn = request.TitleEn;
         module.TitleEl = request.TitleEl;
-        module.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize( request.DescriptionEn ) : null;
-        module.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize( request.DescriptionEl ) : null;
+        module.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null;
+        module.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null;
         module.SortOrder = request.SortOrder;
         module.UpdatedAt = DateTimeOffset.UtcNow;
         module.UpdatedByUserId = UserId;
@@ -139,42 +139,42 @@ public class AdminModulesController : ControllerBase
         await _db.SaveChangesAsync();
 
         var dto = new AdminModuleDto(
-            module.Id ,
-            module.TitleEn ,
-            module.TitleEl ,
-            module.DescriptionEn ,
-            module.DescriptionEl ,
-            module.SortOrder ,
-            module.CourseId ,
+            module.Id,
+            module.TitleEn,
+            module.TitleEl,
+            module.DescriptionEn,
+            module.DescriptionEl,
+            module.SortOrder,
+            module.CourseId,
             module.Lessons.Count
         );
 
-        return Ok( dto );
+        return Ok(dto);
     }
 
     /// <summary>Delete a module and cascade-delete its lessons and their completion records.</summary>
-    [HttpDelete( "{id:guid}" )]
-    public async Task<IActionResult> DeleteModule( Guid id )
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeleteModule(Guid id)
     {
         var module = await _db.Modules
-            .Include( m => m.Lessons )
-            .FirstOrDefaultAsync( m => m.Id == id );
+            .Include(m => m.Lessons)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
-        if ( module == null )
+        if (module == null)
             return NotFound();
 
         // Remove lesson completions for all lessons in this module before deleting.
-        if ( module.Lessons.Any() )
+        if (module.Lessons.Any())
         {
-            var lessonIds = module.Lessons.Select( l => l.Id ).ToList();
+            var lessonIds = module.Lessons.Select(l => l.Id).ToList();
             var completions = await _db.LessonCompletions
-                .Where( lc => lessonIds.Contains( lc.LessonId ) )
+                .Where(lc => lessonIds.Contains(lc.LessonId))
                 .ToListAsync();
-            _db.LessonCompletions.RemoveRange( completions );
+            _db.LessonCompletions.RemoveRange(completions);
         }
 
         // Remove the module (cascade will remove its lessons).
-        _db.Modules.Remove( module );
+        _db.Modules.Remove(module);
         await _db.SaveChangesAsync();
 
         return NoContent();

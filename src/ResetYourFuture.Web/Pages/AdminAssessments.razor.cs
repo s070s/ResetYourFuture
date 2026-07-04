@@ -25,22 +25,22 @@ public partial class AdminAssessments
     {
         try
         {
-            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync( _page , _pageSize );
+            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync(_page, _pageSize);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error loading assessments: {ex.Message}";
         }
     }
 
-    private async Task OnPageSizeChanged( int size )
+    private async Task OnPageSizeChanged(int size)
     {
         _pageSize = size;
         _page = 1;
         await LoadAssessments();
     }
 
-    private async Task GoToPage( int page )
+    private async Task GoToPage(int page)
     {
         _page = page;
         await LoadAssessments();
@@ -48,72 +48,72 @@ public partial class AdminAssessments
 
     private void CreateAssessment()
     {
-        Nav.NavigateTo( "/admin/assessments/new" );
+        Nav.NavigateTo("/admin/assessments/new");
     }
 
-    private void EditAssessment( Guid id )
+    private void EditAssessment(Guid id)
     {
-        Nav.NavigateTo( $"/admin/assessments/{id}/edit" );
+        Nav.NavigateTo($"/admin/assessments/{id}/edit");
     }
 
-    private async Task PublishAssessment( Guid id )
+    private async Task PublishAssessment(Guid id)
     {
         try
         {
-            if ( await AssessmentConsumer.PublishAssessmentAsync( id ) )
+            if (await AssessmentConsumer.PublishAssessmentAsync(id))
             {
                 await LoadAssessments();
                 message = "Assessment published";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private async Task UnpublishAssessment( Guid id )
+    private async Task UnpublishAssessment(Guid id)
     {
         try
         {
-            if ( await AssessmentConsumer.UnpublishAssessmentAsync( id ) )
+            if (await AssessmentConsumer.UnpublishAssessmentAsync(id))
             {
                 await LoadAssessments();
                 message = "Assessment unpublished";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }
     }
 
-    private void ViewSubmissions( Guid id )
+    private void ViewSubmissions(Guid id)
     {
-        Nav.NavigateTo( $"/admin/assessments/{id}/submissions" );
+        Nav.NavigateTo($"/admin/assessments/{id}/submissions");
     }
 
-    private void DeleteAssessment( Guid id )
+    private void DeleteAssessment(Guid id)
     {
         _pendingDeleteId = id;
     }
 
     private async Task ExecuteDeleteAsync()
     {
-        if ( _pendingDeleteId is not { } id )
+        if (_pendingDeleteId is not { } id)
             return;
 
         _pendingDeleteId = null;
 
         try
         {
-            if ( await AssessmentConsumer.DeleteAssessmentAsync( id ) )
+            if (await AssessmentConsumer.DeleteAssessmentAsync(id))
             {
                 await LoadAssessments();
                 message = "Assessment deleted";
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             message = $"Error: {ex.Message}";
         }

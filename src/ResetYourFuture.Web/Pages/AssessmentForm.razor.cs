@@ -26,56 +26,56 @@ public partial class AssessmentForm
 
     private AssessmentDefinitionDto? assessment;
     private List<QuestionSchema>? questions;
-    private Dictionary<string , string> answers = new();
+    private Dictionary<string, string> answers = new();
     private bool isSubmitting = false;
     private bool submitted = false;
 
     protected override async Task OnInitializedAsync()
     {
         var status = await SubscriptionService.GetStatusAsync();
-        if ( status?.Features?.AssessmentAccess != true )
+        if (status?.Features?.AssessmentAccess != true)
         {
-            Nav.NavigateTo( "/pricing" );
+            Nav.NavigateTo("/pricing");
             return;
         }
 
         try
         {
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
-            assessment = await AssessmentConsumer.GetAssessmentAsync( AssessmentId, lang );
-            if ( assessment != null )
+            assessment = await AssessmentConsumer.GetAssessmentAsync(AssessmentId, lang);
+            if (assessment != null)
             {
-                var schema = JsonSerializer.Deserialize<AssessmentSchema>( assessment.SchemaJson , JsonOptions );
+                var schema = JsonSerializer.Deserialize<AssessmentSchema>(assessment.SchemaJson, JsonOptions);
                 questions = schema?.Questions ?? new List<QuestionSchema>();
 
                 // Initialize answers dictionary
-                foreach ( var q in questions )
+                foreach (var q in questions)
                 {
-                    answers [ q.Id ] = string.Empty;
+                    answers[q.Id] = string.Empty;
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error loading assessment {AssessmentId}." , AssessmentId );
+            _logger.LogError(ex, "Error loading assessment {AssessmentId}.", AssessmentId);
         }
     }
 
-    private void ToggleMultiSelect( string questionId , string option , bool isChecked )
+    private void ToggleMultiSelect(string questionId, string option, bool isChecked)
     {
-        var current = answers.ContainsKey( questionId ) ? answers [ questionId ] : string.Empty;
-        var selected = string.IsNullOrEmpty( current ) ? new List<string>() : current.Split( ',' ).ToList();
+        var current = answers.ContainsKey(questionId) ? answers[questionId] : string.Empty;
+        var selected = string.IsNullOrEmpty(current) ? new List<string>() : current.Split(',').ToList();
 
-        if ( isChecked && !selected.Contains( option ) )
+        if (isChecked && !selected.Contains(option))
         {
-            selected.Add( option );
+            selected.Add(option);
         }
-        else if ( !isChecked && selected.Contains( option ) )
+        else if (!isChecked && selected.Contains(option))
         {
-            selected.Remove( option );
+            selected.Remove(option);
         }
 
-        answers [ questionId ] = string.Join( "," , selected );
+        answers[questionId] = string.Join(",", selected);
     }
 
     private async Task HandleSubmit()
@@ -83,23 +83,23 @@ public partial class AssessmentForm
         isSubmitting = true;
         try
         {
-            var answersJson = JsonSerializer.Serialize( answers );
-            var request = new SubmitAssessmentRequest( answersJson , null );
+            var answersJson = JsonSerializer.Serialize(answers);
+            var request = new SubmitAssessmentRequest(answersJson, null);
 
-            var submission = await AssessmentConsumer.SubmitAssessmentAsync( AssessmentId, request );
+            var submission = await AssessmentConsumer.SubmitAssessmentAsync(AssessmentId, request);
 
-            if ( submission is not null )
+            if (submission is not null)
             {
                 submitted = true;
             }
             else
             {
-                _logger.LogError( "Assessment submission {AssessmentId} returned null." , AssessmentId );
+                _logger.LogError("Assessment submission {AssessmentId} returned null.", AssessmentId);
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error submitting assessment {AssessmentId}." , AssessmentId );
+            _logger.LogError(ex, "Error submitting assessment {AssessmentId}.", AssessmentId);
         }
         finally
         {
@@ -109,7 +109,7 @@ public partial class AssessmentForm
 
     private void ViewHistory()
     {
-        Nav.NavigateTo( "/assessments/mine" );
+        Nav.NavigateTo("/assessments/mine");
     }
 
     private class AssessmentSchema

@@ -46,14 +46,14 @@ public partial class Login
 
         try
         {
-            var result = await AuthService.LoginAsync( loginRequest );
+            var result = await AuthService.LoginAsync(loginRequest);
 
-            if ( result.Success )
+            if (result.Success)
             {
                 // Navigate forceLoad so the fresh HTTP request can set the auth cookie.
                 Navigation.NavigateTo(
-                    $"/auth/complete?ticket={Uri.EscapeDataString( result.Token! )}&returnUrl=%2F" ,
-                    forceLoad: true );
+                    $"/auth/complete?ticket={Uri.EscapeDataString(result.Token!)}&returnUrl=%2F",
+                    forceLoad: true);
                 return; // navigation is underway — don't touch component state
             }
             else
@@ -63,8 +63,8 @@ public partial class Login
 
                 // Detect "email not confirmed" failure and surface targeted guidance (all
                 // environments). The dev-only self-confirm button is gated separately in the markup.
-                if ( !string.IsNullOrEmpty( result.Message )
-                    && result.Message.Contains( "email not confirmed" , StringComparison.OrdinalIgnoreCase ) )
+                if (!string.IsNullOrEmpty(result.Message)
+                    && result.Message.Contains("email not confirmed", StringComparison.OrdinalIgnoreCase))
                 {
                     unconfirmedEmailPending = true;
                     pendingUnconfirmedEmail = loginRequest.Email;
@@ -73,11 +73,11 @@ public partial class Login
                 }
             }
         }
-        catch ( HttpRequestException )
+        catch (HttpRequestException)
         {
             errorMessage = "Unable to connect to the server. Please try again.";
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"An unexpected error occurred: {ex.Message}";
         }
@@ -87,15 +87,15 @@ public partial class Login
 
     private async Task DevConfirmPendingEmail()
     {
-        if ( string.IsNullOrEmpty( pendingUnconfirmedEmail ) )
+        if (string.IsNullOrEmpty(pendingUnconfirmedEmail))
             return;
 
         try
         {
-            var http = HttpClientFactory.CreateClient( "SelfClient" );
-            var response = await http.PostAsJsonAsync( "api/auth/dev/confirm-email" , pendingUnconfirmedEmail );
+            var http = HttpClientFactory.CreateClient("SelfClient");
+            var response = await http.PostAsJsonAsync("api/auth/dev/confirm-email", pendingUnconfirmedEmail);
 
-            if ( response.IsSuccessStatusCode )
+            if (response.IsSuccessStatusCode)
             {
                 unconfirmedEmailPending = false;
                 devSuccessMessage = SuccessMessagesRes.EmailConfirmationSuccess;
@@ -106,7 +106,7 @@ public partial class Login
                 errorMessage = apiResp?.Message ?? ErrorMessagesRes.EmailConfirmationError;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             errorMessage = $"{ErrorMessagesRes.EmailConfirmationError}: {ex.Message}";
         }

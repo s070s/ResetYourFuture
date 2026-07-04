@@ -17,7 +17,7 @@ public partial class AssessmentHistory
     private AssessmentSubmissionDto? selectedSubmission;
 
     /// <summary>Cache of assessment schemas keyed by definition id → (questionId → label).</summary>
-    private readonly Dictionary<Guid , Dictionary<string , string>> schemaCache = new();
+    private readonly Dictionary<Guid, Dictionary<string, string>> schemaCache = new();
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -29,69 +29,69 @@ public partial class AssessmentHistory
         try
         {
             submissions = await AssessmentConsumer.GetMySubmissionsAsync();
-            latestSubmission = submissions?.OrderByDescending( s => s.SubmittedAt ).FirstOrDefault();
-            _sortedSubmissions = submissions?.OrderByDescending( s => s.SubmittedAt ).ToList() ?? new();
+            latestSubmission = submissions?.OrderByDescending(s => s.SubmittedAt).FirstOrDefault();
+            _sortedSubmissions = submissions?.OrderByDescending(s => s.SubmittedAt).ToList() ?? new();
 
             // Pre-load schemas for all distinct assessments so labels are available immediately
-            if ( submissions != null )
+            if (submissions != null)
             {
-                var distinctIds = submissions.Select( s => s.AssessmentDefinitionId ).Distinct();
-                foreach ( var defId in distinctIds )
+                var distinctIds = submissions.Select(s => s.AssessmentDefinitionId).Distinct();
+                foreach (var defId in distinctIds)
                 {
-                    await LoadSchemaAsync( defId );
+                    await LoadSchemaAsync(defId);
                 }
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
-            _logger.LogError( ex , "Error loading assessment submissions." );
+            _logger.LogError(ex, "Error loading assessment submissions.");
             submissions = new List<AssessmentSubmissionDto>();
         }
     }
 
-    private async Task LoadSchemaAsync( Guid definitionId )
+    private async Task LoadSchemaAsync(Guid definitionId)
     {
-        if ( schemaCache.ContainsKey( definitionId ) )
+        if (schemaCache.ContainsKey(definitionId))
             return;
         try
         {
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
-            var def = await AssessmentConsumer.GetAssessmentAsync( definitionId, lang );
-            if ( def != null )
+            var def = await AssessmentConsumer.GetAssessmentAsync(definitionId, lang);
+            if (def != null)
             {
-                var schema = JsonSerializer.Deserialize<SchemaRoot>( def.SchemaJson , JsonOptions );
-                var labels = new Dictionary<string , string>();
-                if ( schema?.Questions != null )
+                var schema = JsonSerializer.Deserialize<SchemaRoot>(def.SchemaJson, JsonOptions);
+                var labels = new Dictionary<string, string>();
+                if (schema?.Questions != null)
                 {
-                    foreach ( var q in schema.Questions )
+                    foreach (var q in schema.Questions)
                     {
-                        labels [ q.Id ] = q.Label ?? q.Text ?? q.Id;
+                        labels[q.Id] = q.Label ?? q.Text ?? q.Id;
                     }
                 }
-                schemaCache [ definitionId ] = labels;
+                schemaCache[definitionId] = labels;
             }
         }
         catch
         {
-            schemaCache [ definitionId ] = new();
+            schemaCache[definitionId] = new();
         }
     }
 
-    private string ResolveLabel( Guid definitionId , string questionId )
+    private string ResolveLabel(Guid definitionId, string questionId)
     {
-        if ( schemaCache.TryGetValue( definitionId , out var labels )
-            && labels.TryGetValue( questionId , out var label ) )
+        if (schemaCache.TryGetValue(definitionId, out var labels)
+            && labels.TryGetValue(questionId, out var label))
         {
             return label;
         }
         return questionId;
     }
 
-    private static Dictionary<string , string> ParseAnswers( string answersJson )
+    private static Dictionary<string, string> ParseAnswers(string answersJson)
     {
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string , string>>( answersJson , JsonOptions ) ?? new();
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(answersJson, JsonOptions) ?? new();
         }
         catch
         {
@@ -99,9 +99,9 @@ public partial class AssessmentHistory
         }
     }
 
-    private void ViewSubmission( Guid id )
+    private void ViewSubmission(Guid id)
     {
-        selectedSubmission = submissions?.FirstOrDefault( s => s.Id == id );
+        selectedSubmission = submissions?.FirstOrDefault(s => s.Id == id);
     }
 
     private void CloseModal()

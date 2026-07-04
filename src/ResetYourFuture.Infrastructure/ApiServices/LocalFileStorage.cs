@@ -10,41 +10,41 @@ public class LocalFileStorage : IFileStorage
 {
     private readonly string _basePath;
     private readonly ILogger<LocalFileStorage> _logger;
-    
+
     // File size limits (in bytes)
     private const long MaxAvatarSize = 5 * 1024 * 1024; // 5 MB
     private const long MaxPdfSize = 20 * 1024 * 1024; // 20 MB
     private const long MaxVideoSize = 500 * 1024 * 1024; // 500 MB
     private const long MaxBackgroundImageSize = 8 * 1024 * 1024; // 8 MB
-    
+
     // Allowed content types
     private static readonly HashSet<string> AllowedImageTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"
     };
-    
+
     private static readonly HashSet<string> AllowedPdfTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "application/pdf"
     };
-    
+
     private static readonly HashSet<string> AllowedVideoTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "video/mp4", "video/webm", "video/ogg"
     };
-    
+
     public LocalFileStorage(IWebHostEnvironment environment, ILogger<LocalFileStorage> logger)
     {
         _basePath = Path.Combine(environment.ContentRootPath, "App_Data", "Uploads");
         _logger = logger;
-        
+
         // Ensure base directory exists
         if (!Directory.Exists(_basePath))
         {
             Directory.CreateDirectory(_basePath);
         }
     }
-    
+
     public async Task<string> SaveFileAsync(Stream fileStream, string fileName, string folder, long? maxBytes = null, CancellationToken cancellationToken = default)
     {
         // Validate file name
@@ -89,7 +89,7 @@ public class LocalFileStorage : IFileStorage
 
         return relativePath;
     }
-    
+
     public Task<(Stream stream, string contentType)> GetFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         // Validate and sanitize path
@@ -98,23 +98,23 @@ public class LocalFileStorage : IFileStorage
         {
             throw new ArgumentException("Invalid file path", nameof(filePath));
         }
-        
+
         var fullPath = Path.Combine(_basePath, filePath);
-        
+
         if (!File.Exists(fullPath))
         {
             throw new FileNotFoundException("File not found", filePath);
         }
-        
+
         // Open file stream
         var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, useAsync: true);
-        
+
         // Determine content type from extension
         var contentType = GetContentType(Path.GetExtension(fullPath));
-        
+
         return Task.FromResult((stream as Stream, contentType));
     }
-    
+
     public Task DeleteFileAsync(string filePath, CancellationToken cancellationToken = default)
     {
         // Validate and sanitize path
@@ -123,18 +123,18 @@ public class LocalFileStorage : IFileStorage
         {
             throw new ArgumentException("Invalid file path", nameof(filePath));
         }
-        
+
         var fullPath = Path.Combine(_basePath, filePath);
-        
+
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);
             _logger.LogInformation("File deleted: {FilePath}", filePath);
         }
-        
+
         return Task.CompletedTask;
     }
-    
+
     public bool FileExists(string filePath)
     {
         // Validate and sanitize path
@@ -143,11 +143,11 @@ public class LocalFileStorage : IFileStorage
         {
             return false;
         }
-        
+
         var fullPath = Path.Combine(_basePath, filePath);
         return File.Exists(fullPath);
     }
-    
+
     private void ValidateFileSize(Stream fileStream, string folder, long? explicitMaxBytes)
     {
         // Network streams (e.g. from IFormFile) may not be seekable;
@@ -162,16 +162,16 @@ public class LocalFileStorage : IFileStorage
         // silently inheriting an arbitrary default.
         long maxSize = explicitMaxBytes ?? folder.ToLowerInvariant() switch
         {
-            var f when f.Contains("avatar")       => MaxAvatarSize,
-            var f when f.Contains("pdf")          => MaxPdfSize,
-            var f when f.Contains("video")        => MaxVideoSize,
-            var f when f.Contains("background")   => MaxBackgroundImageSize,
-            var f when f.Contains("cover")        => MaxBackgroundImageSize,
-            var f when f.Contains("blog")         => MaxBackgroundImageSize,
-            var f when f.Contains("certificate")  => MaxPdfSize,
+            var f when f.Contains("avatar") => MaxAvatarSize,
+            var f when f.Contains("pdf") => MaxPdfSize,
+            var f when f.Contains("video") => MaxVideoSize,
+            var f when f.Contains("background") => MaxBackgroundImageSize,
+            var f when f.Contains("cover") => MaxBackgroundImageSize,
+            var f when f.Contains("blog") => MaxBackgroundImageSize,
+            var f when f.Contains("certificate") => MaxPdfSize,
             _ => throw new InvalidOperationException(
                 $"No file-size limit configured for folder '{folder}'. " +
-                "Pass an explicit maxBytes to SaveFileAsync or add a folder mapping." )
+                "Pass an explicit maxBytes to SaveFileAsync or add a folder mapping.")
         };
 
         if (fileSize > maxSize)
@@ -179,7 +179,7 @@ public class LocalFileStorage : IFileStorage
             throw new InvalidOperationException($"File size ({fileSize} bytes) exceeds maximum allowed size ({maxSize} bytes)");
         }
     }
-    
+
     private string GetContentType(string extension)
     {
         return extension.ToLowerInvariant() switch

@@ -25,12 +25,12 @@ public partial class MyCertificates
     {
         try
         {
-            _certificates = await CertificateConsumer.GetMyCertificatesAsync( CurrentLang );
+            _certificates = await CertificateConsumer.GetMyCertificatesAsync(CurrentLang);
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = CertificateRes.FailedToLoad;
-            _logger.LogError( ex , "Failed to load certificates." );
+            _logger.LogError(ex, "Failed to load certificates.");
         }
         finally
         {
@@ -38,36 +38,36 @@ public partial class MyCertificates
         }
     }
 
-    private async Task DownloadAsync( CertificateDto cert )
+    private async Task DownloadAsync(CertificateDto cert)
     {
         _downloading = cert.Id;
 
         try
         {
-            var bytes = await CertificateConsumer.DownloadCertificateAsync( cert.Id );
-            if ( bytes is not null )
+            var bytes = await CertificateConsumer.DownloadCertificateAsync(cert.Id);
+            if (bytes is not null)
             {
-                var fileName = ToSafeFileName( $"Certificate - {cert.RecipientName} - {cert.CourseTitle}" ) + ".pdf";
-                await JSRuntime.InvokeVoidAsync( "downloadFile" , fileName , "application/pdf" , bytes );
+                var fileName = ToSafeFileName($"Certificate - {cert.RecipientName} - {cert.CourseTitle}") + ".pdf";
+                await JSRuntime.InvokeVoidAsync("downloadFile", fileName, "application/pdf", bytes);
             }
             else
             {
                 _error = CertificateRes.NotAvailable;
             }
         }
-        catch ( Exception ex )
+        catch (Exception ex)
         {
             _error = CertificateRes.DownloadFailed;
-            _logger.LogError( ex , "Failed to download certificate {CertificateId}." , cert.Id );
+            _logger.LogError(ex, "Failed to download certificate {CertificateId}.", cert.Id);
         }
         finally
         {
             _downloading = null;
         }
     }
-    private static string ToSafeFileName( string input )
+    private static string ToSafeFileName(string input)
     {
-        var safe = string.Concat( input.Select( c => c is '/' or '\\' or ':' or '*' or '?' or '"' or '<' or '>' or '|' ? '_' : c ) );
+        var safe = string.Concat(input.Select(c => c is '/' or '\\' or ':' or '*' or '?' or '"' or '<' or '>' or '|' ? '_' : c));
         return safe.Length > 100 ? safe[..100].TrimEnd() : safe;
     }
 }
