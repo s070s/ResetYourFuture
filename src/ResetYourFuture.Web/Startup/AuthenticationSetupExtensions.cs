@@ -84,10 +84,15 @@ public static class AuthenticationSetupExtensions
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.LoginPath = "/login";
             options.LogoutPath = "/logout";
-            // Sliding window: 24 h of activity. MaxAge hard-caps at 7 days regardless of activity.
+            // Sliding window: 24 h of activity for the server-side ticket validity.
+            // Cookie.MaxAge is deliberately NOT set here: CookieBuilder applies MaxAge to every
+            // Set-Cookie header unconditionally, regardless of AuthenticationProperties.IsPersistent,
+            // which would force a persistent (7-day) cookie even for "Remember Me" unchecked
+            // sign-ins. Persistence is controlled per sign-in instead — see
+            // InfrastructureEndpointsExtensions.MapInfrastructureEndpoints's /auth/complete handler,
+            // which sets IsPersistent + ExpiresUtc from the login's rememberMe flag.
             options.ExpireTimeSpan = TimeSpan.FromHours(24);
             options.SlidingExpiration = true;
-            options.Cookie.MaxAge = TimeSpan.FromDays(7);
 
             // In development allow the cookie over plain HTTP
             options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
