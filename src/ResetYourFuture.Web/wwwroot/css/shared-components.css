@@ -1,5 +1,14 @@
 /* ================================================
    Shared Component Styles
+
+   Convention: styles only ever rendered by one Blazor
+   component belong in that component's own scoped
+   *.razor.css. Styles here are for rules that apply
+   across 2+ unrelated pages/components — Bootstrap
+   dark-theme overrides (form-control, modal, table,
+   alert, card) and multi-page utility classes
+   (pagination toolbar, page-size-select). Base
+   variables/reset/layout shell live in app.css.
    ================================================ */
 
 /* ── Skip to content link (WCAG 2.4.1) ──
@@ -513,47 +522,6 @@ input[type="date"].form-control:focus {
     min-width: 4rem;
 }
 
-.pagination-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-top: 1.25rem;
-}
-
-.pagination-btn {
-    min-width: 2.25rem;
-    height: 2.25rem;
-    padding: 0 0.6rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-light-normal);
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-}
-
-.pagination-btn:hover:not(:disabled) {
-    background-color: var(--bg-table-header-hover);
-    border-color: var(--text-accent);
-    color: var(--text-accent);
-}
-
-.pagination-btn.active {
-    background-color: var(--text-accent);
-    border-color: var(--text-accent);
-    color: #fff;
-    font-weight: 600;
-    cursor: default;
-}
-
-.pagination-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
 /* ================================================
    Page-size select — themed dropdown used in admin
    tables, chat sidebar, and message pane
@@ -587,73 +555,6 @@ input[type="date"].form-control:focus {
 }
 
 /* ================================================
-   LoadingSpinner component — compass-themed
-   ================================================ */
-.compass-spinner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Fills the nearest positioned ancestor with a soft blur overlay */
-.compass-spinner--overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(var(--bg-primary-rgb), 0.78);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    z-index: 100;
-}
-
-.compass-spinner__container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.compass-spinner__svg {
-    overflow: visible;
-}
-
-/* Size variants */
-.compass-spinner--small  .compass-spinner__svg { width: 48px;  height: 48px; }
-.compass-spinner--medium .compass-spinner__svg { width: 80px;  height: 80px; }
-.compass-spinner--large  .compass-spinner__svg { width: 120px; height: 120px; }
-
-/* SVG element classes */
-.compass-spinner__ring-outer {
-    fill: none;
-    stroke: rgba(172, 173, 190, 0.22);
-    stroke-width: 1.5px;
-}
-
-.compass-spinner__tick-cardinal {
-    stroke: rgba(206, 200, 240, 0.65);
-    stroke-width: 2;
-    stroke-linecap: round;
-}
-
-.compass-spinner__tick-minor {
-    stroke: rgba(206, 200, 240, 0.25);
-    stroke-width: 1;
-    stroke-linecap: round;
-}
-
-.compass-spinner__cardinal-n {
-    fill: rgba(206, 200, 240, 0.65);
-    font-size: 9px;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-weight: 700;
-    text-anchor: middle;
-}
-
-/* Hide "N" label on the smallest size — too tiny to read */
-.compass-spinner--small .compass-spinner__cardinal-n {
-    display: none;
-}
-
-/* ================================================
    Mobile modal constraints
    Prevent modals from overflowing the viewport on
    small screens and ensure the body is scrollable.
@@ -675,69 +576,6 @@ input[type="date"].form-control:focus {
         overscroll-behavior: contain;
         -webkit-overflow-scrolling: touch;
     }
-}
-
-.compass-spinner__arc-track {
-    fill: none;
-    stroke: rgba(196, 124, 180, 0.14);
-    stroke-width: 3;
-}
-
-/* Main arc — spins continuously */
-.compass-spinner__arc {
-    fill: none;
-    stroke: #C47CB4;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 88 207;
-    transform-origin: 60px 60px;
-    animation: compass-arc-spin 1.8s linear infinite;
-    filter: drop-shadow(0 0 5px rgba(196, 124, 180, 0.6));
-    will-change: transform;
-}
-
-/* Ghost trail arc — offset behind the main arc for a comet effect */
-.compass-spinner__arc-trail {
-    fill: none;
-    stroke: rgba(196, 124, 180, 0.22);
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 26 269;
-    transform-origin: 60px 60px;
-    animation: compass-arc-spin 1.8s linear infinite;
-    animation-delay: -0.35s;
-    will-change: transform;
-}
-
-.compass-spinner__ring-inner {
-    fill: none;
-    stroke: rgba(172, 173, 190, 0.12);
-    stroke-width: 0.8px;
-}
-
-/* Needle — seeks north like a real compass */
-.compass-spinner__needle-group {
-    transform-origin: 60px 60px;
-    animation: compass-needle-seek 4s linear infinite;
-    will-change: transform;
-}
-
-.compass-spinner__needle-north { fill: #C47CB4; }
-.compass-spinner__needle-south { fill: rgba(206, 200, 240, 0.45); }
-
-.compass-spinner__center       { fill: #C47CB4; }
-.compass-spinner__center-inner { fill: var(--bg-primary); }
-
-.compass-spinner__label {
-    color: var(--text-light-muted);
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-/* No label on small spinners */
-.compass-spinner--small .compass-spinner__label {
-    display: none;
 }
 
 /* ================================================
@@ -789,8 +627,6 @@ input[type="date"].form-control:focus {
    On coarse pointers (touch), raise dense pagination controls to 44px.
    ================================================ */
 @media (pointer: coarse) {
-    .pagination-btn,
-    .pagination-nav .btn,
     .pagination-controls .btn,
     .pagination-toolbar-admin .btn,
     .page-size-select,

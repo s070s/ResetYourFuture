@@ -32,6 +32,8 @@
 
     <!-- OpenAPI -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <!-- Pin transitive Microsoft.OpenApi to a patched 2.x release (CVE-2026-49451 fixed in 2.7.5+); avoids the breaking 3.x major. -->
+    <PackageReference Include="Microsoft.OpenApi" />
   </ItemGroup>
 
   <ItemGroup>

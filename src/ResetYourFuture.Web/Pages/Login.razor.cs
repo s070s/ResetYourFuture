@@ -64,8 +64,9 @@ public partial class Login
 
                 // Detect "email not confirmed" failure and surface targeted guidance (all
                 // environments). The dev-only self-confirm button is gated separately in the markup.
-                if (!string.IsNullOrEmpty(result.Message)
-                    && result.Message.Contains("email not confirmed", StringComparison.OrdinalIgnoreCase))
+                // Compared against the resx value (not a hardcoded English substring) so this still
+                // matches once AuthService's message is localized to the request's culture.
+                if (result.Message == ErrorMessagesRes.EmailNotConfirmedError)
                 {
                     unconfirmedEmailPending = true;
                     pendingUnconfirmedEmail = loginRequest.Email;

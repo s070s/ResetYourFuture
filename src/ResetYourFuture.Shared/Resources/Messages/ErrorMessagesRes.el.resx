@@ -144,4 +144,73 @@
   <data name="EmailNotConfirmedHint" xml:space="preserve">
     <value>Η διεύθυνση email σας δεν έχει επιβεβαιωθεί ακόμη. Ελέγξτε τα εισερχόμενά σας για τον σύνδεσμο επιβεβαίωσης.</value>
   </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Μη έγκυρα διαπιστευτήρια.</value>
+  </data>
+  <data name="EmailNotConfirmedError" xml:space="preserve">
+    <value>Το email δεν έχει επιβεβαιωθεί.</value>
+  </data>
+  <data name="AccountDisabledContactSupport" xml:space="preserve">
+    <value>Ο λογαριασμός σας έχει απενεργοποιηθεί. Παρακαλώ επικοινωνήστε με την υποστήριξη.</value>
+  </data>
+  <data name="AccountLocked" xml:space="preserve">
+    <value>Ο λογαριασμός κλειδώθηκε. Δοκιμάστε ξανά αργότερα.</value>
+  </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>Ο χρήστης δεν βρέθηκε.</value>
+  </data>
+  <data name="InvalidOrExpiredRefreshToken" xml:space="preserve">
+    <value>Μη έγκυρο ή ληγμένο token ανανέωσης.</value>
+  </data>
+  <data name="AccountIsDisabled" xml:space="preserve">
+    <value>Ο λογαριασμός είναι απενεργοποιημένος.</value>
+  </data>
+  <data name="InvalidRequest" xml:space="preserve">
+    <value>Μη έγκυρο αίτημα.</value>
+  </data>
+  <data name="RegistrationFailedGeneric" xml:space="preserve">
+    <value>Η εγγραφή απέτυχε. Ελέγξτε τα στοιχεία σας και δοκιμάστε ξανά.</value>
+  </data>
+  <data name="InvalidConfirmationLink" xml:space="preserve">
+    <value>Μη έγκυρος σύνδεσμος επιβεβαίωσης.</value>
+  </data>
+  <data name="AssessmentAccessRequiresPlus" xml:space="preserve">
+    <value>Η πρόσβαση σε αξιολογήσεις απαιτεί συνδρομή Plus ή ανώτερη.</value>
+  </data>
+  <data name="AssessmentNotFoundOrUnpublished" xml:space="preserve">
+    <value>Η αξιολόγηση δεν βρέθηκε ή δεν έχει δημοσιευτεί</value>
+  </data>
+  <data name="AssessmentRequiresTierFormat" xml:space="preserve">
+    <value>Αυτή η αξιολόγηση απαιτεί συνδρομή {0} ή ανώτερη.</value>
+  </data>
+  <data name="CourseNotFound" xml:space="preserve">
+    <value>Το μάθημα δεν βρέθηκε</value>
+  </data>
+  <data name="CourseRequiresTierFormat" xml:space="preserve">
+    <value>Αυτό το μάθημα απαιτεί συνδρομή {0} ή ανώτερη. Αναβαθμίστε το πλάνο σας.</value>
+  </data>
+  <data name="CourseEnrollmentLimitReachedFormat" xml:space="preserve">
+    <value>Το πλάνο {0} επιτρέπει έως {1} μάθημα/μαθήματα. Αναβαθμίστε για εγγραφή σε περισσότερα μαθήματα.</value>
+  </data>
+  <data name="LessonNotFound" xml:space="preserve">
+    <value>Το μάθημα δεν βρέθηκε</value>
+  </data>
+  <data name="MustBeEnrolledToViewLessons" xml:space="preserve">
+    <value>Πρέπει να είστε εγγεγραμμένος σε αυτό το μάθημα για να δείτε τα μαθήματα</value>
+  </data>
+  <data name="NotEnrolledInCourse" xml:space="preserve">
+    <value>Δεν είστε εγγεγραμμένος σε αυτό το μάθημα</value>
+  </data>
+  <data name="NoFileProvided" xml:space="preserve">
+    <value>Δεν παρέχεται αρχείο</value>
+  </data>
+  <data name="FileTooLarge5Mb" xml:space="preserve">
+    <value>Το αρχείο είναι πολύ μεγάλο (μέγιστο 5 MB)</value>
+  </data>
+  <data name="OnlyImageFilesAllowed" xml:space="preserve">
+    <value>Επιτρέπονται μόνο αρχεία εικόνας (jpeg, png, gif, webp).</value>
+  </data>
+  <data name="FailedToSaveAvatar" xml:space="preserve">
+    <value>Αποτυχία αποθήκευσης του avatar.</value>
+  </data>
 </root>

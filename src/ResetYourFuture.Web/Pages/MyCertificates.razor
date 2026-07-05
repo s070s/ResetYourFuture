@@ -9,7 +9,7 @@
 
 @if (_loading)
 {
-    <p>@CertificateRes.Loading</p>
+    <LoadingSpinner Label="@CertificateRes.Loading" />
 }
 else if (_certificates is null || _certificates.Count == 0)
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Web.Shared;
+using ResetYourFuture.Web.Shared.Components.Forms;
 using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
 

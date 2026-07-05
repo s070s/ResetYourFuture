@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Extensions;
 
 using System.Security.Claims;
@@ -49,15 +50,15 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     public async Task<ActionResult<AvatarUploadResultDto>> UploadAvatar(IFormFile file)
     {
         if (file == null || file.Length == 0)
-            return BadRequest("No file provided");
+            return BadRequest(ErrorMessagesRes.NoFileProvided);
 
         const long maxAvatarSize = 5 * 1024 * 1024; // 5 MB
         if (file.Length > maxAvatarSize)
-            return BadRequest("File too large (max 5 MB)");
+            return BadRequest(ErrorMessagesRes.FileTooLarge5Mb);
 
         var allowedAvatarTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
         if (!allowedAvatarTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
-            return BadRequest("Only image files are allowed (jpeg, png, gif, webp).");
+            return BadRequest(ErrorMessagesRes.OnlyImageFilesAllowed);
 
         using var stream = file.OpenReadStream();
         var result = await profileService.UploadAvatarAsync(UserId, stream, file.FileName);

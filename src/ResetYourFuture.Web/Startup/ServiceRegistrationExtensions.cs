@@ -85,6 +85,14 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddMemoryCache();
         builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 32_000);
         builder.Services.AddControllers();
+        // Enables IProblemDetailsService, used by UseStatusCodePages() (bare-status error responses,
+        // e.g. NotFound()/Forbid()/429 rate-limit rejections) and the production exception handler
+        // below, so every error response follows the same RFC 7807 application/problem+json shape.
+        builder.Services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+                context.ProblemDetails.Extensions.TryAdd("traceId", context.HttpContext.TraceIdentifier);
+        });
         // Built-in OpenAPI document ("v1") + API metadata, JWT bearer scheme, and per-operation security.
         builder.Services.AddResetYourFutureOpenApi();
         builder.Services.AddHostedService<BulkStudentSeedingService>();

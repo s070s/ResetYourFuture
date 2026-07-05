@@ -5,6 +5,7 @@ using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.ApiServices;
 
@@ -124,14 +125,14 @@ public class CourseService(
     {
         var course = await db.Courses.FirstOrDefaultAsync(c => c.Id == courseId && c.IsPublished, cancellationToken);
         if (course is null)
-            return ServiceResult<EnrollmentResultDto>.NotFound(new EnrollmentResultDto(false, "Course not found", null));
+            return ServiceResult<EnrollmentResultDto>.NotFound(new EnrollmentResultDto(false, ErrorMessagesRes.CourseNotFound, null));
 
         var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Tier < course.RequiredTier)
         {
             return ServiceResult<EnrollmentResultDto>.Forbidden(new EnrollmentResultDto(
                 false,
-                $"This course requires a {course.RequiredTier} subscription or higher. Please upgrade your plan.",
+                string.Format(ErrorMessagesRes.CourseRequiresTierFormat, course.RequiredTier),
                 null));
         }
 
@@ -146,7 +147,7 @@ public class CourseService(
             {
                 return ServiceResult<EnrollmentResultDto>.Forbidden(new EnrollmentResultDto(
                     false,
-                    $"Your {userStatus.PlanName} plan allows up to {maxCourses} course(s). Please upgrade to enroll in more courses.",
+                    string.Format(ErrorMessagesRes.CourseEnrollmentLimitReachedFormat, userStatus.PlanName, maxCourses),
                     null));
             }
         }
@@ -155,7 +156,7 @@ public class CourseService(
             .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId, cancellationToken);
 
         if (existing is not null)
-            return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Already enrolled", existing.Id));
+            return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, SuccessMessagesRes.AlreadyEnrolled, existing.Id));
 
         var enrollment = new Enrollment
         {
@@ -180,14 +181,14 @@ public class CourseService(
                 .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId, cancellationToken);
 
             if (winner is not null)
-                return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Already enrolled", winner.Id));
+                return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, SuccessMessagesRes.AlreadyEnrolled, winner.Id));
 
             throw;
         }
 
         logger.LogInformation("User {UserId} enrolled in course {CourseId}", userId, courseId);
 
-        return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, "Enrolled successfully", enrollment.Id));
+        return ServiceResult<EnrollmentResultDto>.Ok(new EnrollmentResultDto(true, SuccessMessagesRes.EnrolledSuccessfully, enrollment.Id));
     }
 
     public async Task<ServiceResult<LessonDetailDto>> GetLessonDetailAsync(string userId, Guid lessonId, string lang, CancellationToken cancellationToken = default)
@@ -201,17 +202,17 @@ public class CourseService(
             .FirstOrDefaultAsync(l => l.Id == lessonId, cancellationToken);
 
         if (lesson is null)
-            return ServiceResult<LessonDetailDto>.NotFound(error: "Lesson not found");
+            return ServiceResult<LessonDetailDto>.NotFound(error: ErrorMessagesRes.LessonNotFound);
 
         var course = lesson.Module.Course;
         if (!course.IsPublished)
-            return ServiceResult<LessonDetailDto>.NotFound(error: "Course not found");
+            return ServiceResult<LessonDetailDto>.NotFound(error: ErrorMessagesRes.CourseNotFound);
 
         var isEnrolled = await db.Enrollments
             .AnyAsync(e => e.UserId == userId && e.CourseId == course.Id, cancellationToken);
 
         if (!isEnrolled)
-            return ServiceResult<LessonDetailDto>.BadRequest(error: "You must be enrolled in this course to view lessons");
+            return ServiceResult<LessonDetailDto>.BadRequest(error: ErrorMessagesRes.MustBeEnrolledToViewLessons);
 
         var isCompleted = await db.LessonCompletions
             .AnyAsync(lc => lc.UserId == userId && lc.LessonId == lessonId, cancellationToken);
@@ -260,7 +261,7 @@ public class CourseService(
 
         if (lesson is null)
             return ServiceResult<LessonCompletionResultDto>.NotFound(
-                new LessonCompletionResultDto(false, "Lesson not found", 0, 0, 0, false));
+                new LessonCompletionResultDto(false, ErrorMessagesRes.LessonNotFound, 0, 0, 0, false));
 
         var courseId = lesson.Module.CourseId;
 
@@ -269,7 +270,7 @@ public class CourseService(
 
         if (enrollment is null)
             return ServiceResult<LessonCompletionResultDto>.BadRequest(
-                new LessonCompletionResultDto(false, "Not enrolled in this course", 0, 0, 0, false));
+                new LessonCompletionResultDto(false, ErrorMessagesRes.NotEnrolledInCourse, 0, 0, 0, false));
 
         var existingCompletion = await db.LessonCompletions
             .FirstOrDefaultAsync(lc => lc.UserId == userId && lc.LessonId == lessonId, cancellationToken);
@@ -330,7 +331,7 @@ public class CourseService(
 
         return ServiceResult<LessonCompletionResultDto>.Ok(new LessonCompletionResultDto(
             true,
-            existingCompletion is null ? "Lesson completed" : "Already completed",
+            existingCompletion is null ? SuccessMessagesRes.LessonCompletedMsg : SuccessMessagesRes.AlreadyCompleted,
             completedCount,
             totalLessons,
             progressPercent,

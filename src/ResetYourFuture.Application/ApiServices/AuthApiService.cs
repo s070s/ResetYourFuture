@@ -7,6 +7,7 @@ using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Shared.Resources.Messages;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -61,7 +62,7 @@ public class AuthApiService(
             // Password-policy errors (too short, no digits, etc.) are safe to surface verbatim.
             var safeErrors = result.Errors.Select(e =>
                 e.Code is "DuplicateUserName" or "DuplicateEmail"
-                    ? "Registration failed. Please check your details and try again."
+                    ? ErrorMessagesRes.RegistrationFailedGeneric
                     : e.Description);
 
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Errors = safeErrors });
@@ -87,18 +88,18 @@ public class AuthApiService(
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto
         {
             Success = true,
-            Message = "Registration successful. Please check your email to confirm your account."
+            Message = SuccessMessagesRes.RegistrationSuccessfulCheckEmail
         });
     }
 
     public async Task<ServiceResult<AuthResponseDto>> ConfirmEmailAsync(string userId, string token)
     {
         if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = "Invalid confirmation link." });
+            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidConfirmationLink });
 
         var user = await userManager.FindByIdAsync(userId);
         if (user == null)
-            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = "User not found." });
+            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.UserNotFound });
 
         var result = await userManager.ConfirmEmailAsync(user, token);
         if (!result.Succeeded)
@@ -108,7 +109,7 @@ public class AuthApiService(
         }
 
         logger.LogInformation("Email confirmed for user {Email}", user.Email);
-        return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = "Email confirmed successfully." });
+        return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = SuccessMessagesRes.EmailConfirmedSuccessfully });
     }
 
     public async Task<ServiceResult<AuthResponseDto>> LoginAsync(LoginRequestDto request)
@@ -117,19 +118,19 @@ public class AuthApiService(
         if (user == null)
         {
             logger.LogWarning("Login attempt for non-existent user: {Email}", request.Email);
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Invalid credentials." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials });
         }
 
         if (!await userManager.IsEmailConfirmedAsync(user))
         {
             logger.LogWarning("Login blocked for unconfirmed email: {Email}", request.Email);
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Invalid credentials." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials });
         }
 
         if (!user.IsEnabled)
         {
             logger.LogWarning("Login blocked for disabled user: {Email}", request.Email);
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Your account has been disabled. Please contact support." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountDisabledContactSupport });
         }
 
         var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
@@ -138,10 +139,10 @@ public class AuthApiService(
             if (result.IsLockedOut)
             {
                 logger.LogWarning("User {Email} is locked out.", request.Email);
-                return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Account locked. Try again later." });
+                return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountLocked });
             }
             logger.LogWarning("Invalid password for {Email}", request.Email);
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Invalid credentials." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials });
         }
 
         var (token, expiration) = await tokenService.GenerateAccessTokenAsync(user);
@@ -185,7 +186,7 @@ public class AuthApiService(
         if (stored is null || stored.RevokedAt is not null || stored.ExpiresAt <= DateTimeOffset.UtcNow)
         {
             logger.LogWarning("Refresh attempt with invalid, expired, or revoked token.");
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Invalid or expired refresh token." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidOrExpiredRefreshToken });
         }
 
         var user = stored.User;
@@ -195,7 +196,7 @@ public class AuthApiService(
             stored.RevokedAt = DateTimeOffset.UtcNow;
             await context.SaveChangesAsync();
             logger.LogWarning("Refresh attempt for disabled user {UserId}.", user.Id);
-            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = "Account is disabled." });
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountIsDisabled });
         }
 
         // Rotate: revoke the old token and issue a new pair
@@ -233,7 +234,7 @@ public class AuthApiService(
         if (user == null || !await userManager.IsEmailConfirmedAsync(user))
         {
             // Don't reveal if user exists
-            return new AuthResponseDto { Success = true, Message = "If the email exists, a reset link has been sent." };
+            return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetLinkSent };
         }
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
@@ -242,7 +243,7 @@ public class AuthApiService(
         logger.LogInformation("Password reset requested for {Email}. Reset email queued.", request.Email);
         await emailService.SendPasswordResetAsync(user.Email!, resetUrl);
 
-        return new AuthResponseDto { Success = true, Message = "If the email exists, a reset link has been sent." };
+        return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetLinkSent };
     }
 
     public async Task<ServiceResult<AuthResponseDto>> ResetPasswordAsync(ResetPasswordRequestDto request)
@@ -251,7 +252,7 @@ public class AuthApiService(
         if (user == null)
         {
             // Don't reveal if user exists
-            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = "Invalid request." });
+            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidRequest });
         }
 
         var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
@@ -259,11 +260,11 @@ public class AuthApiService(
         {
             logger.LogWarning("Password reset failed for {Email}: {Errors}", request.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
             // Return generic message — specific errors would confirm account existence or reveal policy hints.
-            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = "Invalid request." });
+            return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidRequest });
         }
 
         logger.LogInformation("Password reset for {Email}", request.Email);
-        return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = "Password reset successfully." });
+        return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetSuccessful });
     }
 
     public async Task<CurrentUserDto?> GetCurrentUserAsync(string userId)
@@ -288,7 +289,7 @@ public class AuthApiService(
     {
         var user = await userManager.FindByEmailAsync(email);
         if (user == null)
-            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = "User not found." });
+            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.UserNotFound });
 
         user.EmailConfirmed = true;
         var updateResult = await userManager.UpdateAsync(user);
@@ -307,7 +308,7 @@ public class AuthApiService(
     {
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
-            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = "User not found." });
+            return ServiceResult<AuthResponseDto>.NotFound(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.UserNotFound });
 
         var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
         var result = await userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);

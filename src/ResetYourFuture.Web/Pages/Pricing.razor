@@ -21,7 +21,7 @@
 
     @if (_loading)
     {
-        <p>@PricingRes.LoadingPlans</p>
+        <LoadingSpinner Label="@PricingRes.LoadingPlans" />
     }
     else if (_error is not null)
     {

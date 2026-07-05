@@ -5,7 +5,7 @@
 
 @if (submissions == null)
 {
-    <p>@AssessmentRes.Loading</p>
+    <LoadingSpinner Label="@AssessmentRes.Loading" />
 }
 else if (submissions.Count == 0)
 {

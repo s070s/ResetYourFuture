@@ -7,7 +7,7 @@
 
 @if (_loading)
 {
-    <p>@CourseRes.LoadingCourses</p>
+    <LoadingSpinner Label="@CourseRes.LoadingCourses" />
 }
 else if (_error is not null)
 {

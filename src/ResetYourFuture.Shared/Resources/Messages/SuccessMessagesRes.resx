@@ -123,4 +123,31 @@
   <data name="RegistrationSuccess" xml:space="preserve">
     <value>Registration Successful ! , please check your email</value>
   </data>
+  <data name="RegistrationSuccessfulNoEmail" xml:space="preserve">
+    <value>Registration successful. Please confirm your email.</value>
+  </data>
+  <data name="RegistrationSuccessfulCheckEmail" xml:space="preserve">
+    <value>Registration successful. Please check your email to confirm your account.</value>
+  </data>
+  <data name="EmailConfirmedSuccessfully" xml:space="preserve">
+    <value>Email confirmed successfully.</value>
+  </data>
+  <data name="PasswordResetLinkSent" xml:space="preserve">
+    <value>If the email exists, a reset link has been sent.</value>
+  </data>
+  <data name="PasswordResetSuccessful" xml:space="preserve">
+    <value>Password reset successfully.</value>
+  </data>
+  <data name="EnrolledSuccessfully" xml:space="preserve">
+    <value>Enrolled successfully</value>
+  </data>
+  <data name="AlreadyEnrolled" xml:space="preserve">
+    <value>Already enrolled</value>
+  </data>
+  <data name="LessonCompletedMsg" xml:space="preserve">
+    <value>Lesson completed</value>
+  </data>
+  <data name="AlreadyCompleted" xml:space="preserve">
+    <value>Already completed</value>
+  </data>
 </root>

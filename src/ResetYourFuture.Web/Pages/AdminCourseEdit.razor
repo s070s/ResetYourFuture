@@ -12,7 +12,7 @@
 
 @if (!IsNew && course == null && string.IsNullOrEmpty(message))
 {
-    <p>@AdminRes.Loading</p>
+    <LoadingSpinner Label="@AdminRes.Loading" />
 }
 else
 {
@@ -85,7 +85,7 @@ else
             <ChildContent>
                 @if (modules == null)
                 {
-                    <p>@AdminRes.LoadingModules</p>
+                    <LoadingSpinner Size="LoadingSpinner.SpinnerSize.Small" Label="@AdminRes.LoadingModules" />
                 }
                 else if (modules.Count == 0)
                 {
@@ -131,7 +131,7 @@ else
                                         @* Inline lessons list *@
                                         @if (moduleLessons == null)
                                         {
-                                            <p class="text-light-muted small">@AdminRes.LoadingLessons</p>
+                                            <LoadingSpinner Size="LoadingSpinner.SpinnerSize.Small" Label="@AdminRes.LoadingLessons" />
                                         }
                                         else if (moduleLessons.Count == 0)
                                         {

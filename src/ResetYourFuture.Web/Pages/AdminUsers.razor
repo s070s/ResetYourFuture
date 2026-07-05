@@ -16,7 +16,7 @@
         <Authorized>
             @if (pagedResult == null)
             {
-                <p>@AdminRes.LoadingUsers</p>
+                <LoadingSpinner Label="@AdminRes.LoadingUsers" />
             }
             else if (!pagedResult.Items.Any())
             {

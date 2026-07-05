@@ -6,7 +6,7 @@
 <div class="success-page">
     @if (_loading)
     {
-        <p>@SubscriptionSuccessRes.LoadingSubscription</p>
+        <LoadingSpinner Label="@SubscriptionSuccessRes.LoadingSubscription" />
     }
     else if (_status is not null)
     {

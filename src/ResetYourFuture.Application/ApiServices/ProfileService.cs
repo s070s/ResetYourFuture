@@ -4,6 +4,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.ApiServices;
 
@@ -57,7 +58,7 @@ public class ProfileService(
         {
             logger.LogError("Failed to persist avatar path for user {UserId}: {Errors}",
                 userId, string.Join(", ", updateResult.Errors.Select(e => e.Description)));
-            return new ServiceResult<AvatarUploadResultDto>(null, StatusCodes.Status500InternalServerError, "Failed to save avatar.");
+            return new ServiceResult<AvatarUploadResultDto>(null, StatusCodes.Status500InternalServerError, ErrorMessagesRes.FailedToSaveAvatar);
         }
 
         return ServiceResult<AvatarUploadResultDto>.Ok(new AvatarUploadResultDto(path));

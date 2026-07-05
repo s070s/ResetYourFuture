@@ -123,4 +123,31 @@
   <data name="RegistrationSuccess" xml:space="preserve">
     <value>Επιτυχής δημιουργία λογαριασμού, Παρακαλώ δείτε το email σας</value>
   </data>
+  <data name="RegistrationSuccessfulNoEmail" xml:space="preserve">
+    <value>Επιτυχής εγγραφή. Παρακαλώ επιβεβαιώστε το email σας.</value>
+  </data>
+  <data name="RegistrationSuccessfulCheckEmail" xml:space="preserve">
+    <value>Επιτυχής εγγραφή. Ελέγξτε το email σας για να επιβεβαιώσετε τον λογαριασμό σας.</value>
+  </data>
+  <data name="EmailConfirmedSuccessfully" xml:space="preserve">
+    <value>Το email επιβεβαιώθηκε επιτυχώς.</value>
+  </data>
+  <data name="PasswordResetLinkSent" xml:space="preserve">
+    <value>Εάν το email υπάρχει, έχει σταλεί σύνδεσμος επαναφοράς.</value>
+  </data>
+  <data name="PasswordResetSuccessful" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης επαναφέρθηκε επιτυχώς.</value>
+  </data>
+  <data name="EnrolledSuccessfully" xml:space="preserve">
+    <value>Επιτυχής εγγραφή στο μάθημα</value>
+  </data>
+  <data name="AlreadyEnrolled" xml:space="preserve">
+    <value>Ήδη εγγεγραμμένος</value>
+  </data>
+  <data name="LessonCompletedMsg" xml:space="preserve">
+    <value>Το μάθημα ολοκληρώθηκε</value>
+  </data>
+  <data name="AlreadyCompleted" xml:space="preserve">
+    <value>Ήδη ολοκληρωμένο</value>
+  </data>
 </root>

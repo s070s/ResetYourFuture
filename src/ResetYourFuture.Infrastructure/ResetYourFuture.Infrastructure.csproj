@@ -33,6 +33,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ResetYourFuture.Application\ResetYourFuture.Application.csproj" />
-    <ProjectReference Include="..\ResetYourFuture.Domain\ResetYourFuture.Domain.csproj" />  </ItemGroup>
+    <ProjectReference Include="..\ResetYourFuture.Domain\ResetYourFuture.Domain.csproj" />
+    <ProjectReference Include="..\ResetYourFuture.Shared\ResetYourFuture.Shared.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -8,7 +8,7 @@
 
     @if (_loading)
     {
-        <p>@BillingRes.LoadingBilling</p>
+        <LoadingSpinner Label="@BillingRes.LoadingBilling" />
     }
     else if (_error is not null)
     {

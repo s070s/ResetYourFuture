@@ -77,5 +77,86 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("RegistrationSuccess", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Registration successful. Please confirm your email..
+        /// </summary>
+        public static string RegistrationSuccessfulNoEmail {
+            get {
+                return ResourceManager.GetString("RegistrationSuccessfulNoEmail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Registration successful. Please check your email to confirm your account..
+        /// </summary>
+        public static string RegistrationSuccessfulCheckEmail {
+            get {
+                return ResourceManager.GetString("RegistrationSuccessfulCheckEmail", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email confirmed successfully..
+        /// </summary>
+        public static string EmailConfirmedSuccessfully {
+            get {
+                return ResourceManager.GetString("EmailConfirmedSuccessfully", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to If the email exists, a reset link has been sent..
+        /// </summary>
+        public static string PasswordResetLinkSent {
+            get {
+                return ResourceManager.GetString("PasswordResetLinkSent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password reset successfully..
+        /// </summary>
+        public static string PasswordResetSuccessful {
+            get {
+                return ResourceManager.GetString("PasswordResetSuccessful", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enrolled successfully.
+        /// </summary>
+        public static string EnrolledSuccessfully {
+            get {
+                return ResourceManager.GetString("EnrolledSuccessfully", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already enrolled.
+        /// </summary>
+        public static string AlreadyEnrolled {
+            get {
+                return ResourceManager.GetString("AlreadyEnrolled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lesson completed.
+        /// </summary>
+        public static string LessonCompletedMsg {
+            get {
+                return ResourceManager.GetString("LessonCompletedMsg", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Already completed.
+        /// </summary>
+        public static string AlreadyCompleted {
+            get {
+                return ResourceManager.GetString("AlreadyCompleted", resourceCulture);
+            }
+        }
     }
 }

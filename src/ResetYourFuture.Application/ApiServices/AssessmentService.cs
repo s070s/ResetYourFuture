@@ -5,6 +5,7 @@ using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Shared.Resources.Messages;
 using System.Text.Json;
 
 namespace ResetYourFuture.Application.ApiServices;
@@ -18,14 +19,12 @@ public class AssessmentService(
     IMemoryCache cache,
     ILogger<AssessmentService> logger) : IAssessmentService
 {
-    private const string ForbiddenMessage = "Assessment access requires a Plus subscription or higher.";
-
     public async Task<ServiceResult<PagedResult<AssessmentDefinitionDto>>> GetPublishedAssessmentsAsync(
         string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default)
     {
         var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Features?.AssessmentAccess != true)
-            return ServiceResult<PagedResult<AssessmentDefinitionDto>>.Forbidden(error: ForbiddenMessage);
+            return ServiceResult<PagedResult<AssessmentDefinitionDto>>.Forbidden(error: ErrorMessagesRes.AssessmentAccessRequiresPlus);
 
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
@@ -65,7 +64,7 @@ public class AssessmentService(
     {
         var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Features?.AssessmentAccess != true)
-            return ServiceResult<AssessmentDefinitionDto>.Forbidden(error: ForbiddenMessage);
+            return ServiceResult<AssessmentDefinitionDto>.Forbidden(error: ErrorMessagesRes.AssessmentAccessRequiresPlus);
 
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
@@ -102,14 +101,14 @@ public class AssessmentService(
             .FirstOrDefaultAsync(cancellationToken);
 
         if (assessment == null)
-            return ServiceResult<AssessmentSubmissionDto>.NotFound(error: "Assessment not found or not published");
+            return ServiceResult<AssessmentSubmissionDto>.NotFound(error: ErrorMessagesRes.AssessmentNotFoundOrUnpublished);
 
         // Check subscription features and tier
         var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Features?.AssessmentAccess != true)
-            return ServiceResult<AssessmentSubmissionDto>.Forbidden(error: ForbiddenMessage);
+            return ServiceResult<AssessmentSubmissionDto>.Forbidden(error: ErrorMessagesRes.AssessmentAccessRequiresPlus);
         if (userStatus.Tier < assessment.RequiredTier)
-            return ServiceResult<AssessmentSubmissionDto>.Forbidden(error: $"This assessment requires a {assessment.RequiredTier} subscription or higher.");
+            return ServiceResult<AssessmentSubmissionDto>.Forbidden(error: string.Format(ErrorMessagesRes.AssessmentRequiresTierFormat, assessment.RequiredTier));
 
         var submission = new AssessmentSubmission
         {

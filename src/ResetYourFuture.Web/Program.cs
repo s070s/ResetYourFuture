@@ -44,16 +44,25 @@ else
         exceptionHandlerApp.Run(async context =>
         {
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/problem+json";
-            await context.Response.WriteAsJsonAsync(new Microsoft.AspNetCore.Mvc.ProblemDetails
+            var problemDetailsService = context.RequestServices.GetRequiredService<IProblemDetailsService>();
+            await problemDetailsService.WriteAsync(new()
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "An unexpected error occurred.",
-                Detail = "Please try again later."
+                HttpContext = context,
+                ProblemDetails = new()
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Title = "An unexpected error occurred.",
+                    Detail = "Please try again later."
+                }
             });
         });
     });
 }
+
+// Converts any response that reaches a terminal error status code (400-599) with no body yet
+// written — e.g. bare NotFound()/Forbid()/Unauthorized() results, or 429 rate-limit rejections —
+// into the same application/problem+json envelope produced by AddProblemDetails() above.
+app.UseStatusCodePages();
 
 app.UseRateLimiter();
 app.UseHttpsRedirection();

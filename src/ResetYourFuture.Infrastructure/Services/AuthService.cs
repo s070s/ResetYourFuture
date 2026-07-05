@@ -7,6 +7,7 @@ using ResetYourFuture.Application.Data;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
+using ResetYourFuture.Shared.Resources.Messages;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -104,24 +105,24 @@ public class AuthService : IAuthService
         if (user is null)
         {
             _logger.LogWarning("Login attempt for non-existent user: {Email}", request.Email);
-            return new AuthResponseDto { Success = false, Message = "Invalid credentials." };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials };
         }
 
         if (!await _userManager.IsEmailConfirmedAsync(user))
-            return new AuthResponseDto { Success = false, Message = "Email not confirmed." };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.EmailNotConfirmedError };
 
         if (!user.IsEnabled)
         {
             _logger.LogWarning("Login blocked for disabled user: {Email}", request.Email);
-            return new AuthResponseDto { Success = false, Message = "Your account has been disabled. Please contact support." };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountDisabledContactSupport };
         }
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
         if (!result.Succeeded)
         {
             if (result.IsLockedOut)
-                return new AuthResponseDto { Success = false, Message = "Account locked. Try again later." };
-            return new AuthResponseDto { Success = false, Message = "Invalid credentials." };
+                return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountLocked };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials };
         }
 
         var stamp = await _userManager.GetSecurityStampAsync(user);
@@ -185,7 +186,7 @@ public class AuthService : IAuthService
         return new AuthResponseDto
         {
             Success = true,
-            Message = "Registration successful. Please confirm your email."
+            Message = SuccessMessagesRes.RegistrationSuccessfulNoEmail
         };
     }
 
@@ -199,7 +200,7 @@ public class AuthService : IAuthService
     {
         var target = await _userManager.FindByIdAsync(userId);
         if (target is null)
-            return new AuthResponseDto { Success = false, Message = "User not found." };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.UserNotFound };
 
         var targetRoles = await _userManager.GetRolesAsync(target);
         if (!targetRoles.Contains("Student"))
@@ -292,7 +293,7 @@ public class AuthService : IAuthService
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null || !await _userManager.IsEmailConfirmedAsync(user))
-            return new AuthResponseDto { Success = true, Message = "If the email exists, a reset link has been sent." };
+            return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetLinkSent };
 
         // NOTE:
         // The reset token is generated but NOT emailed here, and there is no /reset-password
@@ -302,21 +303,21 @@ public class AuthService : IAuthService
         _ = await _userManager.GeneratePasswordResetTokenAsync(user);
         _logger.LogInformation("Password reset requested for {Email}.", request.Email);
 
-        return new AuthResponseDto { Success = true, Message = "If the email exists, a reset link has been sent." };
+        return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetLinkSent };
     }
 
     public async Task<AuthResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)
-            return new AuthResponseDto { Success = false, Message = "Invalid request." };
+            return new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidRequest };
 
         var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
         if (!result.Succeeded)
             return new AuthResponseDto { Success = false, Errors = result.Errors.Select(e => e.Description) };
 
         _logger.LogInformation("Password reset for {Email}", request.Email);
-        return new AuthResponseDto { Success = true, Message = "Password reset successfully." };
+        return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetSuccessful };
     }
 
     // ---------------------------------------------------------------------------

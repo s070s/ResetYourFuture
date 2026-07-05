@@ -11,7 +11,7 @@
 
 @if (pagedResult == null)
 {
-    <p>@AdminRes.Loading</p>
+    <LoadingSpinner Label="@AdminRes.Loading" />
 }
 else if (!pagedResult.Items.Any())
 {

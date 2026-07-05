@@ -140,5 +140,212 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("EmailNotConfirmedHint", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid credentials..
+        /// </summary>
+        public static string InvalidCredentials {
+            get {
+                return ResourceManager.GetString("InvalidCredentials", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email not confirmed..
+        /// </summary>
+        public static string EmailNotConfirmedError {
+            get {
+                return ResourceManager.GetString("EmailNotConfirmedError", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your account has been disabled. Please contact support..
+        /// </summary>
+        public static string AccountDisabledContactSupport {
+            get {
+                return ResourceManager.GetString("AccountDisabledContactSupport", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account locked. Try again later..
+        /// </summary>
+        public static string AccountLocked {
+            get {
+                return ResourceManager.GetString("AccountLocked", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User not found..
+        /// </summary>
+        public static string UserNotFound {
+            get {
+                return ResourceManager.GetString("UserNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid or expired refresh token..
+        /// </summary>
+        public static string InvalidOrExpiredRefreshToken {
+            get {
+                return ResourceManager.GetString("InvalidOrExpiredRefreshToken", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Account is disabled..
+        /// </summary>
+        public static string AccountIsDisabled {
+            get {
+                return ResourceManager.GetString("AccountIsDisabled", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid request..
+        /// </summary>
+        public static string InvalidRequest {
+            get {
+                return ResourceManager.GetString("InvalidRequest", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Registration failed. Please check your details and try again..
+        /// </summary>
+        public static string RegistrationFailedGeneric {
+            get {
+                return ResourceManager.GetString("RegistrationFailedGeneric", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid confirmation link..
+        /// </summary>
+        public static string InvalidConfirmationLink {
+            get {
+                return ResourceManager.GetString("InvalidConfirmationLink", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment access requires a Plus subscription or higher..
+        /// </summary>
+        public static string AssessmentAccessRequiresPlus {
+            get {
+                return ResourceManager.GetString("AssessmentAccessRequiresPlus", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment not found or not published.
+        /// </summary>
+        public static string AssessmentNotFoundOrUnpublished {
+            get {
+                return ResourceManager.GetString("AssessmentNotFoundOrUnpublished", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This assessment requires a {0} subscription or higher..
+        /// </summary>
+        public static string AssessmentRequiresTierFormat {
+            get {
+                return ResourceManager.GetString("AssessmentRequiresTierFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Course not found.
+        /// </summary>
+        public static string CourseNotFound {
+            get {
+                return ResourceManager.GetString("CourseNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This course requires a {0} subscription or higher. Please upgrade your plan..
+        /// </summary>
+        public static string CourseRequiresTierFormat {
+            get {
+                return ResourceManager.GetString("CourseRequiresTierFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your {0} plan allows up to {1} course(s). Please upgrade to enroll in more courses..
+        /// </summary>
+        public static string CourseEnrollmentLimitReachedFormat {
+            get {
+                return ResourceManager.GetString("CourseEnrollmentLimitReachedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Lesson not found.
+        /// </summary>
+        public static string LessonNotFound {
+            get {
+                return ResourceManager.GetString("LessonNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You must be enrolled in this course to view lessons.
+        /// </summary>
+        public static string MustBeEnrolledToViewLessons {
+            get {
+                return ResourceManager.GetString("MustBeEnrolledToViewLessons", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Not enrolled in this course.
+        /// </summary>
+        public static string NotEnrolledInCourse {
+            get {
+                return ResourceManager.GetString("NotEnrolledInCourse", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to No file provided.
+        /// </summary>
+        public static string NoFileProvided {
+            get {
+                return ResourceManager.GetString("NoFileProvided", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to File too large (max 5 MB).
+        /// </summary>
+        public static string FileTooLarge5Mb {
+            get {
+                return ResourceManager.GetString("FileTooLarge5Mb", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Only image files are allowed (jpeg, png, gif, webp)..
+        /// </summary>
+        public static string OnlyImageFilesAllowed {
+            get {
+                return ResourceManager.GetString("OnlyImageFilesAllowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to save avatar..
+        /// </summary>
+        public static string FailedToSaveAvatar {
+            get {
+                return ResourceManager.GetString("FailedToSaveAvatar", resourceCulture);
+            }
+        }
     }
 }

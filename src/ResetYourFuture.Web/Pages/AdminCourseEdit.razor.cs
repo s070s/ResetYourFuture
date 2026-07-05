@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
-using ResetYourFuture.Web.Shared;
+using ResetYourFuture.Web.Shared.Components.Forms;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.DTOs;
 
