@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/ResetYourFuture.Web/ResetYourFuture.Web.csproj", "--launch-profile", "https"],
+      "port": 7090
+    }
+  ]
+}

@@ -132,6 +132,27 @@ public class AuthServiceTests
         payload.ShouldStartWith("u1|");
     }
 
+    [Theory]
+    [InlineData(false, "0")]
+    [InlineData(true, "1")]
+    public async Task Login_Success_EncodesRememberMeInToken(bool rememberMe, string expectedFlag)
+    {
+        var h = Build();
+        var user = User();
+        h.Um.FindByEmailAsync("u@x.com").Returns(user);
+        h.Um.IsEmailConfirmedAsync(user).Returns(true);
+        h.Um.GetSecurityStampAsync(user).Returns("stamp-1");
+        h.Sm.CheckPasswordSignInAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>(), Arg.Any<bool>())
+            .Returns(SignInResult.Success);
+
+        var request = Login();
+        request.RememberMe = rememberMe;
+        var result = await h.Svc.LoginAsync(request);
+
+        var payload = h.Dp.CreateProtector(AuthService.ProtectorPurpose).ToTimeLimitedDataProtector().Unprotect(result.Token!);
+        payload.ShouldEndWith($"|{expectedFlag}");
+    }
+
     // ---- RegisterAsync -------------------------------------------------------
 
     [Fact]

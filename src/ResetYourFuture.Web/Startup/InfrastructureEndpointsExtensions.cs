@@ -81,9 +81,9 @@ public static class InfrastructureEndpointsExtensions
                 return Results.LocalRedirect("/login?error=session_expired");
             }
 
-            // Format: "{userId}|{adminBackupId or empty}|{0 or 1 for deleteAdminBackup}|{securityStamp}"
+            // Format: "{userId}|{adminBackupId or empty}|{0 or 1 for deleteAdminBackup}|{securityStamp}|{0 or 1 for rememberMe}"
             var parts = payload.Split('|');
-            if (parts.Length != 4)
+            if (parts.Length != 5)
             {
                 logger.LogWarning("Auth completion: token had unexpected format.");
                 return Results.LocalRedirect("/login?error=session_expired");
@@ -93,6 +93,7 @@ public static class InfrastructureEndpointsExtensions
             var adminBackupId = string.IsNullOrEmpty(parts[1]) ? null : parts[1];
             var deleteAdminBackup = parts[2] == "1";
             var tokenStamp = parts[3];
+            var rememberMe = parts[4] == "1";
 
             // --- Rebuild principal from DB -----------------------------------------------
             var user = await userManager.FindByIdAsync(userId);
@@ -159,14 +160,17 @@ public static class InfrastructureEndpointsExtensions
                 ctx.Response.Cookies.Delete(AuthService.AdminBackupCookieName);
 
             // --- Issue auth cookie -------------------------------------------------------
+            // IsPersistent=false (unchecked "Remember Me") issues a session cookie the browser
+            // discards on close; the cookie middleware's 24h sliding ExpireTimeSpan still governs
+            // the ticket while the session is open. IsPersistent=true adds a 7-day hard cap.
+            var authProperties = new AuthenticationProperties { IsPersistent = rememberMe };
+            if (rememberMe)
+                authProperties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7);
+
             await ctx.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 principal,
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
-                });
+                authProperties);
 
             logger.LogInformation("User {UserId} signed in via /auth/complete.", userId);
             if (!string.IsNullOrEmpty(adminBackupId))

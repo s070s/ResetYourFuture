@@ -126,7 +126,7 @@ public class AuthService : IAuthService
         }
 
         var stamp = await _userManager.GetSecurityStampAsync(user);
-        var token = CreateSignInToken(userId: user.Id, adminBackupId: null, deleteAdminBackup: false, securityStamp: stamp);
+        var token = CreateSignInToken(userId: user.Id, adminBackupId: null, deleteAdminBackup: false, securityStamp: stamp, rememberMe: request.RememberMe);
         _logger.LogInformation("User {Email} validated — sign-in token issued.", user.Email);
         return new AuthResponseDto { Success = true, Token = token };
     }
@@ -211,7 +211,8 @@ public class AuthService : IAuthService
             return new AuthResponseDto { Success = false, Message = "Not authenticated." };
 
         var stamp = await _userManager.GetSecurityStampAsync(target);
-        var token = CreateSignInToken(userId: target.Id, adminBackupId: adminId, deleteAdminBackup: false, securityStamp: stamp);
+        // Impersonation isn't checkbox-driven — preserve the admin's existing persistent session behavior.
+        var token = CreateSignInToken(userId: target.Id, adminBackupId: adminId, deleteAdminBackup: false, securityStamp: stamp, rememberMe: true);
         _logger.LogInformation("Admin {AdminId} issued impersonation token for user {UserId}.", adminId, userId);
         return new AuthResponseDto { Success = true, Token = token };
     }
@@ -245,7 +246,7 @@ public class AuthService : IAuthService
         }
 
         var stamp = await _userManager.GetSecurityStampAsync(admin);
-        var token = CreateSignInToken(userId: admin.Id, adminBackupId: null, deleteAdminBackup: true, securityStamp: stamp);
+        var token = CreateSignInToken(userId: admin.Id, adminBackupId: null, deleteAdminBackup: true, securityStamp: stamp, rememberMe: true);
         _logger.LogInformation("Admin {AdminId} exiting impersonation — token issued.", admin.Id);
         return $"/auth/complete?ticket={Uri.EscapeDataString(token)}&returnUrl=%2Fadmin%2Fusers";
     }
@@ -337,10 +338,14 @@ public class AuthService : IAuthService
     /// <param name="deleteAdminBackup">
     /// If true, the /auth/complete endpoint will delete the admin backup cookie (impersonation exit).
     /// </param>
-    // Format: "{userId}|{adminBackupId or empty}|{0 or 1}|{securityStamp}"
-    private string CreateSignInToken(string userId, string? adminBackupId, bool deleteAdminBackup, string securityStamp)
+    /// <param name="rememberMe">
+    /// If true, /auth/complete issues a persistent auth cookie (7-day expiry). If false, it issues
+    /// a session cookie that the browser discards on close, regardless of the "Remember Me" checkbox.
+    /// </param>
+    // Format: "{userId}|{adminBackupId or empty}|{0 or 1}|{securityStamp}|{0 or 1 for rememberMe}"
+    private string CreateSignInToken(string userId, string? adminBackupId, bool deleteAdminBackup, string securityStamp, bool rememberMe)
     {
-        var payload = $"{userId}|{adminBackupId ?? ""}|{(deleteAdminBackup ? "1" : "0")}|{securityStamp}";
+        var payload = $"{userId}|{adminBackupId ?? ""}|{(deleteAdminBackup ? "1" : "0")}|{securityStamp}|{(rememberMe ? "1" : "0")}";
         return _protector.Protect(payload, lifetime: TimeSpan.FromMinutes(5));
     }
 }
