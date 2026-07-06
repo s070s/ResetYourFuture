@@ -1,5 +1,20 @@
 # Video Calls (1:1 + Group) from Chat — Implementation Plan
 
+## Status
+
+Implementation is happening on branch `feature/video-calls`, one commit per work package.
+
+- [x] **WP1 — Domain + EF + migration** — done (commit `a620fbf`). `CallSession`/`CallParticipant` entities,
+  enums (`CallParticipantStatus`, `CallEndReason`, `CallEventKind`), EF configurations, `ChatMessage`
+  `CallSessionId`/`CallEvent` columns, `IApplicationDbContext`/`ApplicationDbContext` DbSets, and the
+  `AddCallSessions` migration. Full solution build verified green.
+- [ ] WP2 — Application layer
+- [ ] WP3 — Server real-time
+- [ ] WP4 — JS interop
+- [ ] WP5 — Client CallService
+- [ ] WP6 — UI + localization
+- [ ] WP7 — Tests + manual verification
+
 ## Context
 
 Users should be able to start person-to-person and group video calls from the existing chat. The chat today is strictly 1:1 (`ChatConversation` = creator + one participant), real-time via SignalR `ChatHub` (`/hubs/chat`), gated by PrioritySupport subscription or Admin role.
