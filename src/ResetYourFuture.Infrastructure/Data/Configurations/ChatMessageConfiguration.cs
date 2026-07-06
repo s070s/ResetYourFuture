@@ -27,6 +27,15 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
             .HasForeignKey(m => m.SenderId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Property(m => m.CallEvent)
+            .HasConversion<int?>();
+
+        // The call session may be deleted independently of the chat event message it produced.
+        builder.HasOne(m => m.CallSession)
+            .WithMany()
+            .HasForeignKey(m => m.CallSessionId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Index for loading messages in chronological order.
         builder.HasIndex(m => new { m.ConversationId, m.SentAt });
 

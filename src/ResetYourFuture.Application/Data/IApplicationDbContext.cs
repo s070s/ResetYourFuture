@@ -21,6 +21,8 @@ public interface IApplicationDbContext
     DbSet<Certificate> Certificates { get; }
     DbSet<ChatConversation> ChatConversations { get; }
     DbSet<ChatMessage> ChatMessages { get; }
+    DbSet<CallSession> CallSessions { get; }
+    DbSet<CallParticipant> CallParticipants { get; }
     DbSet<BlogArticle> BlogArticles { get; }
     DbSet<Testimonial> Testimonials { get; }
 
