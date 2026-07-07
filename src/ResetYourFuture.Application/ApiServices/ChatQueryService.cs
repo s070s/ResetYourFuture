@@ -111,6 +111,7 @@ public class ChatQueryService(
 
         var query = db.ChatMessages
             .Include(m => m.Sender)
+            .Include(m => m.CallSession)
             .Where(m => m.ConversationId == conversationId);
 
         var totalCount = await query.CountAsync(ct);
@@ -140,7 +141,11 @@ public class ChatQueryService(
             roleMap.TryGetValue(m.SenderId, out var role) ? role : "User",
             m.Content,
             m.SentAt,
-            m.IsRead)).ToList();
+            m.IsRead,
+            m.CallEvent,
+            m.CallSession is { ConnectedAt: not null, EndedAt: not null }
+                ? (int)(m.CallSession.EndedAt!.Value - m.CallSession.ConnectedAt!.Value).TotalSeconds
+                : null)).ToList();
 
         return ServiceResult<PagedResult<ChatMessageDto>>.Ok(
             new PagedResult<ChatMessageDto>(result, totalCount, page, pageSize));
