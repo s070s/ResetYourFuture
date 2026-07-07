@@ -1,0 +1,38 @@
+@* Mic/camera/screen-share/add-participant/hang-up control bar for the active call. *@
+
+<div class="call-controls">
+    <button class="control-btn @(CallService.MicOn ? "" : "active")" @onclick="CallService.ToggleMicAsync"
+            title="@(CallService.MicOn ? CallRes.MuteMic : CallRes.UnmuteMic)"
+            aria-label="@(CallService.MicOn ? CallRes.MuteMic : CallRes.UnmuteMic)">
+        <span class="bi @(CallService.MicOn ? "bi-mic-fill" : "bi-mic-mute-fill")" aria-hidden="true"></span>
+    </button>
+
+    <button class="control-btn @(CallService.CameraOn ? "" : "active")" @onclick="CallService.ToggleCameraAsync"
+            title="@(CallService.CameraOn ? CallRes.TurnCameraOff : CallRes.TurnCameraOn)"
+            aria-label="@(CallService.CameraOn ? CallRes.TurnCameraOff : CallRes.TurnCameraOn)">
+        <span class="bi @(CallService.CameraOn ? "bi-camera-video-fill" : "bi-camera-video-off-fill")" aria-hidden="true"></span>
+    </button>
+
+    <button class="control-btn @(CallService.ScreenSharing ? "active" : "")" @onclick="CallService.ToggleScreenShareAsync"
+            title="@(CallService.ScreenSharing ? CallRes.StopSharing : CallRes.ShareScreen)"
+            aria-label="@(CallService.ScreenSharing ? CallRes.StopSharing : CallRes.ShareScreen)">
+        <span class="bi bi-display" aria-hidden="true"></span>
+    </button>
+
+    <button class="control-btn" @onclick="OnAddParticipant"
+            title="@CallRes.AddParticipant" aria-label="@CallRes.AddParticipant">
+        <span class="bi bi-person-plus-fill" aria-hidden="true"></span>
+    </button>
+
+    <button class="control-btn hang-up" @onclick="OnHangUp"
+            title="@CallRes.HangUp" aria-label="@CallRes.HangUp">
+        <span class="bi bi-telephone-x-fill" aria-hidden="true"></span>
+    </button>
+</div>
+
+@code {
+    [Inject] private ICallService CallService { get; set; } = default!;
+
+    [Parameter, EditorRequired] public EventCallback OnAddParticipant { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnHangUp { get; set; }
+}

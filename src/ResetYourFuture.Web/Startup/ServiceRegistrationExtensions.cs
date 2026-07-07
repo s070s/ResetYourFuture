@@ -60,6 +60,14 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<IAdminCourseService, AdminCourseService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
+        builder.Services.AddScoped<ICallEventService, CallEventService>();
+        builder.Services.AddScoped<ICallQueryService, CallQueryService>();
+        builder.Services.AddSingleton<CallRegistry>();
+        builder.Services.AddHostedService<CallRingMonitor>();
+        builder.Services.Configure<WebRtcOptions>(config.GetSection("WebRtc"));
+        // Hub-only (no REST) — plain AddScoped, not AddHttpClient. Must be scoped (not transient
+        // like ChatService) so CallOverlayHost and chat components share one instance/hub/state per circuit.
+        builder.Services.AddScoped<ICallService, CallService>();
         builder.Services.AddScoped<IProfileService, ProfileService>();
         builder.Services.AddScoped<IAssessmentService, AssessmentService>();
         builder.Services.AddScoped<AvatarChangedNotifier>();

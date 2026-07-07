@@ -1,0 +1,53 @@
+@* Multi-select user picker used both to start a group call and to add participants mid-call. *@
+
+<FormModal IsVisible="IsVisible" Title="@Title" OnClose="Close">
+    <Body>
+        <input type="text" class="form-control mb-3" placeholder="@ChatRes.SearchUsers"
+               aria-label="@ChatRes.SearchUsers"
+               @bind="_searchTerm" @bind:event="oninput"
+               @onkeydown="HandleSearchKeyDown" />
+
+        @if (_isSearching)
+        {
+            <div class="text-center p-3">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+            </div>
+        }
+        else if (_availableUsers.Count == 0)
+        {
+            <div class="text-light-muted p-2 small">
+                @(string.IsNullOrWhiteSpace(_searchTerm) ? ChatRes.TypeToSearch : ChatRes.NoUsersFound)
+            </div>
+        }
+        else
+        {
+            <div class="user-picker-list">
+                @foreach (var user in _availableUsers)
+                {
+                    var isSelected = _selected.ContainsKey(user.Id);
+                    var atLimit = !isSelected && _selected.Count >= MaxSelectable;
+                    <div class="user-picker-item @(isSelected ? "selected" : "") @(atLimit ? "at-limit" : "")"
+                         role="button" tabindex="0"
+                         @onclick="() => ToggleUser(user, atLimit)"
+                         @onkeydown="@(e => { if (e.IsActivationKey()) ToggleUser(user, atLimit); })"
+                         @key="user.Id">
+                        <span class="bi @(isSelected ? "bi-check-circle-fill" : "bi-person-circle") me-2" aria-hidden="true"></span>
+                        <span class="user-picker-name">@user.FullName</span>
+                        <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
+                    </div>
+                }
+            </div>
+        }
+    </Body>
+    <Footer>
+        <span class="text-light-muted small me-auto">
+            @(_selected.Count >= MaxSelectable
+                ? string.Format(CallRes.ParticipantLimitReached, MaxSelectable)
+                : string.Format(CallRes.SelectedCountFormat, _selected.Count, MaxSelectable))
+        </span>
+        <button class="btn btn-secondary" @onclick="Close">@ChatRes.Cancel</button>
+        <button class="btn btn-primary" @onclick="Confirm" disabled="@(_selected.Count == 0)">
+            @ConfirmLabel
+        </button>
+    </Footer>
+</FormModal>

@@ -149,6 +149,7 @@ public static class AuthenticationSetupExtensions
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) &&
                          (path.StartsWithSegments("/hubs/chat") ||
+                           path.StartsWithSegments("/hubs/call") ||
                            path.StartsWithSegments("/api/lessons")))
                     {
                         context.Token = accessToken;
