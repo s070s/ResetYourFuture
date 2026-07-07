@@ -121,7 +121,26 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   environment) or two-browser real-media flows — those need real hardware and are WP7's
   manual-verification matrix, not something to automate here. Full solution build + all 400
   tests green throughout (no test changes in this WP — it's pure UI).
-- [ ] WP7 — Tests + manual verification
+- [ ] **WP7 — Tests + manual verification** — automated half done (commit `9c410d9`); manual
+  half still open. `tests\ResetYourFuture.Web.Tests\CallHubTests.cs` (new): mirrors ChatHubTests
+  — real `CallEventService`/`CallQueryService` over an InMemory db (not mocked) + a real
+  `CallRegistry`, substituted SignalR plumbing and `UserManager`. Covers disabled-user connect
+  abort, no-subscription → `NoAccess`, admin bypass, offline 1:1 callee → persisted Missed chat
+  message broadcast to both `user_` groups, caller-busy rejection, accept → group join + Joined
+  status + Started chat event, decline-before-connecting → `CallDeclined` broadcast + session
+  ends as **Missed** (not "Declined" — a 1:1 decline never sets `HasConnected`, so it takes the
+  same missed-call path as cancel/timeout per the edge-case notes above), signaling relay
+  refusing a non-member target connection, media-state broadcast, 1:1 leave ending the session
+  with persisted duration, and the 7th participant rejected at capacity. `ChatQueryServiceTests`
+  gained the `CallEvent`/`CallDurationSeconds` projection coverage that was missing since WP2.
+  `CallIntegrationTests.cs` (new): `/hubs/call/negotiate` → 401 without a token.
+  `CallEventServiceTests`/`CallQueryServiceTests`/`CallRegistryTests` already covered the rest of
+  this WP's list from WP2/WP3 — no changes needed there. Full solution build + all 414 tests
+  green (400 + 14 new). **Still open**: the two-browser real-camera manual matrix from the
+  Verification section below — needs actual camera/mic hardware across two real browser
+  profiles, which isn't something this session's environment or tooling can exercise (confirmed
+  during WP6: the local dev browser has no camera, so `getUserMedia` reliably fails, which is
+  exactly what let WP6 verify the *error* path but not the live two-way media path).
 
 ## Context
 
