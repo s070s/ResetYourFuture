@@ -30,6 +30,8 @@ dotnet build
 # 6. Run
 dotnet run --project src/ResetYourFuture.Web
 # Visual Studio: right-click Solution → Configure Startup Projects → set ResetYourFuture.Web → F5
+
+# 7. (Optional) Enable the local AI assistant — see the "AI Assistant" section below
 ```
 
 > **Database is created and migrated automatically on first run.** If you drop the database (e.g. from SSMS), just restart the app — it will recreate and reseed it.
@@ -59,6 +61,7 @@ dotnet run --project src/ResetYourFuture.Web
 | Logging | Custom daily file logger |
 | Email | `StubEmailService` (dev only) — logs to file; a real provider must be registered for production |
 | Security | HSTS · `X-Content-Type-Options` · `X-Frame-Options` · `Referrer-Policy` · `Permissions-Policy` |
+| AI Assistant | Local Ollama sidecar via `Microsoft.Extensions.AI` — `gemma3:4b` chat + `bge-m3` embeddings, no cloud API |
 
 ---
 
@@ -326,6 +329,19 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 |--------|-------|-------------|------|
 | `GET` | `api/admin/analytics/summary` | Dashboard summary | Admin |
 
+### AI Assistant — `api/assistant`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `POST` | `api/assistant/chat?lang=en\|el` | Grounded, streaming answer — response is `text/event-stream`, not JSON (see [AI Assistant](#ai-assistant)) | Yes |
+| `GET` | `api/assistant/status` | Whether the local model backend is reachable | Yes |
+
+### Admin — AI Assistant — `api/admin/assistant`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `POST` | `api/admin/assistant/reindex` | Re-index published content immediately instead of waiting for the next scheduled pass | Admin |
+
 ---
 
 ## Roles
@@ -381,6 +397,38 @@ Dev shortcuts for bypassing email confirmation:
 
 ---
 
+## AI Assistant
+
+A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers from a background index of published courses, lessons, assessments, and blog articles, and personalizes recommendations using the user's subscription tier and enrollments. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine. See [AI_ASSISTANT_PLAN.md](AI_ASSISTANT_PLAN.md) (implementation plan; removed once the feature is fully shipped) for the full design.
+
+**Setup:**
+
+```bash
+# 1. Install Ollama: https://ollama.com/download
+# 2. Pull the default models
+ollama pull gemma3:4b
+ollama pull bge-m3
+# 3. Enable it in appsettings.json / .env
+#    Assistant__Enabled=true
+```
+
+The assistant is **disabled by default** (`Assistant:Enabled = false`), so the app, its build, and its test suite never require Ollama to be installed.
+
+| Key | Where | Default | Notes |
+|-----|-------|---------|-------|
+| `Assistant__Enabled` | `.env` / `appsettings.json` | `false` | Master switch. When `false`, the API and widget gracefully report the assistant as unavailable. |
+| `Assistant__BaseUrl` | `appsettings.json` | `http://localhost:11434` | Ollama's default local address. |
+| `Assistant__ChatModel` | `appsettings.json` | `gemma3:4b` | ~3.3 GB (Q4). Alternatives: `qwen3:4b` (Apache-2.0), or an 8B Greek-tuned model (e.g. ILSP Llama-Krikri, GGUF-imported) on stronger hardware. |
+| `Assistant__EmbeddingModel` | `appsettings.json` | `bge-m3` | ~1.2 GB. Multilingual (EN/EL) retrieval embeddings. |
+| `Assistant__MaxContextChunks` | `appsettings.json` | `6` | Retrieved chunks injected per question. |
+| `Assistant__MaxOutputTokens` | `appsettings.json` | `500` | Caps answer length. |
+| `Assistant__Temperature` | `appsettings.json` | `0.3` | Lower = more deterministic/grounded answers. |
+| `Assistant__RequestsPerMinute` | `appsettings.json` | `10` | Per-user rate limit on `POST api/assistant/chat`. |
+
+**Hardware guidance:** runs CPU-only on any ~2020+ 4-core machine with 8 GB RAM — no GPU required. Expect a few seconds to the first token (streaming masks this) and roughly 8–15 tokens/sec on CPU with the default models.
+
+---
+
 ## Troubleshooting
 
 | Problem | Fix |
@@ -394,6 +442,8 @@ Dev shortcuts for bypassing email confirmation:
 | Chat not connecting | JWT via `access_token` query string. Check token expiry (default 15 min) — use `api/auth/refresh` to rotate. |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
+| Assistant shows "unavailable" | Set `Assistant__Enabled=true`, confirm Ollama is running (`ollama list`), and that both models are pulled (`ollama pull gemma3:4b && ollama pull bge-m3`). |
+| Assistant's first answer is slow | Expected — Ollama cold-loads the model into memory on first request after startup/idle. Subsequent answers are faster. |
 
 ---
 

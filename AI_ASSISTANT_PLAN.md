@@ -16,7 +16,7 @@
 - [x] WP4 — Retrieval + RAG chat service
 - [x] WP5 — API surface (SSE chat, status, reindex)
 - [x] WP6 — Consumer + widget UI + localization (feature usable)
-- [ ] WP7 — README + docs
+- [x] WP7 — README + docs
 
 ## Context
 
