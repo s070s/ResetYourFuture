@@ -14,7 +14,7 @@ else if (_error is not null)
     <p class="text-danger">@_error</p>
     <button class="btn btn-secondary" @onclick="LoadCoursesAsync">@GlobalRes.TryAgain</button>
 }
-else if (_pagedResult is null || _pagedResult.TotalCount == 0)
+else if (_pagedResult is null || (_pagedResult.TotalCount == 0 && !HasActiveFilter))
 {
     <p>@CourseRes.NoCoursesAvailable</p>
 }
@@ -32,73 +32,93 @@ else
         </div>
     }
 
-    <div class="pagination-toolbar">
-        <span class="pagination-info">
-            @string.Format(CourseRes.TotalCoursesFormat, _pagedResult.TotalCount)
-        </span>
-        <div class="page-size-selector">
-            <label for="pageSizeSelect">@CourseRes.PerPage</label>
-            <select id="pageSizeSelect" class="form-select form-select-sm"
-                    value="@_pageSize"
-                    @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
-                @foreach (var size in PageSizeOptions)
-                {
-                    <option value="@size" selected="@(_pageSize == size)">@size</option>
-                }
-            </select>
-        </div>
-    </div>
+    <CategoryFilterBar Categories="_categories"
+                        SelectedCategoryId="_selectedCategoryId"
+                        OnCategorySelected="OnCategorySelected"
+                        SearchText="@_search"
+                        OnSearchChanged="OnSearchChanged"
+                        SearchPlaceholder="@CategoryRes.SearchPlaceholder" />
 
-    <div class="courses-list">
-        @foreach (var course in _pagedResult.Items)
-        {
-            var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;
-
-            <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id"
-                 role="button" tabindex="0"
-                 @onclick="() => ViewCourse(course)"
-                 @onkeydown="@(e => { if (e.IsActivationKey()) ViewCourse(course); })">
-                <div class="course-card-header">
-                    <h3>@course.Title</h3>
-                    @if (course.RequiredTier != SubscriptionTier.Free)
+    @if (_pagedResult.TotalCount == 0)
+    {
+        <p>@CategoryRes.NoMatchingResults</p>
+    }
+    else
+    {
+        <div class="pagination-toolbar">
+            <span class="pagination-info">
+                @string.Format(CourseRes.TotalCoursesFormat, _pagedResult.TotalCount)
+            </span>
+            <div class="page-size-selector">
+                <label for="pageSizeSelect">@CourseRes.PerPage</label>
+                <select id="pageSizeSelect" class="form-select form-select-sm"
+                        value="@_pageSize"
+                        @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
+                    @foreach (var size in PageSizeOptions)
                     {
-                        <span class="tier-badge tier-@course.RequiredTier.ToString().ToLowerInvariant()">
-                            @course.RequiredTier
-                        </span>
+                        <option value="@size" selected="@(_pageSize == size)">@size</option>
                     }
-                </div>
-                @if (!string.IsNullOrEmpty(course.Description))
-                {
-                    <div class="description">@((MarkupString)course.Description)</div>
-                }
-                <div class="meta">
-                    <span class="lessons">@string.Format(CourseRes.LessonsCountFormat, course.TotalLessons)</span>
-                    @if (course.IsEnrolled)
-                    {
-                        <span class="enrolled-badge">@CourseRes.Enrolled</span>
-                    }
-                    @if (isLocked)
-                    {
-                        <span class="locked-badge" role="button" tabindex="0"
-                              @onclick:stopPropagation="true" @onclick="GoToPricing"
-                              @onkeydown:stopPropagation="true"
-                              @onkeydown="@(e => { if (e.IsActivationKey()) GoToPricing(); })">
-                            @string.Format(CourseRes.UpgradeToFormat, course.RequiredTier)
-                        </span>
-                    }
-                </div>
+                </select>
             </div>
-        }
-    </div>
+        </div>
 
-    <PaginationNav CurrentPage="_page"
-                    TotalPages="_pagedResult.TotalPages"
-                    HasPreviousPage="_pagedResult.HasPreviousPage"
-                    HasNextPage="_pagedResult.HasNextPage"
-                    PreviousLabel="@CourseRes.Previous"
-                    NextLabel="@CourseRes.Next"
-                    AriaLabel="Course pages"
-                    OnPageChanged="GoToPage" />
+        <div class="courses-list">
+            @foreach (var course in _pagedResult.Items)
+            {
+                var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;
+
+                <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id"
+                     role="button" tabindex="0"
+                     @onclick="() => ViewCourse(course)"
+                     @onkeydown="@(e => { if (e.IsActivationKey()) ViewCourse(course); })">
+                    <div class="course-card-header">
+                        <h3>@course.Title</h3>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (course.CategoryName is not null)
+                            {
+                                <span class="category-chip">@course.CategoryName</span>
+                            }
+                            @if (course.RequiredTier != SubscriptionTier.Free)
+                            {
+                                <span class="tier-badge tier-@course.RequiredTier.ToString().ToLowerInvariant()">
+                                    @course.RequiredTier
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(course.Description))
+                    {
+                        <div class="description">@((MarkupString)course.Description)</div>
+                    }
+                    <div class="meta">
+                        <span class="lessons">@string.Format(CourseRes.LessonsCountFormat, course.TotalLessons)</span>
+                        @if (course.IsEnrolled)
+                        {
+                            <span class="enrolled-badge">@CourseRes.Enrolled</span>
+                        }
+                        @if (isLocked)
+                        {
+                            <span class="locked-badge" role="button" tabindex="0"
+                                  @onclick:stopPropagation="true" @onclick="GoToPricing"
+                                  @onkeydown:stopPropagation="true"
+                                  @onkeydown="@(e => { if (e.IsActivationKey()) GoToPricing(); })">
+                                @string.Format(CourseRes.UpgradeToFormat, course.RequiredTier)
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <PaginationNav CurrentPage="_page"
+                        TotalPages="_pagedResult.TotalPages"
+                        HasPreviousPage="_pagedResult.HasPreviousPage"
+                        HasNextPage="_pagedResult.HasNextPage"
+                        PreviousLabel="@CourseRes.Previous"
+                        NextLabel="@CourseRes.Next"
+                        AriaLabel="Course pages"
+                        OnPageChanged="GoToPage" />
+    }
 }
 
 

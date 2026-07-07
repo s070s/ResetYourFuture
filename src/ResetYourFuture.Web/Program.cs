@@ -91,6 +91,7 @@ app.MapInfrastructureEndpoints();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<CallHub>("/hubs/call");
 app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 

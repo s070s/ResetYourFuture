@@ -13,7 +13,7 @@ public static class SecurityHeadersMiddlewareExtensions
             ctx.Response.Headers["X-Content-Type-Options"] = "nosniff";
             ctx.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
             ctx.Response.Headers["X-Frame-Options"] = "DENY";
-            ctx.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+            ctx.Response.Headers["Permissions-Policy"] = "camera=(self), microphone=(self), display-capture=(self), geolocation=()";
             // 'unsafe-inline' is required for Blazor's circuit initialisation scripts and for the
             // <link onload="this.media='all'"> lazy-CSS pattern used in App.razor.
             // This still meaningfully limits XSS by blocking external-domain script/style/frame injection.

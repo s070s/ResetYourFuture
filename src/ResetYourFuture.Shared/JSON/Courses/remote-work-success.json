@@ -5,6 +5,7 @@
   "descriptionEl": "Ευδοκίμησε σε ένα απομακρυσμένο ή υβριδικό περιβάλλον — παραμένοντας παραγωγικός, συνδεδεμένος και ορατός από οπουδήποτε.",
   "requiredTier": "Plus",
   "isPublished": true,
+  "category": "Skills",
   "modules": [
     {
       "title": "Designing Your Remote Setup",

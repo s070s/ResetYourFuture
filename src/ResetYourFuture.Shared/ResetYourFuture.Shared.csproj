@@ -58,6 +58,20 @@
       <DependentUpon>ChatRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Call -->
+    <EmbeddedResource Update="Resources\CallRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CallRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CallRes.el.resx">
+      <DependentUpon>CallRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\CallRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CallRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Course -->
     <EmbeddedResource Update="Resources\CourseRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -70,6 +84,20 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>CourseRes.resx</DependentUpon>
+    </Compile>
+
+    <!-- Category -->
+    <EmbeddedResource Update="Resources\CategoryRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CategoryRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CategoryRes.el.resx">
+      <DependentUpon>CategoryRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\CategoryRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CategoryRes.resx</DependentUpon>
     </Compile>
 
     <!-- Error Messages -->

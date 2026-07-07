@@ -21,6 +21,11 @@
                 <span class="bi bi-person"></span> @Conversation.OtherUserName
                 <span class="chat-header-role">(@Conversation.OtherUserRole)</span>
             </h6>
+            <button class="btn-video-call ms-auto" @onclick="StartVideoCall"
+                    disabled="@(CallService.Stage != CallStage.Idle)"
+                    title="@CallRes.StartVideoCall" aria-label="@CallRes.StartVideoCall">
+                <span class="bi bi-camera-video" aria-hidden="true"></span>
+            </button>
         </div>
 
         @if ( Messages is not null )
@@ -58,15 +63,25 @@
             else
             {
                 <Virtualize Items="Messages?.Items ?? new()" Context="msg" OverscanCount="10">
-                    @{ var isMine = msg.SenderId == CurrentUserId; }
-                    <div class="message-bubble @(isMine ? "mine" : "theirs")" @key="msg.Id">
-                        <div class="message-sender">
-                            @msg.SenderName
-                            <span class="message-role">(@msg.SenderRole)</span>
+                    @if (msg.CallEvent is not null)
+                    {
+                        <div class="call-event-chip" @key="msg.Id">
+                            <span class="bi bi-camera-video" aria-hidden="true"></span>
+                            @GetCallEventText(msg)
                         </div>
-                        <div class="message-content">@msg.Content</div>
-                        <div class="message-time">@msg.SentAt.ToLocalTime().ToString( "HH:mm" )</div>
-                    </div>
+                    }
+                    else
+                    {
+                        var isMine = msg.SenderId == CurrentUserId;
+                        <div class="message-bubble @(isMine ? "mine" : "theirs")" @key="msg.Id">
+                            <div class="message-sender">
+                                @msg.SenderName
+                                <span class="message-role">(@msg.SenderRole)</span>
+                            </div>
+                            <div class="message-content">@msg.Content</div>
+                            <div class="message-time">@msg.SentAt.ToLocalTime().ToString( "HH:mm" )</div>
+                        </div>
+                    }
                 </Virtualize>
             }
         </div>

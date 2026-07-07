@@ -5,6 +5,7 @@
   "descriptionEl": "Ανάπτυξε τις βασικές δεξιότητες ηγεσίας που χρειάζονται για να εμπνέεις ομάδες, να επιτυγχάνεις αποτελέσματα και να αναπτύσσεσαι σε ανώτερες θέσεις.",
   "requiredTier": "Plus",
   "isPublished": true,
+  "category": "Skills",
   "modules": [
     {
       "title": "Leadership vs. Management",

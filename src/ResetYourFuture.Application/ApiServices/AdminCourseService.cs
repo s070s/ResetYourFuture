@@ -22,6 +22,7 @@ public class AdminCourseService(
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)
             .Include(c => c.Enrollments)
+            .Include(c => c.Category)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         return course is null ? null : MapToDto(course);
@@ -51,7 +52,9 @@ public class AdminCourseService(
                 c.Modules.Count,
                 c.Modules.SelectMany(m => m.Lessons).Count(),
                 c.Enrollments.Count,
-                c.RequiredTier
+                c.RequiredTier,
+                c.CategoryId,
+                c.Category != null ? c.Category.NameEn : null
             ))
             .ToListAsync(cancellationToken);
 
@@ -60,6 +63,8 @@ public class AdminCourseService(
 
     public async Task<AdminCourseDto> CreateCourseAsync(SaveCourseRequest request, string userId, CancellationToken cancellationToken = default)
     {
+        var categoryId = await AdminCategoryService.ResolveCategoryAsync(db, request.CategoryId, request.NewCategoryName, cancellationToken);
+
         var course = new Course
         {
             Id = Guid.NewGuid(),
@@ -68,6 +73,7 @@ public class AdminCourseService(
             DescriptionEn = request.DescriptionEn is not null ? sanitizer.Sanitize(request.DescriptionEn) : null,
             DescriptionEl = request.DescriptionEl is not null ? sanitizer.Sanitize(request.DescriptionEl) : null,
             RequiredTier = request.RequiredTier,
+            CategoryId = categoryId,
             IsPublished = false,
             UpdatedByUserId = userId
         };
@@ -75,18 +81,7 @@ public class AdminCourseService(
         db.Courses.Add(course);
         await db.SaveChangesAsync(cancellationToken);
 
-        return new AdminCourseDto(
-            course.Id,
-            course.TitleEn,
-            course.TitleEl,
-            course.DescriptionEn,
-            course.DescriptionEl,
-            course.IsPublished,
-            course.CreatedAt,
-            course.UpdatedAt,
-            0, 0, 0,
-            course.RequiredTier
-        );
+        return await GetCourseByIdAsync(course.Id, cancellationToken) ?? MapToDto(course);
     }
 
     public async Task<AdminCourseDto?> UpdateCourseAsync(Guid id, SaveCourseRequest request, string userId, CancellationToken cancellationToken = default)
@@ -100,17 +95,20 @@ public class AdminCourseService(
         if (course is null)
             return null;
 
+        var categoryId = await AdminCategoryService.ResolveCategoryAsync(db, request.CategoryId, request.NewCategoryName, cancellationToken);
+
         course.TitleEn = request.TitleEn;
         course.TitleEl = request.TitleEl;
         course.DescriptionEn = request.DescriptionEn is not null ? sanitizer.Sanitize(request.DescriptionEn) : null;
         course.DescriptionEl = request.DescriptionEl is not null ? sanitizer.Sanitize(request.DescriptionEl) : null;
         course.RequiredTier = request.RequiredTier;
+        course.CategoryId = categoryId;
         course.UpdatedAt = DateTimeOffset.UtcNow;
         course.UpdatedByUserId = userId;
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return MapToDto(course);
+        return await GetCourseByIdAsync(course.Id, cancellationToken) ?? MapToDto(course);
     }
 
     public async Task<bool> DeleteCourseAsync(Guid id, string userId, CancellationToken cancellationToken = default)
@@ -183,6 +181,8 @@ public class AdminCourseService(
         course.Modules.Count,
         course.Modules.SelectMany(m => m.Lessons).Count(),
         course.Enrollments.Count,
-        course.RequiredTier
+        course.RequiredTier,
+        course.CategoryId,
+        course.Category?.NameEn
     );
 }

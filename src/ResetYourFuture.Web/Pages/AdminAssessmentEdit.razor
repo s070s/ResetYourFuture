@@ -40,6 +40,21 @@ else
                 <label class="form-label">@AdminRes.FieldDescription (EL)</label>
                 <QuillEditor @ref="descriptionEditorEl" Content="@assessmentDescriptionEl" MinHeight="120px" />
             </div>
+            <div class="mb-3">
+                <label class="form-label" for="assessment-category">@CategoryRes.CategoryLabel</label>
+                <select id="assessment-category" class="form-select" value="@CategorySelectValue" @onchange="OnCategorySelectChanged">
+                    <option value="none">@CategoryRes.NoneCategory</option>
+                    @foreach (var cat in categories)
+                    {
+                        <option value="@cat.Id">@cat.NameEn</option>
+                    }
+                    <option value="new">@CategoryRes.NewCategoryOption</option>
+                </select>
+                @if (creatingNewCategory)
+                {
+                    <input class="form-control mt-2" placeholder="@CategoryRes.NewCategoryNamePlaceholder" @bind="newCategoryName" />
+                }
+            </div>
         </ChildContent>
     </FormCardSection>
 

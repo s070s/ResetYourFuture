@@ -51,6 +51,19 @@ public class Course : AuditableEntity
     /// </summary>
     public SubscriptionTier RequiredTier { get; set; } = SubscriptionTier.Free;
 
+    /// <summary>
+    /// Optional category classification. Null means uncategorized.
+    /// </summary>
+    public Guid? CategoryId
+    {
+        get; set;
+    }
+
+    public Category? Category
+    {
+        get; set;
+    }
+
     // Navigation: one Course has many Modules
     public ICollection<Module> Modules { get; set; } = [];
 

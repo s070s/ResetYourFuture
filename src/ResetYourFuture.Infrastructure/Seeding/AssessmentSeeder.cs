@@ -48,11 +48,13 @@ public static class AssessmentSeeder
             return;
         }
 
+        var categoryCache = await CategorySeedHelper.LoadCacheAsync(db, cancellationToken);
+
         foreach (var filePath in jsonFiles)
         {
             try
             {
-                await SeedAssessmentFromFileAsync(db, filePath, logger, cancellationToken);
+                await SeedAssessmentFromFileAsync(db, filePath, categoryCache, logger, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -67,6 +69,7 @@ public static class AssessmentSeeder
     private static async Task SeedAssessmentFromFileAsync(
         ApplicationDbContext db,
         string filePath,
+        Dictionary<string, Category> categoryCache,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -80,6 +83,7 @@ public static class AssessmentSeeder
         }
 
         var def = MapToAssessmentDefinition(dto);
+        def.CategoryId = CategorySeedHelper.ResolveCategoryId(db, categoryCache, dto.Category);
         db.AssessmentDefinitions.Add(def);
 
         logger.LogInformation("Loaded assessment '{Title}' (Key: {Key}) from {FileName}",

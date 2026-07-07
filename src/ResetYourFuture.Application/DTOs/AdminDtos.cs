@@ -47,18 +47,23 @@ public record AdminCourseDto(
     int ModuleCount,
     int TotalLessons,
     int EnrollmentCount,
-    SubscriptionTier RequiredTier
+    SubscriptionTier RequiredTier,
+    Guid? CategoryId = null,
+    string? CategoryNameEn = null
 );
 
 /// <summary>
-/// Request to create/update a course.
+/// Request to create/update a course. When <paramref name="NewCategoryName"/> is non-blank it wins
+/// over <paramref name="CategoryId"/> and a category is get-or-created by case-insensitive name match.
 /// </summary>
 public record SaveCourseRequest(
     [Required, MaxLength(200)] string TitleEn,
     [MaxLength(200)] string? TitleEl,
     [MaxLength(1000)] string? DescriptionEn,
     [MaxLength(1000)] string? DescriptionEl,
-    SubscriptionTier RequiredTier
+    SubscriptionTier RequiredTier,
+    Guid? CategoryId = null,
+    [MaxLength(100)] string? NewCategoryName = null
 );
 
 /// <summary>
@@ -131,6 +136,7 @@ public record AdminUserDto(
     bool IsEnabled,
     string Status,
     List<string> Roles,
+    string SubscriptionTier,
     DateTime CreatedAt
 );
 

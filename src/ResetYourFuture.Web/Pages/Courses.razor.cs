@@ -6,10 +6,11 @@ using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
 
-public partial class Courses
+public partial class Courses : IDisposable
 {
     [Inject] private ICourseConsumer CourseService { get; set; } = default!;
     [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
+    [Inject] private ICategoryConsumer CategoryConsumer { get; set; } = default!;
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private ILogger<Courses> _logger { get; set; } = default!;
 
@@ -24,15 +25,23 @@ public partial class Courses
     private int _page = 1;
     private int _pageSize = 10;
 
+    private List<CategoryDto> _categories = [];
+    private Guid? _selectedCategoryId;
+    private string _search = string.Empty;
+    private CancellationTokenSource? _searchCts;
+
     private static readonly int[] PageSizeOptions = [5, 10, 20, 50];
 
     private static string CurrentLang =>
         CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
 
+    private bool HasActiveFilter => _selectedCategoryId is not null || !string.IsNullOrWhiteSpace(_search);
+
     protected override async Task OnInitializedAsync()
     {
         var statusTask = SubscriptionService.GetStatusAsync();
-        await Task.WhenAll(LoadCoursesAsync(), statusTask);
+        var categoriesTask = LoadCategoriesAsync();
+        await Task.WhenAll(LoadCoursesAsync(), statusTask, categoriesTask);
 
         _userStatus = await statusTask;
         if (_userStatus is not null)
@@ -44,13 +53,26 @@ public partial class Courses
         UpdateEnrolledCount();
     }
 
+    private async Task LoadCategoriesAsync()
+    {
+        try
+        {
+            _categories = await CategoryConsumer.GetCategoriesAsync("courses", CurrentLang);
+        }
+        catch (Exception ex)
+        {
+            _categories = [];
+            _logger.LogError(ex, "Failed to load course categories.");
+        }
+    }
+
     private async Task LoadCoursesAsync()
     {
         _loading = true;
         _error = null;
         try
         {
-            _pagedResult = await CourseService.GetCoursesAsync(_page, _pageSize, CurrentLang);
+            _pagedResult = await CourseService.GetCoursesAsync(_page, _pageSize, CurrentLang, _selectedCategoryId, _search);
             UpdateEnrolledCount();
         }
         catch (Exception ex)
@@ -84,6 +106,31 @@ public partial class Courses
         await LoadCoursesAsync();
     }
 
+    private async Task OnCategorySelected(Guid? categoryId)
+    {
+        _selectedCategoryId = categoryId;
+        _page = 1;
+        await LoadCoursesAsync();
+    }
+
+    private async Task OnSearchChanged(string value)
+    {
+        _search = value;
+        _page = 1;
+
+        var previous = _searchCts;
+        _searchCts = new CancellationTokenSource();
+        previous?.Cancel();
+        previous?.Dispose();
+
+        try
+        {
+            await Task.Delay(300, _searchCts.Token);
+            await LoadCoursesAsync();
+        }
+        catch (OperationCanceledException) { }
+    }
+
     private void ViewCourse(CourseListItemDto course)
     {
         // Enrolled courses are always accessible, even after a plan downgrade
@@ -96,4 +143,10 @@ public partial class Courses
     }
 
     private void GoToPricing() => Navigation.NavigateTo("/pricing");
+
+    public void Dispose()
+    {
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+    }
 }

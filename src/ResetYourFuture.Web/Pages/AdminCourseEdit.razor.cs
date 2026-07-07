@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
 using ResetYourFuture.Domain.Enums;
@@ -17,6 +18,7 @@ public partial class AdminCourseEdit
     [Inject] private IAdminCourseConsumer CourseConsumer { get; set; } = default!;
     [Inject] private IAdminModuleConsumer ModuleConsumer { get; set; } = default!;
     [Inject] private IAdminLessonConsumer LessonConsumer { get; set; } = default!;
+    [Inject] private IAdminCategoryConsumer CategoryConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private bool IsNew => CourseId == Guid.Empty;
@@ -41,6 +43,12 @@ public partial class AdminCourseEdit
     private SubscriptionTier courseRequiredTier = SubscriptionTier.Free;
     private QuillEditor? descriptionEditorEn;
     private QuillEditor? descriptionEditorEl;
+
+    // Category picker state
+    private List<CategoryOptionDto> categories = [];
+    private Guid? courseCategoryId;
+    private bool creatingNewCategory;
+    private string? newCategoryName;
 
     // Module modal state
     private bool _showModuleModal;
@@ -69,6 +77,8 @@ public partial class AdminCourseEdit
         expandedModules = new();
         message = string.Empty;
 
+        await LoadCategories();
+
         if (!IsNew)
         {
             await LoadCourse();
@@ -77,6 +87,18 @@ public partial class AdminCourseEdit
     }
 
     // ── Data loading ──
+
+    private async Task LoadCategories()
+    {
+        try
+        {
+            categories = await CategoryConsumer.GetAllCategoriesAsync();
+        }
+        catch
+        {
+            categories = [];
+        }
+    }
 
     private async Task LoadCourse()
     {
@@ -90,11 +112,40 @@ public partial class AdminCourseEdit
                 courseDescriptionEn = course.DescriptionEn;
                 courseDescriptionEl = course.DescriptionEl;
                 courseRequiredTier = course.RequiredTier;
+                courseCategoryId = course.CategoryId;
+                creatingNewCategory = false;
+                newCategoryName = null;
             }
         }
         catch (Exception ex)
         {
             message = $"Error loading course: {ex.Message}";
+        }
+    }
+
+    // ── Category picker ──
+
+    private string CategorySelectValue => creatingNewCategory ? "new" : (courseCategoryId?.ToString() ?? "none");
+
+    private void OnCategorySelectChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (value == "new")
+        {
+            creatingNewCategory = true;
+            courseCategoryId = null;
+        }
+        else if (string.IsNullOrEmpty(value) || value == "none")
+        {
+            creatingNewCategory = false;
+            courseCategoryId = null;
+            newCategoryName = null;
+        }
+        else
+        {
+            creatingNewCategory = false;
+            newCategoryName = null;
+            courseCategoryId = Guid.Parse(value);
         }
     }
 
@@ -153,7 +204,10 @@ public partial class AdminCourseEdit
                 ? await descriptionEditorEl.GetContentAsync()
                 : courseDescriptionEl;
 
-            var request = new SaveCourseRequest(courseTitleEn, courseTitleEl, descEn, descEl, courseRequiredTier);
+            var categoryIdArg = creatingNewCategory ? null : courseCategoryId;
+            var newCategoryNameArg = creatingNewCategory ? newCategoryName : null;
+
+            var request = new SaveCourseRequest(courseTitleEn, courseTitleEl, descEn, descEl, courseRequiredTier, categoryIdArg, newCategoryNameArg);
 
             if (IsNew)
             {
@@ -171,6 +225,7 @@ public partial class AdminCourseEdit
                 if (updated is not null)
                 {
                     await LoadCourse();
+                    await LoadCategories();
                     message = "Course saved successfully";
                 }
                 else

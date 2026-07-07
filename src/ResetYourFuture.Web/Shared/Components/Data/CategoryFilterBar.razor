@@ -1,0 +1,38 @@
+@* Category chip filter bar + search box for the public Courses/Assessments browse pages.
+   Owns no debounce timing — every keystroke raises OnSearchChanged; the host page debounces. *@
+
+<div class="category-filter-bar">
+    <div class="category-chips" role="group" aria-label="@CategoryRes.CategoryLabel">
+        <button type="button"
+                class="category-chip-option @(SelectedCategoryId is null ? "selected" : "")"
+                @onclick="() => SelectCategory(null)">
+            @CategoryRes.AllCategories
+        </button>
+        @foreach (var category in Categories)
+        {
+            <button type="button"
+                    class="category-chip-option @(SelectedCategoryId == category.Id ? "selected" : "")"
+                    @onclick="() => SelectCategory(category.Id)">
+                @category.Name (@category.Count)
+            </button>
+        }
+    </div>
+    <input type="search"
+           class="form-control category-filter-search"
+           placeholder="@SearchPlaceholder"
+           value="@SearchText"
+           @oninput="OnSearchInput" />
+</div>
+
+@code {
+    [Parameter] public List<CategoryDto> Categories { get; set; } = [];
+    [Parameter] public Guid? SelectedCategoryId { get; set; }
+    [Parameter] public EventCallback<Guid?> OnCategorySelected { get; set; }
+    [Parameter] public string SearchText { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> OnSearchChanged { get; set; }
+    [Parameter] public string SearchPlaceholder { get; set; } = string.Empty;
+
+    private Task SelectCategory(Guid? id) => OnCategorySelected.InvokeAsync(id);
+
+    private Task OnSearchInput(ChangeEventArgs e) => OnSearchChanged.InvokeAsync(e.Value?.ToString() ?? string.Empty);
+}

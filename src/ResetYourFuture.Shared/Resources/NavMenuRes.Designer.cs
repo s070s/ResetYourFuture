@@ -239,5 +239,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("LanguageSelectorLabel", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Categories.
+        /// </summary>
+        public static string Categories {
+            get {
+                return ResourceManager.GetString("Categories", resourceCulture);
+            }
+        }
     }
 }

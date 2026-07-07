@@ -5,6 +5,7 @@
   "descriptionEl": "Ανακτήστε τον χρόνο σας, εξαλείψτε τις άσκοπες ασχολίες και κάνετε πάντα πρώτα την πιο σημαντική δουλειά σας.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Skills",
   "modules": [
     {
       "title": "Understanding How You Work",

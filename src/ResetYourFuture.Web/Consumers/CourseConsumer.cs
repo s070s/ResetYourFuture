@@ -8,9 +8,17 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public class CourseConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), ICourseConsumer
 {
-    public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync(int page = 1, int pageSize = 10, string lang = "en")
-        => await GetAsync<PagedResult<CourseListItemDto>>($"api/courses?page={page}&pageSize={pageSize}&lang={lang}")
+    public async Task<PagedResult<CourseListItemDto>> GetCoursesAsync(int page = 1, int pageSize = 10, string lang = "en", Guid? categoryId = null, string? search = null)
+    {
+        var url = $"api/courses?page={page}&pageSize={pageSize}&lang={lang}";
+        if (categoryId is { } catId)
+            url += $"&categoryId={catId}";
+        if (!string.IsNullOrWhiteSpace(search))
+            url += $"&search={Uri.EscapeDataString(search)}";
+
+        return await GetAsync<PagedResult<CourseListItemDto>>(url)
            ?? new PagedResult<CourseListItemDto>([], 0, page, pageSize);
+    }
 
     public Task<CourseDetailDto?> GetCourseAsync(Guid courseId, string lang = "en")
         => GetAsync<CourseDetailDto>($"api/courses/{courseId}?lang={lang}");

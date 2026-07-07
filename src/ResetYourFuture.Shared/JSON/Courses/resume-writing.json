@@ -5,6 +5,7 @@
   "descriptionEl": "Δημιουργήστε ένα ελκυστικό βιογραφικό που περνά τα αυτοματοποιημένα συστήματα διαλογής και εντυπωσιάζει τους υπεύθυνους προσλήψεων.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Career",
   "modules": [
     {
       "title": "Resume Foundations",

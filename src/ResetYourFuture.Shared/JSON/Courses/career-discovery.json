@@ -5,6 +5,7 @@
   "descriptionEl": "Εξερεύνησε ποιος είσαι, τι εκτιμάς και ποιες επαγγελματικές διαδρομές ταιριάζουν με τα δυνατά σου σημεία και τις φιλοδοξίες σου.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Career",
   "modules": [
     {
       "title": "Introduction to Career Planning",

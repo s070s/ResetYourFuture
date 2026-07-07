@@ -9,7 +9,8 @@ namespace ResetYourFuture.Application.ApiInterfaces;
 public interface IAssessmentService
 {
     Task<ServiceResult<PagedResult<AssessmentDefinitionDto>>> GetPublishedAssessmentsAsync(
-        string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default);
+        string userId, int page, int pageSize, string lang, Guid? categoryId = null, string? search = null,
+        CancellationToken cancellationToken = default);
 
     Task<ServiceResult<AssessmentDefinitionDto>> GetAssessmentAsync(
         string userId, Guid id, string lang, CancellationToken cancellationToken = default);

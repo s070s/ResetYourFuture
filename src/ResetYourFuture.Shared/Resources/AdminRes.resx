@@ -440,6 +440,9 @@
 	<data name="ColEnabled" xml:space="preserve">
 		<value>Enabled</value>
 	</data>
+	<data name="ColTier" xml:space="preserve">
+		<value>Tier</value>
+	</data>
 	<data name="ColRoles" xml:space="preserve">
 		<value>Roles</value>
 	</data>

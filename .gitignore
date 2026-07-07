@@ -1,6 +1,7 @@
 bin/
 obj/
 .env
+.claude/
 .vs/
 .vscode/
 Logs/

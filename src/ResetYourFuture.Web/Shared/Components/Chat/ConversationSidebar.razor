@@ -1,12 +1,20 @@
 @* Renders the conversation list sidebar panel. *@
+@implements IDisposable
 
 <div class="chat-sidebar">
     <div class="sidebar-header">
         <h5>@ChatRes.Conversations</h5>
-        <button class="btn btn-sm btn-primary" @onclick="OnNewConversation"
-                disabled="@IsStarting">
-            <span class="bi bi-plus-circle"></span> @ChatRes.NewButton
-        </button>
+        <div class="sidebar-header-actions">
+            <button class="btn btn-sm btn-outline-secondary" @onclick="CallService.RequestGroupCallPicker"
+                    disabled="@(CallService.Stage != CallStage.Idle)"
+                    title="@CallRes.StartGroupCall" aria-label="@CallRes.StartGroupCall">
+                <span class="bi bi-camera-video"></span>
+            </button>
+            <button class="btn btn-sm btn-primary" @onclick="OnNewConversation"
+                    disabled="@IsStarting">
+                <span class="bi bi-plus-circle"></span> @ChatRes.NewButton
+            </button>
+        </div>
     </div>
 
     @if ( Conversations is null )
@@ -74,6 +82,8 @@
 </div>
 
 @code {
+    [Inject] private ICallService CallService { get; set; } = default!;
+
     [Parameter, EditorRequired] public PagedResult<ChatConversationDto>? Conversations { get; set; }
     [Parameter] public Guid? SelectedConversationId { get; set; }
     [Parameter] public bool IsStarting { get; set; }
@@ -86,9 +96,21 @@
     [Parameter, EditorRequired] public EventCallback OnPreviousPage { get; set; }
     [Parameter, EditorRequired] public EventCallback OnNextPage { get; set; }
 
+    protected override void OnInitialized()
+    {
+        CallService.StateChanged += HandleCallStateChanged;
+    }
+
+    private void HandleCallStateChanged() => InvokeAsync(StateHasChanged);
+
     private async Task HandlePageSizeChange( ChangeEventArgs e )
     {
         if ( int.TryParse( e.Value?.ToString() , out var size ) )
             await OnPageSizeChanged.InvokeAsync( size );
+    }
+
+    public void Dispose()
+    {
+        CallService.StateChanged -= HandleCallStateChanged;
     }
 }

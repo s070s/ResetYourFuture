@@ -30,6 +30,8 @@ public class CoursesController(ICourseService courseService) : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string lang = "en",
+        [FromQuery] Guid? categoryId = null,
+        [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
         if (page < 1)
@@ -37,7 +39,7 @@ public class CoursesController(ICourseService courseService) : ControllerBase
         if (pageSize < 1 || pageSize > 100)
             pageSize = 10;
 
-        var result = await courseService.GetPublishedCoursesAsync(UserId, page, pageSize, lang, cancellationToken);
+        var result = await courseService.GetPublishedCoursesAsync(UserId, page, pageSize, lang, categoryId, search, cancellationToken);
         return Ok(result);
     }
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
 using ResetYourFuture.Application.DTOs;
@@ -15,6 +16,7 @@ public partial class AdminAssessmentEdit
     }
 
     [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
+    [Inject] private IAdminCategoryConsumer CategoryConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private bool IsNew => AssessmentId == Guid.Empty;
@@ -32,13 +34,33 @@ public partial class AdminAssessmentEdit
     private List<QuestionModel> questions = new();
     private HashSet<string> _expandedQuestions = new();
 
+    // Category picker state
+    private List<CategoryOptionDto> categories = [];
+    private Guid? assessmentCategoryId;
+    private bool creatingNewCategory;
+    private string? newCategoryName;
+
     protected override async Task OnInitializedAsync()
     {
+        await LoadCategories();
+
         if (!IsNew)
         {
             await LoadAssessment();
         }
         loading = false;
+    }
+
+    private async Task LoadCategories()
+    {
+        try
+        {
+            categories = await CategoryConsumer.GetAllCategoriesAsync();
+        }
+        catch
+        {
+            categories = [];
+        }
     }
 
     private async Task LoadAssessment()
@@ -53,12 +75,41 @@ public partial class AdminAssessmentEdit
                 assessmentTitleEl = assessment.TitleEl;
                 assessmentDescriptionEn = assessment.DescriptionEn;
                 assessmentDescriptionEl = assessment.DescriptionEl;
+                assessmentCategoryId = assessment.CategoryId;
+                creatingNewCategory = false;
+                newCategoryName = null;
                 ParseSchemaToQuestions(assessment.SchemaJson);
             }
         }
         catch (Exception ex)
         {
             message = $"Error loading assessment: {ex.Message}";
+        }
+    }
+
+    // ── Category picker ──
+
+    private string CategorySelectValue => creatingNewCategory ? "new" : (assessmentCategoryId?.ToString() ?? "none");
+
+    private void OnCategorySelectChanged(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString();
+        if (value == "new")
+        {
+            creatingNewCategory = true;
+            assessmentCategoryId = null;
+        }
+        else if (string.IsNullOrEmpty(value) || value == "none")
+        {
+            creatingNewCategory = false;
+            assessmentCategoryId = null;
+            newCategoryName = null;
+        }
+        else
+        {
+            creatingNewCategory = false;
+            newCategoryName = null;
+            assessmentCategoryId = Guid.Parse(value);
         }
     }
 
@@ -197,13 +248,18 @@ public partial class AdminAssessmentEdit
 
             var schemaJson = GenerateSchemaJson();
 
+            var categoryIdArg = creatingNewCategory ? null : assessmentCategoryId;
+            var newCategoryNameArg = creatingNewCategory ? newCategoryName : null;
+
             var request = new SaveAssessmentDefinitionRequest(
                 assessmentKey,
                 assessmentTitleEn,
                 assessmentTitleEl,
                 descEn,
                 descEl,
-                schemaJson
+                schemaJson,
+                categoryIdArg,
+                newCategoryNameArg
             );
 
             AdminAssessmentDefinitionDto? result;

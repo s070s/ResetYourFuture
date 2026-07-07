@@ -33,6 +33,14 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
         // Index on IsPublished for catalog queries
         builder.HasIndex(c => c.IsPublished);
 
+        // Relationship: Course optionally belongs to one Category
+        builder.HasOne(c => c.Category)
+            .WithMany(cat => cat.Courses)
+            .HasForeignKey(c => c.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(c => c.CategoryId);
+
         // Relationships configured in ModuleConfiguration (dependent side)
     }
 }

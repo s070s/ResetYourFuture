@@ -4,6 +4,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 
@@ -52,9 +53,18 @@ public class AdminUserService(
             .GroupBy(x => x.UserId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Name!).ToList());
 
+        // Single query: active subscription tier per user; users without one are Free
+        var userTierPairs = await context.UserSubscriptions
+            .Where(us => userIds.Contains(us.UserId) && us.IsActive)
+            .Select(us => new { us.UserId, us.SubscriptionPlan.Tier })
+            .ToListAsync(cancellationToken);
+
+        var userTierMap = userTierPairs.ToDictionary(x => x.UserId, x => x.Tier);
+
         var result = users.Select(user =>
         {
             var roles = userRoleMap.TryGetValue(user.Id, out var r) ? r : [];
+            var tier = userTierMap.TryGetValue(user.Id, out var t) ? t : SubscriptionTier.Free;
             return new AdminUserDto(
                 user.Id,
                 user.Email!,
@@ -65,6 +75,7 @@ public class AdminUserService(
                 user.IsEnabled,
                 user.Status.ToString(),
                 [.. roles],
+                tier.ToString(),
                 user.CreatedAt
             );
         }).ToList();

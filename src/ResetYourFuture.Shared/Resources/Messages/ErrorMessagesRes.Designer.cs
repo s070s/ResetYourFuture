@@ -347,5 +347,23 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("FailedToSaveAvatar", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to A category with this name already exists..
+        /// </summary>
+        public static string CategoryNameExists {
+            get {
+                return ResourceManager.GetString("CategoryNameExists", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Category not found.
+        /// </summary>
+        public static string CategoryNotFound {
+            get {
+                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
+            }
+        }
     }
 }

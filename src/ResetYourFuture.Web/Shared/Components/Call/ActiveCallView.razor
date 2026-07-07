@@ -1,0 +1,39 @@
+@* Full-screen overlay for an outgoing/connecting/in-progress call — 1-6 tile grid + controls. *@
+
+<div class="active-call-overlay">
+    <div class="active-call-grid">
+        <div class="participant-tile local-tile">
+            <video id="video-local" muted autoplay playsinline></video>
+            <div class="tile-label">@CallRes.You</div>
+        </div>
+
+        @foreach (var participant in CallService.Participants)
+        {
+            <ParticipantTile Participant="participant" @key="participant.ConnectionId" />
+        }
+    </div>
+
+    @if (CallService.Stage == CallStage.Outgoing)
+    {
+        <div class="call-status-banner">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>@CallRes.Ringing</span>
+        </div>
+    }
+    else if (CallService.Stage == CallStage.Connecting)
+    {
+        <div class="call-status-banner">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+            <span>@CallRes.Connecting</span>
+        </div>
+    }
+
+    <CallControls OnAddParticipant="OpenAddParticipantPicker" OnHangUp="EndCallAsync" />
+
+    <CallUserPickerModal IsVisible="_showAddPicker"
+                         Title="@CallRes.AddParticipant"
+                         ConfirmLabel="@CallRes.AddButton"
+                         MaxSelectable="@RemainingSlots"
+                         OnClose="CloseAddParticipantPicker"
+                         OnConfirm="HandleAddParticipantsPicked" />
+</div>

@@ -14,11 +14,15 @@ public record AssessmentDefinitionDto(
     bool IsPublished,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,
-    DateTimeOffset? PublishedAt
+    DateTimeOffset? PublishedAt,
+    Guid? CategoryId = null,
+    string? CategoryName = null
 );
 
 /// <summary>
-/// DTO for creating or updating an assessment definition.
+/// DTO for creating or updating an assessment definition. When <paramref name="NewCategoryName"/> is
+/// non-blank it wins over <paramref name="CategoryId"/> and a category is get-or-created by
+/// case-insensitive name match.
 /// </summary>
 public record SaveAssessmentDefinitionRequest(
     [Required, MaxLength(100)] string Key,
@@ -26,7 +30,9 @@ public record SaveAssessmentDefinitionRequest(
     [MaxLength(300)] string? TitleEl,
     [MaxLength(1000)] string? DescriptionEn,
     [MaxLength(1000)] string? DescriptionEl,
-    [Required] string SchemaJson
+    [Required] string SchemaJson,
+    Guid? CategoryId = null,
+    [MaxLength(100)] string? NewCategoryName = null
 );
 
 /// <summary>
@@ -43,7 +49,9 @@ public record AdminAssessmentDefinitionDto(
     bool IsPublished,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,
-    DateTimeOffset? PublishedAt
+    DateTimeOffset? PublishedAt,
+    Guid? CategoryId = null,
+    string? CategoryNameEn = null
 );
 
 /// <summary>
@@ -75,7 +83,8 @@ public record AssessmentDefinitionListItemDto(
     string Title,
     bool IsPublished,
     int SubmissionCount,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    string? CategoryNameEn = null
 );
 
 /// <summary>

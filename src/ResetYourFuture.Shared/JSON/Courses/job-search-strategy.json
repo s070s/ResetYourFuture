@@ -5,6 +5,7 @@
   "descriptionEl": "Σταματήστε να κάνετε τυχαίες αιτήσεις και δημιουργήστε ένα εστιασμένο σύστημα αναζήτησης εργασίας που αποφέρει σταθερά αποτελέσματα.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Career",
   "modules": [
     {
       "title": "Defining Your Target",

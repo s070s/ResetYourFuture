@@ -124,6 +124,59 @@ public class CourseServiceTests
         page2.Items.Single().Title.ShouldBe("B");
     }
 
+    [Fact]
+    public async Task GetPublishedCourses_FiltersByCategoryId()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var category = new Category { Id = Guid.NewGuid(), NameEn = "Career" };
+        db.Categories.Add(category);
+        var matching = CourseWithLessons("Matching", 0);
+        matching.CategoryId = category.Id;
+        db.Courses.Add(matching);
+        db.Courses.Add(CourseWithLessons("Other", 0));
+        await db.SaveChangesAsync();
+        var (svc, _, _) = NewService(db);
+
+        var result = await svc.GetPublishedCoursesAsync(UserId, 1, 10, "en", categoryId: category.Id);
+
+        result.TotalCount.ShouldBe(1);
+        result.Items.Single().Title.ShouldBe("Matching");
+        result.Items.Single().CategoryName.ShouldBe("Career");
+    }
+
+    [Fact]
+    public async Task GetPublishedCourses_FiltersBySearchAcrossTitleAndDescription_OnSqlite()
+    {
+        // EF.Functions.Like is unsupported on the InMemory provider — use the relational SQLite fixture.
+        await using var db = DbContextFactory.CreateSqlite();
+        var withMatchInTitle = CourseWithLessons("Financial Planning", 0);
+        var withMatchInDescription = CourseWithLessons("Other", 0);
+        withMatchInDescription.DescriptionEn = "Covers financial basics";
+        var noMatch = CourseWithLessons("Unrelated", 0);
+        db.Courses.AddRange(withMatchInTitle, withMatchInDescription, noMatch);
+        await db.SaveChangesAsync();
+        var (svc, _, _) = NewService(db);
+
+        var result = await svc.GetPublishedCoursesAsync(UserId, 1, 10, "en", search: "financial");
+
+        result.TotalCount.ShouldBe(2);
+        result.Items.Select(i => i.Title).ShouldBe(new[] { "Financial Planning", "Other" }, ignoreOrder: true);
+    }
+
+    [Fact]
+    public async Task GetPublishedCourses_UncategorizedCourse_HasNullCategoryName()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        db.Courses.Add(CourseWithLessons("Course", 0));
+        await db.SaveChangesAsync();
+        var (svc, _, _) = NewService(db);
+
+        var item = (await svc.GetPublishedCoursesAsync(UserId, 1, 10, "en")).Items.Single();
+
+        item.CategoryId.ShouldBeNull();
+        item.CategoryName.ShouldBeNull();
+    }
+
     // ---- GetCourseDetailAsync -----------------------------------------------
 
     [Fact]
