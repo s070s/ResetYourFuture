@@ -54,6 +54,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     // --- Testimonials ---
     public DbSet<Testimonial> Testimonials => Set<Testimonial>();
 
+    // --- AI Assistant ---
+    public DbSet<AssistantContentChunk> AssistantContentChunks => Set<AssistantContentChunk>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
