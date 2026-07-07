@@ -61,7 +61,27 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   `OnRemoteStreamChanged`, `OnScreenShareEnded`, `OnMediaError`) are just the JS→.NET
   contract this module calls into once WP5 lands. Full solution build verified green
   (no C# changes in this WP).
-- [ ] WP5 — Client CallService
+- [x] **WP5 — Client CallService** — done (commit `224923c`). `Interfaces\ICallService.cs`
+  (`CallStage` {Idle, Outgoing, Incoming, Connecting, InCall}, `CallParticipantView` client-side
+  mutable view model incl. `PeerConnectionState` for the connecting spinner); `Services\CallService.cs`
+  + `CallService.Media.cs` (partial: JS interop + `[JSInvokable]` callbacks). Mirrors ChatService's
+  hub-bootstrap pattern (hub URL from `IHttpContextAccessor` at ctor, fresh token per (re)connect via
+  `IAuthService.GetTokenAsync(circuitUser)`, `WithAutomaticReconnect()`). Mesh wiring: `CallAccepted`
+  is a pure stage-transition signal (Outgoing→Connecting) with no peer side effects; `ParticipantJoined`
+  is what actually creates a peer (skipped for the self-echo the group broadcast includes) — the
+  newcomer (`AcceptAsync`/`RejoinAsync`, `initiateOffer: true`) offers to each existing participant,
+  everyone else just creates a peer and waits for that offer (`initiateOffer: false`), per the
+  no-glare-on-join convention. Polite/impolite role = `string.CompareOrdinal` on the two connectionIds.
+  Reconnect handling deliberately does **not** tear down existing RTCPeerConnections (media keeps
+  flowing P2P through a signaling blip) — `RejoinCall`'s reply is diffed against already-known
+  participants and only genuinely-new ones get wired up. Offer/answer payloads cross the hub as a
+  `Dictionary<string,string>{"type","sdp"}`/plain JSON string (ICE), read back via `JsonElement` on
+  the client so wire-format naming policy never has to be reasoned about. Registered `AddScoped`
+  (`ICallService, CallService`) in `ServiceRegistrationExtensions.cs` — hub-only, no `AddHttpClient`.
+  Not wired into any UI yet (WP6). Found and fixed one build issue along the way: `CallService.Media.cs`
+  was missing `using Microsoft.AspNetCore.SignalR.Client;` — extension methods are file-scoped even
+  within the same partial class, so without it `HubConnection.On`/`.InvokeAsync` calls silently fell
+  back to unrelated overloads with confusing compiler errors. Full solution build + all 400 tests green.
 - [ ] WP6 — UI + localization
 - [ ] WP7 — Tests + manual verification
 
