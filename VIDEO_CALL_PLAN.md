@@ -17,7 +17,26 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   with trailing `CallEvent`/`CallDurationSeconds`; `ChatQueryService.GetMessagesAsync` now includes
   `ChatMessage.CallSession` to project duration. Not registered in DI yet (WP3). Added
   `CallEventServiceTests`/`CallQueryServiceTests`; full solution build + all 355 tests green.
-- [ ] WP3 — Server real-time
+- [x] **WP3 — Server real-time** — done (commit `e96b1f9`). `CallHub` (`/hubs/call`, mirrors
+  ChatHub's connect/disable-check/group pattern) with `StartCall`/`AcceptCall`/`DeclineCall`/
+  `CancelCall`/`LeaveCall`/`InviteToCall`/`RejoinCall`, WebRTC `SendOffer`/`SendAnswer`/
+  `SendIceCandidate` relay (split into `CallHub.Signaling.cs`, validates both connections' call
+  membership before relaying), `UpdateMediaState`, `GetCallableUsers`; `CallRegistry` (singleton,
+  pure/lock-protected/zero-deps state machine: presence via connection ref-counting, invite/accept/
+  decline/leave, expired-invite and disconnect-grace sweeps, a sticky `HasConnected` flag so
+  end-of-call logic can tell "connected then everyone left" apart from "never connected" after
+  participants are removed from the map, and a pure `ShouldEndCall` check); `CallRingMonitor`
+  (`BackgroundService`, 5s `Task.Delay` poll loop matching `BulkStudentSeedingService`'s existing
+  convention, `IServiceScopeFactory`-scoped DB/service access, startup sweep of dangling
+  `CallSession` rows from a previous process). `WebRtcOptions` bound from `WebRtc` config
+  (`RingTimeoutSeconds`, `MaxParticipants`, `IceServers`). Registered in DI
+  (`ICallEventService`/`ICallQueryService`/`CallRegistry`/`CallRingMonitor`/`WebRtcOptions` —
+  `ICallService`/`CallService` deliberately NOT registered, that's WP5). Fixed both verified
+  blockers: `Permissions-Policy` now allows `camera=(self) microphone=(self) display-capture=(self)`,
+  and JWT query-string auth now accepts `/hubs/call`. `CallRegistryTests` (45 facts) covers the
+  state machine in isolation — busy checks, invite/accept/decline/leave transitions, expired-invite
+  and disconnect-grace boundaries, rejoin re-keying, `HasConnected` stickiness, and the pure
+  end-of-call decision. Full solution build + all 400 tests green (355 + 45 new).
 - [ ] WP4 — JS interop
 - [ ] WP5 — Client CallService
 - [ ] WP6 — UI + localization
