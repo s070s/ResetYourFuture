@@ -186,10 +186,10 @@ public partial class CallHub : Hub
         var existingParticipants = await ResolveParticipantNames(_registry.GetJoinedParticipants(callId, excludingUserId: userId));
 
         var displayName = await ResolveDisplayName(userId);
-        await Clients.Group($"call_{callId}").SendAsync(
-            "ParticipantJoined",
-            callId,
-            new CallParticipantDto(userId, displayName, Context.ConnectionId, true, true, false));
+        var acceptingParticipant = new CallParticipantDto(userId, displayName, Context.ConnectionId, true, true, false);
+
+        await Clients.Group($"call_{callId}").SendAsync("CallAccepted", callId, acceptingParticipant);
+        await Clients.Group($"call_{callId}").SendAsync("ParticipantJoined", callId, acceptingParticipant);
 
         return new JoinCallResultDto(callId, existingParticipants);
     }
