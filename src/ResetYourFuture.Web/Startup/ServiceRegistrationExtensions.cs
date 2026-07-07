@@ -97,7 +97,10 @@ public static class ServiceRegistrationExtensions
 
             builder.Services.AddSingleton<AssistantIndexSignal>();
             builder.Services.AddSingleton<AssistantIndexVersion>();
+            builder.Services.AddSingleton<AssistantChunkCache>();
             builder.Services.AddScoped<IAssistantIndexingService, AssistantIndexingService>();
+            builder.Services.AddScoped<IAssistantRetrievalService, AssistantRetrievalService>();
+            builder.Services.AddScoped<IAssistantService, AssistantService>();
             builder.Services.AddHostedService<AssistantIndexer>();
         }
 
