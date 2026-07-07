@@ -36,7 +36,14 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   and JWT query-string auth now accepts `/hubs/call`. `CallRegistryTests` (45 facts) covers the
   state machine in isolation — busy checks, invite/accept/decline/leave transitions, expired-invite
   and disconnect-grace boundaries, rejoin re-keying, `HasConnected` stickiness, and the pure
-  end-of-call decision. Full solution build + all 400 tests green (355 + 45 new).
+  end-of-call decision. Full solution build + all 400 tests green (355 + 45 new). Reviewed
+  (spec-compliance + code-quality passes): one spec gap found and fixed (`CallAccepted` event
+  wasn't emitted on accept, commit `45ac04b`); quality review returned **Approved with minor
+  notes** — one Important item deferred as a known follow-up rather than reworked now:
+  `CallHub.ForceEndCall` and `CallRingMonitor.EndCallIfNeededAsync` duplicate the same
+  end-of-call sequence (compute reason from `HasConnected` → `EndSessionAsync` → conditional
+  1:1 chat event → `CallEnded` broadcast → `RemoveCall`); both copies are currently correct and
+  consistent, but a shared helper should be extracted before end-of-call semantics change again.
 - [ ] WP4 — JS interop
 - [ ] WP5 — Client CallService
 - [ ] WP6 — UI + localization
