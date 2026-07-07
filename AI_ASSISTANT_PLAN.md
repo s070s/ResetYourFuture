@@ -12,7 +12,7 @@
 
 - [x] WP1 — Domain + EF + migration
 - [x] WP2 — Packages, options, AI client DI
-- [ ] WP3 — Chunking + indexing pipeline
+- [x] WP3 — Chunking + indexing pipeline
 - [ ] WP4 — Retrieval + RAG chat service
 - [ ] WP5 — API surface (SSE chat, status, reindex)
 - [ ] WP6 — Consumer + widget UI + localization (feature usable)

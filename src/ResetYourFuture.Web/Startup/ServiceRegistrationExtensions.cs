@@ -94,6 +94,11 @@ public static class ServiceRegistrationExtensions
                 new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.ChatModel));
             builder.Services.AddEmbeddingGenerator(_ =>
                 new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.EmbeddingModel));
+
+            builder.Services.AddSingleton<AssistantIndexSignal>();
+            builder.Services.AddSingleton<AssistantIndexVersion>();
+            builder.Services.AddScoped<IAssistantIndexingService, AssistantIndexingService>();
+            builder.Services.AddHostedService<AssistantIndexer>();
         }
 
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
