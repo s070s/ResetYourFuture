@@ -68,4 +68,34 @@ public class AdminCrudAuthMatrixTests
 
         (await client.GetAsync(url)).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task AdminAssistantReindex_Admin_Returns202()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+
+        var response = await client.PostAsync("/api/admin/assistant/reindex", content: null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Accepted);
+    }
+
+    [Fact]
+    public async Task AdminAssistantReindex_Student_Returns403()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync("Student");
+
+        var response = await client.PostAsync("/api/admin/assistant/reindex", content: null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task AdminAssistantReindex_Anonymous_Returns401()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync("/api/admin/assistant/reindex", content: null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
 }

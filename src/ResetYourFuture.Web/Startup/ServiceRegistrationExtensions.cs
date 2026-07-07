@@ -84,10 +84,13 @@ public static class ServiceRegistrationExtensions
         // Local-only: an Ollama sidecar serves both the chat and embedding models behind
         // Microsoft.Extensions.AI abstractions (IChatClient / IEmbeddingGenerator), so nothing
         // outside this block references OllamaSharp directly — swapping model/runtime later is
-        // config plus this one registration. Registered only when enabled, so CI and test hosts
-        // never need Ollama installed.
+        // config plus this one registration. AssistantIndexSignal is always registered (cheap,
+        // no Ollama dependency) so the admin reindex endpoint never 500s; when disabled, IAssistantService
+        // resolves to a no-op that reports unavailable instead of the real Ollama-backed pipeline —
+        // that's what keeps Ollama out of CI/test hosts entirely.
         builder.Services.Configure<AssistantOptions>(config.GetSection(AssistantOptions.SectionName));
         var assistantOptions = config.GetSection(AssistantOptions.SectionName).Get<AssistantOptions>() ?? new AssistantOptions();
+        builder.Services.AddSingleton<AssistantIndexSignal>();
         if (assistantOptions.Enabled)
         {
             builder.Services.AddChatClient(_ =>
@@ -95,13 +98,16 @@ public static class ServiceRegistrationExtensions
             builder.Services.AddEmbeddingGenerator(_ =>
                 new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.EmbeddingModel));
 
-            builder.Services.AddSingleton<AssistantIndexSignal>();
             builder.Services.AddSingleton<AssistantIndexVersion>();
             builder.Services.AddSingleton<AssistantChunkCache>();
             builder.Services.AddScoped<IAssistantIndexingService, AssistantIndexingService>();
             builder.Services.AddScoped<IAssistantRetrievalService, AssistantRetrievalService>();
             builder.Services.AddScoped<IAssistantService, AssistantService>();
             builder.Services.AddHostedService<AssistantIndexer>();
+        }
+        else
+        {
+            builder.Services.AddScoped<IAssistantService, DisabledAssistantService>();
         }
 
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
@@ -142,6 +148,18 @@ public static class ServiceRegistrationExtensions
                 limiterOptions.Window = TimeSpan.FromMinutes(1);
                 limiterOptions.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
                 limiterOptions.QueueLimit = 0;
+            });
+            // Per-user (not global, unlike "auth") so one chatty student can't starve everyone else's quota.
+            options.AddPolicy("assistant", httpContext =>
+            {
+                var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(userId, _ =>
+                    new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = assistantOptions.RequestsPerMinute,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    });
             });
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });

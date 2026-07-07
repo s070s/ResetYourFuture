@@ -80,7 +80,14 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
                 "conn.on('ReceiveMessage', m => console.log(m));\n" +
                 "await conn.start();\n" +
                 "await conn.invoke('SendMessage', conversationId, 'Hello');\n" +
-                "```",
+                "```\n\n" +
+                "## AI Assistant (Server-Sent Events)\n\n" +
+                "`POST /api/assistant/chat` is a normal HTTP endpoint, but its response is a `text/event-stream` " +
+                "body rather than a single JSON payload — Swagger UI's \"Try it out\" will show the raw stream, " +
+                "not a parsed object. Each SSE `data:` line is a JSON-encoded `AssistantStreamEvent` whose `Kind` " +
+                "is `token` (one piece of the reply), `sources` (grounding citations, sent once after the last " +
+                "token), `done` (stream complete), or `error`. The endpoint is entirely local (an Ollama sidecar, " +
+                "no cloud calls) and runs against every authenticated user regardless of subscription tier.",
             Contact = new OpenApiContact
             {
                 Name = "ResetYourFuture Support",
