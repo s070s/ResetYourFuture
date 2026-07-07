@@ -82,7 +82,45 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   was missing `using Microsoft.AspNetCore.SignalR.Client;` — extension methods are file-scoped even
   within the same partial class, so without it `HubConnection.On`/`.InvokeAsync` calls silently fell
   back to unrelated overloads with confusing compiler errors. Full solution build + all 400 tests green.
-- [ ] WP6 — UI + localization
+- [x] **WP6 — UI + localization** — done (commit `9c3948a`). Feature is usable end-to-end.
+  New `Shared\Components\Call\`: `CallOverlayHost` (the one stateful mount, added to
+  `MainLayout`; gates on Admin-or-PrioritySupport exactly like `Chat.razor.cs`, then
+  `EnsureConnectedAsync` + renders by `CallStage` — `IncomingCallToast` while Incoming,
+  `ActiveCallView` while Outgoing/Connecting/InCall, plus a top error toast mapping known
+  keys — `StartCallStatus` names, `CallDeclined`/`CallUnavailable`/`MediaPermissionDenied` —
+  to localized `CallRes` text and passing anything else through as-is), `IncomingCallToast`
+  (bottom-right card), `ActiveCallView` (1–6 tile CSS grid, local self-view, Ringing/
+  Connecting status banner, hosts its own add-participant `CallUserPickerModal`),
+  `ParticipantTile` (per-peer `<video>` bound in `OnAfterRenderAsync`, connecting spinner,
+  mic/camera/sharing badges), `CallControls` (mic/camera/screen-share/add-participant/
+  hang-up), `CallUserPickerModal` (multi-select, modeled on `UserPickerModal`; dual-purpose —
+  CallOverlayHost hosts one in "start group call" mode opened via
+  `CallService.GroupCallPickerRequested`, ActiveCallView hosts a separate one in "add to
+  active call" mode — cap enforced via `ICallService.MaxParticipants`, new prop this WP).
+  Modified: `MainLayout.razor` (`<CallOverlayHost />`), `_Imports.razor`, `MessagePane`
+  (video-call button disabled outside `CallStage.Idle`; call-event messages render as a
+  centered chip via `msg.CallEvent`/`CallDurationSeconds` instead of a bubble),
+  `ConversationSidebar` ("new group call" button → `CallService.RequestGroupCallPicker`).
+  `CallRes.resx`/`CallRes.el.resx` + hand-written `CallRes.Designer.cs` (~29 keys) registered
+  in `ResetYourFuture.Shared.csproj` alongside `ChatRes`'s existing block. Two small WP5
+  follow-ups needed by the UI: `ICallService.MaxParticipants` passthrough, and
+  `CallService.Media.cs`'s `OnMediaError` now maps any `startLocalMedia` JS failure to the
+  clean `MediaPermissionDenied` key instead of the raw (English-only) browser exception text.
+  **Verified live** (`dotnet run`, logged in as the seeded admin): Chat page shows the new
+  group-call icon next to "New"; clicking it opens the picker showing real callable users
+  from `GetCallableUsersAsync` with a live "N of 5 selected" counter (5 = `MaxParticipants`−1,
+  correct) and cap enforcement; selecting a user and clicking "Start call" drives
+  `StartCallAsync` → `webrtcInterop.startLocalMedia` → (this headless environment has no
+  camera, so) `getUserMedia` denial → `OnMediaError` → `ErrorOccurred("MediaPermissionDenied")`
+  → `CallOverlayHost` → the correctly localized toast "Camera/microphone access was denied.
+  Check your browser permissions and try again." — confirming the full JS→CallService→
+  CallOverlayHost→CallRes pipeline end-to-end. Fixed one issue found live: the error toast's
+  `top: 1rem` overlapped the sticky header; changed to `6.5rem` and reconfirmed via the
+  compiled `ResetYourFuture.Web.styles.css`. Did not verify `ActiveCallView`/`ParticipantTile`/
+  `CallControls` rendering live (needs an actual accepted call, blocked by no camera in this
+  environment) or two-browser real-media flows — those need real hardware and are WP7's
+  manual-verification matrix, not something to automate here. Full solution build + all 400
+  tests green throughout (no test changes in this WP — it's pure UI).
 - [ ] WP7 — Tests + manual verification
 
 ## Context
