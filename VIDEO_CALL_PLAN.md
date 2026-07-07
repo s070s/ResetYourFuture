@@ -8,7 +8,16 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   enums (`CallParticipantStatus`, `CallEndReason`, `CallEventKind`), EF configurations, `ChatMessage`
   `CallSessionId`/`CallEvent` columns, `IApplicationDbContext`/`ApplicationDbContext` DbSets, and the
   `AddCallSessions` migration. Full solution build verified green.
-- [ ] WP2 — Application layer
+- [x] **WP2 — Application layer** — done (commit `945d0b9`). `CallDtos.cs` (`CallInviteDto`,
+  `CallParticipantDto`, `StartCallResultDto`/`StartCallStatus`, `JoinCallResultDto`, `MediaStateDto`);
+  `ICallEventService`/`CallEventService` (`CreateSessionAsync`, `MarkParticipantAsync`, `EndSessionAsync`,
+  `RecordChatEventAsync` — 1:1 only, returns `null` for group calls); `ICallQueryService`/`CallQueryService`
+  (`HasCallAccessAsync` mirrors chat's Admin-or-PrioritySupport rule; `GetCallableUsersAsync` returns all
+  enabled users minus self, deliberately not excluding existing chat partners). `ChatMessageDto` extended
+  with trailing `CallEvent`/`CallDurationSeconds`; `ChatQueryService.GetMessagesAsync` now includes
+  `ChatMessage.CallSession` to project duration. Not registered in DI yet (WP3). Added
+  `CallEventServiceTests`/`CallQueryServiceTests`; full solution build + all 355 tests green.
+- [ ] WP3 — Server real-time
 - [ ] WP3 — Server real-time
 - [ ] WP4 — JS interop
 - [ ] WP5 — Client CallService
