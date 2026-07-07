@@ -1,0 +1,45 @@
+@* One remote participant's video tile within ActiveCallView's grid. *@
+
+<div class="participant-tile">
+    <video id="video-@Participant.ConnectionId" autoplay playsinline></video>
+
+    @if (Participant.PeerConnectionState is "new" or "connecting")
+    {
+        <div class="tile-connecting-spinner">
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+        </div>
+    }
+
+    <div class="tile-label">
+        <span class="tile-name">@Participant.DisplayName</span>
+        @if (!Participant.MicOn)
+        {
+            <span class="bi bi-mic-mute-fill tile-badge" aria-hidden="true" title="@CallRes.MuteMic"></span>
+        }
+        @if (!Participant.CameraOn)
+        {
+            <span class="bi bi-camera-video-off-fill tile-badge" aria-hidden="true" title="@CallRes.TurnCameraOff"></span>
+        }
+        @if (Participant.ScreenSharing)
+        {
+            <span class="bi bi-display tile-badge" aria-hidden="true" title="@CallRes.ShareScreen"></span>
+        }
+    </div>
+</div>
+
+@code {
+    [Inject] private ICallService CallService { get; set; } = default!;
+
+    [Parameter, EditorRequired] public CallParticipantView Participant { get; set; } = default!;
+
+    private string? _boundConnectionId;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_boundConnectionId != Participant.ConnectionId)
+        {
+            _boundConnectionId = Participant.ConnectionId;
+            await CallService.BindVideoAsync(Participant.ConnectionId, $"video-{Participant.ConnectionId}");
+        }
+    }
+}

@@ -113,6 +113,10 @@ public partial class CallService
     public void OnMediaError(string context, string? peerKey, string message)
     {
         _logger.LogWarning("CallService: JS interop error in {Context} (peer={PeerKey}): {Message}", context, peerKey, message);
-        ErrorOccurred?.Invoke(message);
+
+        // Browser getUserMedia failures are virtually always a permissions problem from the
+        // user's perspective, regardless of the exact DOMException subtype — surface a clean,
+        // localizable key instead of the raw (English-only) browser error text.
+        ErrorOccurred?.Invoke(context == "startLocalMedia" ? "MediaPermissionDenied" : message);
     }
 }

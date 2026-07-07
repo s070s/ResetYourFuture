@@ -2,12 +2,16 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Web.Interfaces;
 
 namespace ResetYourFuture.Web.Shared.Components.Chat;
 
-public partial class MessagePane
+public partial class MessagePane : IDisposable
 {
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private ICallService CallService { get; set; } = default!;
 
     [Parameter, EditorRequired] public ChatConversationDto? Conversation { get; set; }
     [Parameter, EditorRequired] public PagedResult<ChatMessageDto>? Messages { get; set; }
@@ -28,6 +32,38 @@ public partial class MessagePane
     private ElementReference _resizeHandleRef;
     private bool _resizeInitialized;
     private Guid? _previousConversationId;
+
+    protected override void OnInitialized()
+    {
+        CallService.StateChanged += HandleCallStateChanged;
+    }
+
+    private void HandleCallStateChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task StartVideoCall()
+    {
+        if (Conversation is null) return;
+        await CallService.StartCallAsync([Conversation.OtherUserId], Conversation.Id);
+    }
+
+    private static string GetCallEventText(ChatMessageDto msg) => msg.CallEvent switch
+    {
+        CallEventKind.Started => CallRes.CallStarted,
+        CallEventKind.Missed => CallRes.MissedCall,
+        CallEventKind.Ended => string.Format(CallRes.CallEndedWithDuration, FormatDuration(msg.CallDurationSeconds)),
+        _ => string.Empty
+    };
+
+    private static string FormatDuration(int? seconds)
+    {
+        var span = TimeSpan.FromSeconds(seconds ?? 0);
+        return $"{(int)span.TotalMinutes}:{span.Seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        CallService.StateChanged -= HandleCallStateChanged;
+    }
 
     protected override void OnParametersSet()
     {

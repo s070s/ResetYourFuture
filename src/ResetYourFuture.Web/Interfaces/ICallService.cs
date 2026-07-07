@@ -57,6 +57,9 @@ public interface ICallService : IAsyncDisposable
     bool ScreenSharing { get; }
     bool IsConnected { get; }
 
+    /// <summary>Server-configured cap on total participants (initiator + invitees) per call.</summary>
+    int MaxParticipants { get; }
+
     /// <summary>Idempotent — connects the call hub once per circuit. Safe to call from every page.</summary>
     Task EnsureConnectedAsync(ClaimsPrincipal? circuitUser = null);
 

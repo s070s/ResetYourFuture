@@ -45,6 +45,7 @@ public partial class CallService : ICallService
     public bool CameraOn { get; private set; } = true;
     public bool ScreenSharing { get; private set; }
     public bool IsConnected => _hub?.State == HubConnectionState.Connected;
+    public int MaxParticipants => _webRtcOptions.Value.MaxParticipants;
 
     public CallService(
         IAuthService authService,
