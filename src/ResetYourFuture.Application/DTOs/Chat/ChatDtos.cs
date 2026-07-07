@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Domain.Enums;
 
 namespace ResetYourFuture.Application.DTOs;
 
@@ -26,7 +27,9 @@ public record ChatMessageDto(
     string SenderRole,
     string Content,
     DateTime SentAt,
-    bool IsRead
+    bool IsRead,
+    CallEventKind? CallEvent = null,
+    int? CallDurationSeconds = null
 );
 
 /// <summary>

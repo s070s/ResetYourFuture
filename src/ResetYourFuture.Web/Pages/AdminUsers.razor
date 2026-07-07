@@ -34,6 +34,7 @@
                                                   CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
                                                   OnSort="OnSort" />
                             <th>@AdminRes.ColEnabled</th>
+                            <th>@AdminRes.ColTier</th>
                             <th>@AdminRes.ColRoles</th>
                             <th>@AdminRes.ColActions</th>
                         </tr>
@@ -46,6 +47,7 @@
                                 <span aria-hidden="true">@(user.IsEnabled ? "✓" : "✗")</span>
                                 <span class="visually-hidden">@(user.IsEnabled ? AdminRes.Yes : AdminRes.No)</span>
                             </td>
+                            <td data-label="@AdminRes.ColTier">@user.SubscriptionTier</td>
                             <td data-label="@AdminRes.ColRoles">@string.Join(", ", user.Roles)</td>
                             <td data-label="@AdminRes.ColActions">
                                 @if (user.Roles.Contains("Student"))

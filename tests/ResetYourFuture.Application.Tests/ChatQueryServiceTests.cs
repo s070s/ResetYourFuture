@@ -145,6 +145,62 @@ public class ChatQueryServiceTests
         result.Value!.Items.Select(m => m.Content).ShouldBe(new[] { "first", "second" });
     }
 
+    [Fact]
+    public async Task GetMessages_CallEventRow_ProjectsCallEventAndDuration()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        db.Users.AddRange(AppUser(A), AppUser(B));
+        var conv = Conversation(A, B);
+        db.ChatConversations.Add(conv);
+        var connectedAt = new DateTime(2022, 1, 1, 12, 0, 0);
+        var session = new CallSession
+        {
+            Id = Guid.NewGuid(),
+            InitiatorId = A,
+            ConversationId = conv.Id,
+            ConnectedAt = connectedAt,
+            EndedAt = connectedAt.AddSeconds(90),
+            EndReason = CallEndReason.Completed
+        };
+        db.CallSessions.Add(session);
+        db.ChatMessages.Add(new ChatMessage
+        {
+            Id = Guid.NewGuid(),
+            ConversationId = conv.Id,
+            SenderId = A,
+            Content = "Video call ended · 1:30",
+            SentAt = connectedAt.AddSeconds(90),
+            CallSessionId = session.Id,
+            CallEvent = CallEventKind.Ended
+        });
+        await db.SaveChangesAsync();
+        var (svc, _, _) = NewService(db);
+
+        var result = await svc.GetMessagesAsync(A, conv.Id, 1, 10);
+
+        var dto = result.Value!.Items.ShouldHaveSingleItem();
+        dto.CallEvent.ShouldBe(CallEventKind.Ended);
+        dto.CallDurationSeconds.ShouldBe(90);
+    }
+
+    [Fact]
+    public async Task GetMessages_RegularMessage_HasNullCallEventAndDuration()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        db.Users.AddRange(AppUser(A), AppUser(B));
+        var conv = Conversation(A, B);
+        db.ChatConversations.Add(conv);
+        db.ChatMessages.Add(new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = A, Content = "hi" });
+        await db.SaveChangesAsync();
+        var (svc, _, _) = NewService(db);
+
+        var result = await svc.GetMessagesAsync(A, conv.Id, 1, 10);
+
+        var dto = result.Value!.Items.ShouldHaveSingleItem();
+        dto.CallEvent.ShouldBeNull();
+        dto.CallDurationSeconds.ShouldBeNull();
+    }
+
     // ---- StartConversationAsync ---------------------------------------------
 
     [Fact]

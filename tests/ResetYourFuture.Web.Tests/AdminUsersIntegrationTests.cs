@@ -20,6 +20,17 @@ public class AdminUsersIntegrationTests
     }
 
     [Fact]
+    public async Task GetUsers_Admin_IncludesSubscriptionTier()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+
+        var response = await client.GetAsync("/api/admin/users");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).ShouldContain("subscriptionTier");
+    }
+
+    [Fact]
     public async Task GetUsers_Student_Returns403()
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");

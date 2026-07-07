@@ -1,0 +1,28 @@
+@* Fixed bottom-right toast shown while an invite is ringing on this tab. *@
+
+@if (Invite is not null)
+{
+    <div class="incoming-call-toast" role="alert" aria-live="assertive">
+        <div class="incoming-call-icon"><span class="bi bi-camera-video-fill" aria-hidden="true"></span></div>
+        <div class="incoming-call-info">
+            <div class="incoming-call-title">@CallRes.IncomingVideoCall</div>
+            <div class="incoming-call-caller">
+                @(Invite.IsGroup ? string.Join(", ", Invite.ParticipantNames) : Invite.InitiatorName)
+            </div>
+        </div>
+        <div class="incoming-call-actions">
+            <button class="btn btn-success btn-sm" @onclick="OnAccept" aria-label="@CallRes.Accept">
+                <span class="bi bi-telephone-fill" aria-hidden="true"></span> @CallRes.Accept
+            </button>
+            <button class="btn btn-danger btn-sm" @onclick="OnDecline" aria-label="@CallRes.Decline">
+                <span class="bi bi-telephone-x-fill" aria-hidden="true"></span> @CallRes.Decline
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public CallInviteDto? Invite { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnAccept { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnDecline { get; set; }
+}

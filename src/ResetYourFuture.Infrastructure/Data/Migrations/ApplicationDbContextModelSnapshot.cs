@@ -155,7 +155,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.AssessmentDefinition", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentDefinition", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -225,7 +225,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("AssessmentDefinitions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.AssessmentSubmission", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentSubmission", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,7 +259,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("AssessmentSubmissions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.BillingTransaction", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.BillingTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -309,7 +309,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("BillingTransactions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.BlogArticle", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.BlogArticle", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -396,7 +396,78 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("BlogArticles");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Certificate", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallParticipant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CallSessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("InvitedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LeftAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("CallSessionId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("CallParticipants");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ConnectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ConversationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("EndReason")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("InitiatorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId");
+
+                    b.HasIndex("EndedAt");
+
+                    b.HasIndex("InitiatorId", "StartedAt");
+
+                    b.ToTable("CallSessions");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Certificate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -464,7 +535,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Certificates");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.ChatConversation", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatConversation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -500,10 +571,16 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("ChatConversations");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.ChatMessage", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatMessage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("CallEvent")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("CallSessionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Content")
@@ -526,6 +603,8 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CallSessionId");
+
                     b.HasIndex("SenderId");
 
                     b.HasIndex("ConversationId", "IsRead");
@@ -535,7 +614,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("ChatMessages");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Course", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Course", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -593,7 +672,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Enrollment", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Enrollment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -632,7 +711,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Enrollments");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Lesson", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Lesson", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -704,7 +783,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Lessons");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.LessonCompletion", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.LessonCompletion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -732,7 +811,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("LessonCompletions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Module", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Module", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -793,7 +872,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Modules");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -831,7 +910,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.SiteSetting", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.SiteSetting", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -861,7 +940,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("SiteSettings");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.SubscriptionPlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -908,7 +987,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("SubscriptionPlans");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Testimonial", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Testimonial", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -959,7 +1038,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("Testimonials");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.UserSubscription", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.UserSubscription", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1000,7 +1079,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("UserSubscriptions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -1125,7 +1204,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", null)
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1134,7 +1213,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", null)
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1149,7 +1228,7 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", null)
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1158,22 +1237,22 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", null)
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.AssessmentSubmission", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentSubmission", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.AssessmentDefinition", "AssessmentDefinition")
+                    b.HasOne("ResetYourFuture.Domain.Entities.AssessmentDefinition", "AssessmentDefinition")
                         .WithMany("Submissions")
                         .HasForeignKey("AssessmentDefinitionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany("AssessmentSubmissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1184,15 +1263,15 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.BillingTransaction", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.BillingTransaction", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("ResetYourFuture.Domain.Entities.SubscriptionPlan", "SubscriptionPlan")
                         .WithMany()
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1203,21 +1282,58 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Certificate", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallParticipant", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Course", "Course")
+                    b.HasOne("ResetYourFuture.Domain.Entities.CallSession", "CallSession")
+                        .WithMany("Participants")
+                        .HasForeignKey("CallSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CallSession");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallSession", b =>
+                {
+                    b.HasOne("ResetYourFuture.Domain.Entities.ChatConversation", "Conversation")
+                        .WithMany()
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "Initiator")
+                        .WithMany()
+                        .HasForeignKey("InitiatorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Conversation");
+
+                    b.Navigation("Initiator");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Certificate", b =>
+                {
+                    b.HasOne("ResetYourFuture.Domain.Entities.Course", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Enrollment", "Enrollment")
+                    b.HasOne("ResetYourFuture.Domain.Entities.Enrollment", "Enrollment")
                         .WithMany()
                         .HasForeignKey("EnrollmentId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1230,15 +1346,15 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.ChatConversation", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatConversation", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "Creator")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "Creator")
                         .WithMany()
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "Participant")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "Participant")
                         .WithMany()
                         .HasForeignKey("ParticipantId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1249,34 +1365,41 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("Participant");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.ChatMessage", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatMessage", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.ChatConversation", "Conversation")
+                    b.HasOne("ResetYourFuture.Domain.Entities.CallSession", "CallSession")
+                        .WithMany()
+                        .HasForeignKey("CallSessionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("ResetYourFuture.Domain.Entities.ChatConversation", "Conversation")
                         .WithMany("Messages")
                         .HasForeignKey("ConversationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "Sender")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CallSession");
 
                     b.Navigation("Conversation");
 
                     b.Navigation("Sender");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Enrollment", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Enrollment", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Course", "Course")
+                    b.HasOne("ResetYourFuture.Domain.Entities.Course", "Course")
                         .WithMany("Enrollments")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany("Enrollments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1287,9 +1410,9 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Lesson", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Lesson", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Module", "Module")
+                    b.HasOne("ResetYourFuture.Domain.Entities.Module", "Module")
                         .WithMany("Lessons")
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1298,15 +1421,15 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("Module");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.LessonCompletion", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.LessonCompletion", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Lesson", "Lesson")
+                    b.HasOne("ResetYourFuture.Domain.Entities.Lesson", "Lesson")
                         .WithMany()
                         .HasForeignKey("LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1317,9 +1440,9 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Module", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Module", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.Course", "Course")
+                    b.HasOne("ResetYourFuture.Domain.Entities.Course", "Course")
                         .WithMany("Modules")
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1328,9 +1451,9 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.RefreshToken", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1339,15 +1462,15 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.UserSubscription", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.UserSubscription", b =>
                 {
-                    b.HasOne("ResetYourFuture.Web.Domain.Entities.SubscriptionPlan", "SubscriptionPlan")
+                    b.HasOne("ResetYourFuture.Domain.Entities.SubscriptionPlan", "SubscriptionPlan")
                         .WithMany("UserSubscriptions")
                         .HasForeignKey("SubscriptionPlanId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ResetYourFuture.Web.Identity.ApplicationUser", "User")
+                    b.HasOne("ResetYourFuture.Domain.Identity.ApplicationUser", "User")
                         .WithMany("UserSubscriptions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1358,34 +1481,39 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.AssessmentDefinition", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentDefinition", b =>
                 {
                     b.Navigation("Submissions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.ChatConversation", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallSession", b =>
+                {
+                    b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatConversation", b =>
                 {
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Course", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Course", b =>
                 {
                     b.Navigation("Enrollments");
 
                     b.Navigation("Modules");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.Module", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Module", b =>
                 {
                     b.Navigation("Lessons");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Domain.Entities.SubscriptionPlan", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.SubscriptionPlan", b =>
                 {
                     b.Navigation("UserSubscriptions");
                 });
 
-            modelBuilder.Entity("ResetYourFuture.Web.Identity.ApplicationUser", b =>
+            modelBuilder.Entity("ResetYourFuture.Domain.Identity.ApplicationUser", b =>
                 {
                     b.Navigation("AssessmentSubmissions");
 

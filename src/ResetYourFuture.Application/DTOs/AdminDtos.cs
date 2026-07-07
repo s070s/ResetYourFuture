@@ -131,6 +131,7 @@ public record AdminUserDto(
     bool IsEnabled,
     string Status,
     List<string> Roles,
+    string SubscriptionTier,
     DateTime CreatedAt
 );
 

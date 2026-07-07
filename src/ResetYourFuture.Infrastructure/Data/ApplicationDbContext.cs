@@ -43,6 +43,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<ChatConversation> ChatConversations => Set<ChatConversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
+    // --- Calls ---
+    public DbSet<CallSession> CallSessions => Set<CallSession>();
+    public DbSet<CallParticipant> CallParticipants => Set<CallParticipant>();
+
     // --- Blog ---
     public DbSet<BlogArticle> BlogArticles => Set<BlogArticle>();
 

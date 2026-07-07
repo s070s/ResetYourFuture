@@ -1,0 +1,35 @@
+@* The one stateful mount point for the whole video-call feature — added to MainLayout so an
+   incoming call can ring on any page ("ring anywhere"). Everything else under Shared/Components/Call
+   renders as a child of this host, driven by ICallService.Stage. *@
+@implements IAsyncDisposable
+
+<AuthorizeView>
+    <Authorized>
+        @if (_callAccess)
+        {
+            @if (CallService.Stage == CallStage.Incoming)
+            {
+                <IncomingCallToast Invite="CallService.IncomingInvite" OnAccept="HandleAccept" OnDecline="HandleDecline" />
+            }
+            else if (CallService.Stage is CallStage.Outgoing or CallStage.Connecting or CallStage.InCall)
+            {
+                <ActiveCallView />
+            }
+
+            <CallUserPickerModal IsVisible="_showGroupPicker"
+                                 Title="@CallRes.SelectParticipants"
+                                 ConfirmLabel="@CallRes.StartCallButton"
+                                 MaxSelectable="@(Math.Max(0, CallService.MaxParticipants - 1))"
+                                 OnClose="CloseGroupPicker"
+                                 OnConfirm="HandleGroupCallUsersPicked" />
+
+            @if (_errorMessage is not null)
+            {
+                <div class="call-error-toast" role="alert">
+                    <span>@_errorMessage</span>
+                    <button type="button" class="btn-close" @onclick="DismissError" aria-label="Close"></button>
+                </div>
+            }
+        }
+    </Authorized>
+</AuthorizeView>

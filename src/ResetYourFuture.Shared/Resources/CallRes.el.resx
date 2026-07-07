@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="IncomingVideoCall" xml:space="preserve">
+		<value>Εισερχόμενη βιντεοκλήση</value>
+	</data>
+	<data name="Accept" xml:space="preserve">
+		<value>Αποδοχή</value>
+	</data>
+	<data name="Decline" xml:space="preserve">
+		<value>Απόρριψη</value>
+	</data>
+	<data name="Ringing" xml:space="preserve">
+		<value>Κλήση…</value>
+	</data>
+	<data name="Connecting" xml:space="preserve">
+		<value>Σύνδεση…</value>
+	</data>
+	<data name="Cancel" xml:space="preserve">
+		<value>Ακύρωση</value>
+	</data>
+	<data name="HangUp" xml:space="preserve">
+		<value>Τερματισμός</value>
+	</data>
+	<data name="MuteMic" xml:space="preserve">
+		<value>Σίγαση μικροφώνου</value>
+	</data>
+	<data name="UnmuteMic" xml:space="preserve">
+		<value>Άρση σίγασης μικροφώνου</value>
+	</data>
+	<data name="TurnCameraOn" xml:space="preserve">
+		<value>Ενεργοποίηση κάμερας</value>
+	</data>
+	<data name="TurnCameraOff" xml:space="preserve">
+		<value>Απενεργοποίηση κάμερας</value>
+	</data>
+	<data name="ShareScreen" xml:space="preserve">
+		<value>Κοινή χρήση οθόνης</value>
+	</data>
+	<data name="StopSharing" xml:space="preserve">
+		<value>Διακοπή κοινής χρήσης</value>
+	</data>
+	<data name="AddParticipant" xml:space="preserve">
+		<value>Προσθήκη συμμετέχοντα</value>
+	</data>
+	<data name="StartGroupCall" xml:space="preserve">
+		<value>Νέα ομαδική κλήση</value>
+	</data>
+	<data name="StartVideoCall" xml:space="preserve">
+		<value>Έναρξη βιντεοκλήσης</value>
+	</data>
+	<data name="StartCallButton" xml:space="preserve">
+		<value>Έναρξη κλήσης</value>
+	</data>
+	<data name="AddButton" xml:space="preserve">
+		<value>Προσθήκη</value>
+	</data>
+	<data name="SelectParticipants" xml:space="preserve">
+		<value>Επιλογή συμμετεχόντων</value>
+	</data>
+	<data name="CallStarted" xml:space="preserve">
+		<value>Η βιντεοκλήση ξεκίνησε</value>
+	</data>
+	<data name="MissedCall" xml:space="preserve">
+		<value>Αναπάντητη βιντεοκλήση</value>
+	</data>
+	<data name="CallEndedWithDuration" xml:space="preserve">
+		<value>Η βιντεοκλήση έληξε · {0}</value>
+	</data>
+	<data name="AllUnavailable" xml:space="preserve">
+		<value>Κανείς δεν ήταν διαθέσιμος να απαντήσει.</value>
+	</data>
+	<data name="CallerBusy" xml:space="preserve">
+		<value>Βρίσκεστε ήδη σε κλήση.</value>
+	</data>
+	<data name="NoAccess" xml:space="preserve">
+		<value>Οι βιντεοκλήσεις δεν είναι διαθέσιμες στο πλάνο σας.</value>
+	</data>
+	<data name="CallDeclined" xml:space="preserve">
+		<value>Η κλήση απορρίφθηκε.</value>
+	</data>
+	<data name="CallUnavailable" xml:space="preserve">
+		<value>Αυτός ο συμμετέχων δεν είναι διαθέσιμος.</value>
+	</data>
+	<data name="MediaPermissionDenied" xml:space="preserve">
+		<value>Δεν δόθηκε πρόσβαση σε κάμερα/μικρόφωνο. Ελέγξτε τα δικαιώματα του προγράμματος περιήγησης και δοκιμάστε ξανά.</value>
+	</data>
+	<data name="You" xml:space="preserve">
+		<value>Εσείς</value>
+	</data>
+	<data name="ParticipantLimitReached" xml:space="preserve">
+		<value>Αυτή η κλήση έχει φτάσει το όριο των {0} συμμετεχόντων.</value>
+	</data>
+	<data name="SelectedCountFormat" xml:space="preserve">
+		<value>{0} από {1} επιλεγμένα</value>
+	</data>
+</root>

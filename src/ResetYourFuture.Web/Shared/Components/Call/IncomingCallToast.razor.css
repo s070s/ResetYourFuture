@@ -1,0 +1,54 @@
+.incoming-call-toast {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1090;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    max-width: 360px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.4);
+}
+
+.incoming-call-icon {
+    font-size: 1.75rem;
+    color: var(--text-accent);
+    flex-shrink: 0;
+}
+
+.incoming-call-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.incoming-call-title {
+    font-size: 0.8rem;
+    color: var(--text-light-muted);
+}
+
+.incoming-call-caller {
+    font-weight: 600;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.incoming-call-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+    .incoming-call-toast {
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+    }
+}
