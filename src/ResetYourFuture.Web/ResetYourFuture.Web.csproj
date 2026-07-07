@@ -23,6 +23,10 @@
     <!-- Authentication -->
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 
+    <!-- Local AI assistant: Ollama-backed IChatClient/IEmbeddingGenerator -->
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="OllamaSharp" />
+
     <!-- SignalR client (used by ChatService) -->
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.AI;
+using OllamaSharp;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Infrastructure.ApiServices;
 using ResetYourFuture.Infrastructure.Configuration;
 using ResetYourFuture.Infrastructure.Seeding;
@@ -76,6 +79,22 @@ public static class ServiceRegistrationExtensions
         // Circuit-scoped bearer-token provider used by ApiClientBase so consumers authenticate
         // from inside the Blazor circuit (where HttpContext/SsrApiHandler is unavailable).
         builder.Services.AddScoped<ApiTokenProvider>();
+
+        // --- AI Assistant ---
+        // Local-only: an Ollama sidecar serves both the chat and embedding models behind
+        // Microsoft.Extensions.AI abstractions (IChatClient / IEmbeddingGenerator), so nothing
+        // outside this block references OllamaSharp directly — swapping model/runtime later is
+        // config plus this one registration. Registered only when enabled, so CI and test hosts
+        // never need Ollama installed.
+        builder.Services.Configure<AssistantOptions>(config.GetSection(AssistantOptions.SectionName));
+        var assistantOptions = config.GetSection(AssistantOptions.SectionName).Get<AssistantOptions>() ?? new AssistantOptions();
+        if (assistantOptions.Enabled)
+        {
+            builder.Services.AddChatClient(_ =>
+                new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.ChatModel));
+            builder.Services.AddEmbeddingGenerator(_ =>
+                new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.EmbeddingModel));
+        }
 
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
         builder.Services.AddTransient<SsrApiHandler>();

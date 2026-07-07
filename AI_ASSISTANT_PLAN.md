@@ -11,7 +11,7 @@
 ## WP checklist
 
 - [x] WP1 — Domain + EF + migration
-- [ ] WP2 — Packages, options, AI client DI
+- [x] WP2 — Packages, options, AI client DI
 - [ ] WP3 — Chunking + indexing pipeline
 - [ ] WP4 — Retrieval + RAG chat service
 - [ ] WP5 — API surface (SSE chat, status, reindex)
