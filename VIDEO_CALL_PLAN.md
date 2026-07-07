@@ -18,7 +18,6 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   `ChatMessage.CallSession` to project duration. Not registered in DI yet (WP3). Added
   `CallEventServiceTests`/`CallQueryServiceTests`; full solution build + all 355 tests green.
 - [ ] WP3 — Server real-time
-- [ ] WP3 — Server real-time
 - [ ] WP4 — JS interop
 - [ ] WP5 — Client CallService
 - [ ] WP6 — UI + localization
