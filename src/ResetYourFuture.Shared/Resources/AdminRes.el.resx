@@ -459,6 +459,9 @@
   <data name="ColEnabled" xml:space="preserve">
     <value>Ενεργός</value>
   </data>
+  <data name="ColTier" xml:space="preserve">
+    <value>Βαθμίδα</value>
+  </data>
   <data name="ColRoles" xml:space="preserve">
     <value>Ρόλοι</value>
   </data>

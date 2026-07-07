@@ -385,6 +385,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tier.
+        /// </summary>
+        public static string ColTier {
+            get {
+                return ResourceManager.GetString("ColTier", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to User.
         /// </summary>
         public static string ColUser {
