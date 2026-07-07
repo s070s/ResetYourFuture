@@ -8,7 +8,9 @@ namespace ResetYourFuture.Application.ApiInterfaces;
 /// </summary>
 public interface ICourseService
 {
-    Task<PagedResult<CourseListItemDto>> GetPublishedCoursesAsync(string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default);
+    Task<PagedResult<CourseListItemDto>> GetPublishedCoursesAsync(
+        string userId, int page, int pageSize, string lang, Guid? categoryId = null, string? search = null,
+        CancellationToken cancellationToken = default);
     Task<CourseDetailDto?> GetCourseDetailAsync(string userId, Guid courseId, string lang, CancellationToken cancellationToken = default);
     Task<ServiceResult<EnrollmentResultDto>> EnrollAsync(string userId, Guid courseId, CancellationToken cancellationToken = default);
     Task<ServiceResult<LessonDetailDto>> GetLessonDetailAsync(string userId, Guid lessonId, string lang, CancellationToken cancellationToken = default);

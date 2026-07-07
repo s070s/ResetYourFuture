@@ -5,6 +5,7 @@
   "descriptionEl": "Δημιουργήστε ένα αυθεντικό επαγγελματικό δίκτυο που δημιουργεί ευκαιρίες σε όλη τη διάρκεια της καριέρας σας.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Career",
   "modules": [
     {
       "title": "Networking Mindset",

@@ -2,6 +2,7 @@ using Ganss.Xss;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Application.DTOs;
@@ -64,7 +65,8 @@ public class AdminAssessmentsController : ControllerBase
                 a.TitleEn,
                 a.IsPublished,
                 a.Submissions.Count,
-                a.CreatedAt
+                a.CreatedAt,
+                a.Category != null ? a.Category.NameEn : null
             ))
             .ToListAsync();
 
@@ -79,6 +81,7 @@ public class AdminAssessmentsController : ControllerBase
     {
         var assessment = await _db.AssessmentDefinitions
             .AsNoTracking()
+            .Include(a => a.Category)
             .FirstOrDefaultAsync(a => a.Id == id);
         if (assessment == null)
         {
@@ -96,7 +99,9 @@ public class AdminAssessmentsController : ControllerBase
             assessment.IsPublished,
             assessment.CreatedAt,
             assessment.UpdatedAt,
-            assessment.PublishedAt
+            assessment.PublishedAt,
+            assessment.CategoryId,
+            assessment.Category?.NameEn
         );
 
         return Ok(dto);
@@ -115,6 +120,8 @@ public class AdminAssessmentsController : ControllerBase
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        var categoryId = await AdminCategoryService.ResolveCategoryAsync(_db, request.CategoryId, request.NewCategoryName);
+
         // Build a new assessment entity with provided data and initial metadata
         var assessment = new AssessmentDefinition
         {
@@ -125,6 +132,7 @@ public class AdminAssessmentsController : ControllerBase
             DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null,
             DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null,
             SchemaJson = request.SchemaJson,
+            CategoryId = categoryId,
             IsPublished = false,
             UpdatedByUserId = UserId
         };
@@ -132,6 +140,8 @@ public class AdminAssessmentsController : ControllerBase
         // Add and persist the new entity
         _db.AssessmentDefinitions.Add(assessment);
         await _db.SaveChangesAsync();
+
+        var categoryNameEn = await GetCategoryNameEnAsync(categoryId);
 
         // Map persisted entity to DTO for response
         var dto = new AdminAssessmentDefinitionDto(
@@ -145,7 +155,9 @@ public class AdminAssessmentsController : ControllerBase
             assessment.IsPublished,
             assessment.CreatedAt,
             assessment.UpdatedAt,
-            assessment.PublishedAt
+            assessment.PublishedAt,
+            assessment.CategoryId,
+            categoryNameEn
         );
 
         // Return 201 Created with location header pointing to the assessments list endpoint
@@ -174,6 +186,8 @@ public class AdminAssessmentsController : ControllerBase
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        var categoryId = await AdminCategoryService.ResolveCategoryAsync(_db, request.CategoryId, request.NewCategoryName);
+
         // Apply updates and metadata (updated time and user)
         assessment.Key = request.Key;
         assessment.TitleEn = request.TitleEn;
@@ -181,11 +195,14 @@ public class AdminAssessmentsController : ControllerBase
         assessment.DescriptionEn = request.DescriptionEn is not null ? _sanitizer.Sanitize(request.DescriptionEn) : null;
         assessment.DescriptionEl = request.DescriptionEl is not null ? _sanitizer.Sanitize(request.DescriptionEl) : null;
         assessment.SchemaJson = request.SchemaJson;
+        assessment.CategoryId = categoryId;
         assessment.UpdatedAt = DateTimeOffset.UtcNow;
         assessment.UpdatedByUserId = UserId;
 
         // Persist changes
         await _db.SaveChangesAsync();
+
+        var categoryNameEn = await GetCategoryNameEnAsync(categoryId);
 
         // Map updated entity to DTO and return 200 OK
         var dto = new AdminAssessmentDefinitionDto(
@@ -199,10 +216,23 @@ public class AdminAssessmentsController : ControllerBase
             assessment.IsPublished,
             assessment.CreatedAt,
             assessment.UpdatedAt,
-            assessment.PublishedAt
+            assessment.PublishedAt,
+            assessment.CategoryId,
+            categoryNameEn
         );
 
         return Ok(dto);
+    }
+
+    private async Task<string?> GetCategoryNameEnAsync(Guid? categoryId)
+    {
+        if (categoryId is not { } id)
+            return null;
+
+        return await _db.Categories.AsNoTracking()
+            .Where(c => c.Id == id)
+            .Select(c => c.NameEn)
+            .FirstOrDefaultAsync();
     }
 
     /// <summary>

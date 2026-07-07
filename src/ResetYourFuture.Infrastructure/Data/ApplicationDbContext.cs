@@ -26,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     // --- Core Domain DbSets ---
     public DbSet<Course> Courses => Set<Course>();
+    public DbSet<Category> Categories => Set<Category>();
     public DbSet<Module> Modules => Set<Module>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<AssessmentDefinition> AssessmentDefinitions => Set<AssessmentDefinition>();

@@ -11,5 +11,7 @@ public record CourseListItemDto(
     string? Description,
     bool IsEnrolled,
     int TotalLessons,
-    SubscriptionTier RequiredTier = SubscriptionTier.Free
+    SubscriptionTier RequiredTier = SubscriptionTier.Free,
+    Guid? CategoryId = null,
+    string? CategoryName = null
 );

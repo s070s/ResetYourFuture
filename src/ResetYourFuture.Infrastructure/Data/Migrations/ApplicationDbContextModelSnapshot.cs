@@ -161,6 +161,9 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CreatedAt")
                         .IsRequired()
                         .HasColumnType("nvarchar(48)");
@@ -216,6 +219,8 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("IsPublished");
 
@@ -467,6 +472,53 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.ToTable("CallSessions");
                 });
 
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(48)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeletedAt")
+                        .HasColumnType("nvarchar(48)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NameEl")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PublishedAt")
+                        .HasColumnType("nvarchar(48)");
+
+                    b.Property<string>("UpdatedAt")
+                        .HasColumnType("nvarchar(48)");
+
+                    b.Property<string>("UpdatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NameEn");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("ResetYourFuture.Domain.Entities.Certificate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -620,6 +672,9 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CreatedAt")
                         .IsRequired()
                         .HasColumnType("nvarchar(48)");
@@ -666,6 +721,8 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasIndex("IsPublished");
 
@@ -1244,6 +1301,16 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentDefinition", b =>
+                {
+                    b.HasOne("ResetYourFuture.Domain.Entities.Category", "Category")
+                        .WithMany("AssessmentDefinitions")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("ResetYourFuture.Domain.Entities.AssessmentSubmission", b =>
                 {
                     b.HasOne("ResetYourFuture.Domain.Entities.AssessmentDefinition", "AssessmentDefinition")
@@ -1391,6 +1458,16 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Course", b =>
+                {
+                    b.HasOne("ResetYourFuture.Domain.Entities.Category", "Category")
+                        .WithMany("Courses")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("ResetYourFuture.Domain.Entities.Enrollment", b =>
                 {
                     b.HasOne("ResetYourFuture.Domain.Entities.Course", "Course")
@@ -1489,6 +1566,13 @@ namespace ResetYourFuture.Infrastructure.Data.Migrations
             modelBuilder.Entity("ResetYourFuture.Domain.Entities.CallSession", b =>
                 {
                     b.Navigation("Participants");
+                });
+
+            modelBuilder.Entity("ResetYourFuture.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("AssessmentDefinitions");
+
+                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("ResetYourFuture.Domain.Entities.ChatConversation", b =>

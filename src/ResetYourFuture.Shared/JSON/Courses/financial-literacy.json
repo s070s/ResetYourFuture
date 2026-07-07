@@ -5,6 +5,7 @@
   "descriptionEl": "Πάρτε τον έλεγχο των χρημάτων σας — προϋπολογισμός, αποταμίευση, επένδυση και σχεδιασμός για το μέλλον — σε οποιοδήποτε επίπεδο εισοδήματος.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Finance",
   "modules": [
     {
       "title": "Budgeting and Cash Flow",

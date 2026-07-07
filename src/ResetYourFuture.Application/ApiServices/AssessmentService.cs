@@ -20,7 +20,8 @@ public class AssessmentService(
     ILogger<AssessmentService> logger) : IAssessmentService
 {
     public async Task<ServiceResult<PagedResult<AssessmentDefinitionDto>>> GetPublishedAssessmentsAsync(
-        string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default)
+        string userId, int page, int pageSize, string lang, Guid? categoryId = null, string? search = null,
+        CancellationToken cancellationToken = default)
     {
         var userStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
         if (userStatus.Features?.AssessmentAccess != true)
@@ -30,8 +31,24 @@ public class AssessmentService(
 
         var query = db.AssessmentDefinitions
             .AsNoTracking()
-            .Where(a => a.IsPublished)
-            .OrderBy(a => a.TitleEn);
+            .Where(a => a.IsPublished);
+
+        if (categoryId is { } catId)
+            query = query.Where(a => a.CategoryId == catId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            // EF.Functions.Like translates to a sargable LIKE predicate.
+            // Explicit ToLower() is dropped — SQL Server's default CI_AS collation
+            // makes LIKE case-insensitive without defeating the index.
+            var term = $"%{search.Trim()}%";
+            query = query.Where(a =>
+                EF.Functions.Like(a.TitleEn, term) || (a.TitleEl != null && EF.Functions.Like(a.TitleEl, term)) ||
+                (a.DescriptionEn != null && EF.Functions.Like(a.DescriptionEn, term)) ||
+                (a.DescriptionEl != null && EF.Functions.Like(a.DescriptionEl, term)));
+        }
+
+        query = query.OrderBy(a => a.TitleEn);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -47,7 +64,9 @@ public class AssessmentService(
                 a.IsPublished,
                 a.CreatedAt,
                 a.UpdatedAt,
-                a.PublishedAt
+                a.PublishedAt,
+                a.CategoryId,
+                a.CategoryId == null ? null : (isEl ? (a.Category!.NameEl ?? a.Category.NameEn) : a.Category!.NameEn)
             ))
             .ToListAsync(cancellationToken);
 
@@ -80,7 +99,9 @@ public class AssessmentService(
                 a.IsPublished,
                 a.CreatedAt,
                 a.UpdatedAt,
-                a.PublishedAt
+                a.PublishedAt,
+                a.CategoryId,
+                a.CategoryId == null ? null : (isEl ? (a.Category!.NameEl ?? a.Category.NameEn) : a.Category!.NameEn)
             ))
             .FirstOrDefaultAsync(cancellationToken);
 

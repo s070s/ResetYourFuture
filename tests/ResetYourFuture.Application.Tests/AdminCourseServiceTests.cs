@@ -1,4 +1,5 @@
 using Ganss.Xss;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
@@ -19,8 +20,9 @@ public class AdminCourseServiceTests
         new(db, NullLogger<AdminCourseService>.Instance, new HtmlSanitizer());
 
     private static SaveCourseRequest Request(
-        string titleEn = "Title", string? descEn = null, SubscriptionTier tier = SubscriptionTier.Free) =>
-        new(titleEn, null, descEn, null, tier);
+        string titleEn = "Title", string? descEn = null, SubscriptionTier tier = SubscriptionTier.Free,
+        Guid? categoryId = null, string? newCategoryName = null) =>
+        new(titleEn, null, descEn, null, tier, categoryId, newCategoryName);
 
     [Fact]
     public async Task GetCourseById_Missing_ReturnsNull()
@@ -181,5 +183,72 @@ public class AdminCourseServiceTests
         await using var db = DbContextFactory.CreateInMemory();
 
         (await NewService(db).PublishCourseAsync(Guid.NewGuid(), Admin)).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CreateCourse_WithExistingCategoryId_AssignsCategory()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var category = new Category { Id = Guid.NewGuid(), NameEn = "Career" };
+        db.Categories.Add(category);
+        await db.SaveChangesAsync();
+
+        var dto = await NewService(db).CreateCourseAsync(Request(categoryId: category.Id), Admin);
+
+        dto.CategoryId.ShouldBe(category.Id);
+        dto.CategoryNameEn.ShouldBe("Career");
+    }
+
+    [Fact]
+    public async Task CreateCourse_WithNewCategoryName_CreatesAndAssignsCategory()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+
+        var dto = await NewService(db).CreateCourseAsync(Request(newCategoryName: "Finance"), Admin);
+
+        dto.CategoryId.ShouldNotBeNull();
+        dto.CategoryNameEn.ShouldBe("Finance");
+        (await db.Categories.CountAsync()).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task CreateCourse_NewCategoryName_ReusesExistingByCaseInsensitiveMatch()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var existing = new Category { Id = Guid.NewGuid(), NameEn = "Finance" };
+        db.Categories.Add(existing);
+        await db.SaveChangesAsync();
+
+        var dto = await NewService(db).CreateCourseAsync(Request(newCategoryName: "finance"), Admin);
+
+        dto.CategoryId.ShouldBe(existing.Id);
+        (await db.Categories.CountAsync()).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task CreateCourse_NoCategory_LeavesCategoryNull()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+
+        var dto = await NewService(db).CreateCourseAsync(Request(), Admin);
+
+        dto.CategoryId.ShouldBeNull();
+        dto.CategoryNameEn.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task UpdateCourse_ChangesCategory()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var oldCategory = new Category { Id = Guid.NewGuid(), NameEn = "Old" };
+        var newCategory = new Category { Id = Guid.NewGuid(), NameEn = "New" };
+        db.Categories.AddRange(oldCategory, newCategory);
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "C", CategoryId = oldCategory.Id };
+        db.Courses.Add(course);
+        await db.SaveChangesAsync();
+
+        var dto = await NewService(db).UpdateCourseAsync(course.Id, Request(categoryId: newCategory.Id), Admin);
+
+        dto!.CategoryId.ShouldBe(newCategory.Id);
     }
 }

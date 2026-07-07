@@ -213,4 +213,10 @@
   <data name="FailedToSaveAvatar" xml:space="preserve">
     <value>Αποτυχία αποθήκευσης του avatar.</value>
   </data>
+  <data name="CategoryNameExists" xml:space="preserve">
+    <value>Υπάρχει ήδη κατηγορία με αυτό το όνομα.</value>
+  </data>
+  <data name="CategoryNotFound" xml:space="preserve">
+    <value>Η κατηγορία δεν βρέθηκε</value>
+  </data>
 </root>

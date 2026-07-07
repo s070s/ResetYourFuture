@@ -25,6 +25,10 @@ public sealed class AssessmentSeedDto
     {
         get; init;
     }
+    public string? Category
+    {
+        get; init;
+    }
     public required string SchemaJson
     {
         get; init;

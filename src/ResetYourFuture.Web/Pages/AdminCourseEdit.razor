@@ -60,6 +60,22 @@ else
                 </small>
             </div>
 
+            <div class="mb-3">
+                <label class="form-label" for="course-category">@CategoryRes.CategoryLabel</label>
+                <select id="course-category" class="form-select" value="@CategorySelectValue" @onchange="OnCategorySelectChanged">
+                    <option value="none">@CategoryRes.NoneCategory</option>
+                    @foreach (var cat in categories)
+                    {
+                        <option value="@cat.Id">@cat.NameEn</option>
+                    }
+                    <option value="new">@CategoryRes.NewCategoryOption</option>
+                </select>
+                @if (creatingNewCategory)
+                {
+                    <input class="form-control mt-2" placeholder="@CategoryRes.NewCategoryNamePlaceholder" @bind="newCategoryName" />
+                }
+            </div>
+
             <SaveCancelBar SaveLabel="@AdminRes.SaveCourse"
                            SavingLabel="@AdminRes.Saving"
                            IsSaving="isSaving"

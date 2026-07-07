@@ -19,14 +19,31 @@ public class CourseService(
     ILogger<CourseService> logger) : ICourseService
 {
     public async Task<PagedResult<CourseListItemDto>> GetPublishedCoursesAsync(
-        string userId, int page, int pageSize, string lang, CancellationToken cancellationToken = default)
+        string userId, int page, int pageSize, string lang, Guid? categoryId = null, string? search = null,
+        CancellationToken cancellationToken = default)
     {
         var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
 
         var query = db.Courses
             .AsNoTracking()
-            .Where(c => c.IsPublished)
-            .OrderBy(c => c.TitleEn);
+            .Where(c => c.IsPublished);
+
+        if (categoryId is { } catId)
+            query = query.Where(c => c.CategoryId == catId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            // EF.Functions.Like translates to a sargable LIKE predicate.
+            // Explicit ToLower() is dropped — SQL Server's default CI_AS collation
+            // makes LIKE case-insensitive without defeating the index.
+            var term = $"%{search.Trim()}%";
+            query = query.Where(c =>
+                EF.Functions.Like(c.TitleEn, term) || (c.TitleEl != null && EF.Functions.Like(c.TitleEl, term)) ||
+                (c.DescriptionEn != null && EF.Functions.Like(c.DescriptionEn, term)) ||
+                (c.DescriptionEl != null && EF.Functions.Like(c.DescriptionEl, term)));
+        }
+
+        query = query.OrderBy(c => c.TitleEn);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -53,7 +70,18 @@ public class CourseService(
         var courses = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => new { c.Id, c.TitleEn, c.TitleEl, c.DescriptionEn, c.DescriptionEl, c.RequiredTier })
+            .Select(c => new
+            {
+                c.Id,
+                c.TitleEn,
+                c.TitleEl,
+                c.DescriptionEn,
+                c.DescriptionEl,
+                c.RequiredTier,
+                c.CategoryId,
+                CategoryNameEn = c.Category != null ? c.Category.NameEn : null,
+                CategoryNameEl = c.Category != null ? c.Category.NameEl : null
+            })
             .ToListAsync(cancellationToken);
 
         var items = courses.Select(c => new CourseListItemDto(
@@ -62,7 +90,9 @@ public class CourseService(
             isEl ? (c.DescriptionEl ?? c.DescriptionEn) : c.DescriptionEn,
             enrolledCourseIds.Contains(c.Id),
             lessonCountById.GetValueOrDefault(c.Id, 0),
-            c.RequiredTier
+            c.RequiredTier,
+            c.CategoryId,
+            c.CategoryId is null ? null : (isEl ? (c.CategoryNameEl ?? c.CategoryNameEn) : c.CategoryNameEn)
         )).ToList();
 
         return new PagedResult<CourseListItemDto>(items, totalCount, page, pageSize);

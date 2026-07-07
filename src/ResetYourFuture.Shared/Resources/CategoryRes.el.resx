@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="CategoriesPageTitle" xml:space="preserve">
+		<value>Κατηγορίες</value>
+	</data>
+	<data name="ColNameEn" xml:space="preserve">
+		<value>Όνομα (EN)</value>
+	</data>
+	<data name="ColNameEl" xml:space="preserve">
+		<value>Όνομα (EL)</value>
+	</data>
+	<data name="ColCourseCount" xml:space="preserve">
+		<value>Μαθήματα</value>
+	</data>
+	<data name="ColAssessmentCount" xml:space="preserve">
+		<value>Αξιολογήσεις</value>
+	</data>
+	<data name="ColCreated" xml:space="preserve">
+		<value>Δημιουργήθηκε</value>
+	</data>
+	<data name="ColActions" xml:space="preserve">
+		<value>Ενέργειες</value>
+	</data>
+	<data name="AddCategory" xml:space="preserve">
+		<value>Προσθήκη Κατηγορίας</value>
+	</data>
+	<data name="Rename" xml:space="preserve">
+		<value>Μετονομασία</value>
+	</data>
+	<data name="DeleteConfirmFormat" xml:space="preserve">
+		<value>Διαγραφή '{0}'; {1} μάθημα/τα και {2} αξιολόγηση/εις θα μείνουν χωρίς κατηγορία.</value>
+	</data>
+	<data name="NoCategories" xml:space="preserve">
+		<value>Δεν υπάρχουν ακόμα κατηγορίες.</value>
+	</data>
+	<data name="LoadingCategories" xml:space="preserve">
+		<value>Φόρτωση κατηγοριών...</value>
+	</data>
+	<data name="NameEnLabel" xml:space="preserve">
+		<value>Όνομα (Αγγλικά)</value>
+	</data>
+	<data name="NameElLabel" xml:space="preserve">
+		<value>Όνομα (Ελληνικά)</value>
+	</data>
+	<data name="AllCategories" xml:space="preserve">
+		<value>Όλες</value>
+	</data>
+	<data name="SearchPlaceholder" xml:space="preserve">
+		<value>Αναζήτηση...</value>
+	</data>
+	<data name="NoMatchingResults" xml:space="preserve">
+		<value>Κανένα αποτέλεσμα δεν ταιριάζει με τα φίλτρα σας.</value>
+	</data>
+	<data name="NoneCategory" xml:space="preserve">
+		<value>— Καμία —</value>
+	</data>
+	<data name="NewCategoryOption" xml:space="preserve">
+		<value>+ Νέα κατηγορία…</value>
+	</data>
+	<data name="NewCategoryNamePlaceholder" xml:space="preserve">
+		<value>Όνομα νέας κατηγορίας</value>
+	</data>
+	<data name="CategoryLabel" xml:space="preserve">
+		<value>Κατηγορία</value>
+	</data>
+	<data name="CategorySaved" xml:space="preserve">
+		<value>Η κατηγορία αποθηκεύτηκε</value>
+	</data>
+	<data name="CategoryDeleted" xml:space="preserve">
+		<value>Η κατηγορία διαγράφηκε</value>
+	</data>
+	<data name="ErrorSavingCategory" xml:space="preserve">
+		<value>Σφάλμα κατά την αποθήκευση της κατηγορίας</value>
+	</data>
+	<data name="ErrorDeletingCategory" xml:space="preserve">
+		<value>Σφάλμα κατά τη διαγραφή της κατηγορίας</value>
+	</data>
+</root>

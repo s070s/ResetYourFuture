@@ -58,6 +58,8 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<IAuthApiService, AuthApiService>();
         builder.Services.AddScoped<ICourseService, CourseService>();
         builder.Services.AddScoped<IAdminCourseService, AdminCourseService>();
+        builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
         builder.Services.AddScoped<ICallEventService, CallEventService>();
@@ -179,6 +181,10 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHttpClient<IAdminUserConsumer, AdminUserConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<IAdminCourseConsumer, AdminCourseConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<ICategoryConsumer, CategoryConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<IAdminCategoryConsumer, AdminCategoryConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<IAdminModuleConsumer, AdminModuleConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();

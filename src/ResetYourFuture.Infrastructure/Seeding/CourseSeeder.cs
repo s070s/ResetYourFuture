@@ -50,11 +50,13 @@ public static class CourseSeeder
             return;
         }
 
+        var categoryCache = await CategorySeedHelper.LoadCacheAsync(db, cancellationToken);
+
         foreach (var filePath in jsonFiles)
         {
             try
             {
-                await SeedCourseFromFileAsync(db, filePath, logger, cancellationToken);
+                await SeedCourseFromFileAsync(db, filePath, categoryCache, logger, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -69,6 +71,7 @@ public static class CourseSeeder
     private static async Task SeedCourseFromFileAsync(
         ApplicationDbContext db,
         string filePath,
+        Dictionary<string, Category> categoryCache,
         ILogger logger,
         CancellationToken cancellationToken)
     {
@@ -82,6 +85,7 @@ public static class CourseSeeder
         }
 
         var course = MapToCourse(dto);
+        course.CategoryId = CategorySeedHelper.ResolveCategoryId(db, categoryCache, dto.Category);
         db.Courses.Add(course);
 
         logger.LogInformation("Loaded course '{Title}' from {FileName}",

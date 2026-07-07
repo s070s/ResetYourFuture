@@ -43,5 +43,13 @@ public class AssessmentDefinitionConfiguration : IEntityTypeConfiguration<Assess
             .WithOne(s => s.AssessmentDefinition)
             .HasForeignKey(s => s.AssessmentDefinitionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Relationship: AssessmentDefinition optionally belongs to one Category
+        builder.HasOne(a => a.Category)
+            .WithMany(cat => cat.AssessmentDefinitions)
+            .HasForeignKey(a => a.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasIndex(a => a.CategoryId);
     }
 }

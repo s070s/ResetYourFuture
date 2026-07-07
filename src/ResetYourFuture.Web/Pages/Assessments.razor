@@ -23,50 +23,70 @@ else if (_error is not null)
 {
     <p class="text-danger">@_error</p>
 }
-else if (_pagedResult is null || _pagedResult.TotalCount == 0)
+else if (_pagedResult is null || (_pagedResult.TotalCount == 0 && !HasActiveFilter))
 {
     <p>@AssessmentRes.NoAssessmentsAvailable</p>
 }
 else
 {
-    <div class="pagination-toolbar">
-        <span class="pagination-info">
-            @string.Format(AssessmentRes.TotalAssessmentsFormat, _pagedResult.TotalCount)
-        </span>
-        <div class="page-size-selector">
-            <label for="assessmentPageSizeSelect">@AssessmentRes.PerPage</label>
-            <select id="assessmentPageSizeSelect" class="form-select form-select-sm"
-                    value="@_pageSize"
-                    @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
-                @foreach (var size in PageSizeOptions)
-                {
-                    <option value="@size" selected="@(_pageSize == size)">@size</option>
-                }
-            </select>
-        </div>
-    </div>
+    <CategoryFilterBar Categories="_categories"
+                        SelectedCategoryId="_selectedCategoryId"
+                        OnCategorySelected="OnCategorySelected"
+                        SearchText="@_search"
+                        OnSearchChanged="OnSearchChanged"
+                        SearchPlaceholder="@CategoryRes.SearchPlaceholder" />
 
-    <div class="row">
-        @foreach (var assessment in _pagedResult.Items)
-        {
-            <div class="col-md-6 mb-3" @key="assessment.Id">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">@assessment.Title</h5>
-                        <div class="card-text">@((MarkupString)(assessment.Description ?? ""))</div>
-                        <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">@AssessmentRes.Start</button>
+    @if (_pagedResult.TotalCount == 0)
+    {
+        <p>@CategoryRes.NoMatchingResults</p>
+    }
+    else
+    {
+        <div class="pagination-toolbar">
+            <span class="pagination-info">
+                @string.Format(AssessmentRes.TotalAssessmentsFormat, _pagedResult.TotalCount)
+            </span>
+            <div class="page-size-selector">
+                <label for="assessmentPageSizeSelect">@AssessmentRes.PerPage</label>
+                <select id="assessmentPageSizeSelect" class="form-select form-select-sm"
+                        value="@_pageSize"
+                        @onchange="e => ChangePageSize(int.Parse(e.Value!.ToString()!))">
+                    @foreach (var size in PageSizeOptions)
+                    {
+                        <option value="@size" selected="@(_pageSize == size)">@size</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach (var assessment in _pagedResult.Items)
+            {
+                <div class="col-md-6 mb-3" @key="assessment.Id">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <h5 class="card-title">@assessment.Title</h5>
+                                @if (assessment.CategoryName is not null)
+                                {
+                                    <span class="category-chip">@assessment.CategoryName</span>
+                                }
+                            </div>
+                            <div class="card-text">@((MarkupString)(assessment.Description ?? ""))</div>
+                            <button class="btn btn-primary" @onclick="() => StartAssessment(assessment.Id)">@AssessmentRes.Start</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        }
-    </div>
+            }
+        </div>
 
-    <PaginationNav CurrentPage="_page"
-                    TotalPages="_pagedResult.TotalPages"
-                    HasPreviousPage="_pagedResult.HasPreviousPage"
-                    HasNextPage="_pagedResult.HasNextPage"
-                    PreviousLabel="@AssessmentRes.Previous"
-                    NextLabel="@AssessmentRes.Next"
-                    AriaLabel="Assessment pages"
-                    OnPageChanged="GoToPage" />
+        <PaginationNav CurrentPage="_page"
+                        TotalPages="_pagedResult.TotalPages"
+                        HasPreviousPage="_pagedResult.HasPreviousPage"
+                        HasNextPage="_pagedResult.HasNextPage"
+                        PreviousLabel="@AssessmentRes.Previous"
+                        NextLabel="@AssessmentRes.Next"
+                        AriaLabel="Assessment pages"
+                        OnPageChanged="GoToPage" />
+    }
 }

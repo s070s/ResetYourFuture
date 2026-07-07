@@ -634,3 +634,19 @@ input[type="date"].form-control:focus {
         min-height: 44px;
     }
 }
+
+/* ================================================
+   Category chip — rendered on course/assessment cards
+   and the admin course/assessment editor. Modeled on .tier-badge.
+   ================================================ */
+.category-chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: var(--bg-neutral-subtle);
+    color: var(--text-accent);
+}

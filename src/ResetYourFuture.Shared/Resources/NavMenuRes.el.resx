@@ -177,4 +177,7 @@
   <data name="LanguageSelectorLabel" xml:space="preserve">
     <value>Επιλογή γλώσσας</value>
   </data>
+  <data name="Categories" xml:space="preserve">
+    <value>Κατηγορίες</value>
+  </data>
 </root>

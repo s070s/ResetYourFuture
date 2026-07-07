@@ -18,6 +18,8 @@ public class AdminCrudAuthMatrixTests
 
     [Theory]
     [InlineData("/api/admin/assessments")]
+    [InlineData("/api/admin/categories")]
+    [InlineData("/api/admin/categories/all")]
     public async Task AdminList_Admin_Returns200(string url)
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Admin");
@@ -45,6 +47,8 @@ public class AdminCrudAuthMatrixTests
     [InlineData("/api/admin/assessments")]
     [InlineData("/api/admin/modules/course/00000000-0000-0000-0000-000000000000")]
     [InlineData("/api/admin/lessons/module/00000000-0000-0000-0000-000000000000")]
+    [InlineData("/api/admin/categories")]
+    [InlineData("/api/admin/categories/all")]
     public async Task AdminEndpoints_Student_Returns403(string url)
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
@@ -56,6 +60,8 @@ public class AdminCrudAuthMatrixTests
     [InlineData("/api/admin/assessments")]
     [InlineData("/api/admin/modules/course/00000000-0000-0000-0000-000000000000")]
     [InlineData("/api/admin/lessons/module/00000000-0000-0000-0000-000000000000")]
+    [InlineData("/api/admin/categories")]
+    [InlineData("/api/admin/categories/all")]
     public async Task AdminEndpoints_Anonymous_Returns401(string url)
     {
         var client = _factory.CreateClient();

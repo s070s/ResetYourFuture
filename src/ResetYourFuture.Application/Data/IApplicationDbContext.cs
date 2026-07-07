@@ -7,6 +7,7 @@ namespace ResetYourFuture.Application.Data;
 public interface IApplicationDbContext
 {
     DbSet<Course> Courses { get; }
+    DbSet<Category> Categories { get; }
     DbSet<Module> Modules { get; }
     DbSet<Lesson> Lessons { get; }
     DbSet<AssessmentDefinition> AssessmentDefinitions { get; }

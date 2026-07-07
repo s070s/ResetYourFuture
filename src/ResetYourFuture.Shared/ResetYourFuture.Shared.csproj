@@ -86,6 +86,20 @@
       <DependentUpon>CourseRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Category -->
+    <EmbeddedResource Update="Resources\CategoryRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CategoryRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\CategoryRes.el.resx">
+      <DependentUpon>CategoryRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\CategoryRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CategoryRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Error Messages -->
     <EmbeddedResource Update="Resources\Messages\ErrorMessagesRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="CategoriesPageTitle" xml:space="preserve">
+		<value>Categories</value>
+	</data>
+	<data name="ColNameEn" xml:space="preserve">
+		<value>Name (EN)</value>
+	</data>
+	<data name="ColNameEl" xml:space="preserve">
+		<value>Name (EL)</value>
+	</data>
+	<data name="ColCourseCount" xml:space="preserve">
+		<value>Courses</value>
+	</data>
+	<data name="ColAssessmentCount" xml:space="preserve">
+		<value>Assessments</value>
+	</data>
+	<data name="ColCreated" xml:space="preserve">
+		<value>Created</value>
+	</data>
+	<data name="ColActions" xml:space="preserve">
+		<value>Actions</value>
+	</data>
+	<data name="AddCategory" xml:space="preserve">
+		<value>Add Category</value>
+	</data>
+	<data name="Rename" xml:space="preserve">
+		<value>Rename</value>
+	</data>
+	<data name="DeleteConfirmFormat" xml:space="preserve">
+		<value>Delete '{0}'? {1} course(s) and {2} assessment(s) will become uncategorized.</value>
+	</data>
+	<data name="NoCategories" xml:space="preserve">
+		<value>No categories yet.</value>
+	</data>
+	<data name="LoadingCategories" xml:space="preserve">
+		<value>Loading categories...</value>
+	</data>
+	<data name="NameEnLabel" xml:space="preserve">
+		<value>Name (English)</value>
+	</data>
+	<data name="NameElLabel" xml:space="preserve">
+		<value>Name (Greek)</value>
+	</data>
+	<data name="AllCategories" xml:space="preserve">
+		<value>All</value>
+	</data>
+	<data name="SearchPlaceholder" xml:space="preserve">
+		<value>Search...</value>
+	</data>
+	<data name="NoMatchingResults" xml:space="preserve">
+		<value>No results match your filters.</value>
+	</data>
+	<data name="NoneCategory" xml:space="preserve">
+		<value>— None —</value>
+	</data>
+	<data name="NewCategoryOption" xml:space="preserve">
+		<value>+ New category…</value>
+	</data>
+	<data name="NewCategoryNamePlaceholder" xml:space="preserve">
+		<value>New category name</value>
+	</data>
+	<data name="CategoryLabel" xml:space="preserve">
+		<value>Category</value>
+	</data>
+	<data name="CategorySaved" xml:space="preserve">
+		<value>Category saved</value>
+	</data>
+	<data name="CategoryDeleted" xml:space="preserve">
+		<value>Category deleted</value>
+	</data>
+	<data name="ErrorSavingCategory" xml:space="preserve">
+		<value>Error saving category</value>
+	</data>
+	<data name="ErrorDeletingCategory" xml:space="preserve">
+		<value>Error deleting category</value>
+	</data>
+</root>

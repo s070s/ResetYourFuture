@@ -5,6 +5,7 @@
   "descriptionEl": "Αναπτύξτε τον ψηφιακό γραμματισμό-βάση που κάθε επαγγελματίας χρειάζεται — από εργαλεία δεδομένων έως διαδικτυακή συνεργασία.",
   "requiredTier": "Free",
   "isPublished": true,
+  "category": "Skills",
   "modules": [
     {
       "title": "Productivity Software Mastery",

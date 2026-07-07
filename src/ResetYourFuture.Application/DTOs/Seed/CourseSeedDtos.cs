@@ -10,6 +10,7 @@ public sealed class CourseSeedDto
     public string? DescriptionEl { get; init; }
     public string RequiredTier { get; init; } = "Free";
     public bool IsPublished { get; init; }
+    public string? Category { get; init; }
     public List<ModuleSeedDto> Modules { get; init; } = [];
 }
 
