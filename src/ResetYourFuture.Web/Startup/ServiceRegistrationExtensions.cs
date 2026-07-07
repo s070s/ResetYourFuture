@@ -60,6 +60,11 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<IAdminCourseService, AdminCourseService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
+        builder.Services.AddScoped<ICallEventService, CallEventService>();
+        builder.Services.AddScoped<ICallQueryService, CallQueryService>();
+        builder.Services.AddSingleton<CallRegistry>();
+        builder.Services.AddHostedService<CallRingMonitor>();
+        builder.Services.Configure<WebRtcOptions>(config.GetSection("WebRtc"));
         builder.Services.AddScoped<IProfileService, ProfileService>();
         builder.Services.AddScoped<IAssessmentService, AssessmentService>();
         builder.Services.AddScoped<AvatarChangedNotifier>();
