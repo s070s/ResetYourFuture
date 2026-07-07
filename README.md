@@ -1,6 +1,6 @@
 # ResetYourFuture
 
-A psychosocial career counseling platform with courses, assessments, real-time chat, subscriptions, blog, testimonials, and certificate generation.
+A psychosocial career counseling platform with courses, assessments, real-time chat, video calls, subscriptions, blog, testimonials, certificate generation, and a local AI assistant.
 
 ---
 
@@ -52,7 +52,8 @@ dotnet run --project src/ResetYourFuture.Web
 | Frontend / Backend | Blazor SSR + ASP.NET Core Web API |
 | ORM | Entity Framework Core 10 (SQL Server) |
 | Auth | ASP.NET Core Identity · Cookie (SSR) · JWT Bearer · Refresh tokens |
-| Real-time | SignalR (`/hubs/chat`) |
+| Real-time | SignalR — chat (`/hubs/chat`) and video-call signaling (`/hubs/call`) |
+| Video calls | Self-hosted WebRTC (P2P mesh, up to 6 participants) with SignalR signaling |
 | API docs | OpenAPI (`Microsoft.AspNetCore.OpenApi`) + Swagger UI — `/swagger` (Development only) |
 | PDF | QuestPDF 2026.2.4 |
 | Localization | English + Greek (`.resx`) |
@@ -111,6 +112,8 @@ Interactive API docs are generated from the code (built-in `Microsoft.AspNetCore
 - Every API controller, grouped by tag (e.g. *Authentication*, *Courses*, *Admin · Users & Roles*), with summaries, parameter descriptions, response codes (`200 / 201 / 204 / 400 / 401 / 403 / 404 / 409 / 500`), and request-body examples pre-filled for "Try it out".
 - The four browser-navigation endpoints (`/culture/set`, `/auth/complete`, `/auth/signout`, `/sitemap.xml`) under the **Infrastructure** tag.
 - The **SignalR chat hub** (`/hubs/chat`) — documented in the document description (invoke methods, server events, query-string JWT auth) with the `ChatMessageDto` / `ChatNotificationDto` payload shapes under **Schemas**. SignalR is not a REST protocol, so it appears as reference rather than callable operations.
+- The **AI Assistant chat endpoint** (`POST /api/assistant/chat`) — a normal HTTP operation but with a `text/event-stream` (Server-Sent Events) response; the document description explains the `AssistantStreamEvent` frame shape (see [AI Assistant](#ai-assistant)).
+- The **SignalR call hub** (`/hubs/call`) is the WebRTC signaling channel for video calls; like the chat hub it is a bidirectional WebSocket protocol, so it is not represented as callable REST operations (see [Video Calls](#video-calls)).
 
 > **Production:** the Swagger UI and `/openapi/v1.json` endpoints are mapped only when `ASPNETCORE_ENVIRONMENT=Development`; they are **not** exposed in Production.
 
@@ -150,7 +153,7 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
-| `GET` | `api/courses` | List published courses | Yes |
+| `GET` | `api/courses` | List published courses (optional `?categoryId=` and `?search=` filters — see [Content Categories](#content-categories)) | Yes |
 | `GET` | `api/courses/{courseId}` | Course detail with modules and lessons | Yes |
 | `POST` | `api/courses/{courseId}/enroll` | Enroll in a course | Yes |
 | `GET` | `api/courses/lessons/{lessonId}` | Lesson detail | Yes |
@@ -166,10 +169,16 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
-| `GET` | `api/assessments` | List published assessments (paged) | Yes |
+| `GET` | `api/assessments` | List published assessments (paged; optional `?categoryId=` and `?search=` filters — see [Content Categories](#content-categories)) | Yes |
 | `GET` | `api/assessments/{id}` | Assessment detail | Yes |
 | `POST` | `api/assessments/{id}/submit` | Submit answers (`AnswersJson` max 50 000 chars) | Yes |
 | `GET` | `api/assessments/mine` | Current user's submissions | Yes |
+
+### Categories — `api/categories`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/categories?scope=courses\|assessments&lang=en` | Categories with ≥1 published item in the scope, with counts (drives the browse/filter chips) | Yes |
 
 ### Certificates — `api/certificates`
 
@@ -202,6 +211,14 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | `GET` | `api/chat/users` | Users available to chat | Yes |
 | `GET` | `api/chat/unread-count` | Unread message count | Yes |
 | — | `/hubs/chat` (SignalR) | Real-time hub | Yes (JWT via query string) |
+
+### Video Calls — SignalR `/hubs/call`
+
+Video calls have **no REST endpoints** — everything runs over the SignalR hub (WebRTC signaling) plus browser-to-browser media. Access is gated exactly like chat: **Admin role or a Pro subscription (`PrioritySupport` feature)**. See [Video Calls](#video-calls) for the full flow.
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| — | `/hubs/call` (SignalR) | Call signaling hub — `StartCall` / `AcceptCall` / `DeclineCall` / `CancelCall` / `LeaveCall` / `InviteToCall` / `RejoinCall` / `UpdateMediaState` / `GetCallableUsers`, plus `SendOffer` / `SendAnswer` / `SendIceCandidate` for WebRTC negotiation | Yes (JWT via query string) |
 
 ### Blog — `api/blog`
 
@@ -294,6 +311,16 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | `POST` | `api/admin/assessments/{id}/publish` | Publish | Admin |
 | `POST` | `api/admin/assessments/{id}/unpublish` | Unpublish | Admin |
 | `GET` | `api/admin/assessments/{id}/submissions` | List submissions | Admin |
+
+### Admin — Categories — `api/admin/categories`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/categories` | List categories with usage counts (paged) | Admin |
+| `GET` | `api/admin/categories/all` | All categories (unpaged) — for course/assessment editor dropdowns | Admin |
+| `POST` | `api/admin/categories` | Create category | Admin |
+| `PUT` | `api/admin/categories/{id}` | Rename category | Admin |
+| `DELETE` | `api/admin/categories/{id}` | Delete category — referencing courses/assessments become uncategorized, not hidden | Admin |
 
 ### Admin — Blog — `api/admin/blog`
 
@@ -397,9 +424,33 @@ Dev shortcuts for bypassing email confirmation:
 
 ---
 
+## Content Categories
+
+Admins classify **courses and assessments** with a shared pool of categories, and students browse/filter the public Courses and Assessments pages by them.
+
+- **One category per item** (nullable) drawn from a **single shared pool** used by both content types. Each category has bilingual names (`NameEn` required, `NameEl` optional, falling back to English).
+- **Authoring:** pick a category in the course/assessment editor, or create one inline while authoring. A dedicated **`/admin/categories`** page manages the pool (create, rename, delete) with usage counts.
+- **Browsing:** the public Courses and Assessments pages show a category chip on each card plus a filter bar of chips (with per-category counts) and a debounced search box. Both filters are applied server-side via the `?categoryId=` and `?search=` query params before pagination, so page totals stay correct.
+- **Deleting a category** soft-deletes it and nulls the reference on any course/assessment that used it — that content becomes "uncategorized" and stays visible, never hidden.
+
+## Video Calls
+
+One-to-one and group video calls, started from the existing chat. Self-hosted **WebRTC** (peer-to-peer mesh, up to 6 participants) with **SignalR** (`/hubs/call`) handling only signaling — media flows browser-to-browser and never touches the server.
+
+- **Access gate:** identical to chat — **Admin role, or a Pro subscription** (the `PrioritySupport` feature). Free users don't see call controls.
+- **Features:** mic mute, camera toggle, screen share, and call events (started / missed / ended + duration) persisted into chat history.
+- **"Ring anywhere":** an incoming-call overlay pops up on any page via a single call-host component mounted in the layout. 1:1 calls start from the conversation header; group calls from a multi-select picker, and participants can be added mid-call.
+- **Reliability:** a background `CallRingMonitor` times out unanswered rings (45 s default), reaps disconnected participants after a short grace period, and sweeps dangling sessions left by a server restart. Ring timeout, max participants, and ICE/STUN servers are configurable under the `WebRtc` section of `appsettings.json`.
+
+> **Browser permissions:** the site's `Permissions-Policy` header allows `camera`, `microphone`, and `display-capture` for same-origin so calls work; JWT for the call hub is passed as the `access_token` query-string parameter, same as the chat hub.
+
+---
+
 ## AI Assistant
 
-A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers from a background index of published courses, lessons, assessments, and blog articles, and personalizes recommendations using the user's subscription tier and enrollments. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine. See [AI_ASSISTANT_PLAN.md](AI_ASSISTANT_PLAN.md) (implementation plan; removed once the feature is fully shipped) for the full design.
+A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers from a background index of published courses, lessons, assessments, and blog articles, and personalizes recommendations using the user's subscription tier and enrollments. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine.
+
+**How it works:** a background service chunks and embeds published content into an `AssistantContentChunks` table (incrementally — only re-embedding what changed). Each question embeds the query, retrieves the top matching chunks by cosine similarity, injects them plus the user's tier and enrolled course titles into a scoped system prompt, and streams the model's reply to a floating chat widget over Server-Sent Events. It is **not** an autonomous tool-calling agent — a single grounded RAG turn is what keeps a small local model reliable. The widget appears bottom-right on every page for signed-in users; when the assistant is disabled or Ollama is unreachable, it shows an "unavailable" state and the rest of the app is unaffected.
 
 **Setup:**
 
@@ -440,6 +491,7 @@ The assistant is **disabled by default** (`Assistant:Enabled = false`), so the a
 | Email link not found | Search `STUB EMAIL` in `Logs/log-<today>.txt` or use dev endpoints. |
 | Role-based page inaccessible | Check `AspNetUserRoles` table. Admin pages require `Admin` role. |
 | Chat not connecting | JWT via `access_token` query string. Check token expiry (default 15 min) — use `api/auth/refresh` to rotate. |
+| Video call has no camera/mic | Grant the browser camera/microphone permission for the site, and use HTTPS (WebRTC requires a secure context). Call controls only appear for Admins or Pro subscribers. |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
 | Assistant shows "unavailable" | Set `Assistant__Enabled=true`, confirm Ollama is running (`ollama list`), and that both models are pulled (`ollama pull gemma3:4b && ollama pull bge-m3`). |
@@ -455,9 +507,9 @@ The assistant is **disabled by default** (`Assistant:Enabled = false`), so the a
 | JWT tokens | HS256, 15-min expiry, security-stamp validated on every request, key ≥ 32 bytes enforced at startup |
 | Refresh tokens | SHA-256-hashed, single-use rotation; revoked token chain tracked |
 | XSS prevention | All rich-text inputs sanitised with Ganss.Xss (`IHtmlSanitizer`) |
-| Rate limiting | `"auth"` policy on register / login / confirm-email / forgot-password / reset-password |
+| Rate limiting | `"auth"` policy (global) on register / login / confirm-email / forgot-password / reset-password; `"assistant"` policy (per-user) on the AI chat endpoint |
 | HSTS | Enabled in Production; skipped in Development |
-| Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` |
+| Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (`camera`/`microphone`/`display-capture` allowed same-origin for video calls; `geolocation` denied) |
 | File uploads | Content-type allowlist enforced per upload type (image / PDF / video); extension allowlist on media serve |
 | Sitemap | Slugs XML-escaped via `SecurityElement.Escape()` |
 | Account enumeration | Login, forgot-password, reset-password all return generic messages; duplicate-email registration mapped to generic error |
