@@ -44,7 +44,23 @@ Implementation is happening on branch `feature/video-calls`, one commit per work
   end-of-call sequence (compute reason from `HasConnected` → `EndSessionAsync` → conditional
   1:1 chat event → `CallEnded` broadcast → `RemoveCall`); both copies are currently correct and
   consistent, but a shared helper should be extracted before end-of-call semantics change again.
-- [ ] WP4 — JS interop
+- [x] **WP4 — JS interop** — done (commit `28e8266`). `wwwroot\js\webrtc-interop.js` —
+  `window.webrtcInterop`: `init`, `startLocalMedia`, `createPeer` (perfect-negotiation
+  handlers: `onnegotiationneeded`/`onicecandidate`/`ontrack`/`onconnectionstatechange`),
+  `initiateOffer`, `setRemoteDescription` (glare/rollback per MDN's canonical
+  polite/impolite algorithm, tracks `isSettingRemoteAnswerPending`), `addIceCandidate`
+  (queues until remote description set), `restartIce` (one-shot guard, exposed as a
+  primitive — the "retry once" policy decision belongs to CallService in WP5, which owns
+  connection-failure state), `closePeer`/`closeAll`, `setMicEnabled`/`setCameraEnabled`,
+  `startScreenShare`/`stopScreenShare` (`replaceTrack` across all peers, `track.onended`
+  auto-revert), `bindLocalVideo`/`bindRemoteVideo` (remote stream cached on `ontrack` so
+  binding works even if the `<video>` element renders after the track arrives). Script tag
+  added to `App.razor` beside `chat-interop.js`. Not wired to any .NET consumer yet — no
+  `DotNetObjectReference` exists until `CallService` (WP5) creates one; the `[JSInvokable]`
+  callback names (`OnLocalDescription`, `OnIceCandidate`, `OnPeerConnectionState`,
+  `OnRemoteStreamChanged`, `OnScreenShareEnded`, `OnMediaError`) are just the JS→.NET
+  contract this module calls into once WP5 lands. Full solution build verified green
+  (no C# changes in this WP).
 - [ ] WP5 — Client CallService
 - [ ] WP6 — UI + localization
 - [ ] WP7 — Tests + manual verification
