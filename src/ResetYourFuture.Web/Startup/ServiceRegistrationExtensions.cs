@@ -247,5 +247,7 @@ public static class ServiceRegistrationExtensions
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<IAssistantConsumer, AssistantConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
     }
 }

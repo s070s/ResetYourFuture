@@ -72,6 +72,20 @@
       <DependentUpon>CallRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Assistant -->
+    <EmbeddedResource Update="Resources\AssistantRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AssistantRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\AssistantRes.el.resx">
+      <DependentUpon>AssistantRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\AssistantRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AssistantRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Course -->
     <EmbeddedResource Update="Resources\CourseRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

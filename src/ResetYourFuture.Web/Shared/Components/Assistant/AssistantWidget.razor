@@ -1,0 +1,62 @@
+@* Floating AI assistant, mounted once in MainLayout so it's available on every page.
+   Available to every authenticated user regardless of subscription tier (unlike chat/video). *@
+@implements IDisposable
+
+<AuthorizeView>
+    <Authorized>
+        <button type="button" class="assistant-launcher" @onclick="ToggleOpen" aria-label="@AssistantRes.OpenAssistant">
+            <span aria-hidden="true">💬</span>
+        </button>
+
+        @if (_open)
+        {
+            <div class="assistant-panel" role="dialog" aria-label="@AssistantRes.Title">
+                <div class="assistant-header">
+                    <span class="assistant-title">@AssistantRes.Title</span>
+                    <button type="button" class="assistant-close" @onclick="ToggleOpen" aria-label="@AssistantRes.Close">✕</button>
+                </div>
+
+                @if (_available == false)
+                {
+                    <div class="assistant-offline">@AssistantRes.Offline</div>
+                }
+                else
+                {
+                    <div class="assistant-messages">
+                        @if (_messages.Count == 0)
+                        {
+                            <div class="assistant-suggestions">
+                                <button type="button" @onclick="@(() => AskSuggested(AssistantRes.SuggestedQuestion1))">@AssistantRes.SuggestedQuestion1</button>
+                                <button type="button" @onclick="@(() => AskSuggested(AssistantRes.SuggestedQuestion2))">@AssistantRes.SuggestedQuestion2</button>
+                                <button type="button" @onclick="@(() => AskSuggested(AssistantRes.SuggestedQuestion3))">@AssistantRes.SuggestedQuestion3</button>
+                            </div>
+                        }
+                        @foreach (var message in _messages)
+                        {
+                            <AssistantMessage Role="message.Role" Content="message.Content" />
+                        }
+                        @if (_sources.Count > 0)
+                        {
+                            <div class="assistant-sources">
+                                <span>@AssistantRes.Sources</span>
+                                @foreach (var source in _sources)
+                                {
+                                    <a href="@source.Url">@source.Title</a>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <div class="assistant-input-row">
+                        <input type="text" class="assistant-input" @bind="_input" @bind:event="oninput"
+                               @onkeydown="HandleKeyDown" placeholder="@AssistantRes.Placeholder" disabled="@_isStreaming" />
+                        <button type="button" class="assistant-send" @onclick="Send"
+                                disabled="@(_isStreaming || string.IsNullOrWhiteSpace(_input))">@AssistantRes.Send</button>
+                    </div>
+
+                    <div class="assistant-disclaimer">@AssistantRes.Disclaimer</div>
+                }
+            </div>
+        }
+    </Authorized>
+</AuthorizeView>

@@ -1,0 +1,9 @@
+@* A single chat bubble. Plain text only — the assistant is instructed not to use markdown. *@
+<div class="assistant-message @(Role == "user" ? "assistant-message-user" : "assistant-message-bot")">
+    @Content
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Role { get; set; } = "";
+    [Parameter, EditorRequired] public string Content { get; set; } = "";
+}

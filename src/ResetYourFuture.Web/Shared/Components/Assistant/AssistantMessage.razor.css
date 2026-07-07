@@ -1,0 +1,21 @@
+.assistant-message {
+    max-width: 85%;
+    padding: 0.55rem 0.8rem;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.assistant-message-user {
+    align-self: flex-end;
+    background-color: var(--button-regular);
+    color: var(--bg-primary);
+}
+
+.assistant-message-bot {
+    align-self: flex-start;
+    background-color: var(--bg-table-header-hover);
+    color: var(--text-strong-normal);
+}

@@ -15,7 +15,7 @@
 - [x] WP3 — Chunking + indexing pipeline
 - [x] WP4 — Retrieval + RAG chat service
 - [x] WP5 — API surface (SSE chat, status, reindex)
-- [ ] WP6 — Consumer + widget UI + localization (feature usable)
+- [x] WP6 — Consumer + widget UI + localization (feature usable)
 - [ ] WP7 — README + docs
 
 ## Context
