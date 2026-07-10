@@ -9,21 +9,12 @@ using ResetYourFuture.Domain.Identity;
 namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
-/// Call access checks and callable-user lookups.
+/// Callable-user lookups. Video calls are available to every authenticated, enabled user.
 /// </summary>
 public class CallQueryService(
     IApplicationDbContext db,
-    UserManager<ApplicationUser> userManager,
-    ISubscriptionService subscriptionService) : ICallQueryService
+    UserManager<ApplicationUser> userManager) : ICallQueryService
 {
-    public async Task<bool> HasCallAccessAsync(string userId, bool isAdmin)
-    {
-        if (isAdmin)
-            return true;
-        var status = await subscriptionService.GetUserStatusAsync(userId);
-        return status.Features?.PrioritySupport == true;
-    }
-
     /// <summary>
     /// All enabled users except the caller. Unlike <c>ChatQueryService.GetAvailableUsersAsync</c>,
     /// this deliberately does NOT exclude users the caller already has a conversation with —

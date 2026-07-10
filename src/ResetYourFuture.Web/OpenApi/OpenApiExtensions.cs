@@ -62,15 +62,14 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
                 "protocol. It is documented here for reference; the REST `Chat` endpoints below cover " +
                 "history and load-on-demand, while the hub handles real-time delivery.\n\n" +
                 "**Hub URL:** `/hubs/chat` (WebSockets). **Auth:** pass the JWT as a query-string token — " +
-                "`/hubs/chat?access_token=<token>`. Requires an authenticated user; non-admins also " +
-                "require a Pro subscription (the `PrioritySupport` feature).\n\n" +
+                "`/hubs/chat?access_token=<token>`. Available to every authenticated user.\n\n" +
                 "**Methods you invoke (client → server):**\n" +
                 "- `SendMessage(conversationId: guid, content: string)` — `content` is capped at 4,000 characters.\n" +
                 "- `MarkAsRead(conversationId: guid)` — marks the other party's messages as read.\n\n" +
                 "**Events you handle (server → client):**\n" +
                 "- `ReceiveMessage(message: ChatMessageDto)` — delivered to both participants.\n" +
                 "- `ChatNotification(notification: ChatNotificationDto)` — delivered to the recipient.\n" +
-                "- `ChatError(message: string)` — e.g. over the character limit or missing subscription.\n\n" +
+                "- `ChatError(message: string)` — e.g. over the character limit.\n\n" +
                 "The `ChatMessageDto` and `ChatNotificationDto` payload shapes are listed under **Schemas** below.\n\n" +
                 "**Connect example:**\n" +
                 "```js\n" +

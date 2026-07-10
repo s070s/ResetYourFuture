@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using ResetYourFuture.Domain.Enums;
-using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Web.Hubs;
@@ -30,7 +27,6 @@ public class ChatHubTests
         public required HubCallerContext Context;
         public required IGroupManager Groups;
         public required UserManager<ApplicationUser> Um;
-        public required ISubscriptionService Subs;
     }
 
     private static ApplicationUser AppUser(string id, bool enabled = true) =>
@@ -52,23 +48,19 @@ public class ChatHubTests
 
         var groups = Substitute.For<IGroupManager>();
         var um = IdentityMocks.MockUserManager();
-        var subs = Substitute.For<ISubscriptionService>();
 
-        var hub = new ChatHub(db, um, subs, NullLogger<ChatHub>.Instance)
+        var hub = new ChatHub(db, um, NullLogger<ChatHub>.Instance)
         {
             Clients = clients,
             Context = context,
             Groups = groups
         };
 
-        return new Harness { Hub = hub, Caller = caller, Group = group, Context = context, Groups = groups, Um = um, Subs = subs };
+        return new Harness { Hub = hub, Caller = caller, Group = group, Context = context, Groups = groups, Um = um };
     }
 
     private static ChatConversation Conversation(string creator, string participant) =>
         new() { Id = Guid.NewGuid(), CreatorId = creator, ParticipantId = participant };
-
-    private static UserSubscriptionStatusDto Status(bool priority) =>
-        new(SubscriptionTier.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
 
     [Fact]
     public async Task OnConnected_DisabledUser_Aborts()
@@ -119,15 +111,21 @@ public class ChatHubTests
     }
 
     [Fact]
-    public async Task SendMessage_FreeNonAdmin_SendsChatError()
+    public async Task SendMessage_FreeNonAdmin_PersistsAndBroadcasts()
     {
+        // Chat is open to every authenticated user — no role or subscription needed.
         await using var db = DbContextFactory.CreateInMemory();
+        var conv = Conversation(Me, Other);
+        db.ChatConversations.Add(conv);
+        await db.SaveChangesAsync();
         var h = BuildHub(db, Me, isAdmin: false);
-        h.Subs.GetUserStatusAsync(Me, Arg.Any<CancellationToken>()).Returns(Status(priority: false));
+        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
+        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string>());
 
-        await h.Hub.SendMessage(Guid.NewGuid(), "hello");
+        await h.Hub.SendMessage(conv.Id, "hello");
 
-        await h.Caller.Received().SendCoreAsync("ChatError", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+        (await db.ChatMessages.CountAsync()).ShouldBe(1);
+        await h.Group.Received().SendCoreAsync("ReceiveMessage", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
     }
 
     [Fact]

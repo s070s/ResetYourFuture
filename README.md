@@ -214,7 +214,7 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 
 ### Video Calls — SignalR `/hubs/call`
 
-Video calls have **no REST endpoints** — everything runs over the SignalR hub (WebRTC signaling) plus browser-to-browser media. Access is gated exactly like chat: **Admin role or a Pro subscription (`PrioritySupport` feature)**. See [Video Calls](#video-calls) for the full flow.
+Video calls have **no REST endpoints** — everything runs over the SignalR hub (WebRTC signaling) plus browser-to-browser media. Like chat, they are available to **every authenticated user**. See [Video Calls](#video-calls) for the full flow.
 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
@@ -437,8 +437,8 @@ Admins classify **courses and assessments** with a shared pool of categories, an
 
 One-to-one and group video calls, started from the existing chat. Self-hosted **WebRTC** (peer-to-peer mesh, up to 6 participants) with **SignalR** (`/hubs/call`) handling only signaling — media flows browser-to-browser and never touches the server.
 
-- **Access gate:** identical to chat — **Admin role, or a Pro subscription** (the `PrioritySupport` feature). Free users don't see call controls.
-- **Features:** mic mute, camera toggle, screen share, and call events (started / missed / ended + duration) persisted into chat history.
+- **Access:** identical to chat — **every authenticated user** can make and receive calls, regardless of role or subscription tier.
+- **Features:** mic mute, camera toggle, screen share, and call events (started / missed / ended + duration) persisted into chat history. If no camera is available (none present, or held by another app/browser on the same machine), the call joins **audio-only** instead of failing.
 - **"Ring anywhere":** an incoming-call overlay pops up on any page via a single call-host component mounted in the layout. 1:1 calls start from the conversation header; group calls from a multi-select picker, and participants can be added mid-call.
 - **Reliability:** a background `CallRingMonitor` times out unanswered rings (45 s default), reaps disconnected participants after a short grace period, and sweeps dangling sessions left by a server restart. Ring timeout, max participants, and ICE/STUN servers are configurable under the `WebRtc` section of `appsettings.json`.
 
@@ -491,7 +491,7 @@ The assistant is **disabled by default** (`Assistant:Enabled = false`), so the a
 | Email link not found | Search `STUB EMAIL` in `Logs/log-<today>.txt` or use dev endpoints. |
 | Role-based page inaccessible | Check `AspNetUserRoles` table. Admin pages require `Admin` role. |
 | Chat not connecting | JWT via `access_token` query string. Check token expiry (default 15 min) — use `api/auth/refresh` to rotate. |
-| Video call has no camera/mic | Grant the browser camera/microphone permission for the site, and use HTTPS (WebRTC requires a secure context). Call controls only appear for Admins or Pro subscribers. |
+| Video call has no camera/mic | Grant the browser camera/microphone permission for the site, and use HTTPS (WebRTC requires a secure context). When testing with two browsers on one PC, only one can hold the physical webcam — the other joins audio-only (expected). |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
 | Assistant shows "unavailable" | Set `Assistant__Enabled=true`, confirm Ollama is running (`ollama list`), and that both models are pulled (`ollama pull gemma3:4b && ollama pull bge-m3`). |

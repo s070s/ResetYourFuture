@@ -3,10 +3,9 @@ using ResetYourFuture.Application.DTOs;
 namespace ResetYourFuture.Application.ApiInterfaces;
 
 /// <summary>
-/// Call access checks and callable-user lookups.
+/// Callable-user lookups. Video calls are available to every authenticated, enabled user.
 /// </summary>
 public interface ICallQueryService
 {
-    Task<bool> HasCallAccessAsync(string userId, bool isAdmin);
     Task<List<ChatUserDto>> GetCallableUsersAsync(string callerId, string? search);
 }

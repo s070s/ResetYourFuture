@@ -12,25 +12,22 @@ namespace ResetYourFuture.Web.Hubs;
 
 /// <summary>
 /// SignalR hub for real-time user-to-user chat.
-/// All methods require authentication and a Pro subscription (PrioritySupport feature).
+/// Available to every authenticated, enabled user.
 /// </summary>
 [Authorize]
 public class ChatHub : Hub
 {
     private readonly IApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
         IApplicationDbContext db,
         UserManager<ApplicationUser> userManager,
-        ISubscriptionService subscriptionService,
         ILogger<ChatHub> logger)
     {
         _db = db;
         _userManager = userManager;
-        _subscriptionService = subscriptionService;
         _logger = logger;
     }
 
@@ -79,17 +76,6 @@ public class ChatHub : Hub
         {
             await Clients.Caller.SendAsync("ChatError", "Message exceeds the 4,000 character limit.");
             return;
-        }
-
-        var isAdmin = Context.User?.IsInRole("Admin") == true;
-        if (!isAdmin)
-        {
-            var userStatus = await _subscriptionService.GetUserStatusAsync(userId);
-            if (userStatus.Features?.PrioritySupport != true)
-            {
-                await Clients.Caller.SendAsync("ChatError", "Chat requires a Pro subscription.");
-                return;
-            }
         }
 
         var conversation = await _db.ChatConversations

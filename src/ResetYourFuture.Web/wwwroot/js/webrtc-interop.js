@@ -20,13 +20,24 @@ window.webrtcInterop = {
         });
     },
 
+    // Returns 'full' (audio+video), 'audio' (camera unavailable — none present, or held by
+    // another app/browser on the same machine — joined audio-only), or 'none' (no media at all).
     startLocalMedia: async function (audio, video) {
         try {
             this._localStream = await navigator.mediaDevices.getUserMedia({ audio: audio, video: video });
-            return true;
+            return 'full';
         } catch (err) {
+            if (video) {
+                try {
+                    this._localStream = await navigator.mediaDevices.getUserMedia({ audio: audio, video: false });
+                    return 'audio';
+                } catch (audioErr) {
+                    await this._reportError('startLocalMedia', null, audioErr);
+                    return 'none';
+                }
+            }
             await this._reportError('startLocalMedia', null, err);
-            return false;
+            return 'none';
         }
     },
 
@@ -101,6 +112,10 @@ window.webrtcInterop = {
 
         peer.ignoreOffer = !peer.polite && offerCollision;
         if (peer.ignoreOffer) return;
+
+        // A stale/duplicate answer for a negotiation that already completed (glare aftermath) —
+        // applying it in 'stable' throws InvalidStateError and there is nothing to act on.
+        if (type === 'answer' && pc.signalingState === 'stable') return;
 
         try {
             peer.isSettingRemoteAnswerPending = type === 'answer';
@@ -191,9 +206,13 @@ window.webrtcInterop = {
         this._localStream.getAudioTracks().forEach(function (track) { track.enabled = enabled; });
     },
 
+    // Returns whether any local video track exists — false when the call was joined audio-only,
+    // so CallService can keep CameraOn=false instead of showing a lying "camera on" state.
     setCameraEnabled: function (enabled) {
-        if (!this._localStream) return;
-        this._localStream.getVideoTracks().forEach(function (track) { track.enabled = enabled; });
+        if (!this._localStream) return false;
+        const tracks = this._localStream.getVideoTracks();
+        tracks.forEach(function (track) { track.enabled = enabled; });
+        return tracks.length > 0;
     },
 
     // Replaces the outgoing video track on every peer with the shared-screen track (no
@@ -270,6 +289,10 @@ window.webrtcInterop = {
     _negotiate: async function (peerKey) {
         const peer = this._peers[peerKey];
         if (!peer) return;
+        // A negotiation is already in flight (e.g. the explicit initiateOffer ran and the
+        // addTrack-triggered onnegotiationneeded fires right after) — re-offering here would send
+        // a duplicate offer and earn a stale second answer back.
+        if (peer.makingOffer || peer.pc.signalingState !== 'stable') return;
         try {
             peer.makingOffer = true;
             await peer.pc.setLocalDescription();
@@ -287,7 +310,11 @@ window.webrtcInterop = {
             try {
                 await peer.pc.addIceCandidate(candidate);
             } catch (err) {
-                if (!peer.ignoreOffer) throw err;
+                // A queued candidate can belong to a superseded negotiation (rollback or a
+                // renegotiation changed the ICE generation). Dropping it is harmless; throwing
+                // here would abort setRemoteDescription before the answer is created and wedge
+                // the whole handshake.
+                console.warn('webrtcInterop: dropped stale queued ICE candidate', err);
             }
         }
     },

@@ -11,21 +11,13 @@ using ResetYourFuture.Domain.Identity;
 namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
-/// Chat history, conversations, and management queries.
+/// Chat history, conversations, and management queries. Chat is available to every
+/// authenticated, enabled user.
 /// </summary>
 public class ChatQueryService(
     IApplicationDbContext db,
-    UserManager<ApplicationUser> userManager,
-    ISubscriptionService subscriptionService) : IChatQueryService
+    UserManager<ApplicationUser> userManager) : IChatQueryService
 {
-    public async Task<bool> HasChatAccessAsync(string userId, bool isAdmin)
-    {
-        if (isAdmin)
-            return true;
-        var status = await subscriptionService.GetUserStatusAsync(userId);
-        return status.Features?.PrioritySupport == true;
-    }
-
     public async Task<PagedResult<ChatConversationDto>> GetConversationsAsync(
         string userId, int page, int pageSize, CancellationToken ct = default)
     {
@@ -152,11 +144,8 @@ public class ChatQueryService(
     }
 
     public async Task<ServiceResult<ChatConversationDto>> StartConversationAsync(
-        string callerId, bool isAdmin, StartConversationRequest request)
+        string callerId, StartConversationRequest request)
     {
-        if (!await HasChatAccessAsync(callerId, isAdmin))
-            return ServiceResult<ChatConversationDto>.Forbidden(error: "Chat requires a Pro subscription.");
-
         if (string.IsNullOrWhiteSpace(request.TargetUserId))
             return ServiceResult<ChatConversationDto>.BadRequest(error: "TargetUserId is required.");
 

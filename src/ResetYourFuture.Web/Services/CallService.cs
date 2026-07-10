@@ -223,6 +223,11 @@ public partial class CallService : ICallService
 
         ActiveCallId = result.CallId;
         Stage = CallStage.Outgoing;
+
+        // Joined audio-only (camera unavailable) — tell the others so their tiles show camera-off.
+        if (!CameraOn)
+            await PushMediaStateAsync();
+
         NotifyStateChanged();
     }
 
@@ -244,6 +249,11 @@ public partial class CallService : ICallService
 
         IncomingInvite = null;
         Stage = CallStage.Connecting;
+
+        // Joined audio-only (camera unavailable) — tell the others so their tiles show camera-off.
+        if (!CameraOn)
+            await PushMediaStateAsync();
+
         NotifyStateChanged();
 
         foreach (var participant in join.ExistingParticipants)
@@ -294,8 +304,11 @@ public partial class CallService : ICallService
 
     public async Task ToggleCameraAsync()
     {
-        CameraOn = !CameraOn;
-        await _js.InvokeVoidAsync("webrtcInterop.setCameraEnabled", CameraOn);
+        var target = !CameraOn;
+        // False when no local video track exists (call joined audio-only) — stay camera-off
+        // rather than showing an "on" state that sends nothing.
+        var hasVideoTrack = await _js.InvokeAsync<bool>("webrtcInterop.setCameraEnabled", target);
+        CameraOn = target && hasVideoTrack;
         await PushMediaStateAsync();
         NotifyStateChanged();
     }

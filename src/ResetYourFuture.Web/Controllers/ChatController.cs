@@ -10,7 +10,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// <summary>
 /// REST endpoints for chat history, conversations, and management.
 /// SignalR handles real-time; this covers load-on-demand scenarios.
-/// Chat requires a Pro subscription (PrioritySupport feature).
+/// Available to every authenticated user.
 /// </summary>
 [ApiController]
 [Route("api/chat")]
@@ -34,11 +34,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var userId = UserId;
-        if (!await chatService.HasChatAccessAsync(userId, User.IsInRole("Admin")))
-            return StatusCode(403, "Chat requires a Pro subscription.");
-
-        var result = await chatService.GetConversationsAsync(userId, page, pageSize, cancellationToken);
+        var result = await chatService.GetConversationsAsync(UserId, page, pageSize, cancellationToken);
         return Ok(result);
     }
 
@@ -67,7 +63,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
     public async Task<ActionResult<ChatConversationDto>> StartConversation(
         [FromBody] StartConversationRequest request)
     {
-        var result = await chatService.StartConversationAsync(UserId, User.IsInRole("Admin"), request);
+        var result = await chatService.StartConversationAsync(UserId, request);
         return result.ToActionResult();
     }
 
@@ -77,11 +73,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
     [HttpGet("users")]
     public async Task<ActionResult<List<ChatUserDto>>> GetAvailableUsers([FromQuery] string? search)
     {
-        var userId = UserId;
-        if (!await chatService.HasChatAccessAsync(userId, User.IsInRole("Admin")))
-            return StatusCode(403, "Chat requires a Pro subscription.");
-
-        var result = await chatService.GetAvailableUsersAsync(userId, search);
+        var result = await chatService.GetAvailableUsersAsync(UserId, search);
         return Ok(result);
     }
 

@@ -380,6 +380,24 @@ public class CallRegistry
         }
     }
 
+    /// <summary>
+    /// UserIds still in the Invited (ringing) state for a call — the participants a forced
+    /// call-end must notify individually, since they never joined the call's SignalR group.
+    /// </summary>
+    public List<string> GetInvitedUserIds(Guid callId)
+    {
+        lock (_lock)
+        {
+            if (!_calls.TryGetValue(callId, out var call))
+                return [];
+
+            return call.Participants.Values
+                .Where(p => p.State == RegistryParticipantState.Invited)
+                .Select(p => p.UserId)
+                .ToList();
+        }
+    }
+
     public bool IsMemberConnection(Guid callId, string connectionId)
     {
         lock (_lock)

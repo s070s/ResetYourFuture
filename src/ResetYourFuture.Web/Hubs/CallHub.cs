@@ -96,10 +96,6 @@ public partial class CallHub : Hub
         if (string.IsNullOrEmpty(userId))
             return new StartCallResultDto(null, StartCallStatus.NoAccess, []);
 
-        var isAdmin = Context.User?.IsInRole("Admin") == true;
-        if (!await _callQueryService.HasCallAccessAsync(userId, isAdmin))
-            return new StartCallResultDto(null, StartCallStatus.NoAccess, []);
-
         if (_registry.IsUserBusy(userId))
             return new StartCallResultDto(null, StartCallStatus.CallerBusy, []);
 
@@ -161,7 +157,11 @@ public partial class CallHub : Hub
         if (!_registry.TryAccept(callId, userId, Context.ConnectionId))
             return null;
 
-        await Clients.Group($"user_{userId}").SendAsync("IncomingCallHandled", callId);
+        // Dismiss the ringing toast on this user's OTHER tabs only. The accepting connection must
+        // be excluded: its client is still mid-AcceptAsync (Stage == Incoming until the hub call
+        // returns), and receiving IncomingCallHandled there tears the local call state down —
+        // stopping local media and nulling ActiveCallId, which silently kills the WebRTC offer.
+        await Clients.GroupExcept($"user_{userId}", [Context.ConnectionId]).SendAsync("IncomingCallHandled", callId);
         await Groups.AddToGroupAsync(Context.ConnectionId, $"call_{callId}");
 
         await _callEventService.MarkParticipantAsync(callId, userId, CallParticipantStatus.Joined);
@@ -202,6 +202,9 @@ public partial class CallHub : Hub
 
         if (!_registry.TryDecline(callId, userId))
             return;
+
+        // The declining tab dismisses itself locally; this clears the ring on the user's other tabs.
+        await Clients.GroupExcept($"user_{userId}", [Context.ConnectionId]).SendAsync("IncomingCallHandled", callId);
 
         await _callEventService.MarkParticipantAsync(callId, userId, CallParticipantStatus.Declined);
         await Clients.Group($"call_{callId}").SendAsync("CallDeclined", callId, userId);
@@ -332,6 +335,14 @@ public partial class CallHub : Hub
     private async Task ForceEndCall(Guid callId, CallState call, CallEndReason reasonIfEverConnected)
     {
         var reason = call.HasConnected ? reasonIfEverConnected : CallEndReason.Missed;
+
+        // Still-ringing invitees are not in the call_{id} SignalR group (they only join on accept),
+        // so the CallEnded broadcast below never reaches them — without this their toast would ring
+        // until timeout even though the call is already gone (e.g. the initiator cancelled).
+        foreach (var invitedUserId in _registry.GetInvitedUserIds(callId))
+        {
+            await Clients.Group($"user_{invitedUserId}").SendAsync("IncomingCallHandled", callId);
+        }
 
         await _callEventService.EndSessionAsync(callId, reason);
 

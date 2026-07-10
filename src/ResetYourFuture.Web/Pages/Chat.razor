@@ -4,17 +4,11 @@
 
 <PageTitle>@ChatRes.PageTitle</PageTitle>
 
-@if ( !_accessChecked )
+@if ( !_initialized )
 {
     <div class="text-center p-5">
         <div class="spinner-border" role="status"></div>
     </div>
-}
-else if ( !_chatAccess )
-{
-    <UpgradePrompt PlanName="Pro"
-                   FeatureName="Chat"
-                   Description="@ChatRes.UpgradeDescription" />
 }
 else
 {

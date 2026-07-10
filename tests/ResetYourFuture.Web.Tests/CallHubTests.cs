@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
@@ -40,7 +39,6 @@ public class CallHubTests
         public required Dictionary<string, IClientProxy> CallGroups;
         public required Dictionary<string, IClientProxy> ChatGroups;
         public required UserManager<ApplicationUser> Um;
-        public required ISubscriptionService Subs;
     }
 
     private static ApplicationUser AppUser(string id, bool enabled = true) =>
@@ -59,9 +57,9 @@ public class CallHubTests
     /// <summary>
     /// Builds a CallHub wired to a real CallEventService/CallQueryService (backed by the given
     /// InMemory db) so tests exercise actual persistence logic, not mocks of it — only the SignalR
-    /// plumbing (Context/Clients/Groups) and UserManager/subscription checks are substituted,
-    /// mirroring ChatHubTests' approach. Pass an existing <paramref name="registry"/> to simulate a
-    /// second connection (e.g. the callee) joining the same call as an earlier harness.
+    /// plumbing (Context/Clients/Groups) and UserManager are substituted, mirroring ChatHubTests'
+    /// approach. Pass an existing <paramref name="registry"/> to simulate a second connection
+    /// (e.g. the callee) joining the same call as an earlier harness.
     /// </summary>
     private static Harness BuildHub(
         ApplicationDbContext db,
@@ -81,14 +79,17 @@ public class CallHubTests
         var clients = Substitute.For<IHubCallerClients>();
         clients.Caller.Returns(caller);
         clients.Group(Arg.Any<string>()).Returns(ci => ResolveGroupProxy(callGroups, (string)ci[0]));
+        // GroupExcept resolves to the same per-group proxy; tests that care about the exclusion
+        // list assert on the GroupExcept call itself.
+        clients.GroupExcept(Arg.Any<string>(), Arg.Any<IReadOnlyList<string>>())
+            .Returns(ci => ResolveGroupProxy(callGroups, (string)ci[0]));
 
         var groups = Substitute.For<IGroupManager>();
         var um = IdentityMocks.MockUserManager();
-        var subs = Substitute.For<ISubscriptionService>();
 
         registry ??= new CallRegistry();
         var callEventService = new CallEventService(db, um);
-        var callQueryService = new CallQueryService(db, um, subs);
+        var callQueryService = new CallQueryService(db, um);
         var options = Options.Create(new WebRtcOptions { RingTimeoutSeconds = 45, MaxParticipants = 6 });
 
         var chatGroups = new Dictionary<string, IClientProxy>();
@@ -113,13 +114,9 @@ public class CallHubTests
             Caller = caller,
             CallGroups = callGroups,
             ChatGroups = chatGroups,
-            Um = um,
-            Subs = subs
+            Um = um
         };
     }
-
-    private static UserSubscriptionStatusDto Status(bool priority) =>
-        new(SubscriptionTier.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
 
     private static ChatConversation Conversation(string creator, string participant) =>
         new() { Id = Guid.NewGuid(), CreatorId = creator, ParticipantId = participant };
@@ -142,22 +139,11 @@ public class CallHubTests
     // ---- StartCall access / availability --------------------------------------
 
     [Fact]
-    public async Task StartCall_NoSubscription_ReturnsNoAccess()
+    public async Task StartCall_FreeNonAdminUser_Rings()
     {
+        // Video calls are open to every authenticated user — no role or subscription needed.
         await using var db = DbContextFactory.CreateInMemory();
         var h = BuildHub(db, Initiator, isAdmin: false);
-        h.Subs.GetUserStatusAsync(Initiator, Arg.Any<CancellationToken>()).Returns(Status(priority: false));
-
-        var result = await h.Hub.StartCall([Callee], null);
-
-        result.StartCallStatus.ShouldBe(StartCallStatus.NoAccess);
-    }
-
-    [Fact]
-    public async Task StartCall_Admin_BypassesSubscriptionCheck_AndRings()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var h = BuildHub(db, Initiator, isAdmin: true);
         h.Registry.AddUserConnection(Callee);
 
         var result = await h.Hub.StartCall([Callee], null);
@@ -241,6 +227,30 @@ public class CallHubTests
         await callee.CallGroups[$"call_{callId}"].Received().SendCoreAsync("ParticipantJoined", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task AcceptCall_DoesNotSendIncomingCallHandledToAcceptingConnection()
+    {
+        // Regression: broadcasting IncomingCallHandled to the whole user group raced the accepting
+        // tab's own AcceptAsync (still Stage == Incoming), tearing down its local media/ActiveCallId
+        // and silently killing the WebRTC offer. The accepting connection must be excluded.
+        await using var db = DbContextFactory.CreateInMemory();
+        db.Users.AddRange(AppUser(Initiator), AppUser(Callee));
+        await db.SaveChangesAsync();
+        var caller = BuildHub(db, Initiator, connectionId: "conn-initiator");
+        caller.Registry.AddUserConnection(Callee);
+        var start = await caller.Hub.StartCall([Callee], null);
+        var callId = start.CallId!.Value;
+
+        var callee = BuildHub(db, Callee, connectionId: "conn-callee", registry: caller.Registry);
+
+        var join = await callee.Hub.AcceptCall(callId);
+
+        join.ShouldNotBeNull();
+        callee.Hub.Clients.Received().GroupExcept(
+            $"user_{Callee}",
+            Arg.Is<IReadOnlyList<string>>(l => l.Contains("conn-callee")));
+    }
+
     // ---- DeclineCall --------------------------------------------------------------
 
     [Fact]
@@ -263,6 +273,30 @@ public class CallHubTests
         // per CallHub.ForceEndCall this ends as Missed, matching cancel/timeout's identical
         // "missed call" chat event (see VIDEO_CALL_PLAN.md edge cases).
         session.EndReason.ShouldBe(CallEndReason.Missed);
+    }
+
+    // ---- CancelCall ---------------------------------------------------------------
+
+    [Fact]
+    public async Task CancelCall_NotifiesRingingInviteesToDismissToast()
+    {
+        // Regression: ringing invitees are not in the call_{id} group yet, so ending the call via
+        // cancel left their incoming-call toast up until ring timeout. ForceEndCall must send
+        // IncomingCallHandled to each still-invited user's user_{id} group.
+        await using var db = DbContextFactory.CreateInMemory();
+        var h = BuildHub(db, Initiator, connectionId: "conn-initiator");
+        h.Registry.AddUserConnection(Callee);
+        var start = await h.Hub.StartCall([Callee], null);
+        var callId = start.CallId!.Value;
+
+        await h.Hub.CancelCall(callId);
+
+        h.CallGroups.ShouldContainKey($"user_{Callee}");
+        await h.CallGroups[$"user_{Callee}"].Received().SendCoreAsync(
+            "IncomingCallHandled",
+            Arg.Is<object?[]>(a => a.Length == 1 && (Guid)a[0]! == callId),
+            Arg.Any<CancellationToken>());
+        h.Registry.CallExists(callId).ShouldBeFalse();
     }
 
     // ---- Signaling relay security ------------------------------------------------

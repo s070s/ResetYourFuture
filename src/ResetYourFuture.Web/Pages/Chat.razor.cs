@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
@@ -10,11 +9,9 @@ namespace ResetYourFuture.Web.Pages;
 public partial class Chat : IAsyncDisposable
 {
     [Inject] private IChatService ChatService { get; set; } = default!;
-    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
-    private bool _chatAccess;
-    private bool _accessChecked;
+    private bool _initialized;
     private PagedResult<ChatConversationDto>? _conversations;
     private int _conversationsPage = 1;
     private int _conversationsPageSize = 10;
@@ -41,21 +38,7 @@ public partial class Chat : IAsyncDisposable
         var user = authState.User;
         _currentUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
-        var isAdmin = user.IsInRole("Admin");
-        if (isAdmin)
-        {
-            _chatAccess = true;
-        }
-        else
-        {
-            var status = await SubscriptionService.GetStatusAsync();
-            _chatAccess = status?.Features?.PrioritySupport == true;
-        }
-
-        _accessChecked = true;
-
-        if (!_chatAccess)
-            return;
+        _initialized = true;
 
         ChatService.OnMessageReceived += HandleMessageReceived;
         ChatService.OnNotificationReceived += HandleNotification;
@@ -323,13 +306,10 @@ public partial class Chat : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_chatAccess)
-        {
-            ChatService.OnMessageReceived -= HandleMessageReceived;
-            ChatService.OnNotificationReceived -= HandleNotification;
-            ChatService.ConnectionStateChanged -= HandleConnectionStateChanged;
-            await ChatService.DisposeAsync();
-        }
+        ChatService.OnMessageReceived -= HandleMessageReceived;
+        ChatService.OnNotificationReceived -= HandleNotification;
+        ChatService.ConnectionStateChanged -= HandleConnectionStateChanged;
+        await ChatService.DisposeAsync();
 
         GC.SuppressFinalize(this);
     }

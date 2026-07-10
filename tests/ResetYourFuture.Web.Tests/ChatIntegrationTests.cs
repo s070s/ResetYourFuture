@@ -20,12 +20,12 @@ public class ChatIntegrationTests
     }
 
     [Fact]
-    public async Task Conversations_FreeUser_Returns403()
+    public async Task Conversations_FreeUser_Returns200()
     {
-        // Chat requires PrioritySupport (Pro). A fresh Student is Free → 403.
+        // Chat is open to every authenticated user — a fresh Free-tier Student gets 200.
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
-        (await client.GetAsync("/api/chat/conversations")).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await client.GetAsync("/api/chat/conversations")).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]

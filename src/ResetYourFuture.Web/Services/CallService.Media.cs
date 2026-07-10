@@ -55,14 +55,16 @@ public partial class CallService
     {
         await EnsureJsInitializedAsync();
 
-        var ok = await _js.InvokeAsync<bool>("webrtcInterop.startLocalMedia", true, true);
-        if (ok)
-        {
-            MicOn = true;
-            CameraOn = true;
-            ScreenSharing = false;
-        }
-        return ok;
+        // 'full' = mic + camera, 'audio' = camera unavailable (none present, or held by another
+        // app/browser on this machine) so the call proceeds audio-only, 'none' = no media at all.
+        var result = await _js.InvokeAsync<string>("webrtcInterop.startLocalMedia", true, true);
+        if (result == "none")
+            return false;
+
+        MicOn = true;
+        CameraOn = result == "full";
+        ScreenSharing = false;
+        return true;
     }
 
     [JSInvokable]

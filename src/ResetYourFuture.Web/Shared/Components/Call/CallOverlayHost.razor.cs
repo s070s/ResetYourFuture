@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Shared.Resources;
-using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
 
 namespace ResetYourFuture.Web.Shared.Components.Call;
@@ -11,7 +10,6 @@ namespace ResetYourFuture.Web.Shared.Components.Call;
 public partial class CallOverlayHost : IAsyncDisposable
 {
     [Inject] private ICallService CallService { get; set; } = default!;
-    [Inject] private ISubscriptionConsumer SubscriptionService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
     private bool _callAccess;
@@ -32,23 +30,9 @@ public partial class CallOverlayHost : IAsyncDisposable
             return;
         }
 
-        if (user.IsInRole("Admin"))
-        {
-            _callAccess = true;
-        }
-        else
-        {
-            var status = await SubscriptionService.GetStatusAsync();
-            _callAccess = status?.Features?.PrioritySupport == true;
-        }
-
+        // Video calls are available to every authenticated user.
+        _callAccess = true;
         _accessChecked = true;
-
-        if (!_callAccess)
-        {
-            StateHasChanged();
-            return;
-        }
 
         CallService.StateChanged += HandleStateChanged;
         CallService.ErrorOccurred += HandleError;

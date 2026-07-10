@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
-using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Entities;
@@ -19,53 +18,18 @@ public class ChatQueryServiceTests
     private const string A = "user-a";
     private const string B = "user-b";
 
-    private static (ChatQueryService svc, UserManager<ApplicationUser> um, ISubscriptionService subs) NewService(
+    private static (ChatQueryService svc, UserManager<ApplicationUser> um) NewService(
         ApplicationDbContext db)
     {
         var um = IdentityMocks.MockUserManager();
-        var subs = Substitute.For<ISubscriptionService>();
-        return (new ChatQueryService(db, um, subs), um, subs);
+        return (new ChatQueryService(db, um), um);
     }
 
     private static ApplicationUser AppUser(string id, string first = "F", string last = "L", bool enabled = true) =>
         new() { Id = id, UserName = id, Email = $"{id}@x.com", FirstName = first, LastName = last, IsEnabled = enabled };
 
-    private static UserSubscriptionStatusDto Status(bool priority) =>
-        new(SubscriptionTier.Free, "n", DateTime.UtcNow, null, true, new PlanFeaturesDto { PrioritySupport = priority });
-
     private static ChatConversation Conversation(string creator, string participant) =>
         new() { Id = Guid.NewGuid(), CreatorId = creator, ParticipantId = participant };
-
-    // ---- HasChatAccessAsync --------------------------------------------------
-
-    [Fact]
-    public async Task HasChatAccess_Admin_ReturnsTrue()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
-
-        (await svc.HasChatAccessAsync(A, isAdmin: true)).ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task HasChatAccess_ProSubscriber_ReturnsTrue()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, subs) = NewService(db);
-        subs.GetUserStatusAsync(A, Arg.Any<CancellationToken>()).Returns(Status(priority: true));
-
-        (await svc.HasChatAccessAsync(A, isAdmin: false)).ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task HasChatAccess_FreeUser_ReturnsFalse()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, subs) = NewService(db);
-        subs.GetUserStatusAsync(A, Arg.Any<CancellationToken>()).Returns(Status(priority: false));
-
-        (await svc.HasChatAccessAsync(A, isAdmin: false)).ShouldBeFalse();
-    }
 
     // ---- GetConversationsAsync ----------------------------------------------
 
@@ -81,7 +45,7 @@ public class ChatQueryServiceTests
         db.ChatConversations.Add(conv);
         db.ChatMessages.Add(new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = B, Content = "hi", IsRead = false });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         var result = await svc.GetConversationsAsync(A, 1, 10);
 
@@ -95,7 +59,7 @@ public class ChatQueryServiceTests
     public async Task GetConversations_None_ReturnsEmpty()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         var result = await svc.GetConversationsAsync(A, 1, 10);
 
@@ -109,7 +73,7 @@ public class ChatQueryServiceTests
     public async Task GetMessages_MissingConversation_ReturnsNotFound()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.GetMessagesAsync(A, Guid.NewGuid(), 1, 10)).StatusCode.ShouldBe(404);
     }
@@ -121,7 +85,7 @@ public class ChatQueryServiceTests
         var conv = Conversation("x", "y");
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.GetMessagesAsync(A, conv.Id, 1, 10)).StatusCode.ShouldBe(403);
     }
@@ -137,7 +101,7 @@ public class ChatQueryServiceTests
             new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = A, Content = "first", SentAt = new DateTime(2022, 1, 1) },
             new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = B, Content = "second", SentAt = new DateTime(2022, 1, 2) });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         var result = await svc.GetMessagesAsync(A, conv.Id, 1, 10);
 
@@ -174,7 +138,7 @@ public class ChatQueryServiceTests
             CallEvent = CallEventKind.Ended
         });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         var result = await svc.GetMessagesAsync(A, conv.Id, 1, 10);
 
@@ -192,7 +156,7 @@ public class ChatQueryServiceTests
         db.ChatConversations.Add(conv);
         db.ChatMessages.Add(new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = A, Content = "hi" });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         var result = await svc.GetMessagesAsync(A, conv.Id, 1, 10);
 
@@ -204,65 +168,53 @@ public class ChatQueryServiceTests
     // ---- StartConversationAsync ---------------------------------------------
 
     [Fact]
-    public async Task StartConversation_NoChatAccess_ReturnsForbidden()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, subs) = NewService(db);
-        subs.GetUserStatusAsync(A, Arg.Any<CancellationToken>()).Returns(Status(priority: false));
-
-        var result = await svc.StartConversationAsync(A, isAdmin: false, new StartConversationRequest(B, null));
-
-        result.StatusCode.ShouldBe(403);
-    }
-
-    [Fact]
     public async Task StartConversation_BlankTarget_ReturnsBadRequest()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
-        (await svc.StartConversationAsync(A, true, new StartConversationRequest("", null))).StatusCode.ShouldBe(400);
+        (await svc.StartConversationAsync(A, new StartConversationRequest("", null))).StatusCode.ShouldBe(400);
     }
 
     [Fact]
     public async Task StartConversation_WithSelf_ReturnsBadRequest()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
-        (await svc.StartConversationAsync(A, true, new StartConversationRequest(A, null))).StatusCode.ShouldBe(400);
+        (await svc.StartConversationAsync(A, new StartConversationRequest(A, null))).StatusCode.ShouldBe(400);
     }
 
     [Fact]
     public async Task StartConversation_TargetMissing_ReturnsNotFound()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.FindByIdAsync(B).Returns((ApplicationUser?)null);
 
-        (await svc.StartConversationAsync(A, true, new StartConversationRequest(B, null))).StatusCode.ShouldBe(404);
+        (await svc.StartConversationAsync(A, new StartConversationRequest(B, null))).StatusCode.ShouldBe(404);
     }
 
     [Fact]
     public async Task StartConversation_TargetDisabled_ReturnsNotFound()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.FindByIdAsync(B).Returns(AppUser(B, enabled: false));
 
-        (await svc.StartConversationAsync(A, true, new StartConversationRequest(B, null))).StatusCode.ShouldBe(404);
+        (await svc.StartConversationAsync(A, new StartConversationRequest(B, null))).StatusCode.ShouldBe(404);
     }
 
     [Fact]
     public async Task StartConversation_New_PersistsConversationAndInitialMessage()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.FindByIdAsync(B).Returns(AppUser(B, "Other", "User"));
         um.FindByIdAsync(A).Returns(AppUser(A, "Caller", "One"));
         um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string>());
 
-        var result = await svc.StartConversationAsync(A, true, new StartConversationRequest(B, "hello"));
+        var result = await svc.StartConversationAsync(A, new StartConversationRequest(B, "hello"));
 
         result.IsSuccess.ShouldBeTrue();
         result.Value!.OtherUserId.ShouldBe(B);
@@ -274,12 +226,12 @@ public class ChatQueryServiceTests
     public async Task StartConversation_LongInitialMessage_IsTruncated()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.FindByIdAsync(B).Returns(AppUser(B));
         um.FindByIdAsync(A).Returns(AppUser(A));
         um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string>());
 
-        var result = await svc.StartConversationAsync(A, true, new StartConversationRequest(B, new string('x', 600)));
+        var result = await svc.StartConversationAsync(A, new StartConversationRequest(B, new string('x', 600)));
 
         result.Value!.LastMessageContent!.Length.ShouldBe(500);
         result.Value.LastMessageContent.ShouldEndWith("...");
@@ -293,11 +245,11 @@ public class ChatQueryServiceTests
         var existing = Conversation(A, B); // already normalized (A < B)
         db.ChatConversations.Add(existing);
         await db.SaveChangesAsync();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.FindByIdAsync(B).Returns(AppUser(B));
         um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string>());
 
-        var result = await svc.StartConversationAsync(A, true, new StartConversationRequest(B, null));
+        var result = await svc.StartConversationAsync(A, new StartConversationRequest(B, null));
 
         result.Value!.Id.ShouldBe(existing.Id);
         (await db.ChatConversations.CountAsync()).ShouldBe(1);
@@ -316,7 +268,7 @@ public class ChatQueryServiceTests
             AppUser("user-d", "Partner", "User"));
         db.ChatConversations.Add(Conversation(A, "user-d"));
         await db.SaveChangesAsync();
-        var (svc, um, _) = NewService(db);
+        var (svc, um) = NewService(db);
         um.Users.Returns(db.Users);
 
         var result = await svc.GetAvailableUsersAsync(A, search: null);
@@ -330,7 +282,7 @@ public class ChatQueryServiceTests
     public async Task DeleteConversation_Missing_ReturnsNotFound()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.DeleteConversationAsync(A, Guid.NewGuid())).StatusCode.ShouldBe(404);
     }
@@ -342,7 +294,7 @@ public class ChatQueryServiceTests
         var conv = Conversation("x", "y");
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.DeleteConversationAsync(A, conv.Id)).StatusCode.ShouldBe(403);
     }
@@ -354,7 +306,7 @@ public class ChatQueryServiceTests
         var conv = Conversation(A, B);
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.DeleteConversationAsync(A, conv.Id)).IsSuccess.ShouldBeTrue();
         (await db.ChatConversations.CountAsync()).ShouldBe(0);
@@ -373,7 +325,7 @@ public class ChatQueryServiceTests
             new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = B, Content = "2", IsRead = false },
             new ChatMessage { Id = Guid.NewGuid(), ConversationId = conv.Id, SenderId = A, Content = "mine", IsRead = false });
         await db.SaveChangesAsync();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.GetUnreadCountAsync(A)).ShouldBe(2);
     }
@@ -382,7 +334,7 @@ public class ChatQueryServiceTests
     public async Task GetUnreadCount_NoMessages_ReturnsZero()
     {
         await using var db = DbContextFactory.CreateInMemory();
-        var (svc, _, _) = NewService(db);
+        var (svc, _) = NewService(db);
 
         (await svc.GetUnreadCountAsync(A)).ShouldBe(0);
     }
