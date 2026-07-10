@@ -248,7 +248,34 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ColAssessment", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Author.
+        /// </summary>
+        public static string ColAuthor {
+            get {
+                return ResourceManager.GetString("ColAuthor", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Category.
+        /// </summary>
+        public static string ColCategory {
+            get {
+                return ResourceManager.GetString("ColCategory", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Completion %.
+        /// </summary>
+        public static string ColCompletionRate {
+            get {
+                return ResourceManager.GetString("ColCompletionRate", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Completions.
         /// </summary>
@@ -266,7 +293,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ColCourse", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Created.
+        /// </summary>
+        public static string ColCreated {
+            get {
+                return ResourceManager.GetString("ColCreated", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Email.
         /// </summary>
@@ -275,7 +311,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ColEmail", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email Confirmed.
+        /// </summary>
+        public static string ColEmailConfirmed {
+            get {
+                return ResourceManager.GetString("ColEmailConfirmed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Enabled.
         /// </summary>
@@ -302,7 +347,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ColMins", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Modules / Lessons.
+        /// </summary>
+        public static string ColModulesLessons {
+            get {
+                return ResourceManager.GetString("ColModulesLessons", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Name.
         /// </summary>

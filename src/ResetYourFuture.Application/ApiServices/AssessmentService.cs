@@ -169,7 +169,8 @@ public class AssessmentService(
                 s.AssessmentDefinition.TitleEn,
                 s.AnswersJson,
                 s.SummaryJson,
-                s.SubmittedAt
+                s.SubmittedAt,
+                s.AssessmentDefinition.Category != null ? s.AssessmentDefinition.Category.NameEn : null
             ))
             .ToListAsync(cancellationToken);
     }

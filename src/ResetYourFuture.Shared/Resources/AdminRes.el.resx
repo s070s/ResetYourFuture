@@ -645,4 +645,22 @@
   <data name="RequiredTierHint" xml:space="preserve">
     <value>Οι χρήστες πρέπει να έχουν αυτό το πακέτο ή ανώτερο για να εγγραφούν σε αυτό το μάθημα.</value>
   </data>
+  <data name="ColCreated" xml:space="preserve">
+    <value>Δημιουργήθηκε</value>
+  </data>
+  <data name="ColCategory" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="ColAuthor" xml:space="preserve">
+    <value>Συντάκτης</value>
+  </data>
+  <data name="ColEmailConfirmed" xml:space="preserve">
+    <value>Επιβεβαιωμένο Email</value>
+  </data>
+  <data name="ColModulesLessons" xml:space="preserve">
+    <value>Ενότητες / Μαθήματα</value>
+  </data>
+  <data name="ColCompletionRate" xml:space="preserve">
+    <value>% Ολοκλήρωσης</value>
+  </data>
 </root>

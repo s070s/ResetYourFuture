@@ -626,4 +626,22 @@
 	<data name="RequiredTierHint" xml:space="preserve">
 		<value>Users must be on this plan or higher to enroll in this course.</value>
 	</data>
+	<data name="ColCreated" xml:space="preserve">
+		<value>Created</value>
+	</data>
+	<data name="ColCategory" xml:space="preserve">
+		<value>Category</value>
+	</data>
+	<data name="ColAuthor" xml:space="preserve">
+		<value>Author</value>
+	</data>
+	<data name="ColEmailConfirmed" xml:space="preserve">
+		<value>Email Confirmed</value>
+	</data>
+	<data name="ColModulesLessons" xml:space="preserve">
+		<value>Modules / Lessons</value>
+	</data>
+	<data name="ColCompletionRate" xml:space="preserve">
+		<value>Completion %</value>
+	</data>
 </root>

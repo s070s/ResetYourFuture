@@ -20,8 +20,11 @@ else
             <tr>
                 <th>@AdminRes.FieldTitle</th>
                 <th>@AdminRes.FieldKey</th>
+                <th>@AdminRes.ColCategory</th>
+                <th>@AdminRes.ColTier</th>
                 <th>@AdminRes.ColStatus</th>
                 <th>@AdminRes.ColSubmissions</th>
+                <th>@AdminRes.ColCreated</th>
                 <th>@AdminRes.ColActions</th>
             </tr>
         </HeaderRow>
@@ -29,12 +32,15 @@ else
             <tr @key="assessment.Id">
                 <td data-label="@AdminRes.FieldTitle">@assessment.Title</td>
                 <td data-label="@AdminRes.FieldKey">@assessment.Key</td>
+                <td data-label="@AdminRes.ColCategory">@(assessment.CategoryNameEn ?? "—")</td>
+                <td data-label="@AdminRes.ColTier">@assessment.RequiredTier</td>
                 <td data-label="@AdminRes.ColStatus">
                     <StatusBadge IsActive="assessment.IsPublished"
                                  ActiveText="@AdminRes.StatusPublished"
                                  InactiveText="@AdminRes.StatusDraft" />
                 </td>
                 <td data-label="@AdminRes.ColSubmissions">@assessment.SubmissionCount</td>
+                <td data-label="@AdminRes.ColCreated">@assessment.CreatedAt.ToLocalTime().ToString("d")</td>
                 <td data-label="@AdminRes.ColActions">
                     <button class="btn btn-sm btn-primary" @onclick="() => EditAssessment(assessment.Id)">@AdminRes.Edit</button>
                     @if (assessment.IsPublished)

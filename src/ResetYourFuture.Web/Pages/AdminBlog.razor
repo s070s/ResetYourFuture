@@ -30,7 +30,9 @@
                         <tr>
                             <th>@AdminRes.FieldTitle</th>
                             <th>@AdminRes.ColSlug</th>
+                            <th>@AdminRes.ColAuthor</th>
                             <th>@AdminRes.ColStatus</th>
+                            <th>@AdminRes.ColCreated</th>
                             <th>@AdminRes.ColPublishedAt</th>
                             <th>@AdminRes.ColActions</th>
                         </tr>
@@ -39,11 +41,13 @@
                         <tr @key="article.Id">
                             <td data-label="@AdminRes.FieldTitle">@article.TitleEn</td>
                             <td data-label="@AdminRes.ColSlug"><code>@article.Slug</code></td>
+                            <td data-label="@AdminRes.ColAuthor">@article.AuthorName</td>
                             <td data-label="@AdminRes.ColStatus">
                                 <StatusBadge IsActive="article.IsPublished"
                                              ActiveText="@AdminRes.StatusPublished"
                                              InactiveText="@AdminRes.StatusDraft" />
                             </td>
+                            <td data-label="@AdminRes.ColCreated">@article.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
                             <td data-label="@AdminRes.ColPublishedAt">@(article.PublishedAt?.ToString("dd MMM yyyy") ?? "—")</td>
                             <td data-label="@AdminRes.ColActions">
                                 <button class="btn btn-sm btn-primary me-1" @onclick="() => EditArticle(article.Id)">@AdminRes.Edit</button>

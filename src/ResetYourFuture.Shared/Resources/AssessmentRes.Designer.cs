@@ -187,6 +187,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Category.
+        /// </summary>
+        public static string CategoryHeader {
+            get {
+                return ResourceManager.GetString("CategoryHeader", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Submitted.
         /// </summary>
         public static string SubmittedHeader {

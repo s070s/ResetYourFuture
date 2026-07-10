@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Domain.Enums;
 
 namespace ResetYourFuture.Application.DTOs;
 
@@ -63,7 +64,8 @@ public record AssessmentSubmissionDto(
     string AssessmentTitle,
     string AnswersJson,
     string? SummaryJson,
-    DateTimeOffset SubmittedAt
+    DateTimeOffset SubmittedAt,
+    string? CategoryName = null
 );
 
 /// <summary>
@@ -84,7 +86,8 @@ public record AssessmentDefinitionListItemDto(
     bool IsPublished,
     int SubmissionCount,
     DateTimeOffset CreatedAt,
-    string? CategoryNameEn = null
+    string? CategoryNameEn = null,
+    SubscriptionTier RequiredTier = SubscriptionTier.Free
 );
 
 /// <summary>

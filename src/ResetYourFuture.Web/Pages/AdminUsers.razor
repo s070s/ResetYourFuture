@@ -33,9 +33,14 @@
                             <SortableColumnHeader ColumnKey="firstname" Label="@AdminRes.ColName"
                                                   CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
                                                   OnSort="OnSort" />
+                            <th>@AdminRes.ColStatus</th>
                             <th>@AdminRes.ColEnabled</th>
+                            <th>@AdminRes.ColEmailConfirmed</th>
                             <th>@AdminRes.ColTier</th>
                             <th>@AdminRes.ColRoles</th>
+                            <SortableColumnHeader ColumnKey="createdat" Label="@AdminRes.ColCreated"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
                             <th>@AdminRes.ColActions</th>
                         </tr>
                     </HeaderRow>
@@ -43,12 +48,18 @@
                         <tr @key="user.Id">
                             <td data-label="@AdminRes.ColEmail">@user.Email</td>
                             <td data-label="@AdminRes.ColName">@user.FirstName @user.LastName</td>
+                            <td data-label="@AdminRes.ColStatus">@user.Status</td>
                             <td data-label="@AdminRes.ColEnabled">
                                 <span aria-hidden="true">@(user.IsEnabled ? "✓" : "✗")</span>
                                 <span class="visually-hidden">@(user.IsEnabled ? AdminRes.Yes : AdminRes.No)</span>
                             </td>
+                            <td data-label="@AdminRes.ColEmailConfirmed">
+                                <span aria-hidden="true">@(user.EmailConfirmed ? "✓" : "✗")</span>
+                                <span class="visually-hidden">@(user.EmailConfirmed ? AdminRes.Yes : AdminRes.No)</span>
+                            </td>
                             <td data-label="@AdminRes.ColTier">@user.SubscriptionTier</td>
                             <td data-label="@AdminRes.ColRoles">@string.Join(", ", user.Roles)</td>
+                            <td data-label="@AdminRes.ColCreated">@user.CreatedAt.ToLocalTime().ToString("d")</td>
                             <td data-label="@AdminRes.ColActions">
                                 @if (user.Roles.Contains("Student"))
                                 {

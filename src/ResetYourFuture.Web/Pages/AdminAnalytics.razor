@@ -62,6 +62,7 @@ else
                                     <th>@AdminRes.ColCourse</th>
                                     <th>@AdminRes.ColEnrollments</th>
                                     <th>@AdminRes.ColCompletions</th>
+                                    <th>@AdminRes.ColCompletionRate</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,6 +72,7 @@ else
                                         <td data-label="@AdminRes.ColCourse">@courseStat.CourseTitle</td>
                                         <td data-label="@AdminRes.ColEnrollments">@courseStat.EnrollmentCount</td>
                                         <td data-label="@AdminRes.ColCompletions">@courseStat.CompletionCount</td>
+                                        <td data-label="@AdminRes.ColCompletionRate">@(courseStat.EnrollmentCount > 0 ? $"{100.0 * courseStat.CompletionCount / courseStat.EnrollmentCount:0}%" : "—")</td>
                                     </tr>
                                 }
                             </tbody>

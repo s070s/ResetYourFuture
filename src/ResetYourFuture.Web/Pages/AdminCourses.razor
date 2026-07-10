@@ -23,20 +23,28 @@ else
         <HeaderRow>
             <tr>
                 <th>@AdminRes.FieldTitle</th>
+                <th>@AdminRes.ColCategory</th>
+                <th>@AdminRes.ColTier</th>
                 <th>@AdminRes.ColStatus</th>
                 <th>@AdminRes.ColEnrollments</th>
+                <th>@AdminRes.ColModulesLessons</th>
+                <th>@AdminRes.ColCreated</th>
                 <th>@AdminRes.ColActions</th>
             </tr>
         </HeaderRow>
         <RowTemplate Context="course">
             <tr @key="course.Id">
                 <td data-label="@AdminRes.FieldTitle">@course.TitleEn</td>
+                <td data-label="@AdminRes.ColCategory">@(course.CategoryNameEn ?? "—")</td>
+                <td data-label="@AdminRes.ColTier">@course.RequiredTier</td>
                 <td data-label="@AdminRes.ColStatus">
                     <StatusBadge IsActive="course.IsPublished"
                                  ActiveText="@AdminRes.StatusPublished"
                                  InactiveText="@AdminRes.StatusDraft" />
                 </td>
                 <td data-label="@AdminRes.ColEnrollments">@course.EnrollmentCount</td>
+                <td data-label="@AdminRes.ColModulesLessons">@course.ModuleCount / @course.TotalLessons</td>
+                <td data-label="@AdminRes.ColCreated">@course.CreatedAt.ToLocalTime().ToString("d")</td>
                 <td data-label="@AdminRes.ColActions">
                     <button class="btn btn-sm btn-primary" @onclick="() => EditCourse(course.Id)">@AdminRes.Edit</button>
                     @if (course.IsPublished)

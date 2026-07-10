@@ -140,6 +140,9 @@
 	<data name="AssessmentHeader" xml:space="preserve">
 		<value>Αξιολόγηση</value>
 	</data>
+	<data name="CategoryHeader" xml:space="preserve">
+		<value>Κατηγορία</value>
+	</data>
 	<data name="SubmittedHeader" xml:space="preserve">
 		<value>Υποβολή</value>
 	</data>

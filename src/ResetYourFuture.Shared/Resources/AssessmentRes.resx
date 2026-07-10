@@ -140,6 +140,9 @@
 	<data name="AssessmentHeader" xml:space="preserve">
 		<value>Assessment</value>
 	</data>
+	<data name="CategoryHeader" xml:space="preserve">
+		<value>Category</value>
+	</data>
 	<data name="SubmittedHeader" xml:space="preserve">
 		<value>Submitted</value>
 	</data>
