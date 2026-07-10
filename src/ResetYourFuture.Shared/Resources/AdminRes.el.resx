@@ -270,6 +270,9 @@
   <data name="ColStatus" xml:space="preserve">
     <value>Κατάσταση</value>
   </data>
+  <data name="ColOnline" xml:space="preserve">
+    <value>Σε σύνδεση</value>
+  </data>
   <data name="ColActions" xml:space="preserve">
     <value>Ενέργειες</value>
   </data>

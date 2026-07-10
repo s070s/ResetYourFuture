@@ -1,0 +1,61 @@
+@* Live online/offline dot for a user, fed by the circuit's PresenceService. Offline users
+   get a "last seen X ago" tooltip (or text when ShowLabel), built from the live event
+   override when one arrived this circuit, else the DTO's LastSeenAt fallback. *@
+
+@using ResetYourFuture.Web.Extensions
+@implements IDisposable
+@inject PresenceService Presence
+
+@if (Presence.IsOnline(UserId))
+{
+    <span class="presence-dot online" role="img" aria-label="@GlobalRes.PresenceOnline" title="@GlobalRes.PresenceOnline"></span>
+    @if (ShowLabel)
+    {
+        <span class="presence-label online">@GlobalRes.PresenceOnline</span>
+    }
+}
+else
+{
+    <span class="presence-dot offline" role="img" aria-label="@OfflineText" title="@OfflineText"></span>
+    @if (ShowLabel)
+    {
+        <span class="presence-label">@OfflineText</span>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired] public string UserId { get; set; } = string.Empty;
+
+    /// <summary>DTO-supplied fallback used until (or unless) a live PresenceChanged event arrives.</summary>
+    [Parameter] public DateTime? LastSeenAt { get; set; }
+
+    /// <summary>Render "Online" / "last seen X ago" as text next to the dot (headers, table cells).</summary>
+    [Parameter] public bool ShowLabel { get; set; }
+
+    private string OfflineText
+    {
+        get
+        {
+            var lastSeen = Presence.GetLastSeen(UserId, LastSeenAt);
+            return lastSeen is null ? GlobalRes.PresenceOffline : RelativeTimeFormatter.LastSeen(lastSeen.Value);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        Presence.Changed += HandlePresenceChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Presence.EnsureSeededAsync();
+    }
+
+    // Changed fires on SignalR background threads — marshal onto the renderer.
+    private void HandlePresenceChanged() => _ = InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Presence.Changed -= HandlePresenceChanged;
+    }
+}

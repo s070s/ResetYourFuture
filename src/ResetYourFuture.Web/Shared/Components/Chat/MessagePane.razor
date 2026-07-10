@@ -20,6 +20,7 @@
             <h6>
                 <span class="bi bi-person"></span> @Conversation.OtherUserName
                 <span class="chat-header-role">(@Conversation.OtherUserRole)</span>
+                <PresenceIndicator UserId="@Conversation.OtherUserId" LastSeenAt="@Conversation.OtherUserLastSeenAt" ShowLabel="true" />
             </h6>
             <button class="btn-video-call ms-auto" @onclick="StartVideoCall"
                     disabled="@(CallService.Stage != CallStage.Idle)"

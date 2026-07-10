@@ -251,6 +251,9 @@
 	<data name="ColStatus" xml:space="preserve">
 		<value>Status</value>
 	</data>
+	<data name="ColOnline" xml:space="preserve">
+		<value>Online</value>
+	</data>
 	<data name="ColActions" xml:space="preserve">
 		<value>Actions</value>
 	</data>

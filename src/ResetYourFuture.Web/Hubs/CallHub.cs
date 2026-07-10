@@ -60,7 +60,12 @@ public partial class CallHub : Hub
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, $"user_{userId}");
-            _registry.AddUserConnection(userId);
+            var wentOnline = _registry.AddUserConnection(userId);
+            if (wentOnline)
+            {
+                await PersistLastSeenAsync(user);
+                await Clients.All.SendAsync("PresenceChanged", userId, true, user.LastSeenAt);
+            }
             _logger.LogInformation("Call: User {UserId} connected.", userId);
         }
 
@@ -73,7 +78,7 @@ public partial class CallHub : Hub
         if (userId is not null)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"user_{userId}");
-            _registry.RemoveUserConnection(userId);
+            var wentOffline = _registry.RemoveUserConnection(userId);
 
             // Mark any call membership as Disconnected. CallRegistry starts a 15s reconnect grace
             // (DisconnectedAt) rather than removing the participant immediately — CallRingMonitor's
@@ -85,9 +90,36 @@ public partial class CallHub : Hub
             {
                 await Clients.Group($"call_{callId}").SendAsync("ParticipantLeft", callId, userId);
             }
+
+            if (wentOffline)
+            {
+                var lastSeen = DateTime.UtcNow;
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is not null)
+                    await PersistLastSeenAsync(user, lastSeen);
+                await Clients.All.SendAsync("PresenceChanged", userId, false, lastSeen);
+            }
         }
 
         await base.OnDisconnectedAsync(exception);
+    }
+
+    /// <summary>
+    /// Best-effort LastSeenAt stamp. A failed write must not abort the connection
+    /// (an unhandled exception in OnConnectedAsync closes it) or swallow the
+    /// presence broadcast that follows.
+    /// </summary>
+    private async Task PersistLastSeenAsync(ApplicationUser user, DateTime? whenUtc = null)
+    {
+        try
+        {
+            user.LastSeenAt = whenUtc ?? DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to persist LastSeenAt for user {UserId}.", user.Id);
+        }
     }
 
     public async Task<StartCallResultDto> StartCall(List<string> calleeIds, Guid? conversationId)
@@ -316,6 +348,11 @@ public partial class CallHub : Hub
             return [];
 
         return await _callQueryService.GetCallableUsersAsync(userId, search);
+    }
+
+    public List<string> GetOnlineUsers()
+    {
+        return string.IsNullOrEmpty(Context.UserIdentifier) ? [] : _registry.GetOnlineUserIds();
     }
 
     // --- Shared helpers (used by signaling partial + ring monitor callers) ---

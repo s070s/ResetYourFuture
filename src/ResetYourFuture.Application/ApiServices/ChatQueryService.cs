@@ -41,8 +41,10 @@ public class ChatQueryService(
                 c.LastMessageAt,
                 CreatorFirstName = c.Creator!.FirstName,
                 CreatorLastName = c.Creator.LastName,
+                CreatorLastSeenAt = c.Creator.LastSeenAt,
                 ParticipantFirstName = c.Participant!.FirstName,
-                ParticipantLastName = c.Participant.LastName
+                ParticipantLastName = c.Participant.LastName,
+                ParticipantLastSeenAt = c.Participant.LastSeenAt
             })
             .ToListAsync(ct);
 
@@ -83,7 +85,8 @@ public class ChatQueryService(
                 otherRole,
                 c.LastMessageContent,
                 c.LastMessageAt,
-                unreadMap.GetValueOrDefault(c.Id, 0));
+                unreadMap.GetValueOrDefault(c.Id, 0),
+                isCreator ? c.ParticipantLastSeenAt : c.CreatorLastSeenAt);
         }).ToList();
 
         return new PagedResult<ChatConversationDto>(result, totalCount, page, pageSize);
@@ -236,7 +239,8 @@ public class ChatQueryService(
         return users.Select(u => new ChatUserDto(
             u.Id,
             $"{u.FirstName} {u.LastName}",
-            roleMap.TryGetValue(u.Id, out var role) ? role : "User")).ToList();
+            roleMap.TryGetValue(u.Id, out var role) ? role : "User",
+            u.LastSeenAt)).ToList();
     }
 
     public async Task<ServiceResult<bool>> DeleteConversationAsync(
@@ -311,6 +315,7 @@ public class ChatQueryService(
             otherRole,
             c.LastMessageContent,
             c.LastMessageAt,
-            unreadCount);
+            unreadCount,
+            otherUser?.LastSeenAt);
     }
 }

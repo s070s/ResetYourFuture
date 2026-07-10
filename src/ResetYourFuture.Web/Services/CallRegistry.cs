@@ -58,6 +58,8 @@ public sealed class CallState
 /// connection (added in <see cref="AddUserConnection"/>/removed in <see cref="RemoveUserConnection"/>),
 /// independent of whether that user is in any call. This lets <c>StartCall</c> tell online
 /// apart from offline callees without querying SignalR group membership (which isn't queryable).
+/// Add/Remove report offline↔online transitions so the hub broadcasts presence only when a
+/// user's first connection opens or last connection closes, not per tab.
 /// </summary>
 public class CallRegistry
 {
@@ -67,25 +69,41 @@ public class CallRegistry
 
     // --- Presence (call-hub connection tracking) ---
 
-    public void AddUserConnection(string userId)
+    /// <summary>True if this was the user's first tracked connection (offline → online transition).</summary>
+    public bool AddUserConnection(string userId)
     {
         lock (_lock)
         {
-            _connectedUserRefCounts[userId] = _connectedUserRefCounts.GetValueOrDefault(userId) + 1;
+            var count = _connectedUserRefCounts.GetValueOrDefault(userId);
+            _connectedUserRefCounts[userId] = count + 1;
+            return count == 0;
         }
     }
 
-    public void RemoveUserConnection(string userId)
+    /// <summary>True if this was the user's last tracked connection (online → offline transition).</summary>
+    public bool RemoveUserConnection(string userId)
     {
         lock (_lock)
         {
             if (!_connectedUserRefCounts.TryGetValue(userId, out var count))
-                return;
+                return false;
 
             if (count <= 1)
+            {
                 _connectedUserRefCounts.Remove(userId);
-            else
-                _connectedUserRefCounts[userId] = count - 1;
+                return true;
+            }
+
+            _connectedUserRefCounts[userId] = count - 1;
+            return false;
+        }
+    }
+
+    public List<string> GetOnlineUserIds()
+    {
+        lock (_lock)
+        {
+            return [.. _connectedUserRefCounts.Keys];
         }
     }
 

@@ -48,6 +48,12 @@ public class ApplicationUser : IdentityUser
     /// </summary>
     public bool IsEnabled { get; set; } = true;
 
+    /// <summary>
+    /// UTC timestamp of the user's last presence transition (call-hub connect when going
+    /// online, final disconnect when going offline). Null = never connected.
+    /// </summary>
+    public DateTime? LastSeenAt { get; set; }
+
     // --- GDPR / Compliance ---
     /// <summary>
     /// Explicit consent to data processing. Must be true for registration to complete.

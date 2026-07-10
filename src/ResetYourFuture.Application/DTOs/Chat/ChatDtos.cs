@@ -13,7 +13,8 @@ public record ChatConversationDto(
     string OtherUserRole,
     string? LastMessageContent,
     DateTime? LastMessageAt,
-    int UnreadCount
+    int UnreadCount,
+    DateTime? OtherUserLastSeenAt = null
 );
 
 /// <summary>
@@ -64,5 +65,6 @@ public record ChatNotificationDto(
 public record ChatUserDto(
     string Id,
     string FullName,
-    string Role
+    string Role,
+    DateTime? LastSeenAt = null
 );

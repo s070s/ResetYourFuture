@@ -552,6 +552,73 @@ public class CallRegistryTests
         registry.IsUserOnline(Callee1).ShouldBeFalse();
     }
 
+    [Fact]
+    public void AddUserConnection_FirstConnection_ReturnsTrue()
+    {
+        var registry = NewRegistry();
+
+        bool wentOnline = registry.AddUserConnection(Callee1);
+
+        wentOnline.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void AddUserConnection_SecondConnection_ReturnsFalse()
+    {
+        var registry = NewRegistry();
+        registry.AddUserConnection(Callee1);
+
+        bool wentOnline = registry.AddUserConnection(Callee1);
+
+        wentOnline.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void RemoveUserConnection_LastConnection_ReturnsTrue()
+    {
+        var registry = NewRegistry();
+        registry.AddUserConnection(Callee1);
+
+        bool wentOffline = registry.RemoveUserConnection(Callee1);
+
+        wentOffline.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void RemoveUserConnection_WithRemainingConnection_ReturnsFalse()
+    {
+        var registry = NewRegistry();
+        registry.AddUserConnection(Callee1);
+        registry.AddUserConnection(Callee1);
+
+        bool wentOffline = registry.RemoveUserConnection(Callee1);
+
+        wentOffline.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void RemoveUserConnection_UnknownUser_ReturnsFalse()
+    {
+        var registry = NewRegistry();
+
+        bool wentOffline = registry.RemoveUserConnection(Callee1);
+
+        wentOffline.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void GetOnlineUserIds_ReturnsCurrentlyOnlineUsers()
+    {
+        var registry = NewRegistry();
+        registry.AddUserConnection(Callee1);
+        registry.AddUserConnection(Callee2);
+        registry.RemoveUserConnection(Callee2);
+
+        var online = registry.GetOnlineUserIds();
+
+        online.ShouldBe([Callee1]);
+    }
+
     // --- RemoveCall ---
 
     [Fact]

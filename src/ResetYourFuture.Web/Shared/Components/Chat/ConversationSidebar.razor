@@ -40,6 +40,7 @@
                      @onkeydown="@(async e => { if (e.IsActivationKey()) await OnConversationSelected.InvokeAsync( convo ); })"
                      @key="convo.Id">
                     <div class="convo-name">
+                        <PresenceIndicator UserId="@convo.OtherUserId" LastSeenAt="@convo.OtherUserLastSeenAt" />
                         @convo.OtherUserName
                         <span class="convo-role">@convo.OtherUserRole</span>
                     </div>

@@ -231,4 +231,25 @@
   <data name="PasswordRulesHint" xml:space="preserve">
     <value>At least 8 characters, including a number and an uppercase letter.</value>
   </data>
+  <data name="PresenceOnline" xml:space="preserve">
+    <value>Online</value>
+  </data>
+  <data name="PresenceOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="LastSeenJustNow" xml:space="preserve">
+    <value>last seen just now</value>
+  </data>
+  <data name="LastSeenMinutesFormat" xml:space="preserve">
+    <value>last seen {0} min ago</value>
+  </data>
+  <data name="LastSeenHoursFormat" xml:space="preserve">
+    <value>last seen {0} h ago</value>
+  </data>
+  <data name="LastSeenDaysFormat" xml:space="preserve">
+    <value>last seen {0} d ago</value>
+  </data>
+  <data name="LastSeenDateFormat" xml:space="preserve">
+    <value>last seen {0}</value>
+  </data>
 </root>

@@ -419,6 +419,15 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ColStatus", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Online.
+        /// </summary>
+        public static string ColOnline {
+            get {
+                return ResourceManager.GetString("ColOnline", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Submissions.

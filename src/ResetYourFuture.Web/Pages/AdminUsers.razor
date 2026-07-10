@@ -34,6 +34,7 @@
                                                   CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
                                                   OnSort="OnSort" />
                             <th>@AdminRes.ColStatus</th>
+                            <th>@AdminRes.ColOnline</th>
                             <th>@AdminRes.ColEnabled</th>
                             <th>@AdminRes.ColEmailConfirmed</th>
                             <th>@AdminRes.ColTier</th>
@@ -49,6 +50,9 @@
                             <td data-label="@AdminRes.ColEmail">@user.Email</td>
                             <td data-label="@AdminRes.ColName">@user.FirstName @user.LastName</td>
                             <td data-label="@AdminRes.ColStatus">@user.Status</td>
+                            <td data-label="@AdminRes.ColOnline">
+                                <PresenceIndicator UserId="@user.Id" LastSeenAt="@user.LastSeenAt" ShowLabel="true" />
+                            </td>
                             <td data-label="@AdminRes.ColEnabled">
                                 <span aria-hidden="true">@(user.IsEnabled ? "✓" : "✗")</span>
                                 <span class="visually-hidden">@(user.IsEnabled ? AdminRes.Yes : AdminRes.No)</span>

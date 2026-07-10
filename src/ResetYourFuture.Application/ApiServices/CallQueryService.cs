@@ -50,6 +50,7 @@ public class CallQueryService(
         return users.Select(u => new ChatUserDto(
             u.Id,
             $"{u.FirstName} {u.LastName}",
-            roleMap.TryGetValue(u.Id, out var role) ? role : "User")).ToList();
+            roleMap.TryGetValue(u.Id, out var role) ? role : "User",
+            u.LastSeenAt)).ToList();
     }
 }

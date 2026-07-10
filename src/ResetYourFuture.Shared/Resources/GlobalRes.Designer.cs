@@ -401,5 +401,68 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("SkipToContent", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Online.
+        /// </summary>
+        public static string PresenceOnline {
+            get {
+                return ResourceManager.GetString("PresenceOnline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Offline.
+        /// </summary>
+        public static string PresenceOffline {
+            get {
+                return ResourceManager.GetString("PresenceOffline", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last seen just now.
+        /// </summary>
+        public static string LastSeenJustNow {
+            get {
+                return ResourceManager.GetString("LastSeenJustNow", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last seen {0} min ago.
+        /// </summary>
+        public static string LastSeenMinutesFormat {
+            get {
+                return ResourceManager.GetString("LastSeenMinutesFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last seen {0} h ago.
+        /// </summary>
+        public static string LastSeenHoursFormat {
+            get {
+                return ResourceManager.GetString("LastSeenHoursFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last seen {0} d ago.
+        /// </summary>
+        public static string LastSeenDaysFormat {
+            get {
+                return ResourceManager.GetString("LastSeenDaysFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to last seen {0}.
+        /// </summary>
+        public static string LastSeenDateFormat {
+            get {
+                return ResourceManager.GetString("LastSeenDateFormat", resourceCulture);
+            }
+        }
     }
 }

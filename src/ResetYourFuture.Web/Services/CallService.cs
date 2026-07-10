@@ -36,6 +36,7 @@ public partial class CallService : ICallService
     public event Action? StateChanged;
     public event Action<string>? ErrorOccurred;
     public event Action? GroupCallPickerRequested;
+    public event Action<string, bool, DateTime?>? PresenceChanged;
 
     public CallStage Stage { get; private set; } = CallStage.Idle;
     public CallInviteDto? IncomingInvite { get; private set; }
@@ -168,6 +169,10 @@ public partial class CallService : ICallService
         });
 
         _hub.On<Guid, string>("ParticipantReconnected", (_, _) => { /* connectionId unchanged from our side; nothing to reconcile */ });
+
+        // Relay only — presence state lives in PresenceService, which subscribes to this event.
+        _hub.On<string, bool, DateTime?>("PresenceChanged", (userId, isOnline, lastSeenUtc) =>
+            PresenceChanged?.Invoke(userId, isOnline, lastSeenUtc));
 
         _hub.On<Guid, string, MediaStateDto>("ParticipantMediaChanged", (callId, userId, state) =>
         {
@@ -333,6 +338,12 @@ public partial class CallService : ICallService
     {
         if (_hub is null) return [];
         return await _hub.InvokeAsync<List<ChatUserDto>>("GetCallableUsers", search);
+    }
+
+    public async Task<List<string>> GetOnlineUsersAsync()
+    {
+        if (_hub is null || !IsConnected) return [];
+        return await _hub.InvokeAsync<List<string>>("GetOnlineUsers");
     }
 
     public async Task BindVideoAsync(string connectionId, string elementId)

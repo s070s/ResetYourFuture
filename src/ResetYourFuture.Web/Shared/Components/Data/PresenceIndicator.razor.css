@@ -1,0 +1,28 @@
+.presence-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    vertical-align: baseline;
+}
+
+.presence-dot.online {
+    background: var(--color-success);
+}
+
+.presence-dot.offline {
+    background: transparent;
+    border: 2px solid var(--text-light-muted);
+}
+
+.presence-label {
+    font-size: 0.78rem;
+    color: var(--text-light-muted);
+    white-space: nowrap;
+    margin-left: 0.3rem;
+}
+
+.presence-label.online {
+    color: var(--color-success);
+}

@@ -36,6 +36,7 @@ public class CallHubTests
         public required HubCallerContext Context;
         public required IGroupManager Groups;
         public required ISingleClientProxy Caller;
+        public required IClientProxy All;
         public required Dictionary<string, IClientProxy> CallGroups;
         public required Dictionary<string, IClientProxy> ChatGroups;
         public required UserManager<ApplicationUser> Um;
@@ -78,6 +79,8 @@ public class CallHubTests
         var callGroups = new Dictionary<string, IClientProxy>();
         var clients = Substitute.For<IHubCallerClients>();
         clients.Caller.Returns(caller);
+        var all = Substitute.For<IClientProxy>();
+        clients.All.Returns(all);
         clients.Group(Arg.Any<string>()).Returns(ci => ResolveGroupProxy(callGroups, (string)ci[0]));
         // GroupExcept resolves to the same per-group proxy; tests that care about the exclusion
         // list assert on the GroupExcept call itself.
@@ -112,6 +115,7 @@ public class CallHubTests
             Context = context,
             Groups = groups,
             Caller = caller,
+            All = all,
             CallGroups = callGroups,
             ChatGroups = chatGroups,
             Um = um
@@ -134,6 +138,90 @@ public class CallHubTests
 
         h.Context.Received().Abort();
         await h.Groups.DidNotReceive().AddToGroupAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    // ---- Presence ---------------------------------------------------------------
+
+    [Fact]
+    public async Task OnConnected_FirstConnection_PersistsLastSeenAndBroadcastsOnline()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var h = BuildHub(db, Initiator);
+        var user = AppUser(Initiator);
+        h.Um.FindByIdAsync(Initiator).Returns(user);
+
+        await h.Hub.OnConnectedAsync();
+
+        user.LastSeenAt.ShouldNotBeNull();
+        await h.Um.Received(1).UpdateAsync(user);
+        await h.All.Received(1).SendCoreAsync(
+            "PresenceChanged",
+            Arg.Is<object?[]>(a => (string?)a[0] == Initiator && Equals(a[1], true) && a[2] is DateTime),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task OnConnected_SecondConnectionSameUser_DoesNotPersistOrBroadcast()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var first = BuildHub(db, Initiator);
+        first.Um.FindByIdAsync(Initiator).Returns(AppUser(Initiator));
+        await first.Hub.OnConnectedAsync();
+
+        var second = BuildHub(db, Initiator, connectionId: "conn-2", registry: first.Registry);
+        second.Um.FindByIdAsync(Initiator).Returns(AppUser(Initiator));
+        await second.Hub.OnConnectedAsync();
+
+        await second.Um.DidNotReceive().UpdateAsync(Arg.Any<ApplicationUser>());
+        await second.All.DidNotReceive().SendCoreAsync("PresenceChanged", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task OnDisconnected_LastConnection_BroadcastsOfflineWithLastSeen()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var h = BuildHub(db, Initiator);
+        var user = AppUser(Initiator);
+        h.Um.FindByIdAsync(Initiator).Returns(user);
+        await h.Hub.OnConnectedAsync();
+
+        await h.Hub.OnDisconnectedAsync(null);
+
+        await h.Um.Received(2).UpdateAsync(user);
+        await h.All.Received(1).SendCoreAsync(
+            "PresenceChanged",
+            Arg.Is<object?[]>(a => (string?)a[0] == Initiator && Equals(a[1], false) && a[2] is DateTime),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task OnDisconnected_OtherTabStillOpen_DoesNotBroadcast()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var first = BuildHub(db, Initiator);
+        first.Um.FindByIdAsync(Initiator).Returns(AppUser(Initiator));
+        await first.Hub.OnConnectedAsync();
+
+        var second = BuildHub(db, Initiator, connectionId: "conn-2", registry: first.Registry);
+        second.Um.FindByIdAsync(Initiator).Returns(AppUser(Initiator));
+        await second.Hub.OnConnectedAsync();
+
+        await second.Hub.OnDisconnectedAsync(null);
+
+        await second.All.DidNotReceive().SendCoreAsync("PresenceChanged", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task GetOnlineUsers_ReturnsRegistrySnapshot()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var h = BuildHub(db, Initiator);
+        h.Registry.AddUserConnection(Initiator);
+        h.Registry.AddUserConnection(Callee);
+
+        var online = h.Hub.GetOnlineUsers();
+
+        online.ShouldBe([Initiator, Callee], ignoreOrder: true);
     }
 
     // ---- StartCall access / availability --------------------------------------

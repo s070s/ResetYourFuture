@@ -76,7 +76,8 @@ public class AdminUserService(
                 user.Status.ToString(),
                 [.. roles],
                 tier.ToString(),
-                user.CreatedAt
+                user.CreatedAt,
+                user.LastSeenAt
             );
         }).ToList();
 

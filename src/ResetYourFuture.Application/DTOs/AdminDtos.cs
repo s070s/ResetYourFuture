@@ -137,7 +137,8 @@ public record AdminUserDto(
     string Status,
     List<string> Roles,
     string SubscriptionTier,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    DateTime? LastSeenAt = null
 );
 
 /// <summary>

@@ -231,4 +231,25 @@
   <data name="PasswordRulesHint" xml:space="preserve">
     <value>Τουλάχιστον 8 χαρακτήρες, με έναν αριθμό και ένα κεφαλαίο γράμμα.</value>
   </data>
+  <data name="PresenceOnline" xml:space="preserve">
+    <value>Σε σύνδεση</value>
+  </data>
+  <data name="PresenceOffline" xml:space="preserve">
+    <value>Εκτός σύνδεσης</value>
+  </data>
+  <data name="LastSeenJustNow" xml:space="preserve">
+    <value>τελευταία σύνδεση μόλις τώρα</value>
+  </data>
+  <data name="LastSeenMinutesFormat" xml:space="preserve">
+    <value>τελευταία σύνδεση πριν από {0} λεπτά</value>
+  </data>
+  <data name="LastSeenHoursFormat" xml:space="preserve">
+    <value>τελευταία σύνδεση πριν από {0} ώρες</value>
+  </data>
+  <data name="LastSeenDaysFormat" xml:space="preserve">
+    <value>τελευταία σύνδεση πριν από {0} ημέρες</value>
+  </data>
+  <data name="LastSeenDateFormat" xml:space="preserve">
+    <value>τελευταία σύνδεση {0}</value>
+  </data>
 </root>

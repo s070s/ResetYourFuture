@@ -60,7 +60,14 @@ public sealed class CallRingMonitor : BackgroundService
                 _logger.LogError(ex, "CallRingMonitor: Error during poll iteration.");
             }
 
-            await Task.Delay(PollInterval, stoppingToken);
+            try
+            {
+                await Task.Delay(PollInterval, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break; // graceful shutdown (Ctrl+C) — exit the loop quietly
+            }
         }
     }
 

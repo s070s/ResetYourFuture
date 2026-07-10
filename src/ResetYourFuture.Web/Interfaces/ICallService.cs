@@ -48,6 +48,9 @@ public interface ICallService : IAsyncDisposable
     /// <summary>Fired when a page wants the group-call user picker opened (e.g. from the conversation sidebar).</summary>
     event Action? GroupCallPickerRequested;
 
+    /// <summary>Server presence transition relayed from the hub: (userId, isOnline, lastSeenAtUtc).</summary>
+    event Action<string, bool, DateTime?>? PresenceChanged;
+
     CallStage Stage { get; }
     CallInviteDto? IncomingInvite { get; }
     Guid? ActiveCallId { get; }
@@ -75,6 +78,9 @@ public interface ICallService : IAsyncDisposable
     Task ToggleScreenShareAsync();
 
     Task<List<ChatUserDto>> GetCallableUsersAsync(string? search = null);
+
+    /// <summary>Snapshot of currently-online userIds; empty when the hub is not connected.</summary>
+    Task<List<string>> GetOnlineUsersAsync();
 
     Task BindVideoAsync(string connectionId, string elementId);
     Task BindLocalVideoAsync(string elementId);

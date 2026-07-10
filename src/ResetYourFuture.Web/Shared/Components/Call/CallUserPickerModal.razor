@@ -33,6 +33,9 @@
                          @key="user.Id">
                         <span class="bi @(isSelected ? "bi-check-circle-fill" : "bi-person-circle") me-2" aria-hidden="true"></span>
                         <span class="user-picker-name">@user.FullName</span>
+                        <span class="ms-2 d-flex align-items-center">
+                            <PresenceIndicator UserId="@user.Id" LastSeenAt="@user.LastSeenAt" />
+                        </span>
                         <span class="user-picker-role badge bg-secondary ms-auto">@user.Role</span>
                     </div>
                 }

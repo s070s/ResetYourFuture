@@ -73,6 +73,8 @@ public static class ServiceRegistrationExtensions
         // Hub-only (no REST) — plain AddScoped, not AddHttpClient. Must be scoped (not transient
         // like ChatService) so CallOverlayHost and chat components share one instance/hub/state per circuit.
         builder.Services.AddScoped<ICallService, CallService>();
+        // Scoped so it shares the circuit's single CallService hub connection for presence state.
+        builder.Services.AddScoped<PresenceService>();
         builder.Services.AddScoped<IProfileService, ProfileService>();
         builder.Services.AddScoped<IAssessmentService, AssessmentService>();
         builder.Services.AddScoped<AvatarChangedNotifier>();
