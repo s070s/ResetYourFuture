@@ -8,7 +8,7 @@ namespace ResetYourFuture.Application.ApiInterfaces;
 public interface IAdminCourseService
 {
     Task<AdminCourseDto?> GetCourseByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<PagedResult<AdminCourseDto>> GetCoursesAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<PagedResult<AdminCourseDto>> GetCoursesAsync(int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default);
     Task<AdminCourseDto> CreateCourseAsync(SaveCourseRequest request, string userId, CancellationToken cancellationToken = default);
     Task<AdminCourseDto?> UpdateCourseAsync(Guid id, SaveCourseRequest request, string userId, CancellationToken cancellationToken = default);
     Task<bool> DeleteCourseAsync(Guid id, string userId, CancellationToken cancellationToken = default);

@@ -22,13 +22,25 @@ else
     <ScrollableTable Items="pagedResult.Items" TItem="AdminCourseDto">
         <HeaderRow>
             <tr>
-                <th>@AdminRes.FieldTitle</th>
-                <th>@AdminRes.ColCategory</th>
-                <th>@AdminRes.ColTier</th>
-                <th>@AdminRes.ColStatus</th>
-                <th>@AdminRes.ColEnrollments</th>
+                <SortableColumnHeader ColumnKey="title" Label="@AdminRes.FieldTitle"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="category" Label="@AdminRes.ColCategory"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="tier" Label="@AdminRes.ColTier"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="status" Label="@AdminRes.ColStatus"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="enrollments" Label="@AdminRes.ColEnrollments"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
                 <th>@AdminRes.ColModulesLessons</th>
-                <th>@AdminRes.ColCreated</th>
+                <SortableColumnHeader ColumnKey="createdat" Label="@AdminRes.ColCreated"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
                 <th>@AdminRes.ColActions</th>
             </tr>
         </HeaderRow>

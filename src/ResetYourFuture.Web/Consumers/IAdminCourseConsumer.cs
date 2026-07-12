@@ -7,7 +7,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IAdminCourseConsumer
 {
-    Task<PagedResult<AdminCourseDto>?> GetCoursesAsync(int page = 1, int pageSize = 10);
+    Task<PagedResult<AdminCourseDto>?> GetCoursesAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc");
     Task<AdminCourseDto?> GetCourseAsync(Guid id);
     Task<AdminCourseDto?> CreateCourseAsync(SaveCourseRequest request);
     Task<AdminCourseDto?> UpdateCourseAsync(Guid id, SaveCourseRequest request);

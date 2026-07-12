@@ -38,12 +38,14 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
     public async Task<ActionResult<PagedResult<AdminCourseDto>>> GetCourses(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "createdat",
+        [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var result = await adminCourseService.GetCoursesAsync(page, pageSize, cancellationToken);
+        var result = await adminCourseService.GetCoursesAsync(page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);
     }
 

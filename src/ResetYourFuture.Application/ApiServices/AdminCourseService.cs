@@ -4,6 +4,7 @@ using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 
 namespace ResetYourFuture.Application.ApiServices;
 
@@ -28,7 +29,8 @@ public class AdminCourseService(
         return course is null ? null : MapToDto(course);
     }
 
-    public async Task<PagedResult<AdminCourseDto>> GetCoursesAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<AdminCourseDto>> GetCoursesAsync(
+        int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
         var totalCount = await db.Courses.CountAsync(cancellationToken);
 
@@ -37,7 +39,7 @@ public class AdminCourseService(
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)
             .Include(c => c.Enrollments)
-            .OrderByDescending(c => c.CreatedAt)
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(c => new AdminCourseDto(
@@ -58,7 +60,7 @@ public class AdminCourseService(
             ))
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<AdminCourseDto>(items, totalCount, page, pageSize);
+        return new PagedResult<AdminCourseDto>(items, totalCount, page, pageSize, sortBy, sortDir);
     }
 
     public async Task<AdminCourseDto> CreateCourseAsync(SaveCourseRequest request, string userId, CancellationToken cancellationToken = default)

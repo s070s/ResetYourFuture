@@ -7,8 +7,8 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public class AdminCourseConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), IAdminCourseConsumer
 {
-    public Task<PagedResult<AdminCourseDto>?> GetCoursesAsync(int page = 1, int pageSize = 10)
-        => GetAsync<PagedResult<AdminCourseDto>>($"api/admin/courses?page={page}&pageSize={pageSize}");
+    public Task<PagedResult<AdminCourseDto>?> GetCoursesAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc")
+        => GetAsync<PagedResult<AdminCourseDto>>($"api/admin/courses?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}");
 
     public Task<AdminCourseDto?> GetCourseAsync(Guid id)
         => GetAsync<AdminCourseDto>($"api/admin/courses/{id}");

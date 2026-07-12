@@ -15,9 +15,24 @@ public partial class AdminCourses
     private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
     private Guid? _pendingDeleteId;
+    private string _sortBy = "createdat";
+    private string _sortDir = "desc";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadCourses();
+    }
+
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
         await LoadCourses();
     }
 
@@ -25,7 +40,7 @@ public partial class AdminCourses
     {
         try
         {
-            pagedResult = await CourseConsumer.GetCoursesAsync(currentPage, pageSize);
+            pagedResult = await CourseConsumer.GetCoursesAsync(currentPage, pageSize, _sortBy, _sortDir);
         }
         catch (Exception ex)
         {

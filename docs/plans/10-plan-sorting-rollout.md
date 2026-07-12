@@ -65,7 +65,7 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 
 | WI | Page / chain | New extension | Sort keys (default bolded) |
 |----|--------------|---------------|----------------------------|
-| WI-2 | `AdminCourses.razor` → `IAdminCourseConsumer` → `AdminCoursesController.cs:37-40` → `AdminCourseService.cs:40` | `CourseSearchExtensions.cs` | title, category, tier, status, enrollments (count), **createdat desc** |
+| ~~WI-2~~ ✅ | `AdminCourses` — done | `CourseSearchExtensions.cs` | title, category, tier, status, enrollments, **createdat desc** |
 | WI-3 | `AdminAssessments.razor` → `IAdminAssessmentConsumer` → `AdminAssessmentsController.cs:45-48` → `AssessmentService.cs:51` | `AssessmentSearchExtensions.cs` | **title asc**, key, category, tier, status, submissions (count), createdat |
 | WI-4 | `AdminBlog.razor` → `IAdminBlogConsumer` → `AdminBlogController.cs:36-40` → `BlogArticleService.cs:80` (preserve existing `search` param) | `BlogArticleSearchExtensions.cs` | title, slug, author, status, **createdat desc**, publishedat |
 | WI-5 | `AdminCategories.razor` → `IAdminCategoryConsumer` → `AdminCategoriesController.cs:24-27` → `AdminCategoryService.cs:22` | `CategorySearchExtensions.cs` | **nameen asc**, nameel, coursecount (count), assessmentcount (count), createdat |

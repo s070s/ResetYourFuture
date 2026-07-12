@@ -65,7 +65,7 @@ public class AdminCourseServiceTests
         newer.CreatedAt = new DateTimeOffset(2022, 1, 1, 0, 0, 0, TimeSpan.Zero);
         await db.SaveChangesAsync();
 
-        var page = await NewService(db).GetCoursesAsync(1, 10);
+        var page = await NewService(db).GetCoursesAsync(1, 10, "createdat", "desc");
 
         page.Items.Select(i => i.TitleEn).ShouldBe(new[] { "Newer", "Older" });
     }
