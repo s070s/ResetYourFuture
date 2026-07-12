@@ -70,7 +70,7 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 | ~~WI-4~~ ✅ | `AdminBlog` — done (search param preserved) | `BlogArticleSearchExtensions.cs` | title, slug, author, status, **createdat desc**, publishedat |
 | ~~WI-5~~ ✅ | `AdminCategories` — done (count keys exclude soft-deleted children, matching displayed counts) | `CategorySearchExtensions.cs` | **nameen asc**, nameel, coursecount, assessmentcount, createdat |
 | ~~WI-6~~ ✅ | `AdminTestimonials` — done incl. Decision 5 (↑/↓ disabled under non-default sort, localized tooltip `ResetSortToReorder`) | `TestimonialSearchExtensions.cs` | **displayorder asc**, name, status, createdat |
-| WI-7 | `AdminAssessmentSubmissions.razor` → `IAdminAssessmentConsumer` (submissions method) → `AdminAssessmentsController.cs:314-318` → `AssessmentService.cs:165` | `AssessmentSubmissionSearchExtensions.cs` | user (lastname), email, **submittedat desc** |
+| ~~WI-7~~ ✅ | `AdminAssessmentSubmissions` — done (submissions query lives inline in `AdminAssessmentsController`; extension also carries `title`/`category` keys ready for WI-8) | `AssessmentSubmissionSearchExtensions.cs` | user (lastname+firstname), email, **submittedat desc** (+title, category for WI-8) |
 
 - **Acceptance criteria (each):** header click round-trips through the API (visible as `sortBy`/`sortDir` in the request); order correct on page ≥ 2; default sort unchanged when no params sent; extension unit-tested.
 

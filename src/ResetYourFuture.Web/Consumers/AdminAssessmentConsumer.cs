@@ -28,6 +28,6 @@ public class AdminAssessmentConsumer(HttpClient http, ResetYourFuture.Web.Servic
     public Task<bool> UnpublishAssessmentAsync(Guid id)
         => ActionAsync($"api/admin/assessments/{id}/unpublish");
 
-    public Task<PagedResult<AssessmentSubmissionListItemDto>?> GetSubmissionsAsync(Guid id, int page = 1, int pageSize = 10)
-        => GetAsync<PagedResult<AssessmentSubmissionListItemDto>>($"api/admin/assessments/{id}/submissions?page={page}&pageSize={pageSize}");
+    public Task<PagedResult<AssessmentSubmissionListItemDto>?> GetSubmissionsAsync(Guid id, int page = 1, int pageSize = 10, string sortBy = "submittedat", string sortDir = "desc")
+        => GetAsync<PagedResult<AssessmentSubmissionListItemDto>>($"api/admin/assessments/{id}/submissions?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}");
 }

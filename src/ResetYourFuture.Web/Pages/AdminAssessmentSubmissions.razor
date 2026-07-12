@@ -22,9 +22,15 @@ else
     <ScrollableTable Items="_pagedResult.Items" TItem="AssessmentSubmissionListItemDto" TableCssClass="table table-striped align-middle">
         <HeaderRow>
             <tr>
-                <th>@AdminRes.ColUser</th>
-                <th>@AdminRes.ColEmail</th>
-                <th>@AdminRes.ColSubmittedAt</th>
+                <SortableColumnHeader ColumnKey="user" Label="@AdminRes.ColUser"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="email" Label="@AdminRes.ColEmail"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="submittedat" Label="@AdminRes.ColSubmittedAt"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
                 <th>@AdminRes.ColActions</th>
             </tr>
         </HeaderRow>

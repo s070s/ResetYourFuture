@@ -317,7 +317,9 @@ public class AdminAssessmentsController : ControllerBase
     public async Task<ActionResult<PagedResult<AssessmentSubmissionListItemDto>>> GetSubmissions(
         Guid id,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10)
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "submittedat",
+        [FromQuery] string sortDir = "desc")
     {
         if (page < 1) page = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 10;
@@ -337,7 +339,7 @@ public class AdminAssessmentsController : ControllerBase
 
         // Order, paginate, then project to DTO — EF Core resolves the User navigation via SELECT JOIN
         var items = await query
-            .OrderByDescending(s => s.SubmittedAt)
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(s => new AssessmentSubmissionListItemDto(
@@ -351,6 +353,6 @@ public class AdminAssessmentsController : ControllerBase
             ))
             .ToListAsync();
 
-        return Ok(new PagedResult<AssessmentSubmissionListItemDto>(items, totalCount, page, pageSize));
+        return Ok(new PagedResult<AssessmentSubmissionListItemDto>(items, totalCount, page, pageSize, sortBy, sortDir));
     }
 }

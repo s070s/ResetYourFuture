@@ -21,6 +21,8 @@ public partial class AdminAssessmentSubmissions
     private int _pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string errorMessage = string.Empty;
+    private string _sortBy = "submittedat";
+    private string _sortDir = "desc";
     private Guid? expandedSubmissionId;
     private string? assessmentTitle;
 
@@ -53,11 +55,24 @@ public partial class AdminAssessmentSubmissions
         await LoadSubmissions();
     }
 
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        _page = 1;
+        await LoadSubmissions();
+    }
+
     private async Task LoadSubmissions()
     {
         try
         {
-            _pagedResult = await AssessmentConsumer.GetSubmissionsAsync(AssessmentId, _page, _pageSize)
+            _pagedResult = await AssessmentConsumer.GetSubmissionsAsync(AssessmentId, _page, _pageSize, _sortBy, _sortDir)
                 ?? new PagedResult<AssessmentSubmissionListItemDto>([], 0, _page, _pageSize);
         }
         catch (Exception ex)
