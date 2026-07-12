@@ -51,6 +51,15 @@
 	<data name="Offline" xml:space="preserve">
 		<value>The assistant is currently unavailable.</value>
 	</data>
+	<data name="WarmingUp" xml:space="preserve">
+		<value>The assistant is still starting up — its model is being prepared. Please try again in a moment.</value>
+	</data>
+	<data name="Downloading" xml:space="preserve">
+		<value>The assistant is downloading its model ({0})…</value>
+	</data>
+	<data name="Unreachable" xml:space="preserve">
+		<value>Assistant unavailable — is Ollama installed and running?</value>
+	</data>
 	<data name="OpenAssistant" xml:space="preserve">
 		<value>Open assistant</value>
 	</data>

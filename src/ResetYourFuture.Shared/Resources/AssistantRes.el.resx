@@ -51,6 +51,15 @@
 	<data name="Offline" xml:space="preserve">
 		<value>Ο βοηθός δεν είναι διαθέσιμος αυτή τη στιγμή.</value>
 	</data>
+	<data name="WarmingUp" xml:space="preserve">
+		<value>Ο βοηθός εκκινεί ακόμη — το μοντέλο του προετοιμάζεται. Δοκιμάστε ξανά σε λίγο.</value>
+	</data>
+	<data name="Downloading" xml:space="preserve">
+		<value>Ο βοηθός κατεβάζει το μοντέλο του ({0})…</value>
+	</data>
+	<data name="Unreachable" xml:space="preserve">
+		<value>Ο βοηθός δεν είναι διαθέσιμος — είναι εγκατεστημένο και ενεργό το Ollama;</value>
+	</data>
 	<data name="OpenAssistant" xml:space="preserve">
 		<value>Άνοιγμα βοηθού</value>
 	</data>

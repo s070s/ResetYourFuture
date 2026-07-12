@@ -9,6 +9,7 @@ using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Application.ApiServices;
 
@@ -20,6 +21,7 @@ public class AssistantService(
     ISubscriptionService subscriptionService,
     IMemoryCache cache,
     IOptions<AssistantOptions> assistantOptions,
+    AssistantRuntimeState runtimeState,
     ILogger<AssistantService> logger) : IAssistantService
 {
     private readonly AssistantOptions _options = assistantOptions.Value;
@@ -28,6 +30,14 @@ public class AssistantService(
         string userId, AssistantChatRequest request, string language,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
+        // While the bootstrap is still probing Ollama / pulling models, answer with a friendly
+        // "warming up" event instead of failing the request (the widget shows live state anyway).
+        if (runtimeState.Status != AssistantAvailability.Ready)
+        {
+            yield return new AssistantStreamEvent("error", AssistantRes.WarmingUp);
+            yield break;
+        }
+
         var lastUserMessage = request.Messages.Count > 0 ? request.Messages[^1].Content : string.Empty;
 
         var tier = await subscriptionService.GetUserTierAsync(userId, cancellationToken);
@@ -93,6 +103,14 @@ public class AssistantService(
 
     public async Task<AssistantStatusDto> GetStatusAsync(CancellationToken cancellationToken = default)
     {
+        // Before Ready, the bootstrap state is authoritative and changes quickly — report it
+        // uncached so the widget sees download progress live.
+        var state = runtimeState.Status;
+        if (state != AssistantAvailability.Ready)
+            return new AssistantStatusDto(false, null, state.ToString(), runtimeState.Progress);
+
+        // Ready: keep the cached ping as a health double-check (detects Ollama dying later;
+        // the bootstrap supervisor will flip the state back and recover).
         var status = await cache.GetOrCreateAsync("assistant:status", async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
@@ -101,16 +119,17 @@ public class AssistantService(
                 using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
                 await chatClient.GetResponseAsync("ping", new ChatOptions { MaxOutputTokens = 1 }, timeoutCts.Token);
-                return new AssistantStatusDto(true, _options.ChatModel);
+                return new AssistantStatusDto(true, _options.ChatModel, nameof(AssistantAvailability.Ready));
             }
             catch (Exception ex)
             {
                 logger.LogWarning(ex, "AssistantService: status ping failed.");
-                return new AssistantStatusDto(false, null);
+                runtimeState.Set(AssistantAvailability.OllamaUnreachable);
+                return new AssistantStatusDto(false, null, nameof(AssistantAvailability.OllamaUnreachable));
             }
         });
 
-        return status ?? new AssistantStatusDto(false, null);
+        return status ?? new AssistantStatusDto(false, null, nameof(AssistantAvailability.OllamaUnreachable));
     }
 
     private async Task<List<string>> GetEnrolledCourseTitlesAsync(string userId, string language, CancellationToken cancellationToken)

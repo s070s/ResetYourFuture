@@ -95,6 +95,33 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Offline", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The assistant is still starting up — its model is being prepared. Please try again in a moment..
+        /// </summary>
+        public static string WarmingUp {
+            get {
+                return ResourceManager.GetString("WarmingUp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The assistant is downloading its model ({0})….
+        /// </summary>
+        public static string Downloading {
+            get {
+                return ResourceManager.GetString("Downloading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assistant unavailable — is Ollama installed and running?.
+        /// </summary>
+        public static string Unreachable {
+            get {
+                return ResourceManager.GetString("Unreachable", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Open assistant.

@@ -20,5 +20,5 @@ public class DisabledAssistantService : IAssistantService
     }
 
     public Task<AssistantStatusDto> GetStatusAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult(new AssistantStatusDto(false, null));
+        Task.FromResult(new AssistantStatusDto(false, null, "Disabled"));
 }

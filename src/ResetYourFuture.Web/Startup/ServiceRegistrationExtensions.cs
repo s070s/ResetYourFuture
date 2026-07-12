@@ -93,6 +93,10 @@ public static class ServiceRegistrationExtensions
         builder.Services.Configure<AssistantOptions>(config.GetSection(AssistantOptions.SectionName));
         var assistantOptions = config.GetSection(AssistantOptions.SectionName).Get<AssistantOptions>() ?? new AssistantOptions();
         builder.Services.AddSingleton<AssistantIndexSignal>();
+        // Runtime availability (Disabled/OllamaUnreachable/DownloadingModels/Ready) is always
+        // registered: OllamaBootstrapService writes it, status/chat/indexer read it. This is what
+        // lets "enabled but Ollama missing" recover at runtime instead of needing a restart.
+        builder.Services.AddSingleton<AssistantRuntimeState>();
         if (assistantOptions.Enabled)
         {
             builder.Services.AddChatClient(_ =>
@@ -105,6 +109,7 @@ public static class ServiceRegistrationExtensions
             builder.Services.AddScoped<IAssistantIndexingService, AssistantIndexingService>();
             builder.Services.AddScoped<IAssistantRetrievalService, AssistantRetrievalService>();
             builder.Services.AddScoped<IAssistantService, AssistantService>();
+            builder.Services.AddHostedService<OllamaBootstrapService>();
             builder.Services.AddHostedService<AssistantIndexer>();
         }
         else

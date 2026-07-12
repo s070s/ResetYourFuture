@@ -13,14 +13,18 @@ public sealed class AssistantIndexer(
     IServiceProvider services,
     AssistantIndexSignal signal,
     AssistantIndexVersion version,
+    AssistantRuntimeState runtimeState,
     ILogger<AssistantIndexer> logger) : BackgroundService
 {
-    private static readonly TimeSpan StartupDelay = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan ReadyPollInterval = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan Interval = TimeSpan.FromHours(6);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Task.Delay(StartupDelay, stoppingToken);
+        // Wait for the Ollama bootstrap to report Ready (models present) instead of a blind
+        // startup delay — the first index pass then succeeds instead of failing and waiting 6h.
+        while (runtimeState.Status != AssistantAvailability.Ready && !stoppingToken.IsCancellationRequested)
+            await Task.Delay(ReadyPollInterval, stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {

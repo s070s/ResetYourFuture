@@ -21,7 +21,7 @@ public class AssistantServiceTests
     private const string UserId = "user-1";
 
     private static (AssistantService svc, IChatClient chatClient, IAssistantRetrievalService retrieval, ISubscriptionService subs)
-        NewService(ApplicationDbContext db, AssistantOptions? options = null)
+        NewService(ApplicationDbContext db, AssistantOptions? options = null, AssistantAvailability availability = AssistantAvailability.Ready)
     {
         var chatClient = Substitute.For<IChatClient>();
         var retrieval = Substitute.For<IAssistantRetrievalService>();
@@ -30,10 +30,14 @@ public class AssistantServiceTests
         retrieval.SearchAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult<IReadOnlyList<AssistantRetrievedChunk>>([]));
 
+        var runtimeState = new AssistantRuntimeState();
+        runtimeState.Set(availability);
+
         var svc = new AssistantService(
             db, chatClient, retrieval, subs,
             new MemoryCache(new MemoryCacheOptions()),
             Options.Create(options ?? new AssistantOptions()),
+            runtimeState,
             NullLogger<AssistantService>.Instance);
 
         return (svc, chatClient, retrieval, subs);
@@ -142,6 +146,50 @@ public class AssistantServiceTests
 
         events.Select(e => e.Kind).ShouldBe(["token", "error"]);
         events[0].Text.ShouldBe("partial");
+    }
+
+    [Theory]
+    [InlineData(AssistantAvailability.OllamaUnreachable)]
+    [InlineData(AssistantAvailability.DownloadingModels)]
+    public async Task StreamChatAsync_NotReady_EmitsWarmingUpErrorWithoutCallingModel(AssistantAvailability availability)
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var (svc, chatClient, _, _) = NewService(db, availability: availability);
+
+        var events = await Collect(svc.StreamChatAsync(UserId, OneUserMessage("hi"), "en"));
+
+        events.Select(e => e.Kind).ShouldBe(["error"]);
+        events[0].Text.ShouldNotBeNullOrEmpty();
+        chatClient.DidNotReceiveWithAnyArgs().GetStreamingResponseAsync(default!, default, default);
+    }
+
+    [Theory]
+    [InlineData(AssistantAvailability.OllamaUnreachable, "OllamaUnreachable")]
+    [InlineData(AssistantAvailability.DownloadingModels, "DownloadingModels")]
+    public async Task GetStatusAsync_NotReady_ReportsRuntimeStateWithoutPinging(AssistantAvailability availability, string expectedState)
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var (svc, chatClient, _, _) = NewService(db, availability: availability);
+
+        var status = await svc.GetStatusAsync();
+
+        status.Available.ShouldBeFalse();
+        status.State.ShouldBe(expectedState);
+        chatClient.DidNotReceiveWithAnyArgs().GetResponseAsync(default(IEnumerable<ChatMessage>)!, default, default);
+    }
+
+    [Fact]
+    public async Task GetStatusAsync_ReadyButPingFails_FlipsStateToUnreachable()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var (svc, chatClient, _, _) = NewService(db); // Ready
+        chatClient.GetResponseAsync(Arg.Any<IEnumerable<ChatMessage>>(), Arg.Any<ChatOptions>(), Arg.Any<CancellationToken>())
+            .ThrowsAsync(new InvalidOperationException("down"));
+
+        var status = await svc.GetStatusAsync();
+
+        status.Available.ShouldBeFalse();
+        status.State.ShouldBe("OllamaUnreachable");
     }
 
     private static async Task<List<AssistantStreamEvent>> Collect(IAsyncEnumerable<AssistantStreamEvent> source)
