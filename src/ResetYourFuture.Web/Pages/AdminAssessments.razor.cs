@@ -15,9 +15,24 @@ public partial class AdminAssessments
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string message = string.Empty;
     private Guid? _pendingDeleteId;
+    private string _sortBy = "createdat";
+    private string _sortDir = "desc";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAssessments();
+    }
+
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        _page = 1;
         await LoadAssessments();
     }
 
@@ -25,7 +40,7 @@ public partial class AdminAssessments
     {
         try
         {
-            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync(_page, _pageSize);
+            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync(_page, _pageSize, _sortBy, _sortDir);
         }
         catch (Exception ex)
         {

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
@@ -45,18 +46,19 @@ public class AdminAssessmentsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<PagedResult<AssessmentDefinitionListItemDto>>> GetAssessments(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10)
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "createdat",
+        [FromQuery] string sortDir = "desc")
     {
         if (page < 1) page = 1;
         if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-        var query = _db.AssessmentDefinitions
-            .AsNoTracking()
-            .OrderByDescending(a => a.CreatedAt);
+        var query = _db.AssessmentDefinitions.AsNoTracking();
 
         var totalCount = await query.CountAsync();
 
         var items = await query
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(a => new AssessmentDefinitionListItemDto(
@@ -71,7 +73,7 @@ public class AdminAssessmentsController : ControllerBase
             ))
             .ToListAsync();
 
-        return Ok(new PagedResult<AssessmentDefinitionListItemDto>(items, totalCount, page, pageSize));
+        return Ok(new PagedResult<AssessmentDefinitionListItemDto>(items, totalCount, page, pageSize, sortBy, sortDir));
     }
 
     /// <summary>

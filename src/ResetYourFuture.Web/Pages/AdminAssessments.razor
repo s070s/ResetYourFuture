@@ -18,13 +18,27 @@ else
     <ScrollableTable Items="_pagedResult.Items" TItem="AssessmentDefinitionListItemDto">
         <HeaderRow>
             <tr>
-                <th>@AdminRes.FieldTitle</th>
-                <th>@AdminRes.FieldKey</th>
-                <th>@AdminRes.ColCategory</th>
-                <th>@AdminRes.ColTier</th>
-                <th>@AdminRes.ColStatus</th>
-                <th>@AdminRes.ColSubmissions</th>
-                <th>@AdminRes.ColCreated</th>
+                <SortableColumnHeader ColumnKey="title" Label="@AdminRes.FieldTitle"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="key" Label="@AdminRes.FieldKey"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="category" Label="@AdminRes.ColCategory"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="tier" Label="@AdminRes.ColTier"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="status" Label="@AdminRes.ColStatus"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="submissions" Label="@AdminRes.ColSubmissions"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="createdat" Label="@AdminRes.ColCreated"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
                 <th>@AdminRes.ColActions</th>
             </tr>
         </HeaderRow>
