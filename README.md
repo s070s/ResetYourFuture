@@ -62,7 +62,7 @@ dotnet run --project src/ResetYourFuture.Web
 | Logging | Custom daily file logger |
 | Email | `StubEmailService` (dev only) — logs to file; a real provider must be registered for production |
 | Security | HSTS · `X-Content-Type-Options` · `X-Frame-Options` · `Referrer-Policy` · `Permissions-Policy` |
-| AI Assistant | Local Ollama sidecar via `Microsoft.Extensions.AI` — `gemma3:4b` chat + `bge-m3` embeddings, no cloud API |
+| AI Assistant | Local Ollama sidecar via `Microsoft.Extensions.AI` — `qwen3:1.7b` chat (tool-calling agent) + `bge-m3` embeddings, auto-pulled at startup, no cloud API |
 
 ---
 
@@ -448,35 +448,37 @@ One-to-one and group video calls, started from the existing chat. Self-hosted **
 
 ## AI Assistant
 
-A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers from a background index of published courses, lessons, assessments, and blog articles, and personalizes recommendations using the user's subscription tier and enrollments. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine.
+A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers site questions from a background index of published courses, lessons, assessments, and blog articles, and — as a **tool-calling agent** — can look up the signed-in user's own enrollments, lesson progress, assessment results and subscription, plus search and recommend courses. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine.
 
-**How it works:** a background service chunks and embeds published content into an `AssistantContentChunks` table (incrementally — only re-embedding what changed). Each question embeds the query, retrieves the top matching chunks by cosine similarity, injects them plus the user's tier and enrolled course titles into a scoped system prompt, and streams the model's reply to a floating chat widget over Server-Sent Events. It is **not** an autonomous tool-calling agent — a single grounded RAG turn is what keeps a small local model reliable. The widget appears bottom-right on every page for signed-in users; when the assistant is disabled or Ollama is unreachable, it shows an "unavailable" state and the rest of the app is unaffected.
+**Setup — two steps, everything else is automatic:**
 
-**Setup:**
-
-```bash
-# 1. Install Ollama: https://ollama.com/download
-# 2. Pull the default models
-ollama pull gemma3:4b
-ollama pull bge-m3
-# 3. Enable it in appsettings.json / .env
-#    Assistant__Enabled=true
+```powershell
+# 1. Install Ollama (winget, or https://ollama.com/download)
+winget install Ollama.Ollama
+# 2. Run the app
+dotnet run --project src/ResetYourFuture.Web
 ```
 
-The assistant is **disabled by default** (`Assistant:Enabled = false`), so the app, its build, and its test suite never require Ollama to be installed.
+On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.7b` chat ≈ 1.4 GB + `bge-m3` embeddings ≈ 1.2 GB — ~2.6 GB total, one-time). The widget shows live download progress and becomes interactive the moment everything is ready. Installing or starting Ollama **after** the app is already running also works — the bootstrap supervisor keeps probing and recovers without a restart.
+
+**How it works:** a background service chunks and embeds published content into an `AssistantContentChunks` table (incrementally — only re-embedding what changed). Each question embeds the query, retrieves the top matching chunks by cosine similarity, and injects them plus the user's tier and enrolled course titles into a scoped system prompt (RAG grounding). For questions about the user's *own* data, the model calls server-side tools (`get_my_enrollments`, `get_my_progress`, `get_my_assessment_results`, `get_subscription_status`, `search_courses`, `recommend_courses`); the authenticated identity is captured server-side — no tool accepts a user id, so prompt injection can never read another user's data, and raw assessment answers never reach the model. Replies stream to a floating chat widget over Server-Sent Events. The widget appears bottom-right on every page for signed-in users; when Ollama is unreachable or a model is downloading, it shows a live state instead, and the rest of the app is unaffected.
 
 | Key | Where | Default | Notes |
 |-----|-------|---------|-------|
-| `Assistant__Enabled` | `.env` / `appsettings.json` | `false` | Master switch. When `false`, the API and widget gracefully report the assistant as unavailable. |
+| `Assistant__Enabled` | `.env` / `appsettings.json` | `true` | Master switch. When `false`, the API and widget gracefully report the assistant as unavailable. Test hosts pin it off. |
 | `Assistant__BaseUrl` | `appsettings.json` | `http://localhost:11434` | Ollama's default local address. |
-| `Assistant__ChatModel` | `appsettings.json` | `gemma3:4b` | ~3.3 GB (Q4). Alternatives: `qwen3:4b` (Apache-2.0), or an 8B Greek-tuned model (e.g. ILSP Llama-Krikri, GGUF-imported) on stronger hardware. |
+| `Assistant__ChatModel` | `appsettings.json` | `qwen3:1.7b` | ~1.4 GB. Multilingual (incl. Greek) with native tool calling. Alternatives: `qwen3:4b` on stronger hardware. |
 | `Assistant__EmbeddingModel` | `appsettings.json` | `bge-m3` | ~1.2 GB. Multilingual (EN/EL) retrieval embeddings. |
+| `Assistant__AutoPullModels` | `appsettings.json` | `true` | Auto-download missing models at startup. Set `false` in restricted environments and pull manually. |
 | `Assistant__MaxContextChunks` | `appsettings.json` | `6` | Retrieved chunks injected per question. |
 | `Assistant__MaxOutputTokens` | `appsettings.json` | `500` | Caps answer length. |
 | `Assistant__Temperature` | `appsettings.json` | `0.3` | Lower = more deterministic/grounded answers. |
 | `Assistant__RequestsPerMinute` | `appsettings.json` | `10` | Per-user rate limit on `POST api/assistant/chat`. |
+| `Assistant__MaxToolRounds` | `appsettings.json` | `3` | Caps tool-invocation rounds per request (loop guardrail). |
 
-**Hardware guidance:** runs CPU-only on any ~2020+ 4-core machine with 8 GB RAM — no GPU required. Expect a few seconds to the first token (streaming masks this) and roughly 8–15 tokens/sec on CPU with the default models.
+**Hardware guidance:** runs CPU-only on any ~2020+ 4-core machine with 8 GB RAM — no GPU required. Expect a few seconds to the first token (streaming masks this); the 1.7B default model is comfortably faster than the previous 4B one.
+
+**Live smoke test** (optional, needs Ollama running): `RYF_OLLAMA_LIVE=1 dotnet test --filter AssistantLiveSmoke` boots the app against local Ollama, waits for Ready, and asserts a real streamed answer. Without the variable the test self-passes, so CI never needs Ollama.
 
 ---
 
@@ -494,7 +496,8 @@ The assistant is **disabled by default** (`Assistant:Enabled = false`), so the a
 | Video call has no camera/mic | Grant the browser camera/microphone permission for the site, and use HTTPS (WebRTC requires a secure context). When testing with two browsers on one PC, only one can hold the physical webcam — the other joins audio-only (expected). |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
-| Assistant shows "unavailable" | Set `Assistant__Enabled=true`, confirm Ollama is running (`ollama list`), and that both models are pulled (`ollama pull gemma3:4b && ollama pull bge-m3`). |
+| Assistant shows "is Ollama installed and running?" | Install/start Ollama (`winget install Ollama.Ollama`); the app re-probes automatically and recovers without a restart. Confirm with `ollama list`. |
+| Assistant stuck "downloading its model" | Normal on first run (~2.6 GB total). Progress shows in the widget and in `Logs/`. On a metered/blocked network set `Assistant__AutoPullModels=false` and pull manually: `ollama pull qwen3:1.7b && ollama pull bge-m3`. |
 | Assistant's first answer is slow | Expected — Ollama cold-loads the model into memory on first request after startup/idle. Subsequent answers are faster. |
 
 ---
