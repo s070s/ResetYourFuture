@@ -9,8 +9,8 @@ namespace ResetYourFuture.Web.Consumers;
 public class AdminTestimonialConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), IAdminTestimonialConsumer
 {
     public Task<PagedResult<AdminTestimonialDto>?> GetAllAsync(
-        int page = 1, int pageSize = 10, CancellationToken ct = default)
-        => GetAsync<PagedResult<AdminTestimonialDto>>($"api/admin/testimonials?page={page}&pageSize={pageSize}", ct);
+        int page = 1, int pageSize = 10, string sortBy = "displayorder", string sortDir = "asc", CancellationToken ct = default)
+        => GetAsync<PagedResult<AdminTestimonialDto>>($"api/admin/testimonials?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}", ct);
 
     public Task<AdminTestimonialDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => GetAsync<AdminTestimonialDto>($"api/admin/testimonials/{id}", ct);

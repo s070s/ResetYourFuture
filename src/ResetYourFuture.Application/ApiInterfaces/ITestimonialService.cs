@@ -11,7 +11,7 @@ public interface ITestimonialService
     Task<IReadOnlyList<AdminTestimonialDto>> GetActiveAsync(CancellationToken cancellationToken = default);
 
     /// <summary>Returns all testimonials paginated for the admin list.</summary>
-    Task<PagedResult<AdminTestimonialDto>> GetAllForAdminAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<PagedResult<AdminTestimonialDto>> GetAllForAdminAsync(int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default);
 
     /// <summary>Returns a single testimonial by id, or null if not found.</summary>
     Task<AdminTestimonialDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

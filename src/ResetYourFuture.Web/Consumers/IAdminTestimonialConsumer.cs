@@ -8,7 +8,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IAdminTestimonialConsumer
 {
-    Task<PagedResult<AdminTestimonialDto>?> GetAllAsync(int page = 1, int pageSize = 10, CancellationToken ct = default);
+    Task<PagedResult<AdminTestimonialDto>?> GetAllAsync(int page = 1, int pageSize = 10, string sortBy = "displayorder", string sortDir = "asc", CancellationToken ct = default);
     Task<AdminTestimonialDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<AdminTestimonialDto?> CreateAsync(SaveTestimonialRequest request, CancellationToken ct = default);
     Task<AdminTestimonialDto?> UpdateAsync(Guid id, SaveTestimonialRequest request, CancellationToken ct = default);

@@ -36,9 +36,11 @@ public class AdminTestimonialsController : ControllerBase
     public async Task<ActionResult<PagedResult<AdminTestimonialDto>>> GetAll(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "displayorder",
+        [FromQuery] string sortDir = "asc",
         CancellationToken cancellationToken = default)
     {
-        var result = await _testimonials.GetAllForAdminAsync(page, pageSize, cancellationToken);
+        var result = await _testimonials.GetAllForAdminAsync(page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);
     }
 

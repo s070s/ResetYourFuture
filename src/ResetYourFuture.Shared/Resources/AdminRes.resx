@@ -239,6 +239,9 @@
 	<data name="MoveDown" xml:space="preserve">
 		<value>Move down</value>
 	</data>
+	<data name="ResetSortToReorder" xml:space="preserve">
+		<value>Reset sorting to display order to reorder</value>
+	</data>
 	<data name="Remove" xml:space="preserve">
 		<value>Remove</value>
 	</data>

@@ -258,6 +258,9 @@
   <data name="MoveDown" xml:space="preserve">
     <value>Μετακίνηση κάτω</value>
   </data>
+  <data name="ResetSortToReorder" xml:space="preserve">
+    <value>Επαναφέρετε την ταξινόμηση στη σειρά εμφάνισης για αναδιάταξη</value>
+  </data>
   <data name="Remove" xml:space="preserve">
     <value>Αφαίρεση</value>
   </data>

@@ -15,15 +15,34 @@ public partial class AdminTestimonials
     private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
     private Guid? confirmDeleteId;
+    private string _sortBy = "displayorder";
+    private string _sortDir = "asc";
+
+    // Manual ↑/↓ reordering only makes sense while the table shows the curated
+    // display order — any other sort disables the buttons (tooltip explains why).
+    private bool IsDefaultSort => _sortBy == "displayorder" && _sortDir == "asc";
 
     protected override async Task OnInitializedAsync()
     {
         await LoadTestimonials();
     }
 
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
+        await LoadTestimonials();
+    }
+
     private async Task LoadTestimonials()
     {
-        pagedResult = await TestimonialConsumer.GetAllAsync(currentPage, pageSize);
+        pagedResult = await TestimonialConsumer.GetAllAsync(currentPage, pageSize, _sortBy, _sortDir);
     }
 
     private async Task OnPageSizeChanged(int size)

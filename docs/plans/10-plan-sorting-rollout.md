@@ -69,7 +69,7 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 | ~~WI-3~~ ✅ | `AdminAssessments` — done (list query lives inline in the controller, not `AssessmentService`; actual pre-existing default was **createdat desc**, preserved) | `AssessmentSearchExtensions.cs` | title, key, category, tier, status, submissions, **createdat desc** |
 | ~~WI-4~~ ✅ | `AdminBlog` — done (search param preserved) | `BlogArticleSearchExtensions.cs` | title, slug, author, status, **createdat desc**, publishedat |
 | ~~WI-5~~ ✅ | `AdminCategories` — done (count keys exclude soft-deleted children, matching displayed counts) | `CategorySearchExtensions.cs` | **nameen asc**, nameel, coursecount, assessmentcount, createdat |
-| WI-6 | `AdminTestimonials.razor` → `IAdminTestimonialConsumer` → `AdminTestimonialsController.cs:35-38` → `TestimonialService.cs:46` — plus Decision 5 (disable ↑/↓ under non-default sort) | `TestimonialSearchExtensions.cs` | **displayorder asc**, name, status, createdat |
+| ~~WI-6~~ ✅ | `AdminTestimonials` — done incl. Decision 5 (↑/↓ disabled under non-default sort, localized tooltip `ResetSortToReorder`) | `TestimonialSearchExtensions.cs` | **displayorder asc**, name, status, createdat |
 | WI-7 | `AdminAssessmentSubmissions.razor` → `IAdminAssessmentConsumer` (submissions method) → `AdminAssessmentsController.cs:314-318` → `AssessmentService.cs:165` | `AssessmentSubmissionSearchExtensions.cs` | user (lastname), email, **submittedat desc** |
 
 - **Acceptance criteria (each):** header click round-trips through the API (visible as `sortBy`/`sortDir` in the request); order correct on page ≥ 2; default sort unchanged when no params sent; extension unit-tested.

@@ -1114,6 +1114,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reset sorting to display order to reorder.
+        /// </summary>
+        public static string ResetSortToReorder {
+            get {
+                return ResourceManager.GetString("ResetSortToReorder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to New Article.
         /// </summary>
         public static string NewArticle {

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 
@@ -33,7 +34,7 @@ public class TestimonialService : ITestimonialService
     }
 
     public async Task<PagedResult<AdminTestimonialDto>> GetAllForAdminAsync(
-        int page, int pageSize, CancellationToken cancellationToken = default)
+        int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -43,8 +44,7 @@ public class TestimonialService : ITestimonialService
         var total = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderBy(t => t.DisplayOrder)
-            .ThenBy(t => t.CreatedAt)
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -54,8 +54,8 @@ public class TestimonialService : ITestimonialService
             TotalCount: total,
             Page: page,
             PageSize: pageSize,
-            SortBy: "displayOrder",
-            SortDir: "asc");
+            SortBy: sortBy,
+            SortDir: sortDir);
     }
 
     public async Task<AdminTestimonialDto?> GetByIdAsync(
