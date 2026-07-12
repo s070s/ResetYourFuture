@@ -40,6 +40,8 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", "Server=(localdb)\\dummy;Database=dummy;Trusted_Connection=True;");
         Environment.SetEnvironmentVariable("Payment__MockEnabled", "true");
         Environment.SetEnvironmentVariable("Sitemap__BaseUrl", "https://tests.local");
+        // The assistant defaults to enabled; test hosts must stay Ollama-free.
+        Environment.SetEnvironmentVariable("Assistant__Enabled", "false");
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
