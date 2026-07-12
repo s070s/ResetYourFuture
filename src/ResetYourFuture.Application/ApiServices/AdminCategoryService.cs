@@ -4,6 +4,7 @@ using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.ApiServices;
@@ -13,13 +14,14 @@ namespace ResetYourFuture.Application.ApiServices;
 /// </summary>
 public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategoryService> logger) : IAdminCategoryService
 {
-    public async Task<PagedResult<AdminCategoryDto>> GetCategoriesAsync(int page, int pageSize, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<AdminCategoryDto>> GetCategoriesAsync(
+        int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
         var totalCount = await db.Categories.CountAsync(cancellationToken);
 
         var items = await db.Categories
             .AsNoTracking()
-            .OrderBy(c => c.NameEn)
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(c => new AdminCategoryDto(
@@ -32,7 +34,7 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
             ))
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<AdminCategoryDto>(items, totalCount, page, pageSize);
+        return new PagedResult<AdminCategoryDto>(items, totalCount, page, pageSize, sortBy, sortDir);
     }
 
     public async Task<List<CategoryOptionDto>> GetAllCategoriesAsync(CancellationToken cancellationToken = default)

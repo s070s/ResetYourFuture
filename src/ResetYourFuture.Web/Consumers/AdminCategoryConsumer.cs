@@ -7,8 +7,8 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public class AdminCategoryConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), IAdminCategoryConsumer
 {
-    public Task<PagedResult<AdminCategoryDto>?> GetCategoriesAsync(int page = 1, int pageSize = 10)
-        => GetAsync<PagedResult<AdminCategoryDto>>($"api/admin/categories?page={page}&pageSize={pageSize}");
+    public Task<PagedResult<AdminCategoryDto>?> GetCategoriesAsync(int page = 1, int pageSize = 10, string sortBy = "nameen", string sortDir = "asc")
+        => GetAsync<PagedResult<AdminCategoryDto>>($"api/admin/categories?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}");
 
     public async Task<List<CategoryOptionDto>> GetAllCategoriesAsync()
         => await GetAsync<List<CategoryOptionDto>>("api/admin/categories/all") ?? [];

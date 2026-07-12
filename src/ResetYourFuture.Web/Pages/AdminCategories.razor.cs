@@ -23,9 +23,24 @@ public partial class AdminCategories
     private string? _formError;
 
     private AdminCategoryDto? _pendingDelete;
+    private string _sortBy = "nameen";
+    private string _sortDir = "asc";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadCategories();
+    }
+
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
         await LoadCategories();
     }
 
@@ -33,7 +48,7 @@ public partial class AdminCategories
     {
         try
         {
-            pagedResult = await CategoryConsumer.GetCategoriesAsync(currentPage, pageSize);
+            pagedResult = await CategoryConsumer.GetCategoriesAsync(currentPage, pageSize, _sortBy, _sortDir);
         }
         catch (Exception ex)
         {

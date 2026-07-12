@@ -25,12 +25,14 @@ public class AdminCategoriesController(IAdminCategoryService adminCategoryServic
     public async Task<ActionResult<PagedResult<AdminCategoryDto>>> GetCategories(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "nameen",
+        [FromQuery] string sortDir = "asc",
         CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
 
-        var result = await adminCategoryService.GetCategoriesAsync(page, pageSize, cancellationToken);
+        var result = await adminCategoryService.GetCategoriesAsync(page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);
     }
 

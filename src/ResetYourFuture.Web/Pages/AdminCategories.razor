@@ -23,11 +23,21 @@
         <ScrollableTable Items="pagedResult.Items" TItem="AdminCategoryDto">
             <HeaderRow>
                 <tr>
-                    <th>@CategoryRes.ColNameEn</th>
-                    <th>@CategoryRes.ColNameEl</th>
-                    <th>@CategoryRes.ColCourseCount</th>
-                    <th>@CategoryRes.ColAssessmentCount</th>
-                    <th>@CategoryRes.ColCreated</th>
+                    <SortableColumnHeader ColumnKey="nameen" Label="@CategoryRes.ColNameEn"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="nameel" Label="@CategoryRes.ColNameEl"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="coursecount" Label="@CategoryRes.ColCourseCount"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="assessmentcount" Label="@CategoryRes.ColAssessmentCount"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="createdat" Label="@CategoryRes.ColCreated"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
                     <th>@CategoryRes.ColActions</th>
                 </tr>
             </HeaderRow>

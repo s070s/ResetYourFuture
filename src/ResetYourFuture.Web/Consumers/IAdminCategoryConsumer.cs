@@ -7,7 +7,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IAdminCategoryConsumer
 {
-    Task<PagedResult<AdminCategoryDto>?> GetCategoriesAsync(int page = 1, int pageSize = 10);
+    Task<PagedResult<AdminCategoryDto>?> GetCategoriesAsync(int page = 1, int pageSize = 10, string sortBy = "nameen", string sortDir = "asc");
     Task<List<CategoryOptionDto>> GetAllCategoriesAsync();
     Task<AdminCategoryDto?> CreateCategoryAsync(SaveCategoryRequest request);
     Task<AdminCategoryDto?> UpdateCategoryAsync(Guid id, SaveCategoryRequest request);

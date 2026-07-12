@@ -8,7 +8,7 @@ namespace ResetYourFuture.Application.ApiInterfaces;
 /// </summary>
 public interface IAdminCategoryService
 {
-    Task<PagedResult<AdminCategoryDto>> GetCategoriesAsync(int page, int pageSize, CancellationToken cancellationToken = default);
+    Task<PagedResult<AdminCategoryDto>> GetCategoriesAsync(int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default);
     Task<List<CategoryOptionDto>> GetAllCategoriesAsync(CancellationToken cancellationToken = default);
     Task<ServiceResult<AdminCategoryDto>> CreateCategoryAsync(SaveCategoryRequest request, CancellationToken cancellationToken = default);
     Task<ServiceResult<AdminCategoryDto>> UpdateCategoryAsync(Guid id, SaveCategoryRequest request, CancellationToken cancellationToken = default);
