@@ -77,15 +77,11 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 ### ~~WI-8: Student AssessmentHistory~~ ✅ DONE
 Server-paged `PagedResult` with title/category/submittedat sorting (shared WI-7 extension); client-side `_sortedSubmissions` deleted; `AdminPaginationToolbar` added (new localized `SubmissionsItemLabel`); latest-submission card captured from the initial default-sort load.
 
-### WI-9: Student Billing — migrate to shared table, then sort
-- **Files:** `src/ResetYourFuture.Web/Pages/Billing.razor:104-181`(+ code-behind), billing/subscription consumer + controller for the transactions fetch, `BillingTransactionSearchExtensions.cs` (new)
-- **Change:** (a) replace the bespoke inline `<table class="transactions-table">` and the hand-duplicated toolbar with `ScrollableTable` + `AdminPaginationToolbar` (keep the `tx-type`/amount cell templates inside `RowTemplate`); (b) thread `sortBy/sortDir` through the transactions endpoint; keys: **createdat desc (default)**, plan, amount. Type/Reference stay unsortable (Decision 4 — cosmetic/opaque values).
-- **Acceptance criteria:** visual parity with today (sticky header, max-height scroll); paging + sorting server-side; no duplicated toolbar markup left in `Billing.razor`.
+### ~~WI-9: Student Billing~~ ✅ DONE
+Bespoke inline table + hand-rolled toolbar replaced with `ScrollableTable` (TableCssClass keeps the `transactions-table` styling via `::deep`) + `AdminPaginationToolbar`; createdat/plan/amount sortable via `BillingTransactionSearchExtensions`; Description/Reference unsortable per Decision 4.
 
-### WI-10: Unit tests for every new sort extension
-- **Files:** `tests/ResetYourFuture.Domain.Tests/` — one test class per new `*SearchExtensions`, mirroring `UserSearchExtensionsTests`
-- **Change:** for each key: asc + desc ordering asserted on an in-memory list-as-queryable; equal-value case proves the `ThenBy(Id)` tie-breaker; unknown key falls back to the default.
-- **Acceptance criteria:** `dotnet test ResetYourFuture.sln` green; each extension file has a matching test class.
+### ~~WI-10: Unit tests for every new sort extension~~ ✅ DONE
+Written alongside each WI: one test class per extension (ordering theories both directions, Id tie-breaker, unknown-key default fallback) plus a `ToQueryString` SQL Server translation guard per key.
 
 ## 5. Implementation Order & Dependencies
 

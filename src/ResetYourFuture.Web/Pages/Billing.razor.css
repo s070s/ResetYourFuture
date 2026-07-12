@@ -120,25 +120,23 @@
     color: var(--color-error);
 }
 
-/* ── Transactions Table ── */
-.transactions-table-wrapper {
-    overflow-x: auto;
-}
-
-.transactions-table {
+/* ── Transactions Table ──
+   Rendered by the shared ScrollableTable component (TableCssClass="transactions-table"),
+   so the table itself is outside this page's CSS scope — hence ::deep. */
+::deep .transactions-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
 }
 
-    .transactions-table th,
-    .transactions-table td {
+    ::deep .transactions-table th,
+    ::deep .transactions-table td {
         padding: 0.75rem 0.5rem;
         text-align: left;
         border-bottom: 1px solid var(--border-subtle);
     }
 
-    .transactions-table th {
+    ::deep .transactions-table th {
         font-weight: 600;
         color: var(--text-strong-normal);
         font-size: 0.8rem;
@@ -146,7 +144,7 @@
         letter-spacing: 0.03em;
     }
 
-    .transactions-table tbody tr:hover {
+    ::deep .transactions-table tbody tr:hover {
         background: var(--bg-table-row-hover);
     }
 

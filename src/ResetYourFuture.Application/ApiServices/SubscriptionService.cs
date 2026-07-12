@@ -6,6 +6,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Extensions;
 using System.Text.Json;
 
 namespace ResetYourFuture.Application.ApiServices;
@@ -345,7 +346,7 @@ public class SubscriptionService : ISubscriptionService
     }
 
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
-        string userId, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default)
+        string userId, int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc", CancellationToken cancellationToken = default)
     {
         if (page < 1)
             page = 1;
@@ -357,12 +358,12 @@ public class SubscriptionService : ISubscriptionService
         var query = _db.BillingTransactions
             .AsNoTracking()
             .Include(bt => bt.SubscriptionPlan)
-            .Where(bt => bt.UserId == userId)
-            .OrderByDescending(bt => bt.CreatedAt);
+            .Where(bt => bt.UserId == userId);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var transactions = await query
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(bt => new BillingTransactionDto(
@@ -380,7 +381,7 @@ public class SubscriptionService : ISubscriptionService
         return new BillingOverviewDto
         {
             CurrentSubscription = status,
-            Transactions = new PagedResult<BillingTransactionDto>(transactions, totalCount, page, pageSize)
+            Transactions = new PagedResult<BillingTransactionDto>(transactions, totalCount, page, pageSize, sortBy, sortDir)
         };
     }
 

@@ -20,6 +20,8 @@ public partial class Billing
     private int _page = 1;
     private int _pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50];
+    private string _sortBy = "createdat";
+    private string _sortDir = "desc";
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,7 +34,7 @@ public partial class Billing
         _error = null;
         try
         {
-            _overview = await SubscriptionService.GetBillingOverviewAsync(_page, _pageSize);
+            _overview = await SubscriptionService.GetBillingOverviewAsync(_page, _pageSize, _sortBy, _sortDir);
         }
         catch (Exception ex)
         {
@@ -45,20 +47,42 @@ public partial class Billing
         }
     }
 
-    private async Task GoToPage(int page)
+    private async Task OnSort(string columnKey)
     {
-        _page = page;
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        _page = 1;
         await LoadBillingOverviewAsync();
     }
 
-    private async Task OnPageSizeChanged(ChangeEventArgs e)
+    private async Task PreviousPage()
     {
-        if (int.TryParse(e.Value?.ToString(), out var size))
+        if (_overview is { Transactions.HasPreviousPage: true })
         {
-            _pageSize = size;
-            _page = 1;
+            _page--;
             await LoadBillingOverviewAsync();
         }
+    }
+
+    private async Task NextPage()
+    {
+        if (_overview is { Transactions.HasNextPage: true })
+        {
+            _page++;
+            await LoadBillingOverviewAsync();
+        }
+    }
+
+    private async Task OnPageSizeChanged(int size)
+    {
+        _pageSize = size;
+        _page = 1;
+        await LoadBillingOverviewAsync();
     }
 
     private async Task CancelSubscription()

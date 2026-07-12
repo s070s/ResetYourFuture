@@ -214,9 +214,11 @@ public class SubscriptionController : ControllerBase
     public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "createdat",
+        [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
-        var overview = await _subscriptionService.GetBillingOverviewAsync(UserId, page, pageSize, cancellationToken);
+        var overview = await _subscriptionService.GetBillingOverviewAsync(UserId, page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(overview);
     }
 }

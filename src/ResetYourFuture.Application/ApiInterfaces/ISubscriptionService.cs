@@ -48,5 +48,5 @@ public interface ISubscriptionService
     /// <summary>
     /// Get the user's billing overview (current plan + paged transaction history).
     /// </summary>
-    Task<BillingOverviewDto> GetBillingOverviewAsync(string userId, int page = 1, int pageSize = 10, CancellationToken cancellationToken = default);
+    Task<BillingOverviewDto> GetBillingOverviewAsync(string userId, int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc", CancellationToken cancellationToken = default);
 }
