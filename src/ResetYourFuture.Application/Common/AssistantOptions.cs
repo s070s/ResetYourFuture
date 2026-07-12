@@ -32,4 +32,9 @@ public sealed class AssistantOptions
 
     /// <summary>Per-user chat requests allowed per minute (rate-limit policy "assistant").</summary>
     public int RequestsPerMinute { get; set; } = 10;
+
+    /// <summary>Maximum tool-invocation rounds per chat request (FunctionInvokingChatClient
+    /// MaximumIterationsPerRequest) — stops pathological tool loops while allowing a
+    /// question that needs two lookups to complete.</summary>
+    public int MaxToolRounds { get; set; } = 3;
 }

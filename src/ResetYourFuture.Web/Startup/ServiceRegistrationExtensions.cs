@@ -99,8 +99,13 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddSingleton<AssistantRuntimeState>();
         if (assistantOptions.Enabled)
         {
+            // UseFunctionInvocation wraps the Ollama client so ChatOptions.Tools are executed
+            // in an agent loop, capped at MaxToolRounds iterations per request (guardrail
+            // against pathological tool loops on a small model).
             builder.Services.AddChatClient(_ =>
-                new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.ChatModel));
+                    new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.ChatModel))
+                .UseFunctionInvocation(configure: client =>
+                    client.MaximumIterationsPerRequest = assistantOptions.MaxToolRounds);
             builder.Services.AddEmbeddingGenerator(_ =>
                 new OllamaApiClient(new Uri(assistantOptions.BaseUrl), assistantOptions.EmbeddingModel));
 
@@ -109,6 +114,7 @@ public static class ServiceRegistrationExtensions
             builder.Services.AddScoped<IAssistantIndexingService, AssistantIndexingService>();
             builder.Services.AddScoped<IAssistantRetrievalService, AssistantRetrievalService>();
             builder.Services.AddScoped<IAssistantService, AssistantService>();
+            builder.Services.AddScoped<IAssistantTools, AssistantTools>();
             builder.Services.AddHostedService<OllamaBootstrapService>();
             builder.Services.AddHostedService<AssistantIndexer>();
         }
