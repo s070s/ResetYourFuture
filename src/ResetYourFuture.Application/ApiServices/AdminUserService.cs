@@ -189,12 +189,63 @@ public class AdminUserService(
         if (await userManager.IsInRoleAsync(user, "Admin"))
             return ServiceResult<string>.BadRequest(error: "Admin accounts cannot be deleted.");
 
-        // Hard delete for now; prefer soft-delete in production.
-        var result = await userManager.DeleteAsync(user);
-        if (!result.Succeeded)
-            return ServiceResult<string>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
+        // Chat and call history rows reference the user with Restrict FKs, so a bare
+        // Identity delete throws for any user who ever chatted or joined a call.
+        // Stage the history cleanup in the change tracker; userManager.DeleteAsync shares
+        // this scoped DbContext, so its SaveChanges flushes the cleanup and the user row
+        // in a single transaction. Remaining user data (subscriptions, tokens, submissions,
+        // lesson completions) is removed by the database cascades.
+        var conversations = await context.ChatConversations
+            .Where(c => c.CreatorId == userId || c.ParticipantId == userId)
+            .ToListAsync(cancellationToken);
+        var conversationIds = conversations.Select(c => c.Id).ToList();
 
-        logger.LogInformation("Admin deleted user {UserId}", userId);
+        // Messages the user sent anywhere, plus every message inside the conversations
+        // being removed (the other party's messages go with their conversation).
+        var messages = await context.ChatMessages
+            .Where(m => m.SenderId == userId || conversationIds.Contains(m.ConversationId))
+            .ToListAsync(cancellationToken);
+
+        var initiatedSessions = await context.CallSessions
+            .Where(s => s.InitiatorId == userId)
+            .ToListAsync(cancellationToken);
+        var initiatedSessionIds = initiatedSessions.Select(s => s.Id).ToList();
+
+        var callParticipants = await context.CallParticipants
+            .Where(p => p.UserId == userId || initiatedSessionIds.Contains(p.CallSessionId))
+            .ToListAsync(cancellationToken);
+
+        // Certificates must be deleted before their enrollments: Certificate→Enrollment is
+        // NoAction, so the User→Enrollment cascade alone can trip over surviving certificate
+        // rows (cascade ordering across NoAction FKs is not guaranteed on SQL Server).
+        var certificates = await context.Certificates
+            .Where(c => c.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        var enrollments = await context.Enrollments
+            .Where(e => e.UserId == userId)
+            .ToListAsync(cancellationToken);
+
+        context.ChatMessages.RemoveRange(messages);
+        context.ChatConversations.RemoveRange(conversations);
+        context.CallParticipants.RemoveRange(callParticipants);
+        context.CallSessions.RemoveRange(initiatedSessions);
+        context.Certificates.RemoveRange(certificates);
+        context.Enrollments.RemoveRange(enrollments);
+
+        try
+        {
+            var result = await userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                return ServiceResult<string>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+        catch (DbUpdateException ex)
+        {
+            logger.LogError(ex, "Deleting user {UserId} failed on a database constraint", userId);
+            return ServiceResult<string>.Conflict(error: "User could not be deleted because other data still references the account.");
+        }
+
+        logger.LogInformation("Admin deleted user {UserId} and associated chat/call history", userId);
         return ServiceResult<string>.Ok("User deleted.");
     }
 

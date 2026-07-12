@@ -97,11 +97,11 @@ Severity is judged in context: this is a university certificate project, not a p
 | MAINT (23) | 0 | 1 | 4 | 4 | 1 | 10 |
 | TEST (24) | 0 | 2 | 3 | 4 | 1 | 10 |
 | SEC (25) | 0 | 1 | 4 | 4 | 1 | 10 |
-| REL (26) | 0 | 1 | 4 | 4 | 0 | 9 |
+| REL (26) | 0 | 0 | 4 | 4 | 0 | 8 |
 | BIZ (27) | 0 | 1 | 3 | 4 | 0 | 8 |
-| DQ (28) | 0 | 1 | 4 | 3 | 1 | 9 |
+| DQ (28) | 0 | 0 | 4 | 3 | 1 | 8 |
 | COMP (29) | 0 | 2 | 3 | 2 | 1 | 8 |
-| DB (30) | 1 | 1 | 6 | 4 | 2 | 14 |
+| DB (30) | 0 | 1 | 6 | 4 | 2 | 13 |
 | API (31) | 0 | 1 | 8 | 4 | 3 | 16 |
 | UI (32) | 0 | 3 | 7 | 4 | 1 | 15 |
 | UX (33) | 0 | 4 | 9 | 2 | 1 | 16 |
@@ -117,6 +117,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 4 | 3 | 2 | 9 |
 | DOC (44) | 0 | 0 | 3 | 4 | 2 | 9 |
 | GOV (45) | 0 | 0 | 2 | 3 | 3 | 8 |
-| **Total** | **1** | **30** | **105** | **88** | **31** | **255** |
+| **Total** | **0** | **28** | **105** | **88** | **31** | **252** |
 
-The single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) are the same root cause (admin user deletion) found independently by three passes — see [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and a full prioritized action list across all 31 Critical/High findings.
+Counts reflect **open** findings — fixed findings are removed from their report (each report carries a "Fixed since audit" note). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed. See [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and the prioritized action list across the remaining Critical/High findings.

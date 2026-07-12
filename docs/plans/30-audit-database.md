@@ -11,26 +11,23 @@
 
 Examined in full: `src/ResetYourFuture.Infrastructure/Data/ApplicationDbContext.cs`; all 21 configuration classes in `src/ResetYourFuture.Infrastructure/Data/Configurations/`; all 22 entity classes in `src/ResetYourFuture.Domain/Domain/Entities/` plus `src/ResetYourFuture.Domain/Identity/ApplicationUser.cs`; `DesignTimeDbContextFactory.cs`; the `AddActiveSubscriptionUniqueIndex` migration and the current `ApplicationDbContextModelSnapshot.cs` (column types, indexes, FK behaviors); startup migration/seeding (`src/ResetYourFuture.Web/Startup/DatabaseSeedingExtensions.cs`, `AuthenticationSetupExtensions.cs`); and EF usage in `src/ResetYourFuture.Application/ApiServices/` (AdminCategoryService, AdminCourseService, AdminUserService, AuthApiService, SubscriptionService, ChatQueryService, BlogArticleService, TestimonialService) and the DbContext-using controllers (AdminModules, AdminLessons, AdminAssessments, Certificates, LessonAssets, SiteSettings). Test providers checked via `tests/ResetYourFuture.TestSupport/DbContextFactory.cs`.
 
-NOT examined: the full body of every migration (`InitialCreate` was inspected via the model snapshot, which supersedes it); runtime query plans (no live database was queried — index-usage claims are reasoned from the model, not measured); SQL Server cascade execution order for the certificate FK diamond (flagged as verify-by-test in DB-1).
+NOT examined: the full body of every migration (`InitialCreate` was inspected via the model snapshot, which supersedes it); runtime query plans (no live database was queried — index-usage claims are reasoned from the model, not measured).
 
 ## 2. Summary Scorecard
 
 | Severity | Count |
 |----------|-------|
-| Critical | 1 |
+| Critical | 0 |
 | High | 1 |
 | Medium | 6 |
 | Low | 4 |
 | Info | 2 |
 
-The schema is well above student-project average: every entity has an explicit `IEntityTypeConfiguration`, string lengths are mostly capped, uniqueness that matters (assessment key, blog slug, enrollment pair, certificate pair, one-active-subscription) is enforced with real DB indexes — including a correctly filtered unique index — and list-query indexes are deliberate and commented with their intended query shape. Migrations are clean, pinned to a tooling version, and applied consistently. The problems are concentrated in three places: cascade behavior was designed per-entity without checking whole-graph deletability (user deletion is broken today, DB-1); a test-provider workaround leaks into the production schema (all `DateTimeOffset` columns are `nvarchar(48)`, DB-2); and cross-cutting policies — soft-delete, audit stamping, temporal types, concurrency — are each applied to only part of the entity set.
+> **Fixed since audit:** DB-1 (Critical — Restrict/NoAction FKs broke admin user deletion) — `DeleteUserAsync` now stages chat/call/certificate/enrollment cleanup in the change tracker so Identity's `SaveChanges` commits everything in one transaction, maps `DbUpdateException` → 409, and is covered by SQLite-backed FK tests (`AdminUserServiceTests`).
+
+The schema is well above student-project average: every entity has an explicit `IEntityTypeConfiguration`, string lengths are mostly capped, uniqueness that matters (assessment key, blog slug, enrollment pair, certificate pair, one-active-subscription) is enforced with real DB indexes — including a correctly filtered unique index — and list-query indexes are deliberate and commented with their intended query shape. Migrations are clean, pinned to a tooling version, and applied consistently. The problems are concentrated in two places: a test-provider workaround leaks into the production schema (all `DateTimeOffset` columns are `nvarchar(48)`, DB-2); and cross-cutting policies — soft-delete, audit stamping, temporal types, concurrency — are each applied to only part of the entity set.
 
 ## 3. Findings
-
-### DB-1: Restrict/NoAction FKs make admin user deletion fail with an unhandled exception  [Critical] [Effort: M]
-- **Evidence:** `src/ResetYourFuture.Application/ApiServices/AdminUserService.cs:183-199` — `DeleteUserAsync` calls `userManager.DeleteAsync(user)`, a single `DELETE FROM AspNetUsers` that relies entirely on database cascade behavior. But the user's history rows are configured `Restrict`: `ChatMessageConfiguration.cs:28` (SenderId), `ChatConversationConfiguration.cs:23,28` (CreatorId, ParticipantId), `CallSessionConfiguration.cs:22` (InitiatorId), `CallParticipantConfiguration.cs:22` (UserId). Nothing deletes or reassigns those rows first.
-- **Impact:** Deleting any user who has ever sent a chat message, been in a conversation, or joined a call — normal demo usage since chat/calls are headline features — throws `DbUpdateException` (SQL error 547), which Identity does not catch, so `DELETE /api/admin/users/{userId}` returns a 500. The endpoint is explicitly advertised as GDPR deletion (`AdminController.cs:104-111`). Additionally, even for users without chat history, the diamond `User→Certificate (Cascade)`, `User→Enrollment (Cascade)`, `Certificate→Enrollment (NoAction)` (`CertificateConfiguration.cs:58`) can make the cascaded enrollment delete fail while certificate rows still reference it — cascade ordering across NoAction FKs is not guaranteed on SQL Server; needs an integration test against LocalDB (SQLite/InMemory tests won't reproduce it).
-- **Recommendation:** In `DeleteUserAsync`, before `userManager.DeleteAsync`: delete (or anonymize to a sentinel user) the user's `ChatMessages`, `ChatConversations`, `CallParticipants`, `CallSessions`, `Certificates`, then `Enrollments`, in one transaction — or switch user removal to soft-delete (`IsEnabled=false` + PII scrubbing), which better matches the certificate-retention intent. Either way, catch `DbUpdateException` and surface a 409 instead of a 500 (API-1 covers the response shape). Add a LocalDB-backed test that deletes a user with chat, call, certificate, and enrollment rows.
 
 ### DB-2: All DateTimeOffset columns are stored as nvarchar(48) in SQL Server because of a SQLite test workaround  [High] [Effort: M]
 - **Evidence:** `src/ResetYourFuture.Infrastructure/Data/ApplicationDbContext.cs:65-71` — `ConfigureConventions` applies `DateTimeOffsetToStringConverter` to every `DateTimeOffset`/`DateTimeOffset?` property unconditionally; the comment explains it exists for SQLite ordering in tests. The production snapshot confirms it: `ApplicationDbContextModelSnapshot.cs:167-169` (`CreatedAt` → `nvarchar(48)`), same for `UpdatedAt`, `PublishedAt`, `DeletedAt`, `SubmittedAt`, RefreshToken timestamps, Testimonial timestamps (snapshot:1133-1134). These columns are ordered on in real queries (`BlogArticleService.cs:37,80`, `AdminCourseService.cs:40`, `AdminAssessmentsController.cs:55,338`) and indexed (`AssessmentSubmissionConfiguration.cs` composite (UserId, SubmittedAt DESC); `BillingTransactionConfiguration` CreatedAt — that one is `DateTime`, see DB-6).
@@ -101,7 +98,6 @@ The schema is well above student-project average: every entity has an explicit `
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| DB-1 | Critical | M | Make user deletion survivable: clean up/anonymize chat, call, certificate, enrollment rows first (or soft-delete users); map DbUpdateException → 409; add LocalDB integration test |
 | DB-2 | High | M | Remove the model-wide DateTimeOffset→string converter from the production model; scope it to SQLite tests; migrate nvarchar(48) columns to datetimeoffset |
 | DB-3 | Medium | S | Fix `ApplyAuditFields` to stamp UpdatedByUserId unconditionally on Modified; remove per-controller manual stamping |
 | DB-5 | Medium | S | Add a filtered unique index on Category.NameEn mirroring the UserSubscription pattern |
@@ -118,10 +114,10 @@ The schema is well above student-project average: every entity has an explicit `
 
 ## 5. Related Findings Elsewhere
 
-- **31 (API):** API-1 (error envelope) covers how DB-1's 500 should surface as a 409 ProblemDetails; API-3 (missing Conflict semantics) pairs with DB-7's concurrency-conflict mapping.
+- **31 (API):** API-1 (error envelope) covers the single-envelope response shape; API-3 (missing Conflict semantics) pairs with DB-7's concurrency-conflict mapping.
 - **25 (SEC):** ownership/authorization checks on data access (e.g. lesson-asset enrollment checks) and injection posture are SEC's; DB only asserts schema shape here.
 - **28 (DQ):** validation of the JSON payload *contents* (AnswersJson/SchemaJson well-formedness, business rules), seed-data integrity, and any existing duplicate-category cleanup.
 - **34 (PERF):** query performance, N+1, and measurement of the index observations in DB-12/DB-14.
 - **35 (SCALE) / 42 (OPS):** startup auto-migration races across multiple instances (DB-13).
-- **29 (COMP):** GDPR deletion semantics and retention windows that drive DB-1 (delete vs anonymize) and DB-11 (token retention).
+- **29 (COMP):** GDPR retention windows for DB-11 (token retention); user deletion is now a hard delete with history cleanup (former DB-1, fixed).
 - **22 (CQ):** stale/contradictory comments noted in DB-5/DB-9 are part of the broader comment-accuracy theme.

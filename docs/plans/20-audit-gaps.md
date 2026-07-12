@@ -11,9 +11,9 @@ This report is produced **last**, after all 25 other audits, by design (see [00-
 
 ## 1. Methodology
 
-Every finding heading across `21-audit-*.md` … `45-audit-*.md` was scanned for `[Critical]`/`[High]` severity tags. 255 findings were produced across the 25 reports; 31 are Critical or High (1 Critical, 30 High). Each is summarized below with its source report and one-line impact; **file paths, line numbers, and full recommendations are in the source report** — follow the link, don't re-derive.
+Every finding heading across `21-audit-*.md` … `45-audit-*.md` was scanned for `[Critical]`/`[High]` severity tags. 255 findings were produced across the 25 reports; 31 were Critical or High (1 Critical, 30 High) — fixed findings are removed from this document and struck from the source reports as work lands, so the live count is lower. Each remaining item is summarized below with its source report and one-line impact; **file paths, line numbers, and full recommendations are in the source report** — follow the link, don't re-derive.
 
-A second pass separates the 31 into two buckets:
+A second pass separates them into two buckets:
 - **§2 Broken now** — genuinely wrong behavior today, independent of whether this ever gets deployed beyond localhost (crashes, silent failures, unreadable UI, data loss).
 - **§3 Will bite before/at real deployment** — correct-ish in the current single-developer, single-machine, demo context, but a blocker the moment the app leaves that context (security, compliance, scalability, availability, config).
 
@@ -23,20 +23,18 @@ This split is judgment, not a formal rule — a few items (e.g. `CFG-1`) sit at 
 
 | Severity | Count (all 25 reports) |
 |----------|------------------------|
-| Critical | 1 |
-| High | 30 |
+| Critical | 0 |
+| High | 28 |
 | Medium | 105 |
 | Low | 88 |
 | Info | 31 |
-| **Total** | **255** |
+| **Total** | **252** |
 
-The single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) are the same root cause — admin user deletion — found independently by three different audit passes, which is itself a signal of how central it is. No other finding reached Critical: the suite's overall picture is "a lot of High-value, low-effort fixes" rather than "the app is on fire."
+> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. Details in the source reports' "Fixed since audit" notes.
+
+The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were the same root cause — admin user deletion — found independently by three different audit passes; that is now fixed. No other finding reached Critical: the suite's overall picture is "a lot of High-value, low-effort fixes" rather than "the app is on fire."
 
 ## 3. Broken Now — genuinely wrong behavior today
-
-### GAP-1: Admin "Delete User" crashes for any user with chat or call history [Critical]
-- **Sources:** `DB-1` (30-audit-database.md), `REL-1` (26-audit-reliability.md), `DQ-1` (28-audit-data-quality.md)
-- Three independent audit passes converged on the same bug: `ChatConversation`, `ChatMessage`, `CallSession`, and `CallParticipant` all use `DeleteBehavior.Restrict` FKs to `ApplicationUser`, and `AdminUserService.DeleteUserAsync` (`Application/ApiServices/AdminUserService.cs:183-199`) has no try/catch around `userManager.DeleteAsync`. Any user who ever sent a chat message or joined a call cannot be deleted — the request 500s. This is the highest-priority fix in the whole suite: one root cause, three reports, no deployment context needed to hit it.
 
 ### GAP-2: Assessment submission can fail with zero feedback, and required questions aren't enforced [High]
 - **Source:** `UX-2` (33-audit-ux.md)
@@ -69,8 +67,6 @@ The single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) are the same
 ## 4. Will Bite Before / At Real Deployment
 
 Grouped by theme; each line is `ID (report) — one-liner`. Full evidence/recommendation in the linked report.
-
-**Data integrity & the user-deletion root cause (see GAP-1)** — no further High items beyond GAP-1's three sources.
 
 **Refresh-token & session lifecycle**
 - `SEC-1` (25) — refresh tokens survive password reset / security-stamp rotation and have no reuse detection; a stolen token outlives the "fix."
@@ -117,7 +113,6 @@ Ordered severity-desc, then "fixes the most other findings" first within a tier.
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| GAP-1 (DB-1/REL-1/DQ-1) | Critical | M | Define a real user-deletion strategy (soft-delete/anonymize, or transactional cleanup of chat/call rows) |
 | CFG-1 | High | S | Fail fast on bad `SelfBaseUrl` outside Development, matching the existing `Jwt:Key` fail-fast pattern |
 | AVAIL-2 | High | S | Bound-retry the startup migrate+seed instead of a hard crash |
 | AVAIL-1 | High | S | Add liveness/readiness health-check endpoints |

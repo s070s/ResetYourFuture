@@ -18,19 +18,16 @@ NOT examined: SQL Server failover behaviour (retry-on-failure is configured, `Au
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 4 |
 | Info | 0 |
 
-Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. The main weaknesses are a user-delete path that throws on a foreign-key restriction for any user who has chatted or called, a registration flow that can 500 after the account is already created, and an SSR consumer layer that swallows failures into blank UI.
+> **Fixed since audit:** REL-1 (High — `DeleteUser` threw for any user with chat/call history) — dependent chat/call/certificate/enrollment rows are now cleaned up in the same transaction as the user delete, `DbUpdateException` is caught and surfaced as a 409 `ServiceResult`, covered by SQLite FK tests.
+
+Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. The main weaknesses are a registration flow that can 500 after the account is already created, and an SSR consumer layer that swallows failures into blank UI.
 
 ## 3. Findings
-
-### REL-1: `DeleteUser` throws an unhandled exception for any user with chat/call history  [High] [Effort: M]
-- **Evidence:** `Application/ApiServices/AdminUserService.cs:183-199` (`DeleteUserAsync`) calls `userManager.DeleteAsync(user)` with no try/catch. `ChatConversation` (Creator/Participant), `ChatMessage` (Sender), `CallSession` (Initiator), and `CallParticipant` (User) all configure `OnDelete(DeleteBehavior.Restrict)` (`Data/Configurations/ChatConversationConfiguration.cs:19-27`, `ChatMessageConfiguration.cs:24-27`, `CallSessionConfiguration.cs:19-22`, `CallParticipantConfiguration.cs:19-22`).
-- **Impact:** Deleting any user who has ever sent a chat message, started a conversation, or joined a call raises a `DbUpdateException` on the FK restriction. There is no catch, so the controller returns an unhandled 500 (production problem+json) and the delete fails outright. The admin "delete user" action is therefore broken for exactly the users most likely to be deleted, and the error surfaces as an opaque server error.
-- **Recommendation:** Wrap the delete in a transaction that first removes or reassigns dependent chat/call rows (or switch those FKs to a deliberate cascade/anonymise strategy), catch `DbUpdateException`, and return a clear `ServiceResult` failure. This also unblocks GDPR erasure (see COMP) and the orphan-handling story (see DQ).
 
 ### REL-2: Registration can 500 after the account is already created when email delivery fails  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/AuthApiService.cs:56-92` — the user is created (`CreateAsync`), assigned the Student role, given a Free plan, and only then `await emailService.SendEmailConfirmationAsync(...)` is called with no try/catch (`:86`). `SmtpEmailService` (MailKit) is the transport whenever `Email:Smtp:Host` is set.
@@ -76,7 +73,6 @@ Overall reliability is above average for the project's stage. The background ser
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| REL-1 | High | M | Handle dependent chat/call rows before user delete; catch `DbUpdateException`; return a clean failure |
 | REL-2 | Medium | S | Decouple confirmation email from account creation; don't fail registration on SMTP error |
 | REL-3 | Medium | M | Log non-success responses in `ApiClientBase`; distinguish empty vs failed |
 | REL-4 | Medium | S | Fail-fast (log + throw) when admin seeding fails |
@@ -89,7 +85,6 @@ Overall reliability is above average for the project's stage. The background ser
 ## 5. Related Findings Elsewhere
 
 - **SEC (25):** Refresh-token lifecycle (SEC-1) — REL-8 is the concurrency angle of the same token flow; SEC owns the security/reuse-detection angle.
-- **DQ (28):** The Restrict FKs behind REL-1 are the data-integrity/orphan root cause; DQ owns the constraint design.
-- **COMP (29):** REL-1 also blocks GDPR erasure — COMP owns the regulatory obligation.
+- **COMP (29):** GDPR erasure is unblocked now that user deletion works (former REL-1, fixed); COMP owns the remaining regulatory obligations.
 - **BIZ (27):** Payment webhook/activation gaps determine whether the mock-vs-real payment failure modes matter.
 - **OBS (38) / LOG (37):** Silent swallows (REL-3, REL-5) argue for structured error logging + alerting.
