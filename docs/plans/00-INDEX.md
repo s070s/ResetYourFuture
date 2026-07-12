@@ -15,7 +15,7 @@ Numeric prefix = recommended reading order. Production status is tracked in the 
 | 00 | [00-INDEX.md](00-INDEX.md) | Meta | — | ✅ |
 | 01 | [01-TEMPLATE-plan.md](01-TEMPLATE-plan.md) | Meta | — | ✅ |
 | 02 | [02-TEMPLATE-audit.md](02-TEMPLATE-audit.md) | Meta | — | ✅ |
-| 10 | [10-plan-sorting-rollout.md](10-plan-sorting-rollout.md) | Plans | — | ✅ |
+| 10 | ~~10-plan-sorting-rollout.md~~ | Plans | — | 🏁 implemented 2026-07-12, file removed |
 | 11 | [11-plan-ollama-agent.md](11-plan-ollama-agent.md) | Plans | — | ✅ |
 | 12 | [12-plan-five-features.md](12-plan-five-features.md) | Plans | — | ✅ |
 | 13 | [13-plan-visual-polish.md](13-plan-visual-polish.md) | Plans | — | ✅ |
