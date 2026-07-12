@@ -18,5 +18,5 @@ public interface IAssessmentService
     Task<ServiceResult<AssessmentSubmissionDto>> SubmitAssessmentAsync(
         string userId, Guid id, SubmitAssessmentRequest request, CancellationToken cancellationToken = default);
 
-    Task<List<AssessmentSubmissionDto>> GetMySubmissionsAsync(string userId, CancellationToken cancellationToken = default);
+    Task<PagedResult<AssessmentSubmissionDto>> GetMySubmissionsAsync(string userId, int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default);
 }

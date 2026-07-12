@@ -74,10 +74,8 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 
 - **Acceptance criteria (each):** header click round-trips through the API (visible as `sortBy`/`sortDir` in the request); order correct on page ≥ 2; default sort unchanged when no params sent; extension unit-tested.
 
-### WI-8: Student AssessmentHistory — structural prep, then sort
-- **Files:** `src/ResetYourFuture.Web/Pages/AssessmentHistory.razor`(+`.razor.cs`), the mine-submissions consumer + `AssessmentsController` endpoint, `AssessmentService` (mine-submissions query), reuse `AssessmentSubmissionSearchExtensions` from WI-7
-- **Change:** (a) convert `GetMySubmissionsAsync()` from full-list to `PagedResult` with `page/pageSize/sortBy/sortDir` (service filters to the authenticated user, then the WI-7 recipe); (b) delete the client-side `_sortedSubmissions`; (c) add `AdminPaginationToolbar` + `SortableColumnHeader`s for Assessment (`title`), Category (`category`), **Submitted (`submittedat` desc, default)**. Keep the "Latest submission" card — it can read the first row of the default sort or its own lightweight call.
-- **Acceptance criteria:** history table pages server-side; sorting matches admin behavior; latest-submission card unaffected; EN + EL headers render from existing `AssessmentRes` keys.
+### ~~WI-8: Student AssessmentHistory~~ ✅ DONE
+Server-paged `PagedResult` with title/category/submittedat sorting (shared WI-7 extension); client-side `_sortedSubmissions` deleted; `AdminPaginationToolbar` added (new localized `SubmissionsItemLabel`); latest-submission card captured from the initial default-sort load.
 
 ### WI-9: Student Billing — migrate to shared table, then sort
 - **Files:** `src/ResetYourFuture.Web/Pages/Billing.razor:104-181`(+ code-behind), billing/subscription consumer + controller for the transactions fetch, `BillingTransactionSearchExtensions.cs` (new)

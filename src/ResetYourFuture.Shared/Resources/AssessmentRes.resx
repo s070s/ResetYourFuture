@@ -134,6 +134,9 @@
 	<data name="ViewDetails" xml:space="preserve">
 		<value>View Details</value>
 	</data>
+	<data name="SubmissionsItemLabel" xml:space="preserve">
+		<value>submissions</value>
+	</data>
 	<data name="AllSubmissions" xml:space="preserve">
 		<value>All Submissions</value>
 	</data>

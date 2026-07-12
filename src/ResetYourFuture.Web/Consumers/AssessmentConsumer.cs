@@ -25,6 +25,6 @@ public class AssessmentConsumer(HttpClient http, ResetYourFuture.Web.Services.Ap
     public Task<AssessmentSubmissionDto?> SubmitAssessmentAsync(Guid id, SubmitAssessmentRequest request)
         => PostJsonAsync<SubmitAssessmentRequest, AssessmentSubmissionDto>($"api/assessments/{id}/submit", request);
 
-    public async Task<List<AssessmentSubmissionDto>> GetMySubmissionsAsync()
-        => await GetAsync<List<AssessmentSubmissionDto>>("api/assessments/mine") ?? [];
+    public Task<PagedResult<AssessmentSubmissionDto>?> GetMySubmissionsAsync(int page = 1, int pageSize = 10, string sortBy = "submittedat", string sortDir = "desc")
+        => GetAsync<PagedResult<AssessmentSubmissionDto>>($"api/assessments/mine?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}");
 }

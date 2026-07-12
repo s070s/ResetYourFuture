@@ -11,10 +11,14 @@ public partial class AssessmentHistory
     [Inject] private IAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private ILogger<AssessmentHistory> _logger { get; set; } = default!;
 
-    private List<AssessmentSubmissionDto>? submissions;
-    private List<AssessmentSubmissionDto> _sortedSubmissions = new();
+    private PagedResult<AssessmentSubmissionDto>? pagedResult;
     private AssessmentSubmissionDto? latestSubmission;
     private AssessmentSubmissionDto? selectedSubmission;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private static readonly int[] PageSizeOptions = [10, 25, 50];
+    private string _sortBy = "submittedat";
+    private string _sortDir = "desc";
 
     /// <summary>Cache of assessment schemas keyed by definition id → (questionId → label).</summary>
     private readonly Dictionary<Guid, Dictionary<string, string>> schemaCache = new();
@@ -26,26 +30,67 @@ public partial class AssessmentHistory
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadSubmissions();
+        // The initial load is submittedat desc, so its first row is the latest submission;
+        // captured once here, the card stays stable across later sorting/paging.
+        latestSubmission = pagedResult?.Items.FirstOrDefault();
+    }
+
+    private async Task LoadSubmissions()
+    {
         try
         {
-            submissions = await AssessmentConsumer.GetMySubmissionsAsync();
-            latestSubmission = submissions?.OrderByDescending(s => s.SubmittedAt).FirstOrDefault();
-            _sortedSubmissions = submissions?.OrderByDescending(s => s.SubmittedAt).ToList() ?? new();
+            pagedResult = await AssessmentConsumer.GetMySubmissionsAsync(currentPage, pageSize, _sortBy, _sortDir)
+                ?? new PagedResult<AssessmentSubmissionDto>([], 0, currentPage, pageSize);
 
-            // Pre-load schemas for all distinct assessments so labels are available immediately
-            if (submissions != null)
+            // Pre-load schemas for the assessments on this page so labels are available immediately
+            foreach (var defId in pagedResult.Items.Select(s => s.AssessmentDefinitionId).Distinct())
             {
-                var distinctIds = submissions.Select(s => s.AssessmentDefinitionId).Distinct();
-                foreach (var defId in distinctIds)
-                {
-                    await LoadSchemaAsync(defId);
-                }
+                await LoadSchemaAsync(defId);
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading assessment submissions.");
-            submissions = new List<AssessmentSubmissionDto>();
+            pagedResult = new PagedResult<AssessmentSubmissionDto>([], 0, currentPage, pageSize);
+        }
+    }
+
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
+        await LoadSubmissions();
+    }
+
+    private async Task OnPageSizeChanged(int size)
+    {
+        pageSize = size;
+        currentPage = 1;
+        await LoadSubmissions();
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await LoadSubmissions();
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (pagedResult is { HasNextPage: true })
+        {
+            currentPage++;
+            await LoadSubmissions();
         }
     }
 
@@ -101,7 +146,8 @@ public partial class AssessmentHistory
 
     private void ViewSubmission(Guid id)
     {
-        selectedSubmission = submissions?.FirstOrDefault(s => s.Id == id);
+        selectedSubmission = pagedResult?.Items.FirstOrDefault(s => s.Id == id)
+            ?? (latestSubmission?.Id == id ? latestSubmission : null);
     }
 
     private void CloseModal()

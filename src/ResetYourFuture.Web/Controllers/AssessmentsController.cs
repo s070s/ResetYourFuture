@@ -64,9 +64,17 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
     /// Get current user's assessment submissions (history).
     /// </summary>
     [HttpGet("mine")]
-    public async Task<ActionResult<List<AssessmentSubmissionDto>>> GetMySubmissions(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<PagedResult<AssessmentSubmissionDto>>> GetMySubmissions(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string sortBy = "submittedat",
+        [FromQuery] string sortDir = "desc",
+        CancellationToken cancellationToken = default)
     {
-        var submissions = await assessmentService.GetMySubmissionsAsync(UserId, cancellationToken);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var submissions = await assessmentService.GetMySubmissionsAsync(UserId, page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(submissions);
     }
 }

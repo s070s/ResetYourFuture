@@ -134,6 +134,9 @@
 	<data name="ViewDetails" xml:space="preserve">
 		<value>Προβολή Λεπτομερειών</value>
 	</data>
+	<data name="SubmissionsItemLabel" xml:space="preserve">
+		<value>υποβολές</value>
+	</data>
 	<data name="AllSubmissions" xml:space="preserve">
 		<value>Όλες οι Υποβολές</value>
 	</data>

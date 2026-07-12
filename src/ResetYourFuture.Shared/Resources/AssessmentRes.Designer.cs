@@ -176,6 +176,15 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("AllSubmissions", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to submissions.
+        /// </summary>
+        public static string SubmissionsItemLabel {
+            get {
+                return ResourceManager.GetString("SubmissionsItemLabel", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Assessment.

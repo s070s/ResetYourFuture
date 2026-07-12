@@ -3,11 +3,11 @@
 
 <h1 class="h3">@AssessmentRes.HistoryTitle</h1>
 
-@if (submissions == null)
+@if (pagedResult == null)
 {
     <LoadingSpinner Label="@AssessmentRes.Loading" />
 }
-else if (submissions.Count == 0)
+else if (pagedResult.TotalCount == 0)
 {
     <div class="alert alert-info">
         <p>@AssessmentRes.NoSubmissionsMessage</p>
@@ -31,12 +31,18 @@ else
     }
 
     <h4>@AssessmentRes.AllSubmissions</h4>
-    <ScrollableTable Items="_sortedSubmissions" TItem="AssessmentSubmissionDto">
+    <ScrollableTable Items="pagedResult.Items" TItem="AssessmentSubmissionDto">
         <HeaderRow>
             <tr>
-                <th>@AssessmentRes.AssessmentHeader</th>
-                <th>@AssessmentRes.CategoryHeader</th>
-                <th>@AssessmentRes.SubmittedHeader</th>
+                <SortableColumnHeader ColumnKey="title" Label="@AssessmentRes.AssessmentHeader"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="category" Label="@AssessmentRes.CategoryHeader"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
+                <SortableColumnHeader ColumnKey="submittedat" Label="@AssessmentRes.SubmittedHeader"
+                                      CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                      OnSort="OnSort" />
                 <th>@AssessmentRes.Actions</th>
             </tr>
         </HeaderRow>
@@ -51,6 +57,18 @@ else
             </tr>
         </RowTemplate>
     </ScrollableTable>
+
+    <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                            TotalPages="pagedResult.TotalPages"
+                            TotalCount="pagedResult.TotalCount"
+                            PageSize="pagedResult.PageSize"
+                            HasPreviousPage="pagedResult.HasPreviousPage"
+                            HasNextPage="pagedResult.HasNextPage"
+                            PageSizeOptions="PageSizeOptions"
+                            ItemLabel="@AssessmentRes.SubmissionsItemLabel"
+                            OnPageSizeChanged="OnPageSizeChanged"
+                            OnPreviousPage="PreviousPage"
+                            OnNextPage="NextPage" />
 }
 
 <FormModal IsVisible="@(selectedSubmission != null)"

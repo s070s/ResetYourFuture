@@ -5,6 +5,7 @@ using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Shared.Resources.Messages;
 using System.Text.Json;
 
@@ -156,13 +157,19 @@ public class AssessmentService(
         return ServiceResult<AssessmentSubmissionDto>.Ok(dto);
     }
 
-    public async Task<List<AssessmentSubmissionDto>> GetMySubmissionsAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<AssessmentSubmissionDto>> GetMySubmissionsAsync(
+        string userId, int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
-        return await db.AssessmentSubmissions
+        var query = db.AssessmentSubmissions
             .AsNoTracking()
-            .Where(s => s.UserId == userId)
-            .Include(s => s.AssessmentDefinition)
-            .OrderByDescending(s => s.SubmittedAt)
+            .Where(s => s.UserId == userId);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .ApplySort(sortBy, sortDir)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(s => new AssessmentSubmissionDto(
                 s.Id,
                 s.AssessmentDefinitionId,
@@ -173,6 +180,8 @@ public class AssessmentService(
                 s.AssessmentDefinition.Category != null ? s.AssessmentDefinition.Category.NameEn : null
             ))
             .ToListAsync(cancellationToken);
+
+        return new PagedResult<AssessmentSubmissionDto>(items, totalCount, page, pageSize, sortBy, sortDir);
     }
 
     /// Returns cached resolved schema JSON, or computes and caches it on miss.
