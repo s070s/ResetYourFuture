@@ -67,7 +67,7 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 |----|--------------|---------------|----------------------------|
 | ~~WI-2~~ ✅ | `AdminCourses` — done | `CourseSearchExtensions.cs` | title, category, tier, status, enrollments, **createdat desc** |
 | ~~WI-3~~ ✅ | `AdminAssessments` — done (list query lives inline in the controller, not `AssessmentService`; actual pre-existing default was **createdat desc**, preserved) | `AssessmentSearchExtensions.cs` | title, key, category, tier, status, submissions, **createdat desc** |
-| WI-4 | `AdminBlog.razor` → `IAdminBlogConsumer` → `AdminBlogController.cs:36-40` → `BlogArticleService.cs:80` (preserve existing `search` param) | `BlogArticleSearchExtensions.cs` | title, slug, author, status, **createdat desc**, publishedat |
+| ~~WI-4~~ ✅ | `AdminBlog` — done (search param preserved) | `BlogArticleSearchExtensions.cs` | title, slug, author, status, **createdat desc**, publishedat |
 | WI-5 | `AdminCategories.razor` → `IAdminCategoryConsumer` → `AdminCategoriesController.cs:24-27` → `AdminCategoryService.cs:22` | `CategorySearchExtensions.cs` | **nameen asc**, nameel, coursecount (count), assessmentcount (count), createdat |
 | WI-6 | `AdminTestimonials.razor` → `IAdminTestimonialConsumer` → `AdminTestimonialsController.cs:35-38` → `TestimonialService.cs:46` — plus Decision 5 (disable ↑/↓ under non-default sort) | `TestimonialSearchExtensions.cs` | **displayorder asc**, name, status, createdat |
 | WI-7 | `AdminAssessmentSubmissions.razor` → `IAdminAssessmentConsumer` (submissions method) → `AdminAssessmentsController.cs:314-318` → `AssessmentService.cs:165` | `AssessmentSubmissionSearchExtensions.cs` | user (lastname), email, **submittedat desc** |

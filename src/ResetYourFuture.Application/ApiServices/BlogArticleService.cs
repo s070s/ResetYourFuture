@@ -2,6 +2,7 @@ using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
@@ -54,7 +55,7 @@ public class BlogArticleService : IBlogArticleService
     }
 
     public async Task<PagedResult<AdminBlogArticleDto>> GetAllForAdminAsync(
-        int page, int pageSize, string? search, CancellationToken cancellationToken = default)
+        int page, int pageSize, string? search, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -77,7 +78,7 @@ public class BlogArticleService : IBlogArticleService
         var total = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .OrderByDescending(a => a.CreatedAt)
+            .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -87,8 +88,8 @@ public class BlogArticleService : IBlogArticleService
             TotalCount: total,
             Page: page,
             PageSize: pageSize,
-            SortBy: "createdAt",
-            SortDir: "desc");
+            SortBy: sortBy,
+            SortDir: sortDir);
     }
 
     public async Task<AdminBlogArticleDto?> GetByIdForAdminAsync(

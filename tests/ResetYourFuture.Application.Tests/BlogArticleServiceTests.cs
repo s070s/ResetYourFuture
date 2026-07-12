@@ -82,7 +82,7 @@ public class BlogArticleServiceTests
         db.BlogArticles.Add(Article("a"));
         await db.SaveChangesAsync();
 
-        var result = await NewService(db).GetAllForAdminAsync(page: 0, pageSize: 999, search: null);
+        var result = await NewService(db).GetAllForAdminAsync(page: 0, pageSize: 999, search: null, "createdat", "desc");
 
         result.Page.ShouldBe(1);
         result.PageSize.ShouldBe(100); // clamped to max
@@ -97,7 +97,7 @@ public class BlogArticleServiceTests
         db.BlogArticles.Add(Article("beta-post", "Beta"));
         await db.SaveChangesAsync();
 
-        var result = await NewService(db).GetAllForAdminAsync(1, 10, "alpha");
+        var result = await NewService(db).GetAllForAdminAsync(1, 10, "alpha", "createdat", "desc");
 
         result.Items.Select(i => i.Slug).ShouldBe(new[] { "alpha-post" });
     }

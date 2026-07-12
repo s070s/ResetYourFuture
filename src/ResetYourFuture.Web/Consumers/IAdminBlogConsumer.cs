@@ -8,7 +8,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IAdminBlogConsumer
 {
-    Task<PagedResult<AdminBlogArticleDto>?> GetArticlesAsync(int page = 1, int pageSize = 10, string? search = null, CancellationToken ct = default);
+    Task<PagedResult<AdminBlogArticleDto>?> GetArticlesAsync(int page = 1, int pageSize = 10, string? search = null, string sortBy = "createdat", string sortDir = "desc", CancellationToken ct = default);
     Task<AdminBlogArticleDto?> GetArticleAsync(Guid id, CancellationToken ct = default);
     Task<AdminBlogArticleDto?> CreateArticleAsync(SaveBlogArticleRequest request, CancellationToken ct = default);
     Task<AdminBlogArticleDto?> UpdateArticleAsync(Guid id, SaveBlogArticleRequest request, CancellationToken ct = default);

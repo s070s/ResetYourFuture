@@ -14,7 +14,7 @@ public interface IBlogArticleService
     Task<BlogArticleDto?> GetPublishedBySlugAsync(string slug, string lang = "en", CancellationToken cancellationToken = default);
 
     /// <summary>Returns all articles paginated for the admin list (both language variants).</summary>
-    Task<PagedResult<AdminBlogArticleDto>> GetAllForAdminAsync(int page, int pageSize, string? search, CancellationToken cancellationToken = default);
+    Task<PagedResult<AdminBlogArticleDto>> GetAllForAdminAsync(int page, int pageSize, string? search, string sortBy, string sortDir, CancellationToken cancellationToken = default);
 
     /// <summary>Returns a single article by id for the admin editor, or null if not found.</summary>
     Task<AdminBlogArticleDto?> GetByIdForAdminAsync(Guid id, CancellationToken cancellationToken = default);

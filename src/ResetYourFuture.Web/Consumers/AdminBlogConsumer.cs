@@ -9,9 +9,9 @@ namespace ResetYourFuture.Web.Consumers;
 public class AdminBlogConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), IAdminBlogConsumer
 {
     public Task<PagedResult<AdminBlogArticleDto>?> GetArticlesAsync(
-        int page = 1, int pageSize = 10, string? search = null, CancellationToken ct = default)
+        int page = 1, int pageSize = 10, string? search = null, string sortBy = "createdat", string sortDir = "desc", CancellationToken ct = default)
     {
-        var url = $"api/admin/blog?page={page}&pageSize={pageSize}";
+        var url = $"api/admin/blog?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}";
         if (!string.IsNullOrWhiteSpace(search))
             url += $"&search={Uri.EscapeDataString(search)}";
         return GetAsync<PagedResult<AdminBlogArticleDto>>(url, ct);

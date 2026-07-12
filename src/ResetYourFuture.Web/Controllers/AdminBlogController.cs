@@ -38,9 +38,11 @@ public class AdminBlogController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null,
+        [FromQuery] string sortBy = "createdat",
+        [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
-        var result = await _blogService.GetAllForAdminAsync(page, pageSize, search, cancellationToken);
+        var result = await _blogService.GetAllForAdminAsync(page, pageSize, search, sortBy, sortDir, cancellationToken);
         return Ok(result);
     }
 

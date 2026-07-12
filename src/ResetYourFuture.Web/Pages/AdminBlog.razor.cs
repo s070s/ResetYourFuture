@@ -17,9 +17,24 @@ public partial class AdminBlog : IAsyncDisposable
     private string message = string.Empty;
     private Guid? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
+    private string _sortBy = "createdat";
+    private string _sortDir = "desc";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadArticles();
+    }
+
+    private async Task OnSort(string columnKey)
+    {
+        if (_sortBy == columnKey)
+            _sortDir = _sortDir == "asc" ? "desc" : "asc";
+        else
+        {
+            _sortBy = columnKey;
+            _sortDir = "asc";
+        }
+        currentPage = 1;
         await LoadArticles();
     }
 
@@ -28,7 +43,9 @@ public partial class AdminBlog : IAsyncDisposable
         pagedResult = await BlogConsumer.GetArticlesAsync(
             currentPage,
             pageSize,
-            string.IsNullOrEmpty(searchTerm) ? null : searchTerm);
+            string.IsNullOrEmpty(searchTerm) ? null : searchTerm,
+            _sortBy,
+            _sortDir);
     }
 
     private async Task OnSearchInput(ChangeEventArgs e)
