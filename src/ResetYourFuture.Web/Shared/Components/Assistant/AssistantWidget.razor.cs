@@ -18,7 +18,8 @@ public partial class AssistantWidget : IDisposable
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
 
     private bool _open;
-    private bool? _available;
+    private AssistantStatusDto? _status;
+    private CancellationTokenSource? _statusPollCts;
     private bool _accessChecked;
     private readonly List<AssistantMessageDto> _messages = [];
     private bool _isStreaming;
@@ -45,9 +46,31 @@ public partial class AssistantWidget : IDisposable
         if (authState.User.Identity?.IsAuthenticated != true)
             return;
 
-        var status = await Consumer.GetStatusAsync();
-        _available = status?.Available ?? false;
+        _status = await Consumer.GetStatusAsync();
         StateHasChanged();
+
+        // While the assistant bootstraps (Ollama probing / model download), keep polling so the
+        // widget flips to interactive the moment the state hits Ready — no refresh needed.
+        _statusPollCts = new CancellationTokenSource();
+        _ = PollStatusWhileBootstrappingAsync(_statusPollCts.Token);
+    }
+
+    private async Task PollStatusWhileBootstrappingAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            while (!cancellationToken.IsCancellationRequested
+                   && _status is { State: "DownloadingModels" or "OllamaUnreachable" })
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                _status = await Consumer.GetStatusAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Circuit going away — nothing to update.
+        }
     }
 
     private void ToggleOpen() => _open = !_open;
@@ -85,6 +108,7 @@ public partial class AssistantWidget : IDisposable
         _streamCts = new CancellationTokenSource();
         var content = new StringBuilder();
         var errored = false;
+        string? errorText = null;
 
         try
         {
@@ -102,6 +126,7 @@ public partial class AssistantWidget : IDisposable
                         break;
                     case "error":
                         errored = true;
+                        errorText = streamEvent.Text;
                         break;
                 }
             }
@@ -112,7 +137,7 @@ public partial class AssistantWidget : IDisposable
         }
 
         if (errored || content.Length == 0)
-            UpdateLastMessage(AssistantRes.ErrorGeneric);
+            UpdateLastMessage(string.IsNullOrWhiteSpace(errorText) ? AssistantRes.ErrorGeneric : errorText);
 
         _isStreaming = false;
         StateHasChanged();
@@ -140,6 +165,8 @@ public partial class AssistantWidget : IDisposable
     {
         _streamCts?.Cancel();
         _streamCts?.Dispose();
+        _statusPollCts?.Cancel();
+        _statusPollCts?.Dispose();
         GC.SuppressFinalize(this);
     }
 }

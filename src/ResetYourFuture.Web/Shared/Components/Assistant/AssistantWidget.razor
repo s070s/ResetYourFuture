@@ -16,9 +16,17 @@
                     <button type="button" class="assistant-close" @onclick="ToggleOpen" aria-label="@AssistantRes.Close">✕</button>
                 </div>
 
-                @if (_available == false)
+                @if (_status is { State: "Disabled" })
                 {
                     <div class="assistant-offline">@AssistantRes.Offline</div>
+                }
+                else if (_status is { State: "OllamaUnreachable" })
+                {
+                    <div class="assistant-offline">@AssistantRes.Unreachable</div>
+                }
+                else if (_status is { State: "DownloadingModels" })
+                {
+                    <div class="assistant-offline">@string.Format(AssistantRes.Downloading, _status.Progress ?? "…")</div>
                 }
                 else
                 {
