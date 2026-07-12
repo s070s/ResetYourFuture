@@ -56,10 +56,8 @@ Headers are localized via existing `Col*` resx keys (`AdminRes`, `CategoryRes`, 
 
 ## 4. Work Items
 
-### WI-1: AdminUsers gap-fill (validates the pattern end-to-end, smallest change)
-- **Files:** `src/ResetYourFuture.Web/Pages/AdminUsers.razor` (lines 36-41 area), `src/ResetYourFuture.Domain/Extensions/UserSearchExtensions.cs`, `tests/ResetYourFuture.Domain.Tests/UserSearchExtensionsTests.cs`
-- **Change:** convert `<th>` → `SortableColumnHeader` for **Enabled** (`isenabled` — backend key already exists), **Email Confirmed** (new key `emailconfirmed`), **Online** (new key `lastseenat`; `ApplicationUser.LastSeenAt` exists since the `AddUserLastSeenAt` migration), **Tier** (new key `tier` — *only if* the tier is a mapped column/owned value on `ApplicationUser`; if it is computed from active subscriptions, sort via subscription subquery or drop with a code comment). Roles and Status stay plain `<th>` (Decision 4). No consumer/controller/service change — they already thread `sortBy`/`sortDir`.
-- **Acceptance criteria:** all new headers toggle asc/desc and survive page changes; unknown keys still default to email asc; extension tests cover each new key both directions + tie-breaker.
+### ~~WI-1: AdminUsers gap-fill~~ ✅ DONE
+Enabled (`isenabled`), EmailConfirmed (`emailconfirmed`), Online (`lastseenat`), and Tier (`tier`, active-subscription subquery) headers are sortable; extension tests cover every key both directions plus a SQL Server translation guard (`ToQueryString`).
 
 ### WI-2..7: Full 6-layer chain per admin table
 
@@ -93,7 +91,7 @@ Each item repeats the identical recipe: swap `<th>` → `SortableColumnHeader` +
 
 ## 5. Implementation Order & Dependencies
 
-1. **WI-1** — smallest, validates the recipe without touching consumers/controllers.
+1. ~~WI-1~~ done.
 2. **WI-2 → WI-7** — independent of each other; parallelizable; each is one page's full chain. Do WI-7 before WI-8 (shared extension).
 3. **WI-8, WI-9** — structural preps last; they change page composition, not just headers.
 4. **WI-10** — written alongside each extension (not deferred to the end).

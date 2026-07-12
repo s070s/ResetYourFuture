@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 using Shouldly;
@@ -16,7 +18,8 @@ namespace ResetYourFuture.Domain.Tests;
 public class UserSearchExtensionsTests
 {
     private static ApplicationUser User(
-        string email, string first, string last, DateTime created, bool enabled = true) =>
+        string email, string first, string last, DateTime created, bool enabled = true,
+        bool confirmed = false, DateTime? lastSeen = null) =>
         new()
         {
             Id = Guid.NewGuid().ToString("N"),
@@ -25,7 +28,9 @@ public class UserSearchExtensionsTests
             FirstName = first,
             LastName = last,
             CreatedAt = created,
-            IsEnabled = enabled
+            IsEnabled = enabled,
+            EmailConfirmed = confirmed,
+            LastSeenAt = lastSeen
         };
 
     private static async Task<ApplicationDbContext> SeedAsync(params ApplicationUser[] users)
@@ -38,9 +43,9 @@ public class UserSearchExtensionsTests
 
     // ---- ApplySort -----------------------------------------------------------
 
-    // Seed: A=a@x.com (Charlie Brown, 2022, enabled),
-    //       B=b@x.com (Alice   Young, 2020, disabled),
-    //       C=c@x.com (Alice   Adams, 2021, enabled)
+    // Seed: A=a@x.com (Charlie Brown, 2022, enabled,  confirmed,   seen 2024),
+    //       B=b@x.com (Alice   Young, 2020, disabled, unconfirmed, never seen),
+    //       C=c@x.com (Alice   Adams, 2021, enabled,  unconfirmed, seen 2023)
     [Theory]
     [InlineData("firstname", "asc", "c,b,a")]
     [InlineData("firstname", "desc", "a,c,b")]
@@ -50,6 +55,10 @@ public class UserSearchExtensionsTests
     [InlineData("createdat", "desc", "a,c,b")]
     [InlineData("isenabled", "asc", "b,a,c")]
     [InlineData("isenabled", "desc", "a,c,b")]
+    [InlineData("emailconfirmed", "asc", "b,c,a")]
+    [InlineData("emailconfirmed", "desc", "a,b,c")]
+    [InlineData("lastseenat", "asc", "b,c,a")] // never-seen (null) sorts first ascending
+    [InlineData("lastseenat", "desc", "a,c,b")]
     [InlineData("email", "asc", "a,b,c")]
     [InlineData("email", "desc", "c,b,a")]
     [InlineData(null, null, "a,b,c")]
@@ -57,9 +66,37 @@ public class UserSearchExtensionsTests
     public async Task ApplySort_OrdersAsExpected(string? sortBy, string? sortDir, string expectedCsv)
     {
         await using var db = await SeedAsync(
-            User("a@x.com", "Charlie", "Brown", new DateTime(2022, 1, 1)),
+            User("a@x.com", "Charlie", "Brown", new DateTime(2022, 1, 1), confirmed: true, lastSeen: new DateTime(2024, 6, 1)),
             User("b@x.com", "Alice", "Young", new DateTime(2020, 1, 1), enabled: false),
-            User("c@x.com", "Alice", "Adams", new DateTime(2021, 1, 1)));
+            User("c@x.com", "Alice", "Adams", new DateTime(2021, 1, 1), lastSeen: new DateTime(2023, 6, 1)));
+
+        var letters = await db.Users
+            .ApplySort(sortBy, sortDir)
+            .Select(u => u.Email!.Substring(0, 1))
+            .ToListAsync();
+
+        string.Join(",", letters).ShouldBe(expectedCsv);
+    }
+
+    // Tier is derived from the active subscription's plan via a correlated subquery;
+    // users without an active subscription sort as Free (0).
+    [Theory]
+    [InlineData("tier", "asc", "b,c,a")] // b: none=Free, c: Plus, a: Pro
+    [InlineData("tier", "desc", "a,c,b")]
+    public async Task ApplySort_Tier_UsesActiveSubscriptionPlan(string sortBy, string sortDir, string expectedCsv)
+    {
+        var a = User("a@x.com", "Charlie", "Brown", new DateTime(2022, 1, 1));
+        var b = User("b@x.com", "Alice", "Young", new DateTime(2020, 1, 1));
+        var c = User("c@x.com", "Alice", "Adams", new DateTime(2021, 1, 1));
+
+        var proPlan = new SubscriptionPlan { Id = Guid.NewGuid(), Name = "Pro", Tier = SubscriptionTier.Pro };
+        var plusPlan = new SubscriptionPlan { Id = Guid.NewGuid(), Name = "Plus", Tier = SubscriptionTier.Plus };
+        a.UserSubscriptions.Add(new UserSubscription { Id = Guid.NewGuid(), UserId = a.Id, SubscriptionPlanId = proPlan.Id, SubscriptionPlan = proPlan, IsActive = true });
+        c.UserSubscriptions.Add(new UserSubscription { Id = Guid.NewGuid(), UserId = c.Id, SubscriptionPlanId = plusPlan.Id, SubscriptionPlan = plusPlan, IsActive = true });
+        // An inactive Pro subscription must not affect b's Free ranking.
+        b.UserSubscriptions.Add(new UserSubscription { Id = Guid.NewGuid(), UserId = b.Id, SubscriptionPlanId = proPlan.Id, SubscriptionPlan = proPlan, IsActive = false });
+
+        await using var db = await SeedAsync(a, b, c);
 
         var letters = await db.Users
             .ApplySort(sortBy, sortDir)
@@ -82,6 +119,30 @@ public class UserSearchExtensionsTests
             .ToListAsync();
 
         emails.ShouldBe(new[] { "x@x.com", "y@x.com" });
+    }
+
+    // Guards SQL Server translatability without a live database: ToQueryString
+    // compiles the query through the relational provider and throws if any sort
+    // key would fall back to client evaluation (the InMemory tests can't catch that).
+    [Theory]
+    [InlineData("firstname")]
+    [InlineData("lastname")]
+    [InlineData("createdat")]
+    [InlineData("isenabled")]
+    [InlineData("emailconfirmed")]
+    [InlineData("lastseenat")]
+    [InlineData("tier")]
+    [InlineData("email")]
+    public void ApplySort_EveryKey_TranslatesToSqlServerSql(string sortBy)
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlServer("Server=unused;Database=unused;")
+            .Options;
+        using var db = new ApplicationDbContext(options);
+
+        var sql = db.Users.ApplySort(sortBy, "desc").ToQueryString();
+
+        sql.ShouldContain("ORDER BY");
     }
 
     // ---- ApplySearch: email mode ('@' present) -------------------------------

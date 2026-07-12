@@ -23,6 +23,23 @@ public static class UserSearchExtensions
             ("createdat", _) => query.OrderBy(u => u.CreatedAt),
             ("isenabled", "desc") => query.OrderByDescending(u => u.IsEnabled),
             ("isenabled", _) => query.OrderBy(u => u.IsEnabled),
+            ("emailconfirmed", "desc") => query.OrderByDescending(u => u.EmailConfirmed),
+            ("emailconfirmed", _) => query.OrderBy(u => u.EmailConfirmed),
+            // Nullable LastSeenAt: never-seen users have NULL, which sorts before any date.
+            ("lastseenat", "desc") => query.OrderByDescending(u => u.LastSeenAt),
+            ("lastseenat", _) => query.OrderBy(u => u.LastSeenAt),
+            // Tier is not a user column — it is derived from the active subscription's plan,
+            // so sort via a correlated subquery (translates to SELECT TOP 1; the filtered
+            // unique index guarantees at most one active subscription per user).
+            // No active subscription means Free (0).
+            ("tier", "desc") => query.OrderByDescending(u => u.UserSubscriptions
+                .Where(s => s.IsActive)
+                .Select(s => (int?)s.SubscriptionPlan.Tier)
+                .FirstOrDefault() ?? 0),
+            ("tier", _) => query.OrderBy(u => u.UserSubscriptions
+                .Where(s => s.IsActive)
+                .Select(s => (int?)s.SubscriptionPlan.Tier)
+                .FirstOrDefault() ?? 0),
             ("email", "desc") => query.OrderByDescending(u => u.Email),
             _ => query.OrderBy(u => u.Email),
         };

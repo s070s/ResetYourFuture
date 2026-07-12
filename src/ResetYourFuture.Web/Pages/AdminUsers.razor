@@ -34,10 +34,18 @@
                                                   CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
                                                   OnSort="OnSort" />
                             <th>@AdminRes.ColStatus</th>
-                            <th>@AdminRes.ColOnline</th>
-                            <th>@AdminRes.ColEnabled</th>
-                            <th>@AdminRes.ColEmailConfirmed</th>
-                            <th>@AdminRes.ColTier</th>
+                            <SortableColumnHeader ColumnKey="lastseenat" Label="@AdminRes.ColOnline"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="isenabled" Label="@AdminRes.ColEnabled"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="emailconfirmed" Label="@AdminRes.ColEmailConfirmed"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
+                            <SortableColumnHeader ColumnKey="tier" Label="@AdminRes.ColTier"
+                                                  CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                                  OnSort="OnSort" />
                             <th>@AdminRes.ColRoles</th>
                             <SortableColumnHeader ColumnKey="createdat" Label="@AdminRes.ColCreated"
                                                   CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
