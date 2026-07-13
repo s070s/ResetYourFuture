@@ -31,7 +31,8 @@ dotnet build
 dotnet run --project src/ResetYourFuture.Web
 # Visual Studio: right-click Solution → Configure Startup Projects → set ResetYourFuture.Web → F5
 
-# 7. (Optional) Enable the local AI assistant — see the "AI Assistant" section below
+# 7. (Optional) Install Ollama for the local AI assistant — everything else is automatic
+winget install Ollama.Ollama   # see the "AI Assistant" section below
 ```
 
 > **Database is created and migrated automatically on first run.** If you drop the database (e.g. from SSMS), just restart the app — it will recreate and reseed it.
