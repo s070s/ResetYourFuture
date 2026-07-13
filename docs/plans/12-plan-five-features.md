@@ -51,14 +51,11 @@ Tests: `NotificationSearchExtensionsTests`, `NotificationServiceTests`, `Notific
 - **Effort:** M. **Depends on:** WI-1 (emits "review approved" notification — optional coupling).
 - **Acceptance:** enrolled student can post/edit; unapproved reviews invisible to others; average updates on approval; admin queue sortable.
 
-### WI-3: Semantic Site Search
-**Why:** the app has zero global search; the `bge-m3` embeddings of every published course/lesson/assessment/blog article **already exist** in `AssistantContentChunks` — this feature is mostly a thin query surface over paid-for infrastructure.
-- **Entities + migration:** none (reuses `AssistantContentChunks`).
-- **Backend:** `SiteSearchService` in Application: embed the query via the existing `IEmbeddingGenerator`, rank via the existing cosine/`AssistantChunkCache` path (`AssistantRetrievalService` refactored to share its ranking core), group hits by source (course/assessment/article) and return top sources with best-chunk snippet + URL. Graceful fallback to SQL `LIKE` over titles when the assistant/Ollama is unavailable (state from 11-plan WI-A2).
-- **API + consumer:** `GET /api/search?q=…&limit=…` (`SearchController`, anonymous-allowed for published content), `SearchConsumer`.
-- **UI:** search box in `NavMenu.razor` (or `MainLayout` header) with a results flyout + full `/search` page; highlight matched snippet; per-type icons. `SearchRes.resx` (+ `.el`).
-- **Effort:** M. **Depends on:** 11-plan WI-A2 state (for the fallback signal) — otherwise standalone.
-- **Acceptance:** querying a concept (not an exact title word) in either language surfaces the right course/article; Ollama down ⇒ title search still works with a notice.
+### ~~WI-3: Semantic Site Search~~ ✅ DONE
+`AssistantRetrievalService` refactored to share its ranking core (`RankChunksAsync` embed+cosine+threshold step, reused by both methods): existing `SearchAsync` (per-chunk, for the assistant's grounding) is unchanged in contract; new `SearchGroupedAsync` deduplicates to one result per source (its best-scoring chunk becomes the snippet) — the shape search needs. `IAssistantRetrievalService` is now always resolvable regardless of `Assistant:Enabled` (new `DisabledAssistantRetrievalService`, mirroring `DisabledAssistantService`), so `SiteSearchService` can depend on it unconditionally.
+`SiteSearchService`: semantic search only attempted once `AssistantRuntimeState.Status == Ready` (skips a pointless empty-cache call while bootstrapping/disabled); falls back to a SQL title search (plain `.Contains`, not `EF.Functions.Like` — the latter isn't supported by the EF Core InMemory provider the Web.Tests factory uses) across published courses/assessments/blog articles on any non-Ready state, an exception, or zero semantic hits. `SiteSearchResultDto.SemanticSearchUsed` lets the UI show a notice when running on the fallback.
+UI: `SiteSearchBox` (debounced flyout, mounted in `MainLayout` header) + full `/search` page, both anonymous — `SearchController` has no `[Authorize]`, matching `BlogController`/`TestimonialsController`'s existing public-content precedent. New `SearchRes.resx` (+ `.el`).
+Tests: `AssistantRetrievalServiceTests` extended for `SearchGroupedAsync` (dedup, ordering, topK, threshold); `SiteSearchServiceTests` (semantic path, fallback on not-Ready/exception/empty, published-only filtering); `SearchControllerTests` (anonymous 200, published-only, empty-query, limit clamping). Verified live: anonymous flyout + full page + fallback notice + EL localization, all against real seeded content.
 
 ### WI-4: Learning Paths
 **Why:** courses are currently a flat catalog; ordered paths ("Career Change Starter → CV Lab → Interview Mastery") add curriculum value and a reason to subscribe; admin CRUD mirrors existing admin pages exactly.

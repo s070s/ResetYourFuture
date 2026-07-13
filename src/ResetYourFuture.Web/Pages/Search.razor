@@ -1,0 +1,50 @@
+@page "/search"
+
+<PageTitle>@SearchRes.PageTitle</PageTitle>
+
+<div class="admin-container">
+    <h1 class="h2">@(string.IsNullOrWhiteSpace(Q) ? SearchRes.PageTitle : string.Format(SearchRes.ResultsForFormat, Q))</h1>
+
+    <div class="mb-3" style="max-width:480px">
+        <input type="search" class="form-control" placeholder="@SearchRes.Placeholder"
+               aria-label="@SearchRes.SearchLabel"
+               value="@_input" @oninput="e => _input = e.Value?.ToString() ?? string.Empty"
+               @onkeydown="HandleKeyDown" />
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(Q))
+    {
+        <p class="text-light-muted">@SearchRes.EnterQuery</p>
+    }
+    else if (_loading)
+    {
+        <LoadingSpinner Label="@SearchRes.SearchLabel" />
+    }
+    else if (_result is { Hits.Count: 0 })
+    {
+        <p>@SearchRes.NoResults</p>
+    }
+    else if (_result is not null)
+    {
+        @if (!_result.SemanticSearchUsed)
+        {
+            <div class="alert alert-secondary">@SearchRes.FallbackNotice</div>
+        }
+        <div class="d-flex flex-column gap-2">
+            @foreach (var hit in _result.Hits)
+            {
+                <a class="site-search-result-card" href="@hit.Url">
+                    <span class="bi @IconFor(hit.SourceType) site-search-result-icon" aria-hidden="true"></span>
+                    <span class="site-search-result-body">
+                        <span class="site-search-result-type">@TypeLabel(hit.SourceType)</span>
+                        <span class="site-search-result-title">@hit.Title</span>
+                        @if (!string.IsNullOrEmpty(hit.Snippet))
+                        {
+                            <span class="site-search-result-snippet">@hit.Snippet</span>
+                        }
+                    </span>
+                </a>
+            }
+        </div>
+    }
+</div>

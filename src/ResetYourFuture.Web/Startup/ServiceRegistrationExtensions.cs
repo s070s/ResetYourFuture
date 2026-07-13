@@ -56,6 +56,9 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<IBlogArticleService, BlogArticleService>();
         builder.Services.AddScoped<ITestimonialService, TestimonialService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
+        // Depends on IAssistantRetrievalService, which is always resolvable (real or Disabled
+        // impl) regardless of Assistant:Enabled — see the Disabled branch below.
+        builder.Services.AddScoped<ISiteSearchService, SiteSearchService>();
         // Web-layer dispatcher (needs IHubContext<NotificationHub>) so Application/Infrastructure
         // services can raise notifications through the framework-agnostic INotificationDispatcher.
         builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -128,6 +131,9 @@ public static class ServiceRegistrationExtensions
         else
         {
             builder.Services.AddScoped<IAssistantService, DisabledAssistantService>();
+            // SiteSearchService depends on IAssistantRetrievalService unconditionally and falls
+            // back to a title LIKE search on empty results — this keeps it resolvable either way.
+            builder.Services.AddScoped<IAssistantRetrievalService, DisabledAssistantRetrievalService>();
         }
 
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
@@ -271,5 +277,6 @@ public static class ServiceRegistrationExtensions
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<INotificationConsumer, NotificationConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<ISearchConsumer, SearchConsumer>(c => c.BaseAddress = new Uri(selfBase));
     }
 }

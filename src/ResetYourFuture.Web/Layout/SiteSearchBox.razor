@@ -1,0 +1,47 @@
+@implements IDisposable
+
+<div class="site-search" @onfocusout="HandleFocusOut" tabindex="-1">
+    <span class="bi bi-search site-search-icon" aria-hidden="true"></span>
+    <input type="search" class="site-search-input" placeholder="@SearchRes.Placeholder"
+           aria-label="@SearchRes.SearchLabel"
+           value="@_query" @oninput="HandleInput" @onkeydown="HandleKeyDown" @onfocus="HandleFocus" />
+
+    @if (_open)
+    {
+        <div class="site-search-flyout" role="listbox">
+            @if (_loading)
+            {
+                <div class="site-search-empty">@SearchRes.SearchLabel…</div>
+            }
+            else if (_query.Trim().Length == 0)
+            {
+                <div class="site-search-empty">@SearchRes.EnterQuery</div>
+            }
+            else if (_result is { Hits.Count: 0 })
+            {
+                <div class="site-search-empty">@SearchRes.NoResults</div>
+            }
+            else if (_result is not null)
+            {
+                @if (!_result.SemanticSearchUsed)
+                {
+                    <div class="site-search-notice">@SearchRes.FallbackNotice</div>
+                }
+                @foreach (var hit in _result.Hits)
+                {
+                    <a class="site-search-hit" role="option" href="@hit.Url" @onclick="Close">
+                        <span class="bi @IconFor(hit.SourceType) site-search-hit-icon" aria-hidden="true"></span>
+                        <span class="site-search-hit-body">
+                            <span class="site-search-hit-title">@hit.Title</span>
+                            @if (!string.IsNullOrEmpty(hit.Snippet))
+                            {
+                                <span class="site-search-hit-snippet">@hit.Snippet</span>
+                            }
+                        </span>
+                    </a>
+                }
+                <a class="site-search-see-all" href="@($"/search?q={Uri.EscapeDataString(_query)}")" @onclick="Close">@SearchRes.SeeAllResults</a>
+            }
+        </div>
+    }
+</div>

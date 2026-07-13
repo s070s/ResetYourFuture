@@ -198,6 +198,20 @@
       <DependentUpon>ProfileRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Search -->
+    <EmbeddedResource Update="Resources\SearchRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SearchRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SearchRes.el.resx">
+      <DependentUpon>SearchRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\SearchRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SearchRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Notification -->
     <EmbeddedResource Update="Resources\NotificationRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -1,0 +1,121 @@
+.site-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 220px;
+    max-width: 40vw;
+}
+
+.site-search-icon {
+    position: absolute;
+    left: 0.6rem;
+    color: var(--text-light-muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+}
+
+.site-search-input {
+    width: 100%;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    color: var(--text-light-normal);
+    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem 0.35rem 1.9rem;
+}
+
+    .site-search-input:focus-visible {
+        outline: 2px solid var(--text-accent);
+        outline-offset: 1px;
+    }
+
+.site-search-flyout {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 0.4rem;
+    min-width: 320px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.site-search-empty {
+    padding: 0.9rem;
+    text-align: center;
+    color: var(--text-light-muted);
+    font-size: 0.85rem;
+}
+
+.site-search-notice {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.75rem;
+    color: var(--text-light-muted);
+    background-color: var(--bg-table-header-hover);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.site-search-hit {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.6rem 0.9rem;
+    color: var(--text-light-normal);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 0.85rem;
+}
+
+    .site-search-hit:hover {
+        background-color: var(--bg-table-header-hover);
+        color: var(--text-accent);
+    }
+
+    .site-search-hit:last-of-type {
+        border-bottom: none;
+    }
+
+.site-search-hit-icon {
+    margin-top: 0.15rem;
+    color: var(--text-light-muted);
+    flex-shrink: 0;
+}
+
+.site-search-hit-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.site-search-hit-title {
+    font-weight: 600;
+}
+
+.site-search-hit-snippet {
+    color: var(--text-light-muted);
+    font-size: 0.78rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.site-search-see-all {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+    color: var(--text-accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+}
+
+    .site-search-see-all:hover {
+        background-color: var(--bg-table-header-hover);
+    }

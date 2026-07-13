@@ -98,4 +98,70 @@ public class AssistantRetrievalServiceTests
 
         (await svc.SearchAsync("query", "en", topK: 5)).ShouldBeEmpty();
     }
+
+    [Fact]
+    public async Task SearchGroupedAsync_MultipleChunksSameSource_CollapsesToOneHitWithBestSnippet()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "Course A", IsPublished = true };
+        db.Courses.Add(course);
+        // Two chunks from the SAME course: a near-perfect match and a weaker (but still passing) one.
+        db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, course.Id, "en", "best chunk", [1f, 0f, 0f]));
+        db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, course.Id, "en", "weaker chunk", [0.8f, 0.6f, 0f], index: 1));
+        await db.SaveChangesAsync();
+        var (svc, _) = NewService(db, [1f, 0f, 0f]);
+
+        var hits = await svc.SearchGroupedAsync("query", "en", topK: 5);
+
+        var hit = hits.ShouldHaveSingleItem();
+        hit.SourceType.ShouldBe(AssistantSourceType.Course);
+        hit.Title.ShouldBe("Course A");
+        hit.Snippet.ShouldBe("best chunk"); // highest-scoring chunk wins as the snippet
+    }
+
+    [Fact]
+    public async Task SearchGroupedAsync_DifferentSources_OrderedByBestScoreDescending()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var strong = new Course { Id = Guid.NewGuid(), TitleEn = "Strong Match", IsPublished = true };
+        var weak = new Course { Id = Guid.NewGuid(), TitleEn = "Weak Match", IsPublished = true };
+        db.Courses.AddRange(strong, weak);
+        db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, weak.Id, "en", "weak", [0.8f, 0.6f, 0f]));
+        db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, strong.Id, "en", "strong", [1f, 0f, 0f], index: 1));
+        await db.SaveChangesAsync();
+        var (svc, _) = NewService(db, [1f, 0f, 0f]);
+
+        var hits = await svc.SearchGroupedAsync("query", "en", topK: 5);
+
+        hits.Select(h => h.Title).ShouldBe(["Strong Match", "Weak Match"]);
+    }
+
+    [Fact]
+    public async Task SearchGroupedAsync_RespectsTopKAcrossDistinctSources()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        for (var i = 0; i < 5; i++)
+        {
+            var course = new Course { Id = Guid.NewGuid(), TitleEn = $"Course {i}", IsPublished = true };
+            db.Courses.Add(course);
+            db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, course.Id, "en", $"text {i}", [1f, 0f, 0f], index: i));
+        }
+        await db.SaveChangesAsync();
+        var (svc, _) = NewService(db, [1f, 0f, 0f]);
+
+        (await svc.SearchGroupedAsync("query", "en", topK: 2)).Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task SearchGroupedAsync_NothingAboveThreshold_ReturnsEmpty()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "Course A", IsPublished = true };
+        db.Courses.Add(course);
+        db.AssistantContentChunks.Add(Chunk(AssistantSourceType.Course, course.Id, "en", "unrelated", [0f, 1f, 0f]));
+        await db.SaveChangesAsync();
+        var (svc, _) = NewService(db, [1f, 0f, 0f]);
+
+        (await svc.SearchGroupedAsync("query", "en", topK: 5)).ShouldBeEmpty();
+    }
 }
