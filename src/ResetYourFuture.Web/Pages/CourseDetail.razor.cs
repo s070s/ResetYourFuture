@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Shared.Resources;
 using System.Globalization;
 
 namespace ResetYourFuture.Web.Pages;
@@ -27,6 +28,13 @@ public partial class CourseDetail
     private string? _enrollError;
     private HashSet<Guid> _expandedModules = new();
 
+    private CourseReviewsResponseDto? _reviewsData;
+    private bool _showReviewForm;
+    private bool _submittingReview;
+    private int _formRating = 5;
+    private string _formBody = string.Empty;
+    private string? _reviewError;
+
     private static string CurrentLang =>
         CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
 
@@ -38,11 +46,64 @@ public partial class CourseDetail
     private async Task LoadAllAsync()
     {
         var tierTask = SubscriptionService.GetStatusAsync();
-        await Task.WhenAll(LoadCourse(), tierTask);
+        await Task.WhenAll(LoadCourse(), LoadReviewsAsync(), tierTask);
 
         var status = await tierTask;
         if (status is not null)
             _userTier = status.Tier;
+    }
+
+    private async Task LoadReviewsAsync()
+    {
+        try
+        {
+            _reviewsData = await CourseService.GetReviewsAsync(CourseId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load reviews for course {CourseId}.", CourseId);
+        }
+    }
+
+    private void OpenReviewForm()
+    {
+        _formRating = _reviewsData?.MyReview?.Rating ?? 5;
+        _formBody = _reviewsData?.MyReview?.Body ?? string.Empty;
+        _reviewError = null;
+        _showReviewForm = true;
+    }
+
+    private void CloseReviewForm() => _showReviewForm = false;
+
+    private async Task SubmitReviewAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_formBody))
+            return;
+
+        _submittingReview = true;
+        _reviewError = null;
+        try
+        {
+            var result = await CourseService.SaveReviewAsync(CourseId, new SaveCourseReviewRequest(_formRating, _formBody.Trim()));
+            if (result is not null)
+            {
+                _showReviewForm = false;
+                await LoadReviewsAsync();
+            }
+            else
+            {
+                _reviewError = ReviewRes.SubmitError;
+            }
+        }
+        catch (Exception ex)
+        {
+            _reviewError = ReviewRes.SubmitError;
+            _logger.LogError(ex, "Failed to submit review for course {CourseId}.", CourseId);
+        }
+        finally
+        {
+            _submittingReview = false;
+        }
     }
 
     private async Task LoadCourse()

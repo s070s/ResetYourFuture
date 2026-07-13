@@ -17,7 +17,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Tags("Courses")]
 [Produces("application/json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public class CoursesController(ICourseService courseService) : ControllerBase
+public class CoursesController(ICourseService courseService, ICourseReviewService reviewService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? throw new UnauthorizedAccessException("User ID not found in claims");
@@ -85,5 +85,31 @@ public class CoursesController(ICourseService courseService) : ControllerBase
     {
         var result = await courseService.CompleteLessonAsync(UserId, lessonId, cancellationToken);
         return StatusCode(result.StatusCode, result.Value);
+    }
+
+    /// <summary>
+    /// Get approved reviews, the aggregate rating, and (for the signed-in user) their own
+    /// review at any moderation status — everything the course page needs in one call.
+    /// </summary>
+    [HttpGet("{courseId:guid}/reviews")]
+    public async Task<ActionResult<CourseReviewsResponseDto>> GetReviews(Guid courseId, CancellationToken cancellationToken = default)
+    {
+        var reviews = await reviewService.GetApprovedForCourseAsync(courseId, cancellationToken);
+        var summary = await reviewService.GetRatingSummaryAsync(courseId, cancellationToken);
+        var mine = User.IsInRole("Admin") ? null : await reviewService.GetMyReviewAsync(UserId, courseId, cancellationToken);
+
+        return Ok(new CourseReviewsResponseDto([.. reviews], summary, mine));
+    }
+
+    /// <summary>
+    /// Create or update the current user's review for this course (one per course). Requires
+    /// an active enrollment; editing resets the review to Pending for re-moderation.
+    /// </summary>
+    [HttpPost("{courseId:guid}/reviews")]
+    public async Task<ActionResult<MyCourseReviewDto>> SaveReview(
+        Guid courseId, [FromBody] SaveCourseReviewRequest request, CancellationToken cancellationToken = default)
+    {
+        var result = await reviewService.SaveMyReviewAsync(UserId, courseId, request, cancellationToken);
+        return result.ToActionResult();
     }
 }

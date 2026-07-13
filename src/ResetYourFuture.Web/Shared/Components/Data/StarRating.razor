@@ -1,0 +1,15 @@
+@* Read-only star display for an average rating (course cards, review lists, detail headers). *@
+
+<span class="star-rating" role="img" aria-label="@AriaLabel">
+    @for (var i = 1; i <= MaxStars; i++)
+    {
+        var filled = i <= Math.Round(Value);
+        <span class="bi @(filled ? "bi-star-fill" : "bi-star") star-icon" aria-hidden="true"></span>
+    }
+</span>
+
+@code {
+    [Parameter, EditorRequired] public double Value { get; set; }
+    [Parameter] public int MaxStars { get; set; } = 5;
+    [Parameter] public string AriaLabel { get; set; } = string.Empty;
+}

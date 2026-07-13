@@ -248,5 +248,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Categories", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reviews.
+        /// </summary>
+        public static string CourseReviews {
+            get {
+                return ResourceManager.GetString("CourseReviews", resourceCulture);
+            }
+        }
     }
 }

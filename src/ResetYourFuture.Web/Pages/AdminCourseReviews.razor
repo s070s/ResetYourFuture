@@ -1,0 +1,85 @@
+@page "/admin/course-reviews"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@ReviewRes.AdminPageTitle</PageTitle>
+
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2">@ReviewRes.AdminPageTitle</h1>
+        <select class="form-select" style="max-width:200px" value="@_statusFilter" @onchange="OnStatusFilterChanged">
+            <option value="">@ReviewRes.FilterAll</option>
+            <option value="Pending">@ReviewRes.StatusPending</option>
+            <option value="Approved">@ReviewRes.StatusApproved</option>
+            <option value="Rejected">@ReviewRes.StatusRejected</option>
+        </select>
+    </div>
+
+    @if (pagedResult == null)
+    {
+        <LoadingSpinner Label="@ReviewRes.Loading" />
+    }
+    else if (!pagedResult.Items.Any())
+    {
+        <p>@ReviewRes.NoReviewsToModerate</p>
+    }
+    else
+    {
+        <ScrollableTable Items="pagedResult.Items" TItem="AdminCourseReviewDto">
+            <HeaderRow>
+                <tr>
+                    <th>@ReviewRes.ColCourse</th>
+                    <th>@ReviewRes.ColAuthor</th>
+                    <SortableColumnHeader ColumnKey="rating" Label="@ReviewRes.ColRating"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@ReviewRes.ColReview</th>
+                    <SortableColumnHeader ColumnKey="status" Label="@ReviewRes.ColStatus"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="createdat" Label="@ReviewRes.ColCreated"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@ReviewRes.ColActions</th>
+                </tr>
+            </HeaderRow>
+            <RowTemplate Context="review">
+                <tr @key="review.Id">
+                    <td data-label="@ReviewRes.ColCourse">@review.CourseTitle</td>
+                    <td data-label="@ReviewRes.ColAuthor">@review.AuthorName</td>
+                    <td data-label="@ReviewRes.ColRating"><StarRating Value="review.Rating" AriaLabel="@review.Rating.ToString()" /></td>
+                    <td data-label="@ReviewRes.ColReview" class="review-body-cell">@review.Body</td>
+                    <td data-label="@ReviewRes.ColStatus">
+                        <StatusBadge IsActive="@(review.Status == "Approved")"
+                                     ActiveText="@ReviewRes.StatusApproved"
+                                     InactiveText="@(review.Status == "Rejected" ? ReviewRes.StatusRejected : ReviewRes.StatusPending)" />
+                    </td>
+                    <td data-label="@ReviewRes.ColCreated">@review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td data-label="@ReviewRes.ColActions">
+                        @if (review.Status != "Approved")
+                        {
+                            <button class="btn btn-sm btn-success" @onclick="() => ApproveAsync(review.Id)">@ReviewRes.Approve</button>
+                        }
+                        @if (review.Status != "Rejected")
+                        {
+                            <button class="btn btn-sm btn-danger" @onclick="() => RejectAsync(review.Id)">@ReviewRes.Reject</button>
+                        }
+                    </td>
+                </tr>
+            </RowTemplate>
+        </ScrollableTable>
+
+        <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                TotalPages="pagedResult.TotalPages"
+                                TotalCount="pagedResult.TotalCount"
+                                PageSize="pagedResult.PageSize"
+                                HasPreviousPage="pagedResult.HasPreviousPage"
+                                HasNextPage="pagedResult.HasNextPage"
+                                PageSizeOptions="PageSizeOptions"
+                                ItemLabel="reviews"
+                                OnPageSizeChanged="OnPageSizeChanged"
+                                OnPreviousPage="PreviousPage"
+                                OnNextPage="NextPage" />
+    }
+
+    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
+</div>

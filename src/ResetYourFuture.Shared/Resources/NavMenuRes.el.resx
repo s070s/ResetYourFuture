@@ -180,4 +180,7 @@
   <data name="Categories" xml:space="preserve">
     <value>Κατηγορίες</value>
   </data>
+  <data name="CourseReviews" xml:space="preserve">
+    <value>Κριτικές</value>
+  </data>
 </root>

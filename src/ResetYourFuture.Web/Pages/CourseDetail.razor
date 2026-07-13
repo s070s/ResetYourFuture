@@ -127,5 +127,93 @@ else
             </div>
         }
     </div>
+
+    <div class="reviews-section">
+        <div class="reviews-header">
+            <h2>@ReviewRes.ReviewsTitle</h2>
+            @if (_reviewsData?.Summary is { } summary)
+            {
+                <div class="reviews-summary">
+                    <StarRating Value="summary.AverageRating" AriaLabel="@string.Format(ReviewRes.RatingSummaryFormat, summary.AverageRating, summary.ReviewCount)" />
+                    <span>@string.Format(ReviewRes.RatingSummaryFormat, summary.AverageRating, summary.ReviewCount)</span>
+                </div>
+            }
+        </div>
+
+        @if (_course.IsEnrolled)
+        {
+            @if (_showReviewForm)
+            {
+                <div class="review-form card">
+                    <div class="card-body">
+                        <h3 class="h5">@(_reviewsData?.MyReview is null ? ReviewRes.WriteReview : ReviewRes.EditReview)</h3>
+                        <div class="mb-2">
+                            <label class="form-label">@ReviewRes.RatingLabel</label>
+                            <select class="form-select" style="max-width:120px" value="@_formRating"
+                                    @onchange="e => _formRating = int.Parse(e.Value!.ToString()!)">
+                                @for (var i = 5; i >= 1; i--)
+                                {
+                                    <option value="@i">@i ★</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">@ReviewRes.BodyLabel</label>
+                            <textarea class="form-control" rows="4" maxlength="2000"
+                                      placeholder="@ReviewRes.BodyPlaceholder"
+                                      value="@_formBody" @oninput="e => _formBody = e.Value?.ToString() ?? string.Empty"></textarea>
+                        </div>
+                        @if (_reviewError is not null)
+                        {
+                            <p class="text-danger">@_reviewError</p>
+                        }
+                        <button class="btn btn-primary me-2" disabled="@(_submittingReview || string.IsNullOrWhiteSpace(_formBody))" @onclick="SubmitReviewAsync">
+                            @(_reviewsData?.MyReview is null ? ReviewRes.SubmitReview : ReviewRes.UpdateReview)
+                        </button>
+                        <button class="btn btn-secondary" @onclick="CloseReviewForm">@ReviewRes.Cancel</button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @if (_reviewsData?.MyReview is { Status: "Pending" })
+                {
+                    <p class="text-light-muted">@ReviewRes.MyReviewPending</p>
+                }
+                else if (_reviewsData?.MyReview is { Status: "Rejected" })
+                {
+                    <p class="text-danger">@ReviewRes.MyReviewRejected</p>
+                }
+                <button class="btn btn-outline-primary mb-3" @onclick="OpenReviewForm">
+                    @(_reviewsData?.MyReview is null ? ReviewRes.WriteReview : ReviewRes.EditReview)
+                </button>
+            }
+        }
+        else
+        {
+            <p class="text-light-muted">@ReviewRes.EnrollToReview</p>
+        }
+
+        @if (_reviewsData is { Reviews.Count: > 0 })
+        {
+            <div class="review-list">
+                @foreach (var review in _reviewsData.Reviews)
+                {
+                    <div class="review-item" @key="review.Id">
+                        <div class="review-item-header">
+                            <span class="review-author">@review.AuthorName</span>
+                            <StarRating Value="review.Rating" AriaLabel="@review.Rating.ToString()" />
+                        </div>
+                        <p class="review-body">@review.Body</p>
+                        <span class="review-date">@review.CreatedAt.ToLocalTime().ToString("d")</span>
+                    </div>
+                }
+            </div>
+        }
+        else if (_reviewsData is not null)
+        {
+            <p class="text-light-muted">@ReviewRes.NoReviewsYet</p>
+        }
+    </div>
 }
 

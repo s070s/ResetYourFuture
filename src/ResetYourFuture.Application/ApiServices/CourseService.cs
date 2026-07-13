@@ -16,6 +16,7 @@ public class CourseService(
     IApplicationDbContext db,
     ISubscriptionService subscriptionService,
     ICertificateService certificateService,
+    ICourseReviewService reviewService,
     ILogger<CourseService> logger) : ICourseService
 {
     public async Task<PagedResult<CourseListItemDto>> GetPublishedCoursesAsync(
@@ -67,6 +68,8 @@ public class CourseService(
             .Select(g => new { CourseId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.CourseId, x => x.Count, cancellationToken);
 
+        var ratingsById = await reviewService.GetRatingSummariesAsync(pageIds, cancellationToken);
+
         var courses = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -84,16 +87,22 @@ public class CourseService(
             })
             .ToListAsync(cancellationToken);
 
-        var items = courses.Select(c => new CourseListItemDto(
-            c.Id,
-            isEl ? (c.TitleEl ?? c.TitleEn) : c.TitleEn,
-            isEl ? (c.DescriptionEl ?? c.DescriptionEn) : c.DescriptionEn,
-            enrolledCourseIds.Contains(c.Id),
-            lessonCountById.GetValueOrDefault(c.Id, 0),
-            c.RequiredTier,
-            c.CategoryId,
-            c.CategoryId is null ? null : (isEl ? (c.CategoryNameEl ?? c.CategoryNameEn) : c.CategoryNameEn)
-        )).ToList();
+        var items = courses.Select(c =>
+        {
+            var rating = ratingsById.GetValueOrDefault(c.Id);
+            return new CourseListItemDto(
+                c.Id,
+                isEl ? (c.TitleEl ?? c.TitleEn) : c.TitleEn,
+                isEl ? (c.DescriptionEl ?? c.DescriptionEn) : c.DescriptionEn,
+                enrolledCourseIds.Contains(c.Id),
+                lessonCountById.GetValueOrDefault(c.Id, 0),
+                c.RequiredTier,
+                c.CategoryId,
+                c.CategoryId is null ? null : (isEl ? (c.CategoryNameEl ?? c.CategoryNameEn) : c.CategoryNameEn),
+                rating?.AverageRating,
+                rating?.ReviewCount ?? 0
+            );
+        }).ToList();
 
         return new PagedResult<CourseListItemDto>(items, totalCount, page, pageSize);
     }

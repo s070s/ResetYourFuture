@@ -12,4 +12,6 @@ public interface ICourseConsumer
     Task<EnrollmentResultDto?> EnrollAsync(Guid courseId);
     Task<LessonDetailDto?> GetLessonAsync(Guid lessonId, string lang = "en");
     Task<LessonCompletionResultDto?> CompleteLessonAsync(Guid lessonId);
+    Task<CourseReviewsResponseDto?> GetReviewsAsync(Guid courseId);
+    Task<MyCourseReviewDto?> SaveReviewAsync(Guid courseId, SaveCourseReviewRequest request);
 }

@@ -59,6 +59,7 @@ public static class ServiceRegistrationExtensions
         // Depends on IAssistantRetrievalService, which is always resolvable (real or Disabled
         // impl) regardless of Assistant:Enabled — see the Disabled branch below.
         builder.Services.AddScoped<ISiteSearchService, SiteSearchService>();
+        builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
         // Web-layer dispatcher (needs IHubContext<NotificationHub>) so Application/Infrastructure
         // services can raise notifications through the framework-agnostic INotificationDispatcher.
         builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -278,5 +279,7 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHttpClient<INotificationConsumer, NotificationConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<ISearchConsumer, SearchConsumer>(c => c.BaseAddress = new Uri(selfBase));
+        builder.Services.AddHttpClient<IAdminCourseReviewConsumer, AdminCourseReviewConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
     }
 }

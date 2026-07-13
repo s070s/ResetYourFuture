@@ -13,5 +13,7 @@ public record CourseListItemDto(
     int TotalLessons,
     SubscriptionTier RequiredTier = SubscriptionTier.Free,
     Guid? CategoryId = null,
-    string? CategoryName = null
+    string? CategoryName = null,
+    double? AverageRating = null,
+    int ReviewCount = 0
 );

@@ -60,6 +60,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     // --- Notifications ---
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    // --- Course Reviews ---
+    public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;

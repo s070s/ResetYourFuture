@@ -198,6 +198,20 @@
       <DependentUpon>ProfileRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Review -->
+    <EmbeddedResource Update="Resources\ReviewRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ReviewRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\ReviewRes.el.resx">
+      <DependentUpon>ReviewRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\ReviewRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReviewRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Search -->
     <EmbeddedResource Update="Resources\SearchRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

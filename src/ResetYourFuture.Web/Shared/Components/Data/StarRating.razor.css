@@ -1,0 +1,9 @@
+.star-rating {
+    display: inline-flex;
+    gap: 1px;
+}
+
+.star-icon {
+    color: var(--color-warning);
+    font-size: 0.85rem;
+}

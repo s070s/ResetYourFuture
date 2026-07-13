@@ -31,7 +31,8 @@ public class CourseServiceTests
         subs.GetUserStatusAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(status ?? Status());
         var certs = Substitute.For<ICertificateService>();
-        var svc = new CourseService(db, subs, certs, NullLogger<CourseService>.Instance);
+        var reviews = new CourseReviewService(db, Substitute.For<INotificationDispatcher>(), NullLogger<CourseReviewService>.Instance);
+        var svc = new CourseService(db, subs, certs, reviews, NullLogger<CourseService>.Instance);
         return (svc, subs, certs);
     }
 

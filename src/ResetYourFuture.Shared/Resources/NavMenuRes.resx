@@ -180,4 +180,7 @@
   <data name="Categories" xml:space="preserve">
     <value>Categories</value>
   </data>
+  <data name="CourseReviews" xml:space="preserve">
+    <value>Reviews</value>
+  </data>
 </root>

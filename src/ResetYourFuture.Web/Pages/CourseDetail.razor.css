@@ -139,3 +139,66 @@
         background: var(--bg-neutral-subtle);
         cursor: not-allowed;
     }
+
+.reviews-section {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+}
+
+.reviews-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-light-muted);
+    font-size: 0.9rem;
+}
+
+.review-form textarea {
+    resize: vertical;
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.review-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.review-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.review-author {
+    font-weight: 600;
+}
+
+.review-body {
+    margin: 0 0 0.4rem;
+    color: var(--text-light-normal);
+    white-space: pre-wrap;
+}
+
+.review-date {
+    color: var(--text-light-muted);
+    font-size: 0.78rem;
+}

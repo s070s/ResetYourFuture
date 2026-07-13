@@ -37,4 +37,10 @@ public class CourseConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTok
 
     public Task<LessonCompletionResultDto?> CompleteLessonAsync(Guid lessonId)
         => PostAsync<LessonCompletionResultDto>($"api/courses/lessons/{lessonId}/complete");
+
+    public Task<CourseReviewsResponseDto?> GetReviewsAsync(Guid courseId)
+        => GetAsync<CourseReviewsResponseDto>($"api/courses/{courseId}/reviews");
+
+    public Task<MyCourseReviewDto?> SaveReviewAsync(Guid courseId, SaveCourseReviewRequest request)
+        => PostJsonAsync<SaveCourseReviewRequest, MyCourseReviewDto>($"api/courses/{courseId}/reviews", request);
 }
