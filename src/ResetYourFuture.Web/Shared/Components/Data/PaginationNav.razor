@@ -22,9 +22,9 @@
     [Parameter, EditorRequired] public int TotalPages { get; set; }
     [Parameter, EditorRequired] public bool HasPreviousPage { get; set; }
     [Parameter, EditorRequired] public bool HasNextPage { get; set; }
-    [Parameter] public string PreviousLabel { get; set; } = "Previous";
-    [Parameter] public string NextLabel { get; set; } = "Next";
-    [Parameter] public string AriaLabel { get; set; } = "Page navigation";
+    [Parameter] public string PreviousLabel { get; set; } = GlobalRes.Previous;
+    [Parameter] public string NextLabel { get; set; } = GlobalRes.PaginationNext;
+    [Parameter] public string AriaLabel { get; set; } = GlobalRes.PageNavigation;
     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
 
     private async Task HandlePageChanged(int page)

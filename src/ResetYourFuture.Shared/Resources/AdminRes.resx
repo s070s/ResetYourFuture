@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
 	<!-- 
 		Microsoft ResX Schema
@@ -650,4 +650,28 @@
 	<data name="ColCompletionRate" xml:space="preserve">
 		<value>Completion %</value>
 	</data>
+  <data name="ItemLabelUsers" xml:space="preserve">
+    <value>users</value>
+  </data>
+  <data name="ItemLabelCourses" xml:space="preserve">
+    <value>courses</value>
+  </data>
+  <data name="ItemLabelAssessments" xml:space="preserve">
+    <value>assessments</value>
+  </data>
+  <data name="ItemLabelSubmissions" xml:space="preserve">
+    <value>submissions</value>
+  </data>
+  <data name="ItemLabelCategories" xml:space="preserve">
+    <value>categories</value>
+  </data>
+  <data name="ItemLabelReviews" xml:space="preserve">
+    <value>reviews</value>
+  </data>
+  <data name="ItemLabelPaths" xml:space="preserve">
+    <value>paths</value>
+  </data>
+  <data name="ItemLabelSessions" xml:space="preserve">
+    <value>sessions</value>
+  </data>
 </root>

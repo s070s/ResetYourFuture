@@ -42,11 +42,11 @@
 
 @code {
     [Parameter, EditorRequired] public bool IsVisible { get; set; }
-    [Parameter] public string Title { get; set; } = "Confirm";
-    [Parameter] public string Message { get; set; } = "Are you sure?";
+    [Parameter] public string Title { get; set; } = GlobalRes.Confirm;
+    [Parameter] public string Message { get; set; } = GlobalRes.AreYouSure;
     [Parameter] public RenderFragment? BodyContent { get; set; }
-    [Parameter] public string ConfirmLabel { get; set; } = "Confirm";
-    [Parameter] public string CancelLabel { get; set; } = "Cancel";
+    [Parameter] public string ConfirmLabel { get; set; } = GlobalRes.Confirm;
+    [Parameter] public string CancelLabel { get; set; } = GlobalRes.Cancel;
     [Parameter] public string ConfirmButtonClass { get; set; } = "btn-danger";
     [Parameter] public bool IsBusy { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }

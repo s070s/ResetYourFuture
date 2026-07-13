@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -260,5 +260,47 @@
   </data>
   <data name="BackToHome" xml:space="preserve">
     <value>Επιστροφή στην αρχική</value>
+  </data>
+  <data name="Confirm" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="AreYouSure" xml:space="preserve">
+    <value>Είστε σίγουροι;</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Άκυρο</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Προηγούμενο</value>
+  </data>
+  <data name="PageNavigation" xml:space="preserve">
+    <value>Πλοήγηση σελίδων</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Φόρτωση</value>
+  </data>
+  <data name="LoadingEllipsis" xml:space="preserve">
+    <value>Φόρτωση...</value>
+  </data>
+  <data name="NoItemsFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν στοιχεία.</value>
+  </data>
+  <data name="StatusPublished" xml:space="preserve">
+    <value>Δημοσιευμένο</value>
+  </data>
+  <data name="StatusDraft" xml:space="preserve">
+    <value>Πρόχειρο</value>
+  </data>
+  <data name="NavigationMenu" xml:space="preserve">
+    <value>Μενού πλοήγησης</value>
+  </data>
+  <data name="UnhandledError" xml:space="preserve">
+    <value>Παρουσιάστηκε μη αναμενόμενο σφάλμα.</value>
+  </data>
+  <data name="Reload" xml:space="preserve">
+    <value>Επαναφόρτωση</value>
+  </data>
+  <data name="ThisFeature" xml:space="preserve">
+    <value>αυτή τη λειτουργία</value>
   </data>
 </root>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -668,5 +668,29 @@
   </data>
   <data name="ColCompletionRate" xml:space="preserve">
     <value>% Ολοκλήρωσης</value>
+  </data>
+  <data name="ItemLabelUsers" xml:space="preserve">
+    <value>χρήστες</value>
+  </data>
+  <data name="ItemLabelCourses" xml:space="preserve">
+    <value>μαθήματα</value>
+  </data>
+  <data name="ItemLabelAssessments" xml:space="preserve">
+    <value>αξιολογήσεις</value>
+  </data>
+  <data name="ItemLabelSubmissions" xml:space="preserve">
+    <value>υποβολές</value>
+  </data>
+  <data name="ItemLabelCategories" xml:space="preserve">
+    <value>κατηγορίες</value>
+  </data>
+  <data name="ItemLabelReviews" xml:space="preserve">
+    <value>κριτικές</value>
+  </data>
+  <data name="ItemLabelPaths" xml:space="preserve">
+    <value>διαδρομές</value>
+  </data>
+  <data name="ItemLabelSessions" xml:space="preserve">
+    <value>συνεδρίες</value>
   </data>
 </root>
