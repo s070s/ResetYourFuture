@@ -58,10 +58,10 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 | API docs | OpenAPI (`Microsoft.AspNetCore.OpenApi`) + Swagger UI — `/swagger` (Development only) |
 | PDF | QuestPDF 2026.2.4 |
 | Localization | English + Greek (`.resx`) |
-| Testing | xUnit + Shouldly + NSubstitute · EF Core InMemory/SQLite · `WebApplicationFactory` |
+| Testing | xUnit + Shouldly + NSubstitute · EF Core InMemory/SQLite · `WebApplicationFactory` · Playwright e2e (local) |
 | CI | GitHub Actions (`.github/workflows/tests.yml`) |
 | Logging | Custom daily file logger |
-| Email | `StubEmailService` (dev only) — logs to file; a real provider must be registered for production |
+| Email | MailKit `SmtpEmailService` whenever `Email:Smtp:Host` is configured; `StubEmailService` (logs to file) as the Development fallback; startup throws in Production if neither |
 | Security | HSTS · `X-Content-Type-Options` · `X-Frame-Options` · `Referrer-Policy` · `Permissions-Policy` |
 | AI Assistant | Local Ollama sidecar via `Microsoft.Extensions.AI` — `qwen3:1.7b` chat (tool-calling agent) + `bge-m3` embeddings, auto-pulled at startup, no cloud API |
 
@@ -73,12 +73,14 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 ResetYourFuture.sln
 ├── src/
 │   ├── ResetYourFuture.Domain/          Entities, enums, value objects — no framework dependencies
-│   ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services
+│   ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services, entity→DTO mapping helpers (Mappings/)
 │   ├── ResetYourFuture.Infrastructure/  EF Core DbContext, migrations, service implementations
 │   ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
 │   └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
-└── tests/                               Unit, integration, and shared test-support projects
+└── tests/                               Unit, integration, e2e (Playwright), and shared test-support projects
 ```
+
+> Adding a field to an entity touches several layers (entity → EF config → migration → DTO → mapping helper → controller → consumer → page → resx). Follow the checklist in [docs/ADDING-A-FIELD.md](docs/ADDING-A-FIELD.md) so no step is missed — a skipped step surfaces as a silently blank value, not an error.
 
 ---
 
@@ -416,7 +418,7 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 - Real `Jwt__Key` (≥ 32 bytes), `ConnectionStrings__DefaultConnection` (no `TrustServerCertificate=True`)
 - `AllowedHosts` set to the production domain
 - `SelfBaseUrl` set to the app's real bound address (startup throws otherwise)
-- `IEmailService` real implementation registered (startup throws if absent in Production)
+- `Email:Smtp:Host` (+ credentials) configured so `SmtpEmailService` sends real email (startup throws in Production when no SMTP host is set)
 - Migrations run automatically at startup (`MigrateAsync`, with bounded retry-with-backoff if the database isn't reachable yet); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
 - `/health/live` (process up, no dependency checks) and `/health/ready` (database + AI assistant status) are available for a load balancer/orchestrator to poll
 
@@ -424,9 +426,11 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 
 ## Email
 
-`StubEmailService` is registered **only in Development**. It logs all emails to file instead of sending them — find links in `Logs/log-YYYY-MM-DD.txt` (search `STUB EMAIL`).
+The email transport is selected at startup from configuration:
 
-> **Production:** `StubEmailService` is intentionally absent. The application will **throw at startup** unless a real `IEmailService` implementation (SendGrid, SMTP, etc.) is registered.
+- **`Email:Smtp:Host` configured** → `SmtpEmailService` (MailKit) sends real email — point it at a local catcher (Papercut/Mailhog) in Development or any SMTP relay (SES, SendGrid SMTP, etc.) in production. Settings live under `Email:Smtp:*` (host, port, StartTLS, credentials, from address).
+- **No SMTP host, Development** → `StubEmailService` logs all emails to file instead of sending them — find links in `Logs/log-YYYY-MM-DD.txt` (search `STUB EMAIL`).
+- **No SMTP host, Production** → the application **throws at startup**, so emails are never silently swallowed.
 
 Dev shortcuts for bypassing email confirmation:
 
@@ -531,6 +535,8 @@ On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.
 | File uploads | Content-type allowlist enforced per upload type (image / PDF / video); extension allowlist on media serve |
 | Sitemap | Slugs XML-escaped via `SecurityElement.Escape()` |
 | Account enumeration | Login, forgot-password, reset-password all return generic messages; duplicate-email registration mapped to generic error |
+| Sensitive data at rest | Special-category assessment answers (`AnswersJson`/`SummaryJson`) encrypted at rest via ASP.NET Core Data Protection (transparent EF value converter); the Data Protection key ring is persisted to the database |
+| GDPR posture | Bilingual Privacy Policy (`/privacy`) and Terms (`/terms`) linked from the registration consent and the landing footer; registration requires explicit consent with captured timestamp |
 
 ---
 
