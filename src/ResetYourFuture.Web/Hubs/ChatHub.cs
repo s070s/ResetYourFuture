@@ -8,6 +8,7 @@ using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Web.Services;
 
 namespace ResetYourFuture.Web.Hubs;
@@ -124,15 +125,7 @@ public class ChatHub : Hub
 
         await _db.SaveChangesAsync();
 
-        var dto = new ChatMessageDto(
-            message.Id,
-            message.ConversationId,
-            userId,
-            $"{sender.FirstName} {sender.LastName}",
-            senderRole,
-            message.Content,
-            message.SentAt,
-            false);
+        var dto = message.ToDto($"{sender.FirstName} {sender.LastName}", senderRole);
 
         // Send to both participants.
         var recipientId = conversation.CreatorId == userId

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 
@@ -47,10 +48,7 @@ public class CallQueryService(
             .GroupBy(x => x.UserId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Name!).FirstOrDefault() ?? "User");
 
-        return users.Select(u => new ChatUserDto(
-            u.Id,
-            $"{u.FirstName} {u.LastName}",
-            roleMap.TryGetValue(u.Id, out var role) ? role : "User",
-            u.LastSeenAt)).ToList();
+        return users.Select(u => u.ToChatUserDto(
+            roleMap.TryGetValue(u.Id, out var role) ? role : "User")).ToList();
     }
 }

@@ -5,6 +5,7 @@ using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -57,14 +58,7 @@ public class CertificatesController : ControllerBase
             .AsNoTracking()
             .Where(c => c.UserId == userId && c.Status == CertificateStatus.Active)
             .OrderByDescending(c => c.IssuedAt)
-            .Select(c => new CertificateDto(
-                c.Id,
-                c.VerificationId,
-                c.RecipientName,
-                isEl ? (c.CourseTitleEl ?? c.CourseTitleEn) : c.CourseTitleEn,
-                c.IssuedAt,
-                c.Status.ToString()
-            ))
+            .Select(CertificateMappings.Projection(isEl))
             .ToListAsync();
 
         return Ok(certificates);
@@ -90,18 +84,7 @@ public class CertificatesController : ControllerBase
         try
         {
             var certificate = await _certificateService.GetOrGenerateAsync(userId, courseId);
-            var courseTitle = isEl
-                ? (certificate.CourseTitleEl ?? certificate.CourseTitleEn)
-                : certificate.CourseTitleEn;
-
-            return Ok(new CertificateDto(
-                certificate.Id,
-                certificate.VerificationId,
-                certificate.RecipientName,
-                courseTitle,
-                certificate.IssuedAt,
-                certificate.Status.ToString()
-            ));
+            return Ok(certificate.ToDto(isEl));
         }
         catch (InvalidOperationException ex)
         {
@@ -165,18 +148,6 @@ public class CertificatesController : ControllerBase
                 false, null, null, null, null, "Certificate not found."));
         }
 
-        var isRevoked = certificate.Status == CertificateStatus.Revoked;
-        var courseTitle = isEl
-            ? (certificate.CourseTitleEl ?? certificate.CourseTitleEn)
-            : certificate.CourseTitleEn;
-
-        return Ok(new CertificateVerificationDto(
-            !isRevoked,
-            isRevoked ? null : certificate.RecipientName,
-            isRevoked ? null : courseTitle,
-            isRevoked ? null : certificate.IssuedAt,
-            certificate.Status.ToString(),
-            isRevoked ? "This certificate has been revoked." : "Certificate is valid."
-        ));
+        return Ok(certificate.ToVerificationDto(isEl));
     }
 }

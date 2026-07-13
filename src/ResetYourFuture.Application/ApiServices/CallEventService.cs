@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
@@ -122,21 +123,7 @@ public class CallEventService(
         var senderRole = roles.FirstOrDefault() ?? "User";
         var senderName = initiator is not null ? $"{initiator.FirstName} {initiator.LastName}" : "Unknown";
 
-        var durationSeconds = session.ConnectedAt is not null && session.EndedAt is not null
-            ? (int)(session.EndedAt.Value - session.ConnectedAt.Value).TotalSeconds
-            : (int?)null;
-
-        return new ChatMessageDto(
-            message.Id,
-            message.ConversationId,
-            message.SenderId,
-            senderName,
-            senderRole,
-            message.Content,
-            message.SentAt,
-            false,
-            kind,
-            durationSeconds);
+        return message.ToDto(senderName, senderRole, ChatMappings.CallDurationSeconds(session));
     }
 
     private static string BuildContent(CallEventKind kind, CallSession session) => kind switch

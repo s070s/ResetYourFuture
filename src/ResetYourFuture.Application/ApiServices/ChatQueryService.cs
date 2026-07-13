@@ -4,6 +4,7 @@ using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
@@ -128,19 +129,10 @@ public class ChatQueryService(
             .GroupBy(x => x.UserId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Name!).FirstOrDefault() ?? "User");
 
-        var result = messages.Select(m => new ChatMessageDto(
-            m.Id,
-            m.ConversationId,
-            m.SenderId,
+        var result = messages.Select(m => m.ToDto(
             $"{m.Sender?.FirstName} {m.Sender?.LastName}",
             roleMap.TryGetValue(m.SenderId, out var role) ? role : "User",
-            m.Content,
-            m.SentAt,
-            m.IsRead,
-            m.CallEvent,
-            m.CallSession is { ConnectedAt: not null, EndedAt: not null }
-                ? (int)(m.CallSession.EndedAt!.Value - m.CallSession.ConnectedAt!.Value).TotalSeconds
-                : null)).ToList();
+            ChatMappings.CallDurationSeconds(m.CallSession))).ToList();
 
         return ServiceResult<PagedResult<ChatMessageDto>>.Ok(
             new PagedResult<ChatMessageDto>(result, totalCount, page, pageSize));
@@ -236,11 +228,8 @@ public class ChatQueryService(
             .GroupBy(x => x.UserId)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Name!).FirstOrDefault() ?? "User");
 
-        return users.Select(u => new ChatUserDto(
-            u.Id,
-            $"{u.FirstName} {u.LastName}",
-            roleMap.TryGetValue(u.Id, out var role) ? role : "User",
-            u.LastSeenAt)).ToList();
+        return users.Select(u => u.ToChatUserDto(
+            roleMap.TryGetValue(u.Id, out var role) ? role : "User")).ToList();
     }
 
     public async Task<ServiceResult<bool>> DeleteConversationAsync(

@@ -3,6 +3,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Extensions;
@@ -143,12 +144,7 @@ public class ScheduledSessionService(IApplicationDbContext db, ILogger<Scheduled
             .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(s => new AdminScheduledSessionDto(
-                s.Id, s.TitleEn, s.TitleEl,
-                !string.IsNullOrWhiteSpace(s.Host!.DisplayName) ? s.Host.DisplayName! : (s.Host.FirstName + " " + s.Host.LastName).Trim(),
-                s.CourseId, s.Course != null ? s.Course.TitleEn : null,
-                s.StartsAtUtc, s.DurationMinutes, s.MaxParticipants, s.Registrations.Count,
-                s.Status.ToString(), s.CreatedAt))
+            .Select(SessionMappings.AdminProjection)
             .ToListAsync(cancellationToken);
 
         return new PagedResult<AdminScheduledSessionDto>(items, totalCount, page, pageSize, sortBy, sortDir);
@@ -212,12 +208,7 @@ public class ScheduledSessionService(IApplicationDbContext db, ILogger<Scheduled
         return await db.ScheduledSessions
             .AsNoTracking()
             .Where(s => s.Id == id)
-            .Select(s => new AdminScheduledSessionDto(
-                s.Id, s.TitleEn, s.TitleEl,
-                !string.IsNullOrWhiteSpace(s.Host!.DisplayName) ? s.Host.DisplayName! : (s.Host.FirstName + " " + s.Host.LastName).Trim(),
-                s.CourseId, s.Course != null ? s.Course.TitleEn : null,
-                s.StartsAtUtc, s.DurationMinutes, s.MaxParticipants, s.Registrations.Count,
-                s.Status.ToString(), s.CreatedAt))
+            .Select(SessionMappings.AdminProjection)
             .SingleAsync(cancellationToken);
     }
 }

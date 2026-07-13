@@ -3,6 +3,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Extensions;
@@ -57,7 +58,7 @@ public class CourseReviewService(IApplicationDbContext db, INotificationDispatch
         return await db.CourseReviews
             .AsNoTracking()
             .Where(r => r.CourseId == courseId && r.UserId == userId)
-            .Select(r => new MyCourseReviewDto(r.Id, r.Rating, r.Body, r.Status.ToString(), r.CreatedAt, r.UpdatedAt))
+            .Select(ReviewMappings.MyReviewProjection)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -94,8 +95,7 @@ public class CourseReviewService(IApplicationDbContext db, INotificationDispatch
 
         await db.SaveChangesAsync(cancellationToken);
 
-        return ServiceResult<MyCourseReviewDto>.Ok(
-            new MyCourseReviewDto(review.Id, review.Rating, review.Body, review.Status.ToString(), review.CreatedAt, review.UpdatedAt));
+        return ServiceResult<MyCourseReviewDto>.Ok(review.ToMyReviewDto());
     }
 
     public async Task<PagedResult<AdminCourseReviewDto>> GetPagedAsync(

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
@@ -49,19 +50,7 @@ public class AdminLessonsController : ControllerBase
             .AsNoTracking()
             .Where(l => l.ModuleId == moduleId)
             .OrderBy(l => l.SortOrder)
-            .Select(l => new AdminLessonDto(
-                l.Id,
-                l.TitleEn,
-                l.TitleEl,
-                l.ContentEn,
-                l.ContentEl,
-                l.PdfPath,
-                l.VideoPath,
-                l.DurationMinutes,
-                l.SortOrder,
-                l.ModuleId,
-                l.IsPublished
-            ))
+            .Select(CourseContentMappings.LessonAdminProjection)
             .ToListAsync();
 
         // Return the list of lesson DTOs.
@@ -93,26 +82,11 @@ public class AdminLessonsController : ControllerBase
         _db.Lessons.Add(lesson);
         await _db.SaveChangesAsync();
 
-        // Map persisted entity to DTO for the response.
-        var dto = new AdminLessonDto(
-            lesson.Id,
-            lesson.TitleEn,
-            lesson.TitleEl,
-            lesson.ContentEn,
-            lesson.ContentEl,
-            lesson.PdfPath,
-            lesson.VideoPath,
-            lesson.DurationMinutes,
-            lesson.SortOrder,
-            lesson.ModuleId,
-            lesson.IsPublished
-        );
-
         // Return 201 Created with a location pointing to the module's lessons.
         return CreatedAtAction(nameof(GetLessonsByModule), new
         {
             moduleId = lesson.ModuleId
-        }, dto);
+        }, lesson.ToAdminDto());
     }
 
     /// <summary>Update an existing lesson by id.</summary>
@@ -138,23 +112,8 @@ public class AdminLessonsController : ControllerBase
         // Persist changes to the database.
         await _db.SaveChangesAsync();
 
-        // Map updated entity to DTO and return it.
-        var dto = new AdminLessonDto(
-            lesson.Id,
-            lesson.TitleEn,
-            lesson.TitleEl,
-            lesson.ContentEn,
-            lesson.ContentEl,
-            lesson.PdfPath,
-            lesson.VideoPath,
-            lesson.DurationMinutes,
-            lesson.SortOrder,
-            lesson.ModuleId,
-            lesson.IsPublished
-        );
-
         // Return 200 OK with the updated DTO.
-        return Ok(dto);
+        return Ok(lesson.ToAdminDto());
     }
 
     /// <summary>Delete a lesson, its completion records, and any associated files.</summary>

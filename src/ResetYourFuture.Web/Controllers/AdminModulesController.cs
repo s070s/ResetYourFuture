@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
@@ -41,16 +42,7 @@ public class AdminModulesController : ControllerBase
             .Where(m => m.CourseId == courseId)
             .Include(m => m.Lessons)
             .OrderBy(m => m.SortOrder)
-            .Select(m => new AdminModuleDto(
-                m.Id,
-                m.TitleEn,
-                m.TitleEl,
-                m.DescriptionEn,
-                m.DescriptionEl,
-                m.SortOrder,
-                m.CourseId,
-                m.Lessons.Count
-            ))
+            .Select(CourseContentMappings.ModuleAdminProjection)
             .ToListAsync();
 
         return Ok(modules);
@@ -68,16 +60,7 @@ public class AdminModulesController : ControllerBase
         if (module == null)
             return NotFound();
 
-        return Ok(new AdminModuleDto(
-            module.Id,
-            module.TitleEn,
-            module.TitleEl,
-            module.DescriptionEn,
-            module.DescriptionEl,
-            module.SortOrder,
-            module.CourseId,
-            module.Lessons.Count
-        ));
+        return Ok(module.ToAdminDto());
     }
 
     /// <summary>Create a new module within a course.</summary>
@@ -100,21 +83,10 @@ public class AdminModulesController : ControllerBase
         _db.Modules.Add(module);
         await _db.SaveChangesAsync();
 
-        var dto = new AdminModuleDto(
-            module.Id,
-            module.TitleEn,
-            module.TitleEl,
-            module.DescriptionEn,
-            module.DescriptionEl,
-            module.SortOrder,
-            module.CourseId,
-            0
-        );
-
         return CreatedAtAction(nameof(GetModulesByCourse), new
         {
             courseId = module.CourseId
-        }, dto);
+        }, module.ToAdminDto());
     }
 
     /// <summary>Update an existing module by id.</summary>
@@ -138,18 +110,7 @@ public class AdminModulesController : ControllerBase
 
         await _db.SaveChangesAsync();
 
-        var dto = new AdminModuleDto(
-            module.Id,
-            module.TitleEn,
-            module.TitleEl,
-            module.DescriptionEn,
-            module.DescriptionEl,
-            module.SortOrder,
-            module.CourseId,
-            module.Lessons.Count
-        );
-
-        return Ok(dto);
+        return Ok(module.ToAdminDto());
     }
 
     /// <summary>Delete a module and cascade-delete its lessons and their completion records.</summary>

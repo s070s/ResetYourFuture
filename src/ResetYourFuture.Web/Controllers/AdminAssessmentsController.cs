@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.Data;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Application.DTOs;
@@ -91,23 +92,7 @@ public class AdminAssessmentsController : ControllerBase
             return NotFound();
         }
 
-        var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id,
-            assessment.Key,
-            assessment.TitleEn,
-            assessment.TitleEl,
-            assessment.DescriptionEn,
-            assessment.DescriptionEl,
-            assessment.SchemaJson,
-            assessment.IsPublished,
-            assessment.CreatedAt,
-            assessment.UpdatedAt,
-            assessment.PublishedAt,
-            assessment.CategoryId,
-            assessment.Category?.NameEn
-        );
-
-        return Ok(dto);
+        return Ok(assessment.ToAdminDto(assessment.Category?.NameEn));
     }
 
     /// <summary>
@@ -146,28 +131,11 @@ public class AdminAssessmentsController : ControllerBase
 
         var categoryNameEn = await GetCategoryNameEnAsync(categoryId);
 
-        // Map persisted entity to DTO for response
-        var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id,
-            assessment.Key,
-            assessment.TitleEn,
-            assessment.TitleEl,
-            assessment.DescriptionEn,
-            assessment.DescriptionEl,
-            assessment.SchemaJson,
-            assessment.IsPublished,
-            assessment.CreatedAt,
-            assessment.UpdatedAt,
-            assessment.PublishedAt,
-            assessment.CategoryId,
-            categoryNameEn
-        );
-
         // Return 201 Created with location header pointing to the assessments list endpoint
         return CreatedAtAction(nameof(GetAssessments), new
         {
             id = assessment.Id
-        }, dto);
+        }, assessment.ToAdminDto(categoryNameEn));
     }
 
     /// <summary>
@@ -208,23 +176,7 @@ public class AdminAssessmentsController : ControllerBase
         var categoryNameEn = await GetCategoryNameEnAsync(categoryId);
 
         // Map updated entity to DTO and return 200 OK
-        var dto = new AdminAssessmentDefinitionDto(
-            assessment.Id,
-            assessment.Key,
-            assessment.TitleEn,
-            assessment.TitleEl,
-            assessment.DescriptionEn,
-            assessment.DescriptionEl,
-            assessment.SchemaJson,
-            assessment.IsPublished,
-            assessment.CreatedAt,
-            assessment.UpdatedAt,
-            assessment.PublishedAt,
-            assessment.CategoryId,
-            categoryNameEn
-        );
-
-        return Ok(dto);
+        return Ok(assessment.ToAdminDto(categoryNameEn));
     }
 
     private async Task<string?> GetCategoryNameEnAsync(Guid? categoryId)

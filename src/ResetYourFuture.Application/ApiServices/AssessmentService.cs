@@ -4,6 +4,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Shared.Resources.Messages;
@@ -56,19 +57,7 @@ public class AssessmentService(
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(a => new AssessmentDefinitionDto(
-                a.Id,
-                a.Key,
-                isEl ? (a.TitleEl ?? a.TitleEn) : a.TitleEn,
-                isEl ? (a.DescriptionEl ?? a.DescriptionEn) : a.DescriptionEn,
-                a.SchemaJson,
-                a.IsPublished,
-                a.CreatedAt,
-                a.UpdatedAt,
-                a.PublishedAt,
-                a.CategoryId,
-                a.CategoryId == null ? null : (isEl ? (a.Category!.NameEl ?? a.Category.NameEn) : a.Category!.NameEn)
-            ))
+            .Select(AssessmentMappings.StudentProjection(isEl))
             .ToListAsync(cancellationToken);
 
         // Resolve dual-language schema to single-language for student view.
@@ -91,19 +80,7 @@ public class AssessmentService(
         var assessment = await db.AssessmentDefinitions
             .AsNoTracking()
             .Where(a => a.Id == id && a.IsPublished)
-            .Select(a => new AssessmentDefinitionDto(
-                a.Id,
-                a.Key,
-                isEl ? (a.TitleEl ?? a.TitleEn) : a.TitleEn,
-                isEl ? (a.DescriptionEl ?? a.DescriptionEn) : a.DescriptionEn,
-                a.SchemaJson,
-                a.IsPublished,
-                a.CreatedAt,
-                a.UpdatedAt,
-                a.PublishedAt,
-                a.CategoryId,
-                a.CategoryId == null ? null : (isEl ? (a.Category!.NameEl ?? a.Category.NameEn) : a.Category!.NameEn)
-            ))
+            .Select(AssessmentMappings.StudentProjection(isEl))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (assessment == null)
@@ -145,16 +122,7 @@ public class AssessmentService(
         db.AssessmentSubmissions.Add(submission);
         await db.SaveChangesAsync(cancellationToken);
 
-        var dto = new AssessmentSubmissionDto(
-            submission.Id,
-            submission.AssessmentDefinitionId,
-            assessment.TitleEn,
-            submission.AnswersJson,
-            submission.SummaryJson,
-            submission.SubmittedAt
-        );
-
-        return ServiceResult<AssessmentSubmissionDto>.Ok(dto);
+        return ServiceResult<AssessmentSubmissionDto>.Ok(submission.ToDto(assessment.TitleEn));
     }
 
     public async Task<PagedResult<AssessmentSubmissionDto>> GetMySubmissionsAsync(
@@ -170,15 +138,7 @@ public class AssessmentService(
             .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(s => new AssessmentSubmissionDto(
-                s.Id,
-                s.AssessmentDefinitionId,
-                s.AssessmentDefinition.TitleEn,
-                s.AnswersJson,
-                s.SummaryJson,
-                s.SubmittedAt,
-                s.AssessmentDefinition.Category != null ? s.AssessmentDefinition.Category.NameEn : null
-            ))
+            .Select(AssessmentMappings.SubmissionProjection)
             .ToListAsync(cancellationToken);
 
         return new PagedResult<AssessmentSubmissionDto>(items, totalCount, page, pageSize, sortBy, sortDir);

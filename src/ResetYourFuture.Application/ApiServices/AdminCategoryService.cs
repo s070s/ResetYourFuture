@@ -3,6 +3,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Shared.Resources.Messages;
@@ -24,14 +25,7 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
             .ApplySort(sortBy, sortDir)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(c => new AdminCategoryDto(
-                c.Id,
-                c.NameEn,
-                c.NameEl,
-                c.Courses.Count(x => !x.IsDeleted),
-                c.AssessmentDefinitions.Count(x => !x.IsDeleted),
-                c.CreatedAt
-            ))
+            .Select(CategoryMappings.AdminProjection)
             .ToListAsync(cancellationToken);
 
         return new PagedResult<AdminCategoryDto>(items, totalCount, page, pageSize, sortBy, sortDir);
@@ -62,8 +56,7 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
         db.Categories.Add(category);
         await db.SaveChangesAsync(cancellationToken);
 
-        return ServiceResult<AdminCategoryDto>.Created(
-            new AdminCategoryDto(category.Id, category.NameEn, category.NameEl, 0, 0, category.CreatedAt));
+        return ServiceResult<AdminCategoryDto>.Created(category.ToAdminDto(0, 0));
     }
 
     public async Task<ServiceResult<AdminCategoryDto>> UpdateCategoryAsync(Guid id, SaveCategoryRequest request, CancellationToken cancellationToken = default)
@@ -85,8 +78,7 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
         var courseCount = await db.Courses.CountAsync(c => c.CategoryId == id, cancellationToken);
         var assessmentCount = await db.AssessmentDefinitions.CountAsync(a => a.CategoryId == id, cancellationToken);
 
-        return ServiceResult<AdminCategoryDto>.Ok(
-            new AdminCategoryDto(category.Id, category.NameEn, category.NameEl, courseCount, assessmentCount, category.CreatedAt));
+        return ServiceResult<AdminCategoryDto>.Ok(category.ToAdminDto(courseCount, assessmentCount));
     }
 
     public async Task<bool> DeleteCategoryAsync(Guid id, CancellationToken cancellationToken = default)

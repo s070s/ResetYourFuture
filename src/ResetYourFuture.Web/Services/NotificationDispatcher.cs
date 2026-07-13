@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using ResetYourFuture.Application.ApiInterfaces;
-using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Web.Hubs;
 
@@ -17,14 +17,7 @@ public class NotificationDispatcher(
     {
         var notification = await notifications.CreateAsync(userId, type, titleKey, bodyArgs, linkUrl, cancellationToken);
 
-        var dto = new NotificationDto(
-            notification.Id,
-            notification.Type.ToString(),
-            notification.TitleKey,
-            bodyArgs?.ToList() ?? [],
-            notification.LinkUrl,
-            notification.IsRead,
-            notification.CreatedAt);
+        var dto = notification.ToDto();
 
         // No-ops silently if the user has no live connection — the row is already persisted,
         // so it shows up on their next login/reconnect via the normal paged fetch.

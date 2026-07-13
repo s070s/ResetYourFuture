@@ -1,11 +1,12 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Extensions;
+using System.Text.Json;
 
 namespace ResetYourFuture.Application.ApiServices;
 
@@ -26,7 +27,7 @@ public class NotificationService(IApplicationDbContext db) : INotificationServic
             .Take(pageSize)
             .ToListAsync(cancellationToken);
 
-        return new PagedResult<NotificationDto>(entities.Select(ToDto).ToList(), totalCount, page, pageSize, sortBy, sortDir);
+        return new PagedResult<NotificationDto>(entities.Select(n => n.ToDto()).ToList(), totalCount, page, pageSize, sortBy, sortDir);
     }
 
     public Task<int> GetUnreadCountAsync(string userId, CancellationToken cancellationToken = default) =>
@@ -94,12 +95,4 @@ public class NotificationService(IApplicationDbContext db) : INotificationServic
         return stale.Count;
     }
 
-    private static NotificationDto ToDto(Notification n) => new(
-        n.Id,
-        n.Type.ToString(),
-        n.TitleKey,
-        n.BodyArgsJson == null ? [] : JsonSerializer.Deserialize<List<string>>(n.BodyArgsJson) ?? [],
-        n.LinkUrl,
-        n.IsRead,
-        n.CreatedAt);
 }
