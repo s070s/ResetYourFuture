@@ -23,8 +23,6 @@ NOT examined: SQL Server failover behaviour (retry-on-failure is configured, `Au
 | Low | 4 |
 | Info | 0 |
 
-> **Fixed since audit:** REL-1 (High — `DeleteUser` threw for any user with chat/call history) — dependent chat/call/certificate/enrollment rows are now cleaned up in the same transaction as the user delete, `DbUpdateException` is caught and surfaced as a 409 `ServiceResult`, covered by SQLite FK tests.
-
 Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. The main weaknesses are a registration flow that can 500 after the account is already created, and an SSR consumer layer that swallows failures into blank UI.
 
 ## 3. Findings

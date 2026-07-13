@@ -23,8 +23,6 @@ NOT examined: index selection/coverage and column types for performance → DB (
 | Low | 3 |
 | Info | 1 |
 
-> **Fixed since audit:** DQ-1 (High — user deletion blocked by Restrict FKs / no explicit strategy) — the deletion strategy is now an explicit transactional hard delete: `DeleteUserAsync` removes the user's conversations (with all their messages), sent messages, call participations, initiated call sessions, certificates, and enrollments in the same transaction as the user row; remaining user data goes via the existing cascades. Covered by SQLite FK tests.
-
 Overall data integrity is well tended: unique constraints back every natural key that matters (one certificate per user-course, one enrollment per user-course, ordered-pair chat uniqueness, one active subscription via filtered index, one call-participant per session), a global soft-delete query filter plus matching dependent filters prevent the classic "principal filtered out" surprise, `AuditableEntity` stamps created/updated automatically, and both certificate and enrollment insert paths handle the duplicate-key race. The weak spots are unvalidated JSON payloads (assessment answers, plan features, assessment schema), and a DTO/column length mismatch that will throw on save.
 
 ## 3. Findings

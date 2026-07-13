@@ -21,8 +21,6 @@ Read in full: `src/ResetYourFuture.Web/Startup/DatabaseSeedingExtensions.cs`, `s
 | Low | 2 |
 | Info | 1 |
 
-> **Fixed since audit:** OPS-1 (High — blog seeder ran unconditionally and could delete operator-authored articles) — the delete/reseed branch is gone (`BlogArticleSeeder.SeedAsync` now only checks "skip if any articles exist"), and the call site moved inside the Development + `SeedData:Enabled` gate alongside the other content seeders. A regression test (`BlogArticleSeeder_NeverDeletesExistingEnglishOnlyArticles`) proves pre-existing English-only articles survive a reseed attempt.
-
 Overall: for a project that has never been operated, the operational *design instincts* are good — startup fails fast on missing admin password and email transport instead of limping, all content seeding (including blog, now) is double-gated (environment AND config flag), the bulk seeder runs as a background service so it can't block boot, and the README production checklist is a real (if incomplete) operator document, which is more than most student projects have. What's missing is everything that only matters after day one: no backup or restore story for the two data stores, an auto-migration habit with no rollback procedure, and no runbook telling a future operator (including the author in six months) how to update, recover, or even notice a problem.
 
 ## 3. Findings

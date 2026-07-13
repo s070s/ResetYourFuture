@@ -21,8 +21,6 @@ Read in full: `src/ResetYourFuture.Web/appsettings.json`, `appsettings.Developme
 | Low | 3 |
 | Info | 1 |
 
-> **Fixed since audit:** CFG-1 (High — `SelfBaseUrl` fell back silently to localhost) — `ServiceRegistrationExtensions.ResolveSelfBaseUrl` now throws at startup outside Development when the value is unset or still points at localhost, mirroring the existing `Jwt:Key` fail-fast pattern; `.env.template` documents the key under a new Production-only section.
-
 Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design (blank-by-design keys in `appsettings.json`, gitignored `.env` seeded from `.env.template`, README Configuration table documenting each key), the custom `EnvFileLoader` runs *before* `CreateBuilder` so the standard environment-variable provider picks values up in the normal precedence chain, and the most dangerous keys fail fast at startup with clear messages (JWT key length, admin password, `SelfBaseUrl`, missing email transport in Production). The remaining weaknesses are at the edges: the `.env.template` doesn't cover everything Production requires; options binding is entirely unvalidated; and a number of behavioral constants are compiled in.
 
 ## 3. Findings

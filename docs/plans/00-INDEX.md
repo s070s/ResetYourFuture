@@ -1,54 +1,44 @@
-# docs/plans — Plan & Audit Suite Index
+# docs/plans — Open Audit Backlog Index
 
-> **Temporary folder.** This entire directory is gitignored (see the `docs/plans/` entry in `.gitignore`)
-> and exists only until its plans are implemented and its findings addressed. Delete the folder and the
-> `.gitignore` entry when done.
+Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master) · Pruned to open findings: 2026-07-14
 
-Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master)
+This folder holds the **open backlog** from the 2026-07-11 audit suite (originally 4 implementation plans,
+25 audit reports, a Critical/High synthesis, and 255 findings). Everything completed has been removed:
+all four plans are implemented, and every Critical/High finding is fixed, downgraded after a partial fix,
+or consciously accepted as out of scope (the four "Accepted since audit" banners in reports 21/34/35/36
+record the accepted Redis/architecture cluster: `ARCH-1`, `PERF-1`, `SCALE-1/2/3`, `AVAIL-4`). What remains
+is the Medium/Low/Info backlog below — "worth scheduling" / "fix opportunistically" / "observation only" —
+plus the deferred cosmetic polish note. Full history of what was fixed lives in git (`git log docs/plans/`).
 
-## Reading order
+## Reports
 
-Numeric prefix = recommended reading order. Production status is tracked in the last column.
-
-| # | Document | Cluster | Finding prefix | Status |
-|---|----------|---------|----------------|--------|
-| 00 | [00-INDEX.md](00-INDEX.md) | Meta | — | ✅ |
-| 01 | [01-TEMPLATE-plan.md](01-TEMPLATE-plan.md) | Meta | — | ✅ |
-| 02 | [02-TEMPLATE-audit.md](02-TEMPLATE-audit.md) | Meta | — | ✅ |
-| 10 | ~~10-plan-sorting-rollout.md~~ | Plans | — | 🏁 implemented 2026-07-12, file removed |
-| 11 | ~~11-plan-ollama-agent.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
-| 12 | ~~12-plan-five-features.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
-| 13 | ~~13-plan-visual-polish.md~~ | Plans | — | 🏁 core implemented 2026-07-13, file removed; optional cosmetic polish deferred (see note below) |
-| 20 | [20-audit-gaps.md](20-audit-gaps.md) — missing / not working as intended | Synthesis | GAP | ✅ |
-| 21 | [21-audit-architecture.md](21-audit-architecture.md) | Foundation | ARCH | ✅ |
-| 22 | [22-audit-code-quality.md](22-audit-code-quality.md) | Foundation | CQ | ✅ |
-| 23 | [23-audit-maintainability.md](23-audit-maintainability.md) | Foundation | MAINT | ✅ |
-| 24 | [24-audit-testability.md](24-audit-testability.md) | Foundation | TEST | ✅ |
-| 25 | [25-audit-security.md](25-audit-security.md) | Security & correctness | SEC | ✅ |
-| 26 | [26-audit-reliability.md](26-audit-reliability.md) | Security & correctness | REL | ✅ |
-| 27 | [27-audit-business-logic.md](27-audit-business-logic.md) | Security & correctness | BIZ | ✅ |
-| 28 | [28-audit-data-quality.md](28-audit-data-quality.md) | Security & correctness | DQ | ✅ |
-| 29 | [29-audit-compliance.md](29-audit-compliance.md) | Security & correctness | COMP | ✅ |
-| 30 | [30-audit-database.md](30-audit-database.md) | Data & API | DB | ✅ |
-| 31 | [31-audit-api.md](31-audit-api.md) | Data & API | API | ✅ |
-| 32 | [32-audit-user-interface.md](32-audit-user-interface.md) | Frontend | UI | ✅ |
-| 33 | [33-audit-ux.md](33-audit-ux.md) | Frontend | UX | ✅ |
-| 34 | [34-audit-performance.md](34-audit-performance.md) | Runtime | PERF | ✅ |
-| 35 | [35-audit-scalability.md](35-audit-scalability.md) | Runtime | SCALE | ✅ |
-| 36 | [36-audit-availability.md](36-audit-availability.md) | Runtime | AVAIL | ✅ |
-| 37 | [37-audit-logging-monitoring.md](37-audit-logging-monitoring.md) | Operations | LOG | ✅ |
-| 38 | [38-audit-observability.md](38-audit-observability.md) | Operations | OBS | ✅ |
-| 39 | [39-audit-configuration.md](39-audit-configuration.md) | Operations | CFG | ✅ |
-| 40 | [40-audit-build-deployment.md](40-audit-build-deployment.md) | Operations | BUILD | ✅ |
-| 41 | [41-audit-cloud-infrastructure.md](41-audit-cloud-infrastructure.md) | Operations | CLOUD | ✅ |
-| 42 | [42-audit-operational-readiness.md](42-audit-operational-readiness.md) | Operations | OPS | ✅ |
-| 43 | [43-audit-dependency-management.md](43-audit-dependency-management.md) | Governance | DEP | ✅ |
-| 44 | [44-audit-documentation.md](44-audit-documentation.md) | Governance | DOC | ✅ |
-| 45 | [45-audit-project-governance.md](45-audit-project-governance.md) | Governance | GOV | ✅ |
-
-Production order differs from reading order: plans (10–13) were written first from codebase exploration,
-then audits 21–45 in seven grouped analysis passes (A: 21–24, B: 25–29, C: 30–31, D: 32–33, E: 34–36,
-F: 37–42, G: 43–45), and 20-audit-gaps.md last as a synthesis of all Critical/High findings.
+| # | Document | Cluster | Finding prefix |
+|---|----------|---------|----------------|
+| 21 | [21-audit-architecture.md](21-audit-architecture.md) | Foundation | ARCH |
+| 22 | [22-audit-code-quality.md](22-audit-code-quality.md) | Foundation | CQ |
+| 23 | [23-audit-maintainability.md](23-audit-maintainability.md) | Foundation | MAINT |
+| 24 | [24-audit-testability.md](24-audit-testability.md) | Foundation | TEST |
+| 25 | [25-audit-security.md](25-audit-security.md) | Security & correctness | SEC |
+| 26 | [26-audit-reliability.md](26-audit-reliability.md) | Security & correctness | REL |
+| 27 | [27-audit-business-logic.md](27-audit-business-logic.md) | Security & correctness | BIZ |
+| 28 | [28-audit-data-quality.md](28-audit-data-quality.md) | Security & correctness | DQ |
+| 29 | [29-audit-compliance.md](29-audit-compliance.md) | Security & correctness | COMP |
+| 30 | [30-audit-database.md](30-audit-database.md) | Data & API | DB |
+| 31 | [31-audit-api.md](31-audit-api.md) | Data & API | API |
+| 32 | [32-audit-user-interface.md](32-audit-user-interface.md) | Frontend | UI |
+| 33 | [33-audit-ux.md](33-audit-ux.md) | Frontend | UX |
+| 34 | [34-audit-performance.md](34-audit-performance.md) | Runtime | PERF |
+| 35 | [35-audit-scalability.md](35-audit-scalability.md) | Runtime | SCALE |
+| 36 | [36-audit-availability.md](36-audit-availability.md) | Runtime | AVAIL |
+| 37 | [37-audit-logging-monitoring.md](37-audit-logging-monitoring.md) | Operations | LOG |
+| 38 | [38-audit-observability.md](38-audit-observability.md) | Operations | OBS |
+| 39 | [39-audit-configuration.md](39-audit-configuration.md) | Operations | CFG |
+| 40 | [40-audit-build-deployment.md](40-audit-build-deployment.md) | Operations | BUILD |
+| 41 | [41-audit-cloud-infrastructure.md](41-audit-cloud-infrastructure.md) | Operations | CLOUD |
+| 42 | [42-audit-operational-readiness.md](42-audit-operational-readiness.md) | Operations | OPS |
+| 43 | [43-audit-dependency-management.md](43-audit-dependency-management.md) | Governance | DEP |
+| 44 | [44-audit-documentation.md](44-audit-documentation.md) | Governance | DOC |
+| 45 | [45-audit-project-governance.md](45-audit-project-governance.md) | Governance | GOV |
 
 > **Plan 13 — deferred cosmetic polish (optional, not started).** The visual-polish plan's core shipped
 > (design-token system, global `:focus-visible` ring, button/table-row micro-interactions, scroll-reveal,
@@ -116,7 +106,7 @@ Severity is judged in context: this is a university certificate project, not a p
 | COMP (29) | 0 | 0 | 3 | 2 | 1 | 6 |
 | DB (30) | 0 | 0 | 6 | 4 | 2 | 12 |
 | API (31) | 0 | 0 | 9 | 4 | 3 | 16 |
-| UI (32) | 0 | 0 | 7 | 4 | 1 | 12 |
+| UI (32) | 0 | 0 | 6 | 4 | 1 | 11 |
 | UX (33) | 0 | 0 | 9 | 2 | 1 | 12 |
 | PERF (34) | 0 | 0 | 5 | 5 | 1 | 11 |
 | SCALE (35) | 0 | 0 | 6 | 2 | 1 | 9 |
@@ -130,6 +120,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 3 | 4 | 2 | 9 |
 | DOC (44) | 0 | 0 | 3 | 4 | 2 | 9 |
 | GOV (45) | 0 | 0 | 2 | 3 | 3 | 8 |
-| **Total** | **0** | **0** | **104** | **89** | **31** | **224** |
+| **Total** | **0** | **0** | **103** | **89** | **31** | **223** |
 
-Counts reflect **open** findings — fixed findings are removed from their report, and downgraded findings (still open, less severe) move to their new severity row (each report carries a "Fixed since audit" note either way). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed, and so are the two High UI findings (`UI-1`, `UI-2`, dark-theme contrast) and ten High findings from Phase 5 (`CFG-1` fail-fast SelfBaseUrl, `AVAIL-1` health endpoints, `AVAIL-2` bounded startup retry, `UX-3` blank NotFound page, `UX-4` unconfirmed subscription downgrade, `OPS-1` destructive blog reseed, `UX-2` silent assessment failures, `BIZ-1` subscriptions never expiring, `SEC-1` refresh-token lifecycle/reuse detection, `TEST-1` relational integration coverage via a SQLite-backed factory + migration-chain test, `DB-2` native `datetimeoffset` storage — which also closed `TEST-5` and `PERF-2`, `AVAIL-3` loopback timeout/retry + graceful circuit degradation, `UX-1` localizing ~100 hardcoded feedback strings, `UI-3` course-card nested-button a11y restructure). `SCALE-4` (DataProtection keys) is partially fixed and downgraded to Medium; `API-1` (error-body sprawl) is mostly fixed — all generic errors now share one ProblemDetails envelope — and downgraded to Medium for the residual content-type header and deliberate typed DTOs; `DEP-3` (`10.0.x` version skew) is partially fixed and downgraded to Low — fixing it surfaced and patched a real Critical CVE (CVE-2026-40372) along the way. Separately, six High findings — the Redis/architecture cluster `ARCH-1`, `PERF-1`, `SCALE-1`, `SCALE-2`, `SCALE-3` and `AVAIL-4` — have been **consciously accepted as out of scope** ("will not implement"): they only bite when the app runs as more than one instance (which would need Redis or other new infrastructure this single-instance university project deliberately avoids), or would require reversing the loopback self-API architecture, whose own audit verdict is "accept as a documented tradeoff." They are removed from the open counts above (like fixed findings) but kept on record in each source report's "Accepted since audit" note and consolidated in [20-audit-gaps.md](20-audit-gaps.md) §4. With `TEST-2` (the `tests/e2e/` Playwright smoke suite) and `MAINT-1` (the `Application/Mappings/` shared mapping layer + `docs/ADDING-A-FIELD.md` checklist) now fixed, **no actionable Critical/High findings remain** — every one of the original 31 is fixed, downgraded after a partial fix, or consciously accepted. See [20-audit-gaps.md](20-audit-gaps.md) §4–§5 for the synthesis; remaining Medium/Low work is tracked per source report.
+Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, and downgraded findings (still open, less severe) sit in their new severity row. Of the original 255 findings, all 31 Critical/High are resolved: fixed, downgraded after a partial fix, or consciously accepted (the Redis/architecture cluster — see the "Accepted since audit" banners in reports 21/34/35/36). The record of every fix lives in git history.

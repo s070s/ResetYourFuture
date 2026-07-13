@@ -1,24 +1,25 @@
-# Design: Real email service + confirmation/reset auth flows
+# Design: Confirmation/reset auth flow completion (email transport already implemented)
 
-**Date:** 2026-06-25
-**Status:** Approved (pending spec review)
+**Date:** 2026-06-25 · **Trimmed to remaining work:** 2026-07-14
+**Status:** Partially implemented — the transport half (former §§1–3: `SmtpEmailService`, `EmailOptions`, registration) is done and removed from this document; the flow half (§§4–9 below) remains.
 **Area:** `src/ResetYourFuture.Web` (Blazor Server), `src/ResetYourFuture.Infrastructure`, `src/ResetYourFuture.Application`
 
-## Problem
+## Problem (remaining)
 
-Email-dependent auth flows are stubbed and block real functionality:
+The email transport exists (`SmtpEmailService`/MailKit, selected whenever `Email:Smtp:Host` is configured; `StubEmailService` stays the Development default; production fails fast when nothing is configured), and the JSON API path already sends confirmation/reset emails — but the flows are incomplete:
 
-- Only `StubEmailService` implements `IEmailService`, registered in Development only. `Program.cs`
-  fail-fasts in production if no real `IEmailService` is registered.
 - `AuthService.RegisterAsync` and `AuthService.ForgotPasswordAsync` (the Blazor **cookie** path used
   by the UI) generate tokens but send **no** email.
-- There is no `/reset-password` Blazor page and no production resend-confirmation endpoint.
+- There is no `/reset-password` Blazor page — the reset links the API path emails
+  (`{host}/reset-password?email=…&token=…`, built in `AuthController`) land on the NotFound page.
+- There is no `/confirm-email` landing page (the emailed confirmation link hits the raw JSON API
+  action) and no production resend-confirmation endpoint.
 
 This blocks two audit UI/UX issues:
 1. Self-service email-confirmation resend on the Login page (guidance message exists; no resend button
    because nothing can send the email).
-2. The Forgot Password flow: in production the user submits but no reset email is sent and there is no
-   reset page to land on.
+2. The Forgot Password flow: the user submits from the Blazor page but no reset email is sent, and the
+   API-path reset email points at a page that does not exist.
 
 ## Context / current state
 
@@ -41,82 +42,19 @@ This blocks two audit UI/UX issues:
 
 ## Decisions
 
-- **Provider:** MailKit/MimeKit SMTP — provider-agnostic, testable against Papercut/Mailhog locally and
-  any prod relay (SES, SendGrid SMTP, Mailgun, O365). One implementation, no vendor lock-in.
 - **Confirmation landing:** add a friendly `/confirm-email` Blazor page (symmetric with
   `/reset-password`), backed by a new `IAuthService.ConfirmEmailAsync`.
 - **Resend:** production controller endpoint `POST api/auth/resend-confirmation`, rate-limited via the
   existing `"auth"` policy, called from `Login.razor` through the existing `"SelfClient"` HttpClient.
   Rationale: resend is an email-bombing vector and needs the ASP.NET rate limiter, which a circuit-side
   service method would not get.
+- *(Implemented earlier, retained for context:)* the transport is MailKit/MimeKit SMTP behind
+  `IEmailService`, configured by `EmailOptions` (`Email:Smtp:*`), selected whenever `Email:Smtp:Host`
+  is set, with `StubEmailService` as the Development default and a production fail-fast when nothing
+  is configured. Papercut testing via User Secrets: `Email:Smtp:Host=localhost`, `Port=25`,
+  `UseStartTls=false`.
 
-## Components
-
-### 1. `SmtpEmailService` — `src/ResetYourFuture.Infrastructure/ApiServices/SmtpEmailService.cs`
-
-- Implements `IEmailService` (`SendEmailConfirmationAsync`, `SendPasswordResetAsync`).
-- Depends on `IOptions<EmailOptions>` and `ILogger<SmtpEmailService>`.
-- Builds a `MimeMessage` via a `static MimeMessage BuildMessage(EmailOptions, string to, string subject,
-  string htmlBody, string textBody)` seam (unit-testable without a server). HTML body + plaintext
-  alternative; subjects are simple ("Confirm your email", "Reset your password"). Bodies include the
-  link as a clickable anchor and as raw text.
-- Sends via `MailKit.Net.Smtp.SmtpClient`: `ConnectAsync(host, port, SecureSocketOptions)` where the
-  option is `StartTls` when `UseStartTls` is true, else `None` (Papercut); authenticate only when
-  `Username` is non-empty; `SendAsync`; `DisconnectAsync(true)`. Honors `CancellationToken`.
-- Logs Information on success, Error on failure, and **rethrows** — the caller (`AuthService`) decides
-  whether to swallow (see §4).
-
-### 2. `EmailOptions` — `src/ResetYourFuture.Infrastructure/ApiServices/EmailOptions.cs`
-
-```csharp
-public sealed class EmailOptions
-{
-    public const string SectionName = "Email";
-    public SmtpOptions Smtp { get; set; } = new();
-}
-
-public sealed class SmtpOptions
-{
-    public string Host { get; set; } = string.Empty;
-    public int Port { get; set; } = 587;
-    public bool UseStartTls { get; set; } = true;
-    public string? Username { get; set; }
-    public string? Password { get; set; }
-    public string FromAddress { get; set; } = "no-reply@reset-your-future.com";
-    public string FromName { get; set; } = "Reset Your Future";
-}
-```
-
-`appsettings.json` ships empty/placeholder values (matching `Jwt:Key`, `ConnectionStrings`); real
-secrets come from User Secrets / env. `App:BaseUrl` is added for link generation:
-
-```jsonc
-"Email": {
-  "Smtp": { "Host": "", "Port": 587, "UseStartTls": true, "Username": "", "Password": "",
-            "FromAddress": "no-reply@reset-your-future.com", "FromName": "Reset Your Future" }
-},
-"App": { "BaseUrl": "https://reset-your-future.com" }
-```
-
-`appsettings.Development.json` may set `App:BaseUrl` to the dev origin (e.g. `https://localhost:7090`).
-Papercut testing via User Secrets: `Email:Smtp:Host=localhost`, `Port=25`, `UseStartTls=false`.
-
-### 3. `Program.cs` registration (replaces the fail-fast block, ~lines 240-257)
-
-```csharp
-builder.Services.Configure<EmailOptions>(config.GetSection(EmailOptions.SectionName));
-
-var smtpHost = config["Email:Smtp:Host"];
-if (!string.IsNullOrWhiteSpace(smtpHost))
-    builder.Services.AddScoped<IEmailService, SmtpEmailService>();      // dev (Papercut) or prod
-else if (builder.Environment.IsDevelopment())
-    builder.Services.AddScoped<IEmailService, StubEmailService>();      // dev default: logs only
-else
-    throw new InvalidOperationException(
-        "No email transport configured. Set Email:Smtp:Host (and credentials) for production.");
-```
-
-Prod fail-safe is preserved: production with no SMTP configured still throws.
+## Components (§§1–3, the transport, are implemented and removed; original numbering kept)
 
 ### 4. `AuthService` wiring — `src/ResetYourFuture.Infrastructure/Services/AuthService.cs`
 
@@ -184,10 +122,6 @@ localization pattern. Reuse existing keys (`Label_NewPassword`, `Label_Password`
 `ResetPasswordSuccess`, `ConfirmEmailTitle`, `ConfirmEmailSuccess`, `ConfirmEmailError`,
 `Label_ResendConfirmation`, `ResendConfirmationSent`.
 
-## Package changes
-
-- Add `MailKit` PackageReference to `ResetYourFuture.Infrastructure.csproj` (pulls in MimeKit).
-
 ## Testing
 
 - **`AuthServiceTests`**: extend the `Build()` harness with a mocked `IEmailService` (NSubstitute) and
@@ -198,10 +132,9 @@ localization pattern. Reuse existing keys (`Label_NewPassword`, `Label_Password`
   - `ForgotPasswordAsync` confirmed user → `Received().SendPasswordResetAsync(...)`, generic success.
   - `ForgotPasswordAsync` unknown/unconfirmed → `DidNotReceive()` email; generic success.
   - `ConfirmEmailAsync` success and failure paths.
-- **`SmtpEmailService`**: unit-test `BuildMessage` (From address/name, To, Subject, HTML + text body
-  contain the link). No live SMTP in unit tests.
 - **`AuthController`** resend: if a controller test fixture exists, add tests (generic response always;
   email sent for unconfirmed user; not sent for unknown or already-confirmed).
+- (`SmtpEmailServiceTests` for the transport's `BuildMessage` seam already exists from the implemented half.)
 
 ## Verification
 

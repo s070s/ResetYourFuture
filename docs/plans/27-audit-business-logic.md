@@ -23,8 +23,6 @@ NOT examined: real Stripe API semantics (no live integration exists) and pricing
 | Low | 4 |
 | Info | 0 |
 
-> **Fixed since audit:** BIZ-1 (High — paid subscriptions never expired) — `GetUserStatusAsync`/`GetUserTierAsync` now require `IsActive && (ExpiresAt == null || ExpiresAt > UtcNow)`, so an expired-but-unswept row stops granting paid access immediately (verified live: backdating a real `ExpiresAt` to yesterday while leaving `IsActive=1` untouched correctly showed the user as Free and denied assessment access). A new `SubscriptionExpirySweeper` background service (15-minute poll, mirroring `CallRingMonitor`'s convention) also deactivates expired rows, reverts the user to Free, records a new `BillingTransactionType.Expired` transaction, and sends a `SubscriptionExpired` notification — so the stored state self-corrects even if nothing reads it in the meantime.
-
 Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. The remaining lifecycle gaps: cancellation immediately forfeits paid time (BIZ-2 — a natural follow-up now that the expiry sweep exists to drive a "keep access until period end" policy, but not tackled in this pass), and the real payment path is inert (checkout 503s in production and the webhook does not activate anything).
 
 ## 3. Findings
