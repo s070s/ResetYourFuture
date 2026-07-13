@@ -37,6 +37,28 @@
     --focus-ring: #c4bcea8c;
     --overlay-soft: #0a0c20d9;
     --button-regular: #c4bcea;
+    /* Spacing */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 24px;
+    --space-6: 32px;
+    /* Radii */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 999px;
+    /* Shadows — stacked layers crossfaded via opacity (never transition box-shadow itself) */
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.24);
+    --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.28);
+    --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.32);
+    /* Motion */
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+    --duration-slow: 320ms;
+    --ease-out: cubic-bezier(.2, .8, .2, 1);
+    --ease-in-out: cubic-bezier(.4, 0, .2, 1);
 }
 
 /* Utility class — readable secondary text on the dark theme. */
@@ -84,14 +106,23 @@ a,
     border-color: var(--text-strong-accent);
 }
 
+/* Unified keyboard-focus ring (WI-6). :focus-visible only fires for keyboard/programmatic
+   focus — never on a mouse click — so this never "flashes" on pointer interaction. An outline
+   (not box-shadow) is used so the ring never clips inside a scroll container (e.g. ScrollableTable).
+   Bootstrap's own .btn/.form-control:focus box-shadow is neutralized so a mouse click never
+   shows a competing ring alongside (or instead of) this one. */
+:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
 .form-control:focus,
+.form-select:focus,
 .form-check-input:focus {
-    box-shadow:
-        0 0 0 0.1rem var(--bg-primary),
-        0 0 0 0.25rem var(--focus-ring);
+    box-shadow: none;
 }
 
 /* Validation */
@@ -117,6 +148,7 @@ input:-webkit-autofill:active {
 #blazor-error-ui {
     color-scheme: dark only;
     background-color: var(--color-warning);
+    color: var(--bg-primary);
     bottom: 0;
     box-shadow: 0 -1px 2px #00000033;
     box-sizing: border-box;
@@ -128,8 +160,16 @@ input:-webkit-autofill:active {
     z-index: 1000;
 }
 
+/* Near-black text/links against the yellow banner (near-white was ~1.2:1 contrast — UI-2) */
+#blazor-error-ui a.reload {
+    color: var(--bg-primary);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
 #blazor-error-ui .dismiss {
     cursor: pointer;
+    color: var(--bg-primary);
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;
@@ -271,6 +311,83 @@ input:-webkit-autofill:active {
     50%       { filter: drop-shadow(0 0 20px rgba(196, 124, 180, 0.5)); }
 }
 
+/* ================================================
+   Micro-interactions (WI-2)
+   transform/opacity only — never width/height/top/left/margin/padding/box-shadow/filter,
+   so every transition below stays on the compositor.
+   ================================================ */
+.btn,
+[role="button"] {
+    transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.btn:hover,
+[role="button"]:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active,
+[role="button"]:active {
+    transform: scale(.98);
+}
+
+/* ================================================
+   Entrance + scroll-reveal (WI-3)
+   Keyframes are transform/opacity only (200-320ms). Elements start hidden only once JS has
+   confirmed it can reveal them — see the IntersectionObserver in cert-interop.js, which adds
+   .is-visible and then unobserves (fires once, no lingering work). .reveal-ready is added by
+   that same script after the observer is wired up, so a page with JS disabled/slow never hides
+   content permanently (the reduced-motion block below also forces .reveal visible outright).
+   ================================================ */
+/* Named reveal-* (not fade-up/fade-in/scale-in) — Blazor CSS isolation does not scope
+   @keyframes names, so a generic name here would collide globally with Home.razor.css's own
+   unrelated local @keyframes fade-up. */
+@keyframes reveal-fade-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes reveal-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes reveal-scale-in {
+    from { opacity: 0; transform: scale(.96); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.reveal-ready .reveal {
+    opacity: 0;
+}
+
+.reveal-ready .reveal.is-visible {
+    animation: reveal-fade-up var(--duration-slow) var(--ease-out) both;
+}
+
+.reveal-ready .reveal.reveal-fade.is-visible {
+    animation-name: reveal-fade-in;
+}
+
+.reveal-ready .reveal.reveal-scale.is-visible {
+    animation-name: reveal-scale-in;
+}
+
+.reveal-ready .stagger > * {
+    opacity: 0;
+}
+
+.reveal-ready .stagger.is-visible > * {
+    animation: reveal-fade-up var(--duration-slow) var(--ease-out) both;
+}
+
+.reveal-ready .stagger.is-visible > *:nth-child(1) { animation-delay: 0ms; }
+.reveal-ready .stagger.is-visible > *:nth-child(2) { animation-delay: 60ms; }
+.reveal-ready .stagger.is-visible > *:nth-child(3) { animation-delay: 120ms; }
+.reveal-ready .stagger.is-visible > *:nth-child(4) { animation-delay: 180ms; }
+.reveal-ready .stagger.is-visible > *:nth-child(5) { animation-delay: 240ms; }
+.reveal-ready .stagger.is-visible > *:nth-child(n+6) { animation-delay: 300ms; }
+
 /* Global form adjustments */
 @media (max-width: 767.98px) {
     .form-control {
@@ -306,4 +423,24 @@ input:-webkit-autofill:active {
     .compass-boot__svg {
         animation: none !important;
     }
+
+    /* WI-5: reveal/stagger content must never sit hidden waiting for a scroll-triggered
+       animation that reduced-motion has neutralized — show it immediately. */
+    .reveal-ready .reveal,
+    .reveal-ready .stagger > * {
+        opacity: 1 !important;
+    }
+}
+
+/* ================================================
+   Motion hygiene (WI-7)
+   Infinite/looping animations (compass spinner arc + needle) pause while the tab is hidden —
+   toggled by the visibilitychange listener in cert-interop.js. Bounded, short-lived spinners
+   cost nothing while visible; this only matters for a slow load left open in a background tab.
+   ================================================ */
+.tab-hidden .compass-spinner__arc,
+.tab-hidden .compass-spinner__arc-trail,
+.tab-hidden .compass-spinner__needle-group,
+.tab-hidden .compass-boot__svg {
+    animation-play-state: paused;
 }

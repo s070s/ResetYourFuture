@@ -12,7 +12,7 @@
 
 @if (_loading)
 {
-    <LoadingSpinner Label="@SessionRes.Loading" />
+    <SkeletonBlock Rows="3" Height="7rem" Gap="1rem" />
 }
 else if (_sessions.Count == 0)
 {
@@ -20,7 +20,7 @@ else if (_sessions.Count == 0)
 }
 else
 {
-    <div class="sessions-list">
+    <div class="sessions-list stagger">
         @foreach (var session in _sessions)
         {
             <div class="session-card" @key="session.Id">

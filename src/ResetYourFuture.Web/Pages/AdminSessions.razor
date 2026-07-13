@@ -11,7 +11,7 @@
 
     @if (pagedResult == null)
     {
-        <LoadingSpinner Label="@SessionRes.Loading" />
+        <SkeletonBlock Rows="8" Height="2.75rem" />
     }
     else if (!pagedResult.Items.Any())
     {

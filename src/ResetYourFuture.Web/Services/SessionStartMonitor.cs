@@ -6,7 +6,7 @@ using ResetYourFuture.Domain.Enums;
 namespace ResetYourFuture.Web.Services;
 
 /// <summary>
-/// Polls <see cref="ScheduledSession"/> rows for status transitions and the 15-minutes-before
+/// Polls <see cref="Domain.Entities.ScheduledSession"/> rows for status transitions and the 15-minutes-before
 /// reminder. Does not create any <c>CallSession</c> itself — the first participant to open the
 /// session from /sessions and start the call does that through the existing group-call flow;
 /// this monitor only drives the schedule row's own lifecycle and notifications.

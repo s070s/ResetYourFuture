@@ -6,7 +6,7 @@
 
 @if (_loading)
 {
-    <LoadingSpinner Label="@PathRes.Loading" />
+    <SkeletonBlock Rows="3" Height="7rem" Gap="1rem" />
 }
 else if (_paths.Count == 0)
 {
@@ -14,7 +14,7 @@ else if (_paths.Count == 0)
 }
 else
 {
-    <div class="paths-list">
+    <div class="paths-list stagger">
         @foreach (var path in _paths)
         {
             <div class="path-card" @key="path.Id" role="button" tabindex="0"

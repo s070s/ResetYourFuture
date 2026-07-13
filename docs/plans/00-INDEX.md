@@ -18,7 +18,7 @@ Numeric prefix = recommended reading order. Production status is tracked in the 
 | 10 | ~~10-plan-sorting-rollout.md~~ | Plans | — | 🏁 implemented 2026-07-12, file removed |
 | 11 | ~~11-plan-ollama-agent.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
 | 12 | ~~12-plan-five-features.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
-| 13 | [13-plan-visual-polish.md](13-plan-visual-polish.md) | Plans | — | ✅ |
+| 13 | [13-plan-visual-polish.md](13-plan-visual-polish.md) | Plans | — | 🔶 core implemented 2026-07-13; mechanical sweep + 2 micro-interactions deferred |
 | 20 | [20-audit-gaps.md](20-audit-gaps.md) — missing / not working as intended | Synthesis | GAP | ✅ |
 | 21 | [21-audit-architecture.md](21-audit-architecture.md) | Foundation | ARCH | ✅ |
 | 22 | [22-audit-code-quality.md](22-audit-code-quality.md) | Foundation | CQ | ✅ |
@@ -103,7 +103,7 @@ Severity is judged in context: this is a university certificate project, not a p
 | COMP (29) | 0 | 2 | 3 | 2 | 1 | 8 |
 | DB (30) | 0 | 1 | 6 | 4 | 2 | 13 |
 | API (31) | 0 | 1 | 8 | 4 | 3 | 16 |
-| UI (32) | 0 | 3 | 7 | 4 | 1 | 15 |
+| UI (32) | 0 | 1 | 7 | 4 | 1 | 13 |
 | UX (33) | 0 | 4 | 9 | 2 | 1 | 16 |
 | PERF (34) | 0 | 1 | 6 | 5 | 1 | 13 |
 | SCALE (35) | 0 | 4 | 5 | 2 | 1 | 12 |
@@ -117,6 +117,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 4 | 3 | 2 | 9 |
 | DOC (44) | 0 | 0 | 3 | 4 | 2 | 9 |
 | GOV (45) | 0 | 0 | 2 | 3 | 3 | 8 |
-| **Total** | **0** | **28** | **105** | **88** | **31** | **252** |
+| **Total** | **0** | **26** | **105** | **88** | **31** | **250** |
 
-Counts reflect **open** findings — fixed findings are removed from their report (each report carries a "Fixed since audit" note). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed. See [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and the prioritized action list across the remaining Critical/High findings.
+Counts reflect **open** findings — fixed findings are removed from their report (each report carries a "Fixed since audit" note). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed, and so are the two High UI findings (`UI-1`, `UI-2`) — dark-theme contrast breaks fixed by `13-plan-visual-polish.md`. See [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and the prioritized action list across the remaining Critical/High findings.

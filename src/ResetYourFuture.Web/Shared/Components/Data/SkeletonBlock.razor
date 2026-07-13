@@ -1,0 +1,26 @@
+@* CSS-only shimmer placeholder for table/card loading states (WI-4 of the visual-polish plan).
+   Callers size Height/Width/Rows to match the real content so no layout shift occurs once data
+   arrives. Prefer this over LoadingSpinner for list/table pages; keep the spinner for short,
+   button-scoped operations. *@
+
+@if (Rows > 1)
+{
+    <div class="skeleton-stack" style="gap:@Gap">
+        @for (var i = 0; i < Rows; i++)
+        {
+            <div class="skeleton-block @CssClass" style="height:@Height;width:@Width;"></div>
+        }
+    </div>
+}
+else
+{
+    <div class="skeleton-block @CssClass" style="height:@Height;width:@Width;"></div>
+}
+
+@code {
+    [Parameter] public string Height { get; set; } = "1rem";
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public string Gap { get; set; } = "0.5rem";
+    [Parameter] public int Rows { get; set; } = 1;
+    [Parameter] public string? CssClass { get; set; }
+}

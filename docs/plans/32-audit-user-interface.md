@@ -24,24 +24,16 @@ NOT examined: runtime rendering, real contrast measurements in a browser, JS int
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 3 |
+| High | 1 |
 | Medium | 7 |
 | Low | 4 |
 | Info | 1 |
 
-The UI layer is in better shape than most student projects: a coherent dark-theme token set in `app.css`, a documented CSS consolidation rule that is mostly followed, a genuinely good mobile card-table transformation with 100% `data-label` coverage on all 12 data tables, a skip link, `aria-sort` on sortable headers, `aria-pressed` on the culture selector, visually-hidden text for icon-only cells, `role="log"`/`aria-live` on the chat pane, and a global `prefers-reduced-motion` kill-switch already in place. The problems are at the edges: two real contrast breakages (a Bootstrap `bg-light` panel inside the dark theme, and the unstyled `#blazor-error-ui` text), interactive-element nesting inside clickable cards, keyboard operability applied on one page but forgotten on its admin twin, modals without a focus trap, and a set of consistency drifts (duplicated `.tier-badge`, unstyled sort-indicator classes, bespoke Billing table) that the repo's own conventions already prohibit.
+> **Fixed since audit:** UI-1/UI-2 (both High — `bg-light` submission panel and unstyled `#blazor-error-ui` were both ~1:1-2:1 contrast) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: `AdminAssessmentSubmissions.razor`'s answers panel dropped `bg-light`, and `#blazor-error-ui`/its `.reload`/`.dismiss` links now use `color: var(--bg-primary)` against the yellow background.
+
+The UI layer is in better shape than most student projects: a coherent dark-theme token set in `app.css`, a documented CSS consolidation rule that is mostly followed, a genuinely good mobile card-table transformation with 100% `data-label` coverage on all 12 data tables, a skip link, `aria-sort` on sortable headers, `aria-pressed` on the culture selector, visually-hidden text for icon-only cells, `role="log"`/`aria-live` on the chat pane, and a global `prefers-reduced-motion` kill-switch already in place. The remaining problems are at the edges: interactive-element nesting inside clickable cards, keyboard operability applied on one page but forgotten on its admin twin, modals without a focus trap, and a set of consistency drifts (duplicated `.tier-badge`, unstyled sort-indicator classes, bespoke Billing table) that the repo's own conventions already prohibit.
 
 ## 3. Findings
-
-### UI-1: Expanded submission answers render on a light Bootstrap panel with light-gray theme text  [High] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Pages/AdminAssessmentSubmissions.razor:47` — `<div class="card card-body bg-light">` wraps the parsed answers `<dl>`. Bootstrap's `.bg-light` applies `background-color: … !important` (near-white), which beats the theme override `.card-body { background-color: var(--bg-surface); }` in `wwwroot/css/shared-components.css:74-77`, while the text keeps `.card { color: var(--text-light-normal); }` (`shared-components.css:62-66`, `#CDD5DF`).
-- **Impact:** Light-gray `#CDD5DF` text on a `#f8f9fa` panel is roughly 1.9:1 contrast — the admin's primary tool for reading a student's submitted answers is effectively unreadable. This is the only place in the app where a Bootstrap light-background utility survives the dark theme.
-- **Recommendation:** Drop `bg-light` and let the themed `.card-body` show through, or use an existing subtle background token (`--bg-neutral-subtle`). One-line fix.
-
-### UI-2: `#blazor-error-ui` shows near-white text on the yellow warning background  [High] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/wwwroot/css/app.css:117-129` sets `background-color: var(--color-warning)` (`#f8df08`) but declares no `color`, so the banner inherits the body's `#F0F0F0` (`app.css:58-63`). The banner markup is `src/ResetYourFuture.Web/App.razor:46-50`; its `Reload` link additionally inherits `a { color: var(--text-accent) }` (`app.css:74-78`, light lavender).
-- **Impact:** White-on-yellow is ~1.2:1 contrast — when the circuit crashes (the one moment the user must read this banner), the message "An unhandled error has occurred." and the Reload link are close to invisible. The stock Blazor template relied on a dark default body color; the dark theme silently broke it.
-- **Recommendation:** Add `color: var(--bg-primary)` (near-black) to `#blazor-error-ui` and a matching dark link color for `.reload`/`.dismiss`. (The hardcoded English text in this banner is reported with the other hardcoded strings in UX-1.)
 
 ### UI-3: Clickable course cards nest interactive controls inside `role="button"`  [High] [Effort: M]
 - **Evidence:** `src/ResetYourFuture.Web/Pages/Courses.razor:70-107` — the whole `.course-card` div is `role="button" tabindex="0"` and contains an `<h3>`, rich-text description, and, for locked courses, a second nested `role="button" tabindex="0"` (`.locked-badge`, lines 101-106) with `stopPropagation` handlers.
@@ -112,8 +104,6 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| UI-1 | High | S | Remove `bg-light` from the submissions answers panel; use themed card background |
-| UI-2 | High | S | Give `#blazor-error-ui` (and its links) a dark text color against the yellow banner |
 | UI-3 | High | M | Restructure course cards to the card-link pattern; unnest the upgrade badge |
 | UI-4 | Medium | S | Add `tabindex="0"` + activation-key handler to AdminCourseEdit collapsible headers; `aria-expanded` on ViewAnswers |
 | UI-7 | Medium | S | Consolidate `.tier-badge` into shared-components.css next to `.category-chip` |
@@ -130,7 +120,7 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 
 ## 5. Related Findings Elsewhere
 
-- **UX-1 (33)** — the hardcoded English strings that ship inside these components (DismissibleAlert/ConfirmModal/PaginationNav/StatusBadge defaults, `blazor-error-ui` text, `ItemLabel` values) are quantified there; UI-2 here covers only the banner's colors.
+- **UX-1 (33)** — the hardcoded English strings that ship inside these components (DismissibleAlert/ConfirmModal/PaginationNav/StatusBadge defaults, `blazor-error-ui` text, `ItemLabel` values) are quantified there; the banner's colors (former UI-2) are fixed.
 - **UX-2 / UX-6 (33)** — silent failure and infinite-spinner *flows* behind the loading components discussed in UI-9.
 - **UX-5 (33)** — where and how the `DismissibleAlert` messages appear (placement, severity styling, dismissibility) is flow-level and lives there.
 - **UX-12 (33)** — inconsistent date/time formats rendered inside the tables audited here.

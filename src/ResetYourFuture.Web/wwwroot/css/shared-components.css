@@ -393,12 +393,9 @@ input[type="date"].form-control::-webkit-calendar-picker-indicator {
     opacity: 0.9;
 }
 
-/* Keep focus ring consistent with app theme */
+/* Keep focus ring consistent with app theme — see the global :focus-visible rule in app.css */
 input[type="date"].form-control:focus {
-    box-shadow:
-        0 0 0 0.1rem var(--bg-primary),
-        0 0 0 0.25rem var(--focus-ring);
-    outline: none;
+    box-shadow: none;
 }
 
 /* Table cells - global adjustments */
@@ -425,6 +422,16 @@ input[type="date"].form-control:focus {
 
 .table-striped > tbody > tr:nth-of-type(even) {
     background-color: var(--bg-table-even);
+}
+
+/* Row hover feedback (WI-2). A single row's background-color transition only repaints that
+   row's bounding box, not the whole table, so this stays cheap even on the largest admin lists. */
+.table-striped > tbody > tr {
+    transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.table-striped > tbody > tr:hover {
+    background-color: var(--bg-table-row-hover);
 }
 
 /* Modal theming */

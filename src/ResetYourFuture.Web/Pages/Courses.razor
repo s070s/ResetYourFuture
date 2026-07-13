@@ -7,7 +7,7 @@
 
 @if (_loading)
 {
-    <LoadingSpinner Label="@CourseRes.LoadingCourses" />
+    <SkeletonBlock Rows="4" Height="7rem" Gap="1rem" />
 }
 else if (_error is not null)
 {
@@ -62,7 +62,7 @@ else
             </div>
         </div>
 
-        <div class="courses-list">
+        <div class="courses-list stagger">
             @foreach (var course in _pagedResult.Items)
             {
                 var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;

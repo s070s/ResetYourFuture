@@ -24,13 +24,13 @@ This split is judgment, not a formal rule — a few items (e.g. `CFG-1`) sit at 
 | Severity | Count (all 25 reports) |
 |----------|------------------------|
 | Critical | 0 |
-| High | 28 |
+| High | 26 |
 | Medium | 105 |
 | Low | 88 |
 | Info | 31 |
-| **Total** | **252** |
+| **Total** | **250** |
 
-> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. Details in the source reports' "Fixed since audit" notes.
+> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. GAP-4 (High — unreadable submission panel + error banner; sources `UI-1`/`UI-2`) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: dropped `bg-light` on `AdminAssessmentSubmissions.razor`'s answers panel, added a dark text color to `#blazor-error-ui`. Details in the source reports' "Fixed since audit" notes.
 
 The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were the same root cause — admin user deletion — found independently by three different audit passes; that is now fixed. No other finding reached Critical: the suite's overall picture is "a lot of High-value, low-effort fixes" rather than "the app is on fire."
 
@@ -43,10 +43,6 @@ The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were 
 ### GAP-3: Any mistyped or dead URL renders a fully blank page [High]
 - **Source:** `UX-3` (33-audit-ux.md)
 - `Routes.razor`'s `<NotFound>` has no layout, no message, no navigation — indistinguishable from a crash, and the page title still says "Home Page".
-
-### GAP-4: Admin's submission-review panel is unreadable; the circuit-crash banner is unreadable [High]
-- **Sources:** `UI-1`, `UI-2` (32-audit-user-interface.md)
-- Two separate dark-theme contrast breaks: a Bootstrap `.bg-light` panel makes assessment answers ~1.9:1 contrast in `AdminAssessmentSubmissions.razor`, and `#blazor-error-ui` (the "an unhandled error occurred" banner — precisely the moment a user needs to read it) is near-white text on yellow, ~1.2:1.
 
 ### GAP-5: One misclick cancels a paid subscription [High]
 - **Source:** `UX-4` (33-audit-ux.md)
@@ -118,8 +114,6 @@ Ordered severity-desc, then "fixes the most other findings" first within a tier.
 | AVAIL-1 | High | S | Add liveness/readiness health-check endpoints |
 | UX-3 | High | S | Give `<NotFound>` a real layout and message |
 | UX-4 | High | S | Reuse Billing's `ConfirmModal` on the Pricing downgrade button |
-| UI-1 | High | S | Drop `bg-light` on the submission-answers panel |
-| UI-2 | High | S | Add a dark text color to `#blazor-error-ui` |
 | SCALE-4 | High | S | Move DataProtection keys off local filesystem/DPAPI before any multi-instance target |
 | OPS-1 | High | S | Remove the blog seeder's delete/reseed branch; gate it like every other content seeder |
 | UX-2 | High | M | Surface submission errors; enforce required questions client-side |
@@ -146,4 +140,3 @@ Ordered severity-desc, then "fixes the most other findings" first within a tier.
 Every ID above links to its full evidence/recommendation in its source report (21–45). The four implementation plans (10–13) were written *before* this synthesis and do not yet incorporate these findings — when scheduling work, note the overlaps:
 - `10-plan-sorting-rollout.md` touches the same admin table pages as `UI`/`UX` findings — worth combining passes.
 - `11-plan-ollama-agent.md`'s bootstrap workstream (health/readiness state for the Ollama sidecar) is architecturally the same pattern `AVAIL-1` asks for at the app level — consider one health-check subsystem serving both.
-- `13-plan-visual-polish.md` should absorb `UI-1`/`UI-2` (contrast fixes) rather than treating them as separate work.
