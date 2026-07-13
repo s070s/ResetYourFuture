@@ -18,21 +18,18 @@ NOT examined: actual profiling/benchmarks (static analysis only, app not launche
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 5 |
 | Low | 5 |
 | Info | 1 |
+
+> **Accepted since audit (out of scope — will not implement):** PERF-1 (every data fetch pays the full loopback HTTP pipeline — JWT mint, middleware, per-request DB auth lookup, double JSON). This is the per-interaction cost of the loopback self-API architecture (ARCH-1), which is itself consciously accepted as a documented tradeoff — the only real fix is ARCH-1's in-process redesign, which the project does not need. The short-term mitigations this finding listed (cache the per-circuit JWT and signing credentials, drop the per-request auth DB lookup) are individually small but touch the auth hot path with no user-visible benefit at single-instance demo scale, so PERF-1 is accepted rather than fixed. See [20-audit-gaps.md](20-audit-gaps.md) §4.
 
 > **Fixed since audit:** PERF-2 (Medium — `ORDER BY`/range predicates ran against `nvarchar(48)` DateTimeOffset columns) — the columns are now native `datetimeoffset` on SQL Server (the `DateTimeOffsetToStringConverter` is scoped to the SQLite test provider and migration `ConvertDateTimeOffsetToNativeType` restored the type; owned by DB-2). Ordered/range date queries now use the native 10-byte type with no query rewrites, exactly as this finding anticipated.
 
 The query layer is unusually disciplined for a project at this stage: list endpoints are paged, correlated subqueries have been deliberately replaced with batched `GROUP BY`/join queries (`ChatQueryService`, `AdminUserService`, `CourseService`), chat lists use `Virtualize` with `@key`, searches are debounced, and there are well-placed 30-second caches (subscription status, assistant status, sitemap). The dominant cost is architectural: because every page's data arrives via a real HTTP request to the app's own API, each interaction pays JWT minting, full middleware traversal, a per-request user lookup, and double JSON serialization — multiplied by global InteractiveServer, which also routes every keystroke of `oninput`-bound inputs and every binary payload (avatars, certificate PDFs) through the SignalR circuit.
 
 ## 3. Findings
-
-### PERF-1: Every data fetch pays the full loopback HTTP pipeline — JWT mint, middleware, per-request DB auth lookup, and double JSON  [High] [Effort: L]
-- **Evidence:** 19 typed consumers call the app's own REST API over HTTP (`Startup/ServiceRegistrationExtensions.cs:211-254`). Per call: a fresh JWT is minted — `ApiClientBase.EnsureAuthorizationAsync` (`Consumers/ApiClientBase.cs:34-39`) → `ApiTokenProvider` → `AuthService.GetTokenAsync` builds a new `SymmetricSecurityKey` + `SigningCredentials` and signs (`Infrastructure/Services/AuthService.cs:276-291`); SSR-side, `SsrApiHandler` does the same per request (`Services/SsrApiHandler.cs:35-54`). The receiving side re-validates the JWT and performs a `userManager.FindByIdAsync` DB query on **every** loopback request (`Startup/AuthenticationSetupExtensions.cs:159-179`; the DB-coupling aspect is REL-7). Payloads are JSON-serialized in the controller and deserialized again in the consumer. A single Courses page load issues 3 parallel loopback calls (`Pages/Courses.razor.cs:40-44`); `AvatarDropdown` adds 2 more per circuit (PERF-5); Chat opens issue 2-4 (PERF-8).
-- **Impact:** Each logical "read some rows" costs an extra TLS-loopback HTTP round-trip, an HMAC sign + validate, one extra DB query, and two JSON passes — per consumer call, per page, per user. Latency stacks visibly on pages that fan out several calls, and CPU/GC load per interaction is a multiple of what in-process service calls would cost.
-- **Recommendation:** ARCH-1 owns the redesign (call Application services in-process). Short-term mitigations that don't change the architecture: cache the minted JWT per circuit (the code itself documents "the token is identical for every call within a circuit", `ApiClientBase.cs:28-33`) instead of re-signing per call; cache the `SymmetricSecurityKey`/`SigningCredentials` instances (they are config-constant); and cache the (userId → IsEnabled/securityStamp) check per REL-7 to drop the per-request DB read.
 
 ### PERF-3: Blog summary queries load full article bodies to build summaries  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/BlogArticleService.cs:34-41` — `GetPublishedSummariesAsync` does `ToListAsync()` on whole `BlogArticle` entities (including `ContentEn`/`ContentEl` rich-HTML bodies) and then maps to `BlogArticleSummaryDto`. Callers: the Home page (6 articles per render, `Pages/Home.razor.cs:99`) and the sitemap (up to 200 articles, `Startup/InfrastructureEndpointsExtensions.cs:228`).
@@ -93,7 +90,6 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| PERF-1 | High | L | Cache per-circuit JWT + signing credentials now; move to in-process service calls with ARCH-1 |
 | PERF-3 | Medium | S | Project blog summaries in SQL instead of loading full bodies |
 | PERF-6 | Medium | S | Drop per-keystroke `oninput` binding on chat/assistant inputs |
 | PERF-7 | Medium | S | Build chat sender name/role from claims, not two DB queries per message |

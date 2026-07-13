@@ -18,31 +18,18 @@ NOT examined: load testing or capacity measurement (static analysis only); the W
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 3 |
+| High | 0 |
 | Medium | 6 |
 | Low | 2 |
 | Info | 1 |
+
+> **Accepted since audit (out of scope — will not implement):** SCALE-1 (call/presence state is a process-local singleton), SCALE-2 (no SignalR backplane) and SCALE-3 (loopback self-call topology assumes one addressable self) all only bite when the app runs as more than one instance, and all require new infrastructure (a Redis-backed shared registry + SignalR backplane) or removing the loopback topology. This is a single-instance university certificate project with a deliberate zero-new-infrastructure / fresh-clone story, so multi-instance operation is consciously out of scope and these three are accepted as documented limitations rather than fixed. The remaining SCALE findings (SCALE-4…12) stay open as within-a-single-instance concerns. See [20-audit-gaps.md](20-audit-gaps.md) §4.
 
 > **Fixed since audit (partial):** SCALE-4's shared-storage half — DataProtection keys now persist to the shared SQL database (`PersistKeysToDbContext<ApplicationDbContext>`, migration `AddDataProtectionKeys`) instead of the local filesystem, so keys survive a redeploy/container rebuild and every instance sharing the database reads the same key ring. DPAPI protection is still in place (fine for the single Windows host this runs on today); the recommendation's other half — swap `ProtectKeysWithDpapi()` for a certificate or Key Vault — remains open and is the one still-real blocker before a genuine multi-instance/cross-platform deployment (DPAPI machine-locks the keys regardless of where they're stored).
 
 This is a deliberately single-instance application, and — to its credit — it mostly *knows* it: the DataProtection registration and the consumer registration both carry accurate comments describing their multi-instance limitations, `CallRegistry` is a pure, lock-protected state machine that could be re-backed without touching callers, and `IFileStorage` is a clean seam in front of the local disk. The remaining blockers are real and mutually reinforcing: live call/presence state, SignalR group routing, uploaded files, caches, rate limiters, and the assistant index are all process-local, so a second instance doesn't just degrade — chat delivery, calls, and presence all break in visible ways (sign-in itself no longer breaks on key-ring mismatch now that keys are shared, though DPAPI's machine lock is still a gap for a truly heterogeneous fleet). Within one instance, growth cost is dominated by Blazor Server circuit memory and a per-user connection multiplier (each authenticated user consumes a browser circuit plus 1-2 server-side loopback SignalR client connections), and by presence broadcasts that scale O(N) per transition to all connections.
 
 ## 3. Findings
-
-### SCALE-1: All live call and presence state is a process-local singleton — a second instance splits the universe  [High] [Effort: L]
-- **Evidence:** `Web/Services/CallRegistry.cs:64-68` — `_calls` and `_connectedUserRefCounts` are plain dictionaries in an `AddSingleton` service (`ServiceRegistrationExtensions.cs:70`). Online/offline (`AddUserConnection`/`RemoveUserConnection`), busy checks (`IsUserBusy`), ring/grace expiry (`TakeExpiredInvites`/`TakeExpiredDisconnects` consumed by `CallRingMonitor`) all read this one process's memory.
-- **Impact:** With two instances, a user connected to instance A is "offline" on instance B: `StartCall` marks them unavailable (`CallHub.cs:144-156`), busy-state is not enforced across nodes (double-ring), and `CallRingMonitor` on each node only times out its own calls. Presence dots disagree per node. This is the hardest single-instance pin in the codebase.
-- **Recommendation:** Re-back the registry with a shared store (Redis hashes + TTLs is the natural fit) behind the existing class's method surface — its zero-dependency, lock-protected design (praised in ARCH-10) makes the swap contained. Gate this on actually needing >1 instance; document the constraint until then.
-
-### SCALE-2: No SignalR backplane — user/call group messaging silently loses cross-instance delivery  [High] [Effort: M]
-- **Evidence:** `AddSignalR` with no backplane (`ServiceRegistrationExtensions.cs:131`); hubs mapped at `Program.cs:93-94`. All chat delivery is `Clients.Group($"user_{id}")` (`ChatHub.cs:134-144`), call signaling is `Clients.Group($"call_{id}")` / `Clients.Client(connectionId)` (`CallHub.cs`, `CallHub.Signaling.cs:34`), and `CallRingMonitor` broadcasts through injected `IHubContext`s (`CallRingMonitor.cs:83-95`).
-- **Impact:** Even with sticky sessions (which keep a given *connection* on one node), the sender and recipient of a chat message are routinely on different nodes — the recipient's `user_{id}` group exists only on their node, so `SendMessage`'s broadcast never reaches them. Every real-time feature (chat, notifications, ringing, WebRTC signaling) breaks probabilistically at 2+ instances.
-- **Recommendation:** `AddStackExchangeRedis` on the SignalR builder when scaling out (one line plus infra), paired with SCALE-1's shared registry — the two must land together to make calls work cross-instance.
-
-### SCALE-3: The loopback self-call topology multiplies per-user connections and assumes one addressable self  [High] [Effort: L]
-- **Evidence:** `SelfBaseUrl` defaults to `https://localhost:7090` and is a single URL (`ServiceRegistrationExtensions.cs:211-216`, `appsettings.json:10`) used by all 19 consumers. Independently, every authenticated circuit opens server-side SignalR *client* connections back to its own host: `CallService.EnsureConnectedAsync` (`Web/Services/CallService.cs:69-110`, mounted for everyone via `CallOverlayHost` in MainLayout) and, on /chat, `ChatService.StartAsync` (`Web/Services/ChatService.cs:48-93`) — hub URLs captured from the incoming request's host (`ChatService.cs:41-45`, `CallService.cs:63-66`).
-- **Impact:** Per authenticated user the server holds: the browser's circuit WebSocket, plus 1-2 outbound-to-self hub client connections with their own Kestrel accept/socket cost — roughly tripling connection count per user before any feature traffic. Multi-instance: if `SelfBaseUrl` points at the load balancer, a node's SSR data requests and hub connections land on *other* nodes (auth survives via self-minted JWTs, but presence registration lands on the wrong node's `CallRegistry`, compounding SCALE-1, and every page render becomes a cross-node hop); if it points at the node itself, per-node TLS/host configuration must be managed. SCALE owns this consequence; the design itself is ARCH-1.
-- **Recommendation:** Short term, document that `SelfBaseUrl` must be the instance's own address (not the LB). Real fix: in-process service calls (ARCH-1) remove the HTTP leg, and replacing the loopback hub-client pattern with direct `IHubContext` use inside the same process would remove the self-connections.
 
 ### SCALE-4: DataProtection keys are still DPAPI-protected — a second (or non-Windows) node can't decrypt them  [Medium] [Effort: S]
 - **Evidence:** `ServiceRegistrationExtensions.cs` — keys now persist to the shared database (`PersistKeysToDbContext<ApplicationDbContext>`, fixed), but `ProtectKeysWithDpapi()` still wraps them at rest on Windows.
@@ -93,9 +80,6 @@ This is a deliberately single-instance application, and — to its credit — it
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| SCALE-2 | High | M | Redis backplane for SignalR when scaling out |
-| SCALE-1 | High | L | Re-back CallRegistry (calls + presence) with a shared store |
-| SCALE-3 | High | L | Remove loopback self-calls / self hub-clients (with ARCH-1); until then pin SelfBaseUrl per instance |
 | SCALE-7 | Medium | S | Document per-instance cache/limiter semantics; shared rate limiting at scale-out |
 | SCALE-9 | Medium | S | DB-authoritative assistant index version; single designated indexer |
 | SCALE-4 | Medium | S | Swap ProtectKeysWithDpapi() for a certificate or Key Vault before any multi-instance attempt |

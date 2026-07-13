@@ -18,21 +18,18 @@ NOT examined: process-supervisor/container restart-policy configuration (no Dock
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 2 |
 | Info | 1 |
+
+> **Accepted since audit (out of scope — will not implement):** AVAIL-4 (single-instance pinning means any crash or restart is a full outage — there is no failover). This is purely the availability consequence of the accepted scalability limitations (SCALE-1/2/3): with no shared call/presence store and no SignalR backplane, a second instance cannot run correctly, so there is no node to fail over to. Since running more than one instance is consciously out of scope for this single-instance university project, AVAIL-4 has no separate fix and is accepted along with the SCALE findings it depends on. Blast-radius mitigations that don't need a second instance remain covered by AVAIL-1 (health checks, fixed), AVAIL-2 (startup retry, fixed) and infrastructure-level restart supervision (CLOUD 41). See [20-audit-gaps.md](20-audit-gaps.md) §4.
 
 > **Fixed since audit:** AVAIL-1 (High — no health/readiness endpoints) — `/health/live` (no dependency checks) and `/health/ready` (database + assistant, tagged `"ready"`) are now mapped via `DatabaseHealthCheck`/`AssistantHealthCheck`; the assistant check reports Degraded (200) rather than Unhealthy (503) when Ollama is unreachable, since the rest of the app serves fine without it. AVAIL-2 (High — unguarded startup migrate+seed) — `PrewarmAndSeedDatabaseWithRetryAsync` wraps the existing seed path in a bounded exponential-backoff retry (5 attempts) with a critical log on final failure. AVAIL-3 (High — loopback consumers had no timeout/retry, so a transient blip crashed the circuit) — every consumer `HttpClient` now has a 30s request timeout (the streaming assistant client excepted), and `ApiClientBase` routes all calls through a resilience helper that catches connection failures/timeouts and degrades to the consumer's empty state instead of propagating into the Razor component; idempotent GETs get a couple of fast jittered retries, non-idempotent verbs and timeouts are never retried. Verified by `ApiClientResilienceTests`. (Per-failure logging was deferred — it would mean threading a logger through all 26 consumers — and the degradation is the same empty state consumers already render for non-success responses.)
 
 The background-service layer shows real availability awareness in places — `CallRingMonitor` sweeps dangling `CallSession` rows left by a crashed prior process (`CallRingMonitor.cs:133-154`), every hub connection (`ChatService`, `CallService`) auto-reconnects and rejoins in-flight calls (`CallService.cs:89-96`), and EF's `EnableRetryOnFailure` absorbs transient SQL blips once the app is running. Startup migration/seeding now retries with backoff instead of taking the process down on the first failure, `/health/live`/`/health/ready` give an orchestrator something to poll, and the loopback HTTP layer now times out and degrades gracefully instead of crashing the circuit (AVAIL-3, fixed). Because SCALE-1/2/4 pin the app to one instance, every remaining gap is also a full-outage risk rather than a degraded one — there is no second node to fail over to (AVAIL-4).
 
 ## 3. Findings
-
-### AVAIL-4: Single-instance pinning (SCALE-1/2/4) means any instance crash or restart is a full outage — there is no failover  [High] [Effort: L]
-- **Evidence:** SCALE-1 (in-memory `CallRegistry`/presence), SCALE-2 (no SignalR backplane), and SCALE-4 (DataProtection keys are shared via the DB now, but still DPAPI-protected) each independently prevent running more than one instance correctly (`35-audit-scalability.md`). No process-level supervision, restart policy, or multi-instance topology is defined in the repo to inspect.
-- **Impact:** Whatever keeps the single instance running (uptime monitor, manual restart, a host-level service manager) is the entire availability story. An unhandled exception anywhere that reaches the process boundary (AVAIL-2, AVAIL-5), an OS-level crash, or a deploy takes the whole application offline for every user simultaneously, with no other node to absorb traffic during the gap. This is the direct availability consequence of the scalability findings — SCALE owns removing the blockers; AVAIL owns naming the uptime cost of not having removed them yet.
-- **Recommendation:** Short of doing the SCALE-1/2/4 work, mitigate blast radius: ensure a process supervisor with automatic restart is configured at the infrastructure layer (CLOUD's territory), add AVAIL-1's health checks so the supervisor can detect a hung-but-alive process (not just a dead one), and prioritize AVAIL-2's startup resilience so restarts recover unattended.
 
 ### AVAIL-5: No graceful shutdown — active calls, chat connections, and in-flight circuits are hard-dropped, not drained  [Medium] [Effort: M]
 - **Evidence:** No use of `IHostApplicationLifetime`/`ApplicationStopping` anywhere in `src/` (confirmed by search); no `CircuitOptions` tuning; `Program.cs` relies entirely on ASP.NET Core defaults for shutdown. `CallHub`'s only disconnect-aware cleanup is `OnDisconnectedAsync`, which fires per-connection when SignalR notices the socket drop (`CallHub.cs:75-105`) — there is no explicit "server is stopping, tell every active call to end and every circuit to save state" step.
@@ -67,7 +64,6 @@ The background-service layer shows real availability awareness in places — `Ca
 | AVAIL-7 | Low | S | Guard `CallRingMonitor`'s startup dangling-session sweep |
 | AVAIL-8 | Low | S | Fail-fast on empty/LocalDB connection string outside Development |
 | AVAIL-5 | Medium | M | Broadcast a shutdown notice + drain window before process exit |
-| AVAIL-4 | High | L | Remove single-instance pinning (tracked as SCALE-1/2/4) to enable real failover |
 
 ## 5. Related Findings Elsewhere
 
