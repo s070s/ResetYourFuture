@@ -80,10 +80,9 @@ public class SubscriptionController : ControllerBase
         // (the production default), no real payment provider is wired, so checkout cannot complete
         // and returns 503. In Development MockEnabled=true assigns the plan instantly, no charge.
         if (session.Status == "pending_payment")
-            return StatusCode(503, new
-            {
-                message = "Payment processing is not yet available. Please check back later."
-            });
+            return Problem(
+                detail: "Payment processing is not yet available. Please check back later.",
+                statusCode: StatusCodes.Status503ServiceUnavailable);
 
         _logger.LogInformation(
             "Checkout session {SessionId} created for user {UserId}",
@@ -118,19 +117,13 @@ public class SubscriptionController : ControllerBase
         if (string.IsNullOrEmpty(signatureHeader))
         {
             _logger.LogWarning("Stripe webhook received without Stripe-Signature header.");
-            return BadRequest(new
-            {
-                error = "Missing Stripe-Signature header."
-            });
+            return Problem(detail: "Missing Stripe-Signature header.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (!VerifyStripeSignature(rawBody, signatureHeader, webhookSecret, out var timestamp))
         {
             _logger.LogWarning("Stripe webhook signature verification failed.");
-            return BadRequest(new
-            {
-                error = "Invalid webhook signature."
-            });
+            return Problem(detail: "Invalid webhook signature.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         // Reject replayed events older than 5 minutes
@@ -138,10 +131,7 @@ public class SubscriptionController : ControllerBase
         if (eventAge.TotalMinutes > 5)
         {
             _logger.LogWarning("Stripe webhook event is too old ({Age:F0} min) — possible replay attack.", eventAge.TotalMinutes);
-            return BadRequest(new
-            {
-                error = "Webhook event timestamp is too old."
-            });
+            return Problem(detail: "Webhook event timestamp is too old.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         // NOTE: signature verification is implemented,

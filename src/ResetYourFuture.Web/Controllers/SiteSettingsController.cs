@@ -67,7 +67,7 @@ public class SiteSettingsController : ControllerBase
     {
         if (file == null || file.Length == 0)
         {
-            return BadRequest("No file provided");
+            return Problem(detail: "No file provided", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var setting = await _db.SiteSettings

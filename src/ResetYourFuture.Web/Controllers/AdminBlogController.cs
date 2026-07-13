@@ -65,7 +65,7 @@ public class AdminBlogController : ControllerBase
     {
         var result = await _blogService.CreateAsync(request, cancellationToken);
         if (result is null)
-            return Conflict("A blog article with this slug already exists.");
+            return Problem(detail: "A blog article with this slug already exists.", statusCode: StatusCodes.Status409Conflict);
 
         return CreatedAtAction(nameof(GetBlogArticle), new { id = result.Id }, result);
     }
@@ -82,7 +82,9 @@ public class AdminBlogController : ControllerBase
         if (result is null)
         {
             var exists = await _blogService.GetByIdForAdminAsync(id, cancellationToken);
-            return exists is null ? NotFound() : Conflict("A blog article with this slug already exists.");
+            return exists is null
+                ? NotFound()
+                : Problem(detail: "A blog article with this slug already exists.", statusCode: StatusCodes.Status409Conflict);
         }
         return Ok(result);
     }
@@ -120,7 +122,7 @@ public class AdminBlogController : ControllerBase
         Guid id, IFormFile file, CancellationToken cancellationToken = default)
     {
         if (file is null || file.Length == 0)
-            return BadRequest("No file provided.");
+            return Problem(detail: "No file provided.", statusCode: StatusCodes.Status400BadRequest);
 
         var article = await _context.BlogArticles.FindAsync(new object[] { id }, cancellationToken);
         if (article is null)

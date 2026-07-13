@@ -54,7 +54,7 @@ public class AdminCategoriesController(IAdminCategoryService adminCategoryServic
     public async Task<ActionResult<AdminCategoryDto>> CreateCategory([FromBody] SaveCategoryRequest request, CancellationToken cancellationToken = default)
     {
         var result = await adminCategoryService.CreateCategoryAsync(request, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class AdminCategoriesController(IAdminCategoryService adminCategoryServic
     public async Task<ActionResult<AdminCategoryDto>> UpdateCategory(Guid id, [FromBody] SaveCategoryRequest request, CancellationToken cancellationToken = default)
     {
         var result = await adminCategoryService.UpdateCategoryAsync(id, request, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>

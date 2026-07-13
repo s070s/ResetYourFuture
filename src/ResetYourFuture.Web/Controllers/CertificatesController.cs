@@ -83,8 +83,9 @@ public class CertificatesController : ControllerBase
 
         var subStatus = await _subscriptionService.GetUserStatusAsync(userId);
         if (subStatus.Features?.CertificateAccess != true)
-            return StatusCode(StatusCodes.Status403Forbidden,
-                "Your current plan does not include certificate access. Upgrade to Pro.");
+            return Problem(
+                detail: "Your current plan does not include certificate access. Upgrade to Pro.",
+                statusCode: StatusCodes.Status403Forbidden);
 
         try
         {
@@ -106,7 +107,7 @@ public class CertificatesController : ControllerBase
         {
             _logger.LogError(ex, "Certificate issuance failed for user {UserId} on course {CourseId}.",
                 userId, courseId);
-            return BadRequest(ex.Message);
+            return Problem(detail: ex.Message, statusCode: StatusCodes.Status400BadRequest);
         }
     }
 
@@ -122,13 +123,13 @@ public class CertificatesController : ControllerBase
             .FirstOrDefaultAsync(c => c.Id == certificateId && c.UserId == userId);
 
         if (certificate is null)
-            return NotFound("Certificate not found.");
+            return Problem(detail: "Certificate not found.", statusCode: StatusCodes.Status404NotFound);
 
         if (certificate.Status == CertificateStatus.Revoked)
-            return BadRequest("This certificate has been revoked.");
+            return Problem(detail: "This certificate has been revoked.", statusCode: StatusCodes.Status400BadRequest);
 
         if (string.IsNullOrEmpty(certificate.PdfPath) || !_storage.FileExists(certificate.PdfPath))
-            return NotFound("Certificate PDF is not available.");
+            return Problem(detail: "Certificate PDF is not available.", statusCode: StatusCodes.Status404NotFound);
 
         var (stream, contentType) = await _storage.GetFileAsync(certificate.PdfPath);
         var fileName = ToSafeFileName($"Certificate - {certificate.RecipientName} - {certificate.CourseTitleEn}") + ".pdf";

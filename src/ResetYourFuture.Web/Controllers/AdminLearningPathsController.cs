@@ -79,7 +79,7 @@ public class AdminLearningPathsController(ILearningPathService paths) : Controll
         Guid id, [FromBody] AddLearningPathStepRequest request, CancellationToken cancellationToken = default)
     {
         var result = await paths.AddStepAsync(id, request.CourseId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>Remove a step; remaining steps are re-sequenced to stay contiguous.</summary>

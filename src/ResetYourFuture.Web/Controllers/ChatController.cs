@@ -52,7 +52,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         pageSize = Math.Clamp(pageSize, 1, 100);
 
         var result = await chatService.GetMessagesAsync(UserId, conversationId, page, pageSize, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         [FromBody] StartConversationRequest request)
     {
         var result = await chatService.StartConversationAsync(UserId, request);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>

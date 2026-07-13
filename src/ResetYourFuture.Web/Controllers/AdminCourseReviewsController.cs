@@ -40,7 +40,7 @@ public class AdminCourseReviewsController(ICourseReviewService reviews) : Contro
     public async Task<ActionResult<string>> Approve(Guid id, CancellationToken cancellationToken = default)
     {
         var result = await reviews.ApproveAsync(id, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>Reject a pending review.</summary>
@@ -48,6 +48,6 @@ public class AdminCourseReviewsController(ICourseReviewService reviews) : Contro
     public async Task<ActionResult<string>> Reject(Guid id, CancellationToken cancellationToken = default)
     {
         var result = await reviews.RejectAsync(id, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 }

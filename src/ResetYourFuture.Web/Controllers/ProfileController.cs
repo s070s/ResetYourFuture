@@ -40,7 +40,7 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     public async Task<ActionResult<ProfileDto>> UpdateProfile([FromBody] UpdateProfileRequest request)
     {
         var result = await profileService.UpdateProfileAsync(UserId, request);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class ProfileController(IProfileService profileService) : ControllerBase
 
         using var stream = file.OpenReadStream();
         var result = await profileService.UploadAvatarAsync(UserId, stream, file.FileName);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -86,6 +86,6 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     public async Task<ActionResult<bool>> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         var result = await profileService.ChangePasswordAsync(UserId, request);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 }

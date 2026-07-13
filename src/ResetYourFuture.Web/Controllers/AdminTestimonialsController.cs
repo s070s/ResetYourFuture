@@ -107,14 +107,14 @@ public class AdminTestimonialsController : ControllerBase
         Guid id, IFormFile file, CancellationToken cancellationToken = default)
     {
         if (file is null || file.Length == 0)
-            return BadRequest("No file provided.");
+            return Problem(detail: "No file provided.", statusCode: StatusCodes.Status400BadRequest);
 
         if (file.Length > 5 * 1024 * 1024)
-            return BadRequest("File exceeds the 5 MB limit.");
+            return Problem(detail: "File exceeds the 5 MB limit.", statusCode: StatusCodes.Status400BadRequest);
 
         var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
         if (!allowedTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
-            return BadRequest("Only image files are allowed (jpeg, png, gif, webp).");
+            return Problem(detail: "Only image files are allowed (jpeg, png, gif, webp).", statusCode: StatusCodes.Status400BadRequest);
 
         var existing = await _testimonials.GetByIdAsync(id, cancellationToken);
         if (existing is null)

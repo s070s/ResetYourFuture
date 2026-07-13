@@ -45,7 +45,7 @@ public class MediaController : ControllerBase
     public async Task<IActionResult> GetFile(string filePath, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(filePath) || filePath.Contains(".."))
-            return BadRequest("Invalid file path.");
+            return Problem(detail: "Invalid file path.", statusCode: StatusCodes.Status400BadRequest);
 
         // Normalise to forward slashes
         filePath = filePath.Replace('\\', '/').Trim('/');

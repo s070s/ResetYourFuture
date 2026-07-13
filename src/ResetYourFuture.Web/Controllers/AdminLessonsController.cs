@@ -202,10 +202,10 @@ public class AdminLessonsController : ControllerBase
 
         // Validate that a file was provided.
         if (file == null || file.Length == 0)
-            return BadRequest("No file provided");
+            return Problem(detail: "No file provided", statusCode: StatusCodes.Status400BadRequest);
 
         if (!string.Equals(file.ContentType, "application/pdf", StringComparison.OrdinalIgnoreCase))
-            return BadRequest("Only PDF files are allowed.");
+            return Problem(detail: "Only PDF files are allowed.", statusCode: StatusCodes.Status400BadRequest);
 
         // Delete previous PDF if it exists to avoid orphaned files.
         if (!string.IsNullOrEmpty(lesson.PdfPath))
@@ -240,11 +240,11 @@ public class AdminLessonsController : ControllerBase
 
         // Validate file input.
         if (file == null || file.Length == 0)
-            return BadRequest("No file provided");
+            return Problem(detail: "No file provided", statusCode: StatusCodes.Status400BadRequest);
 
         var allowedVideoTypes = new[] { "video/mp4", "video/webm", "video/ogg" };
         if (!allowedVideoTypes.Contains(file.ContentType, StringComparer.OrdinalIgnoreCase))
-            return BadRequest("Only video files are allowed (mp4, webm, ogg).");
+            return Problem(detail: "Only video files are allowed (mp4, webm, ogg).", statusCode: StatusCodes.Status400BadRequest);
 
         // Delete previous video if present to prevent orphaned files.
         if (!string.IsNullOrEmpty(lesson.VideoPath))

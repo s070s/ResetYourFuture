@@ -37,7 +37,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
         if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
         var result = await assessmentService.GetPublishedAssessmentsAsync(UserId, page, pageSize, lang, categoryId, search, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
     public async Task<ActionResult<AssessmentDefinitionDto>> GetAssessment(Guid id, [FromQuery] string lang = "en", CancellationToken cancellationToken = default)
     {
         var result = await assessmentService.GetAssessmentAsync(UserId, id, lang, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
     public async Task<ActionResult<AssessmentSubmissionDto>> SubmitAssessment(Guid id, [FromBody] SubmitAssessmentRequest request, CancellationToken cancellationToken = default)
     {
         var result = await assessmentService.SubmitAssessmentAsync(UserId, id, request, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>

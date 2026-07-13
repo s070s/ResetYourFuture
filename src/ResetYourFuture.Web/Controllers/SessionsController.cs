@@ -33,16 +33,16 @@ public class SessionsController(IScheduledSessionService sessions) : ControllerB
     /// <summary>Register the current user for a session.</summary>
     [HttpPost("{id:guid}/register")]
     public async Task<ActionResult<string>> Register(Guid id, CancellationToken cancellationToken = default)
-        => (await sessions.RegisterAsync(id, UserId, cancellationToken)).ToActionResult();
+        => (await sessions.RegisterAsync(id, UserId, cancellationToken)).ToActionResult(this);
 
     /// <summary>Unregister the current user from a session.</summary>
     [HttpPost("{id:guid}/unregister")]
     public async Task<ActionResult<string>> Unregister(Guid id, CancellationToken cancellationToken = default)
-        => (await sessions.UnregisterAsync(id, UserId, cancellationToken)).ToActionResult();
+        => (await sessions.UnregisterAsync(id, UserId, cancellationToken)).ToActionResult(this);
 
     /// <summary>Records the CallSession a participant just started for this scheduled session.</summary>
     [HttpPost("{id:guid}/link-call")]
     public async Task<ActionResult<string>> LinkCall(
         Guid id, [FromBody] LinkCallSessionRequest request, CancellationToken cancellationToken = default)
-        => (await sessions.LinkCallSessionAsync(id, UserId, request.CallSessionId, cancellationToken)).ToActionResult();
+        => (await sessions.LinkCallSessionAsync(id, UserId, request.CallSessionId, cancellationToken)).ToActionResult(this);
 }

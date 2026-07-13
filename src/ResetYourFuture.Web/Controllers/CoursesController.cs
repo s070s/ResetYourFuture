@@ -50,7 +50,9 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
     public async Task<ActionResult<CourseDetailDto>> GetCourse(Guid courseId, [FromQuery] string lang = "en", CancellationToken cancellationToken = default)
     {
         var dto = await courseService.GetCourseDetailAsync(UserId, courseId, lang, cancellationToken);
-        return dto is not null ? Ok(dto) : NotFound("Course not found");
+        return dto is not null
+            ? Ok(dto)
+            : Problem(detail: "Course not found", statusCode: StatusCodes.Status404NotFound);
     }
 
     /// <summary>
@@ -74,7 +76,7 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
     public async Task<ActionResult<LessonDetailDto>> GetLesson(Guid lessonId, [FromQuery] string lang = "en", CancellationToken cancellationToken = default)
     {
         var result = await courseService.GetLessonDetailAsync(UserId, lessonId, lang, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -110,6 +112,6 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
         Guid courseId, [FromBody] SaveCourseReviewRequest request, CancellationToken cancellationToken = default)
     {
         var result = await reviewService.SaveMyReviewAsync(UserId, courseId, request, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 }

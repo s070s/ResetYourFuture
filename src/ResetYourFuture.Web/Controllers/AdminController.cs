@@ -57,7 +57,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<string>> AssignRole(string userId, string roleName, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.AssignRoleAsync(userId, roleName, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<string>> RemoveRole(string userId, string roleName, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.RemoveRoleAsync(userId, roleName, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<string>> CreateRole(string roleName, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.CreateRoleAsync(roleName, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<UserEnabledStateDto>> ToggleEnable(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.ToggleEnableAsync(userId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<string>> DeleteUser(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.DeleteUserAsync(userId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<IEnumerable<AdminUserSearchResultDto>>> SearchUsers([FromQuery] string query, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(query))
-            return BadRequest("Search query is required");
+            return Problem(detail: "Search query is required", statusCode: StatusCodes.Status400BadRequest);
 
         var result = await adminUserService.SearchUsersAsync(query, cancellationToken);
         return Ok(result);
@@ -137,7 +137,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
                 new { email, token },
                 Request.Scheme) ?? $"{Request.Scheme}://{Request.Host}/reset-password?email={Uri.EscapeDataString(email)}&token={Uri.EscapeDataString(token)}",
             cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -147,7 +147,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<bool>> DisableUser(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.DisableUserAsync(userId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<bool>> EnableUser(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.EnableUserAsync(userId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     {
         var adminId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         var result = await adminUserService.ImpersonateUserAsync(userId, adminId, cancellationToken);
-        return result.ToActionResult();
+        return result.ToActionResult(this);
     }
 
     /// <summary>
@@ -179,6 +179,6 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     public async Task<ActionResult<bool>> SetPassword(string userId, [FromBody] AdminSetPasswordDto dto, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.SetPasswordAsync(userId, dto.NewPassword, cancellationToken);
-        return result.IsSuccess ? Ok() : result.ToActionResult();
+        return result.IsSuccess ? Ok() : result.ToActionResult(this);
     }
 }
