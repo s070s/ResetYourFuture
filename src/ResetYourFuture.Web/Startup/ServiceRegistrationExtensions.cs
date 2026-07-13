@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
@@ -7,6 +8,7 @@ using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Infrastructure.ApiServices;
 using ResetYourFuture.Infrastructure.Configuration;
+using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Infrastructure.Seeding;
 using ResetYourFuture.Infrastructure.Services;
 using ResetYourFuture.Web.Consumers;
@@ -140,6 +142,14 @@ public static class ServiceRegistrationExtensions
             builder.Services.AddScoped<IAssistantRetrievalService, DisabledAssistantRetrievalService>();
         }
 
+        // --- Health checks (AVAIL-1) ---
+        // "database" and "assistant" are tagged "ready" so /health/ready reflects both; the
+        // assistant check reports Degraded (not Unhealthy) when Ollama is unreachable, since the
+        // rest of the app serves fine without it — see AssistantHealthCheck.
+        builder.Services.AddHealthChecks()
+            .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"])
+            .AddCheck<AssistantHealthCheck>("assistant", tags: ["ready"]);
+
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
         builder.Services.AddTransient<SsrApiHandler>();
 
@@ -196,20 +206,19 @@ public static class ServiceRegistrationExtensions
 
         builder.Services.AddHttpContextAccessor();
 
-        // NOTE
-        // Keys are persisted to the local
-        // filesystem, fine for single-instance Development. On a multi-instance or container/ephemeral
-        // host this breaks sign-in — each instance has its own key ring (so a cookie or auth-completion
-        // ticket issued by one instance is rejected by another) and keys are lost on restart. For
-        // production, persist to shared storage (Azure Blob / Redis / network share) and protect with a
-        // certificate or Key Vault.
+        // NOTE (SCALE-4)
+        // Keys are persisted to the shared SQL database (the same one every instance already
+        // connects to) instead of the local filesystem — this fixes both single-instance problems
+        // the old filesystem store had (keys lost on a redeploy/container rebuild onto a fresh
+        // disk) and is what makes a *second* instance's cookies/auth-completion tickets valid too,
+        // since they now all read the same key ring. DPAPI protection still machine-locks the keys
+        // at rest, which is fine for the single Windows host this runs on today; before a genuine
+        // multi-instance or cross-platform deployment, swap ProtectKeysWithDpapi() for
+        // ProtectKeysWithCertificate() or Key Vault so every instance can decrypt the shared keys.
         var dpBuilder = builder.Services.AddDataProtection()
-            .PersistKeysToFileSystem(new DirectoryInfo(
-                Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys")))
+            .PersistKeysToDbContext<ApplicationDbContext>()
             .SetApplicationName("ResetYourFuture");
 
-        // On Windows: encrypt keys at rest with DPAPI (user account or machine scope).
-        // On Linux/containers: replace this block with ProtectKeysWithCertificate or Azure KeyVault.
         if (OperatingSystem.IsWindows())
             dpBuilder.ProtectKeysWithDpapi();
 
@@ -236,9 +245,28 @@ public static class ServiceRegistrationExtensions
     // address AND the loopback TLS certificate must be trusted by this in-process HttpClient —
     // otherwise every API-backed page silently renders empty (ApiClientBase swallows non-success
     // responses). Consider calling the application services in-process instead of over HTTP.
+    /// <summary>
+    /// Fail fast like Jwt:Key (AuthenticationSetupExtensions.cs) — an unset/localhost SelfBaseUrl
+    /// outside Development means every API-backed page silently renders empty (ApiClientBase
+    /// swallows non-success responses) instead of throwing at startup.
+    /// </summary>
+    public static string ResolveSelfBaseUrl(string? configuredValue, bool isDevelopment)
+    {
+        if (isDevelopment)
+            return configuredValue ?? "https://localhost:7090";
+
+        if (string.IsNullOrWhiteSpace(configuredValue) || configuredValue.Contains("localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"SelfBaseUrl must be set to the application's real bound base address outside Development (configured value: '{configuredValue ?? "<unset>"}').");
+        }
+
+        return configuredValue;
+    }
+
     private static void AddConsumerHttpClients(WebApplicationBuilder builder)
     {
-        var selfBase = builder.Configuration["SelfBaseUrl"] ?? "https://localhost:7090";
+        var selfBase = ResolveSelfBaseUrl(builder.Configuration["SelfBaseUrl"], builder.Environment.IsDevelopment());
 
         // Named client for dev-only endpoints (no auth handler needed)
         builder.Services.AddHttpClient("SelfClient", c => c.BaseAddress = new Uri(selfBase));

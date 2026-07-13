@@ -15,6 +15,7 @@ public partial class Pricing
     private UserSubscriptionStatusDto? _currentStatus;
     private bool _loading = true;
     private bool _processing;
+    private bool _showCancelConfirm;
     private string? _error;
     private string? _cancelMessage;
     private bool _cancelSuccess;
@@ -93,8 +94,13 @@ public partial class Pricing
         finally
         {
             _processing = false;
+            _showCancelConfirm = false;
         }
     }
+
+    private void RequestCancel() => _showCancelConfirm = true;
+
+    private void CloseCancelDialog() => _showCancelConfirm = false;
 
     private void NavigateToRegister()
     {

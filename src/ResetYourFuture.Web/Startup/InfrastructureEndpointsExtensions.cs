@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
@@ -252,6 +254,29 @@ public static class InfrastructureEndpointsExtensions
         .WithSummary("XML sitemap of public pages and published blog articles.")
         .WithDescription("Returns an application/xml sitemap for search-engine crawlers. Cached for 30 minutes.")
         .Produces(StatusCodes.Status200OK, contentType: "application/xml");
+
+        // --- Health checks (AVAIL-1) ---
+        // Liveness: is the process itself responsive? No dependency checks (Predicate: false runs
+        // none of the registered checks) — a slow/unreachable DB should fail readiness, not liveness.
+        app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false })
+            .AllowAnonymous()
+            .WithTags("Infrastructure")
+            .WithName("HealthLive")
+            .WithSummary("Liveness probe — process is up, no dependency checks.")
+            .ExcludeFromDescription();
+
+        // Readiness: can this instance actually serve traffic? Runs every check tagged "ready"
+        // (database, assistant). Healthy/Degraded both return 200 by default; only Unhealthy (the
+        // database check) returns 503 — the assistant being degraded doesn't block readiness.
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+            {
+                Predicate = check => check.Tags.Contains("ready")
+            })
+            .AllowAnonymous()
+            .WithTags("Infrastructure")
+            .WithName("HealthReady")
+            .WithSummary("Readiness probe — database + assistant status.")
+            .ExcludeFromDescription();
 
         return app;
     }

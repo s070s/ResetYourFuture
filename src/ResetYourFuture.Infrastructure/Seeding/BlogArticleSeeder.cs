@@ -16,18 +16,8 @@ public static class BlogArticleSeeder
     {
         if (await db.BlogArticles.AnyAsync())
         {
-            // If articles exist but none have a Greek title, the data is pre-bilingual.
-            // Delete and reseed so bilingual content is populated.
-            bool hasBilingualData = await db.BlogArticles.AnyAsync(a => a.TitleEl != null);
-            if (hasBilingualData)
-            {
-                logger.LogInformation("Blog articles already seeded. Skipping.");
-                return;
-            }
-
-            logger.LogInformation("Detected pre-bilingual blog data — reseeding with bilingual content.");
-            db.BlogArticles.RemoveRange(db.BlogArticles);
-            await db.SaveChangesAsync();
+            logger.LogInformation("Blog articles already exist. Skipping.");
+            return;
         }
 
         var now = DateTimeOffset.UtcNow;

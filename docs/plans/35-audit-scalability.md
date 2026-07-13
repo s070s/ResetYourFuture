@@ -18,12 +18,14 @@ NOT examined: load testing or capacity measurement (static analysis only); the W
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 4 |
-| Medium | 5 |
+| High | 3 |
+| Medium | 6 |
 | Low | 2 |
 | Info | 1 |
 
-This is a deliberately single-instance application, and — to its credit — it mostly *knows* it: the DataProtection registration and the consumer registration both carry accurate comments describing their multi-instance limitations, `CallRegistry` is a pure, lock-protected state machine that could be re-backed without touching callers, and `IFileStorage` is a clean seam in front of the local disk. But the blockers are real and mutually reinforcing: live call/presence state, SignalR group routing, DataProtection keys, uploaded files, caches, rate limiters, and the assistant index are all process-local, so a second instance doesn't just degrade — chat delivery, calls, presence, and sign-in cookies all break in visible ways. Within one instance, growth cost is dominated by Blazor Server circuit memory and a per-user connection multiplier (each authenticated user consumes a browser circuit plus 1-2 server-side loopback SignalR client connections), and by presence broadcasts that scale O(N) per transition to all connections.
+> **Fixed since audit (partial):** SCALE-4's shared-storage half — DataProtection keys now persist to the shared SQL database (`PersistKeysToDbContext<ApplicationDbContext>`, migration `AddDataProtectionKeys`) instead of the local filesystem, so keys survive a redeploy/container rebuild and every instance sharing the database reads the same key ring. DPAPI protection is still in place (fine for the single Windows host this runs on today); the recommendation's other half — swap `ProtectKeysWithDpapi()` for a certificate or Key Vault — remains open and is the one still-real blocker before a genuine multi-instance/cross-platform deployment (DPAPI machine-locks the keys regardless of where they're stored).
+
+This is a deliberately single-instance application, and — to its credit — it mostly *knows* it: the DataProtection registration and the consumer registration both carry accurate comments describing their multi-instance limitations, `CallRegistry` is a pure, lock-protected state machine that could be re-backed without touching callers, and `IFileStorage` is a clean seam in front of the local disk. The remaining blockers are real and mutually reinforcing: live call/presence state, SignalR group routing, uploaded files, caches, rate limiters, and the assistant index are all process-local, so a second instance doesn't just degrade — chat delivery, calls, and presence all break in visible ways (sign-in itself no longer breaks on key-ring mismatch now that keys are shared, though DPAPI's machine lock is still a gap for a truly heterogeneous fleet). Within one instance, growth cost is dominated by Blazor Server circuit memory and a per-user connection multiplier (each authenticated user consumes a browser circuit plus 1-2 server-side loopback SignalR client connections), and by presence broadcasts that scale O(N) per transition to all connections.
 
 ## 3. Findings
 
@@ -42,10 +44,10 @@ This is a deliberately single-instance application, and — to its credit — it
 - **Impact:** Per authenticated user the server holds: the browser's circuit WebSocket, plus 1-2 outbound-to-self hub client connections with their own Kestrel accept/socket cost — roughly tripling connection count per user before any feature traffic. Multi-instance: if `SelfBaseUrl` points at the load balancer, a node's SSR data requests and hub connections land on *other* nodes (auth survives via self-minted JWTs, but presence registration lands on the wrong node's `CallRegistry`, compounding SCALE-1, and every page render becomes a cross-node hop); if it points at the node itself, per-node TLS/host configuration must be managed. SCALE owns this consequence; the design itself is ARCH-1.
 - **Recommendation:** Short term, document that `SelfBaseUrl` must be the instance's own address (not the LB). Real fix: in-process service calls (ARCH-1) remove the HTTP leg, and replacing the loopback hub-client pattern with direct `IHubContext` use inside the same process would remove the self-connections.
 
-### SCALE-4: DataProtection keys are per-instance (filesystem + DPAPI) — cookies and auth tickets don't survive a second node  [High] [Effort: S]
-- **Evidence:** `ServiceRegistrationExtensions.cs:178-186` — `PersistKeysToFileSystem(ContentRootPath/DataProtection-Keys)` with `ProtectKeysWithDpapi()` on Windows; the accompanying comment (`:171-177`) correctly documents that multi-instance/ephemeral hosts break sign-in. The `/auth/complete` handshake ticket is DataProtection-encrypted too (`InfrastructureEndpointsExtensions.cs:69-81`).
-- **Impact:** Behind a load balancer, a `.RYF.Auth` cookie issued by node A is unreadable garbage to node B (random sign-outs), and the login-completion ticket fails if the redirect lands on a different node — sign-in itself becomes flaky. DPAPI additionally machine-locks the keys, so even a shared network directory wouldn't decrypt across machines as configured.
-- **Recommendation:** For any multi-instance target: persist keys to shared storage (blob/Redis/EF) and protect with a certificate or KeyVault instead of DPAPI, exactly as the in-code comment prescribes. Effort is small; the code location is already isolated.
+### SCALE-4: DataProtection keys are still DPAPI-protected — a second (or non-Windows) node can't decrypt them  [Medium] [Effort: S]
+- **Evidence:** `ServiceRegistrationExtensions.cs` — keys now persist to the shared database (`PersistKeysToDbContext<ApplicationDbContext>`, fixed), but `ProtectKeysWithDpapi()` still wraps them at rest on Windows.
+- **Impact:** Narrowed from the original finding: the key *ring* is now shared, but DPAPI still machine-locks each key's encryption, so a second instance (or a container rebuilt on different hardware) can read the row but not decrypt it — sign-in would still fail cross-node. No longer a data-loss risk (keys survive a redeploy on the same machine); downgraded from High since the more severe half is fixed.
+- **Recommendation:** Before any real multi-instance/cross-platform target: swap `ProtectKeysWithDpapi()` for `ProtectKeysWithCertificate()` (a cert every instance can load) or Key Vault, per the original recommendation.
 
 ### SCALE-5: Presence fan-out is O(all connections) per transition, plus a user-row write per online/offline flip  [Medium] [Effort: M]
 - **Evidence:** `CallHub.OnConnectedAsync`/`OnDisconnectedAsync` broadcast `Clients.All.SendAsync("PresenceChanged", ...)` on every first-connect/last-disconnect (`CallHub.cs:63-67, 94-101`) — to every connection of every user, since `CallOverlayHost` connects everyone. Each transition also writes `LastSeenAt` via `userManager.UpdateAsync` (full Identity row update, `:112-123`). Every circuit seeds presence by pulling the complete online-user list (`GetOnlineUsers` → `CallRegistry.GetOnlineUserIds`, `PresenceService.SeedAsync`), and each `PresenceChanged` re-renders every mounted `PresenceIndicator` in every circuit (`PresenceIndicator.razor:55`).
@@ -91,12 +93,12 @@ This is a deliberately single-instance application, and — to its credit — it
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| SCALE-4 | High | S | Shared DataProtection key store + cert protection (replace DPAPI) before any multi-instance attempt |
 | SCALE-2 | High | M | Redis backplane for SignalR when scaling out |
 | SCALE-1 | High | L | Re-back CallRegistry (calls + presence) with a shared store |
 | SCALE-3 | High | L | Remove loopback self-calls / self hub-clients (with ARCH-1); until then pin SelfBaseUrl per instance |
 | SCALE-7 | Medium | S | Document per-instance cache/limiter semantics; shared rate limiting at scale-out |
 | SCALE-9 | Medium | S | DB-authoritative assistant index version; single designated indexer |
+| SCALE-4 | Medium | S | Swap ProtectKeysWithDpapi() for a certificate or Key Vault before any multi-instance attempt |
 | SCALE-5 | Medium | M | Scope presence broadcasts; debounce LastSeenAt writes |
 | SCALE-6 | Medium | M | Blob-backed IFileStorage implementation for multi-node/ephemeral hosts |
 | SCALE-8 | Medium | M | Budget + tune circuit memory; load-test single-node ceiling |

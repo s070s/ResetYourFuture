@@ -252,4 +252,13 @@
   <data name="LastSeenDateFormat" xml:space="preserve">
     <value>τελευταία σύνδεση {0}</value>
   </data>
+  <data name="NotFoundTitle" xml:space="preserve">
+    <value>Η σελίδα δεν βρέθηκε</value>
+  </data>
+  <data name="NotFoundMessage" xml:space="preserve">
+    <value>Η σελίδα που αναζητάτε δεν υπάρχει, μετακινήθηκε ή ο σύνδεσμος μπορεί να είναι παλιός.</value>
+  </data>
+  <data name="BackToHome" xml:space="preserve">
+    <value>Επιστροφή στην αρχική</value>
+  </data>
 </root>

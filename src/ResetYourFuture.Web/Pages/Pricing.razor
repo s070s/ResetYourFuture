@@ -91,7 +91,7 @@
                             }
                             else if (plan.Tier == SubscriptionTier.Free && _currentStatus is not null && _currentStatus.Tier > SubscriptionTier.Free)
                             {
-                                <button class="btn-plan btn-downgrade" @onclick="CancelSubscription" disabled="@_processing">
+                                <button class="btn-plan btn-downgrade" @onclick="RequestCancel" disabled="@_processing">
                                     @(_processing ? PricingRes.Processing : PricingRes.BtnDowngradeToFree)
                                 </button>
                             }
@@ -122,6 +122,23 @@
                 @_cancelMessage
             </div>
         }
+
+        <ConfirmModal IsVisible="_showCancelConfirm"
+                      Title="@BillingRes.CancelConfirmTitle"
+                      ConfirmLabel="@BillingRes.CancelSubscription"
+                      CancelLabel="@BillingRes.KeepSubscription"
+                      ConfirmButtonClass="btn-warning"
+                      IsBusy="_processing"
+                      OnConfirm="CancelSubscription"
+                      OnCancel="CloseCancelDialog">
+            <BodyContent>
+                <p>@string.Format(BillingRes.CancelConfirmBody, _currentStatus?.PlanName)</p>
+                @if (_currentStatus?.ExpiresAt is not null)
+                {
+                    <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _currentStatus.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy"))</p>
+                }
+            </BodyContent>
+        </ConfirmModal>
     }
 </div>
  

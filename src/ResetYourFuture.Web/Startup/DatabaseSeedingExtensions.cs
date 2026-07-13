@@ -8,11 +8,50 @@ namespace ResetYourFuture.Web.Startup;
 
 /// <summary>
 /// Startup migration + seed: pre-warms LocalDB in Development, migrates the relational
-/// database, and seeds roles, subscription plans, blog articles, the admin user, and
-/// (Development-only) JSON-driven course/assessment/student sample data.
+/// database, and seeds roles, subscription plans, and the admin user unconditionally, plus
+/// (Development-only, SeedData:Enabled) demo blog articles and JSON-driven course/assessment/
+/// student sample data — none of which belongs in a real deployment.
 /// </summary>
 public static class DatabaseSeedingExtensions
 {
+    /// <summary>
+    /// Bounded retry-with-backoff wrapper around <see cref="PrewarmAndSeedDatabaseAsync"/> (AVAIL-2):
+    /// without this, an unreachable database at boot crashes the process before it binds a port,
+    /// forcing an external restart even when the database becomes reachable moments later.
+    /// Every seed step below is idempotent (checks existence before creating), so retrying the
+    /// whole call — not just the migration — is safe even if an earlier attempt partially seeded.
+    /// </summary>
+    public static async Task PrewarmAndSeedDatabaseWithRetryAsync(
+        this WebApplication app, int maxAttempts = 5, TimeSpan? initialDelay = null)
+    {
+        var delay = initialDelay ?? TimeSpan.FromSeconds(2);
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
+            {
+                await app.PrewarmAndSeedDatabaseAsync();
+                return;
+            }
+            catch (Exception ex) when (attempt < maxAttempts)
+            {
+                logger.LogWarning(ex,
+                    "Startup migrate/seed failed on attempt {Attempt}/{MaxAttempts} — retrying in {Delay}.",
+                    attempt, maxAttempts, delay);
+                await Task.Delay(delay);
+                delay += delay; // exponential backoff
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(ex,
+                    "Startup migrate/seed failed after {MaxAttempts} attempts — the application cannot start.",
+                    maxAttempts);
+                throw;
+            }
+        }
+    }
+
     public static async Task PrewarmAndSeedDatabaseAsync(this WebApplication app)
     {
         // --- Pre-warm LocalDB ---
@@ -58,9 +97,6 @@ public static class DatabaseSeedingExtensions
         // Seed Subscription Plans
         await SubscriptionPlanSeeder.SeedAsync(db, startupLogger);
 
-        // Seed Blog Articles
-        await BlogArticleSeeder.SeedAsync(db, startupLogger);
-
         // Seed Admin User
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var adminEmail = config["AdminUser:Email"] ?? "admin@resetyourfuture.local";
@@ -92,9 +128,12 @@ public static class DatabaseSeedingExtensions
             }
         }
 
-        // Development-only seed data
+        // Development-only seed data (OPS-1: blog demo content must never touch a real deployment —
+        // roles/plans/admin above are the only seeds safe to run unconditionally)
         if (app.Environment.IsDevelopment() && config.GetValue<bool>("SeedData:Enabled"))
         {
+            await BlogArticleSeeder.SeedAsync(db, startupLogger);
+
             var jsonSeedPath = config.GetValue<string>("SeedData:JsonPaths:Courses")
                                ?? Path.Combine(app.Environment.ContentRootPath, "..", "ResetYourFuture.Shared", "JSON", "Courses");
             await CourseSeeder.SeedFromJsonAsync(db, jsonSeedPath, startupLogger);

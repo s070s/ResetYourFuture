@@ -19,11 +19,13 @@ Read `Directory.Packages.props`, all ten `.csproj` files under `src/` and `tests
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
-| Low | 3 |
+| Medium | 3 |
+| Low | 4 |
 | Info | 2 |
 
-The dependency foundation is genuinely good for a solo project: central package management is on (`ManagePackageVersionsCentrally=true`) with every version pinned in one file, csproj files carry no version attributes, the SDK is pinned via `global.json` with a sensible `rollForward`, `dotnet-ef` is pinned in a tool manifest in lockstep with the EF Core packages, and one known CVE (Microsoft.OpenApi) was handled with a deliberate, commented transitive pin. What is missing is everything *ongoing*: there is no automated update or vulnerability alerting, no recorded update strategy for the vendored Bootstrap or the three runtime CDN dependencies, no lock file, and version skew inside the `10.0.x` Microsoft family suggests patches are already being missed. Nothing here is broken today; all findings are about the maintenance treadmill silently stopping.
+> **Fixed since audit (partial):** DEP-3's ASP.NET Core / EF Core half — while implementing SCALE-4 (DataProtection key storage), a live `dotnet list package --vulnerable` scan (something this audit deliberately didn't run — see Methodology) turned up a real, currently-unpatched **Critical** CVE (CVE-2026-40372, DataProtection cookie/auth-ticket forgery) against the pinned `10.0.5` line. The whole `10.0.x` family in `Directory.Packages.props` was bumped to `10.0.9` (matching the installed runtime and `System.Numerics.Tensors`' existing pin) in one commit, and `.config/dotnet-tools.json`'s `dotnet-ef` pin was bumped alongside it per DEP-8. This validates DEP-3's own predicted impact almost exactly. The `Microsoft.NET.Test.Sdk`/`xunit.runner.visualstudio` skew DEP-3 also flagged is unrelated to this CVE and remains open.
+
+The dependency foundation is genuinely good for a solo project: central package management is on (`ManagePackageVersionsCentrally=true`) with every version pinned in one file, csproj files carry no version attributes, the SDK is pinned via `global.json` with a sensible `rollForward`, `dotnet-ef` is pinned in a tool manifest in lockstep with the EF Core packages, and two known CVEs (Microsoft.OpenApi, and now the DataProtection cookie-forgery CVE caught mid-session) have been handled. What is missing is everything *ongoing*: there is no automated update or vulnerability alerting, no recorded update strategy for the vendored Bootstrap or the three runtime CDN dependencies, no lock file, and a smaller version skew remains in the test-tooling packages. Nothing here is broken today; all findings are about the maintenance treadmill silently stopping.
 
 ## 3. Findings
 
@@ -37,10 +39,10 @@ The dependency foundation is genuinely good for a solo project: central package 
 - **Impact:** Bootstrap 5.3.3 shipped February 2024 — roughly two and a half years old at audit time, with multiple 5.3.x patch releases since (bugfixes and at least one security fix in the 5.3.x line to reviewer knowledge). Because the copy is an anonymous vendored blob, no tool will ever flag it as outdated, and a future maintainer cannot tell whether local modifications were made (diffing against upstream is the only way). The ~40 unused dist files also bloat the repo and the published output.
 - **Recommendation:** Add a `libman.json` (`cdnjs`/`jsdelivr` provider) declaring `twbs/bootstrap@5.3.x` with only the files actually referenced — this records provenance, enables `libman update`, and trims the unused RTL/map files. Bump to the latest 5.3.x while doing it.
 
-### DEP-3: Version skew inside the Microsoft 10.0.x family suggests missed patch updates  [Medium] [Effort: S]
-- **Evidence:** `Directory.Packages.props` pins the ASP.NET Core / EF Core family at `10.0.5` (lines 9–21) but `System.Numerics.Tensors` at `10.0.9` (line 31) — both ship from the same monthly .NET servicing train, so a `10.0.9` existing for one strongly implies `10.0.6`–`10.0.9` servicing releases exist for the others. Similarly, `Microsoft.NET.Test.Sdk` is at `17.12.0` (17.13/17.14 shipped in 2025) and `xunit.runner.visualstudio` at `2.8.2` against `xunit` `2.9.2`. Currency could not be confirmed live (no `dotnet list package --outdated` — see Methodology).
-- **Impact:** Monthly ASP.NET Core servicing releases routinely contain security fixes (the framework's auth, Kestrel, and SignalR components are all in this app's attack surface). Piecemeal bumping — updating one package when a feature needs it while the rest of the family ages — is exactly the pattern the skew shows.
-- **Recommendation:** Adopt a simple rule: when touching any `10.0.x` version, bump the whole family to the same patch in one commit. DEP-1's Dependabot config makes this near-automatic (grouped update). Verify current patch levels from a machine/CI environment where restore is safe.
+### DEP-3: Test-tooling packages have drifted from their current patch releases  [Low] [Effort: S]
+- **Evidence:** Narrowed from the original finding (the ASP.NET Core/EF Core `10.0.x` half is fixed — see the "Fixed since audit" note). `Microsoft.NET.Test.Sdk` is at `17.12.0` (17.13/17.14 shipped in 2025) and `xunit.runner.visualstudio` at `2.8.2` against `xunit` `2.9.2`. Currency could not be confirmed live (no `dotnet list package --outdated` was run for this pass).
+- **Impact:** Test-only packages — no production attack surface. Downgraded from Medium: the security-relevant half of the original skew (the framework family) is resolved; this remaining piece is pure staleness, not a known vulnerability.
+- **Recommendation:** Bump `Microsoft.NET.Test.Sdk`/`xunit`/`xunit.runner.visualstudio` to current in the same pass as any other routine dependency maintenance. Adopt DEP-1's rule going forward: when touching any package family, bump the whole family to its current patch in one commit.
 
 ### DEP-4: The Microsoft.OpenApi transitive pin is load-bearing but its rationale lives in the wrong file  [Medium] [Effort: S]
 - **Evidence:** `src/ResetYourFuture.Web/ResetYourFuture.Web.csproj:39-40` carries the explanation ("Pin transitive Microsoft.OpenApi to a patched 2.x release (CVE-2026-49451 fixed in 2.7.5+); avoids the breaking 3.x major") next to a bare `<PackageReference Include="Microsoft.OpenApi" />`. The actual version decision — `2.9.0` — sits in `Directory.Packages.props:23` with no comment at all. The repo has a documented history of tooling silently re-pinning this package to an incompatible version, recoverable only by `git checkout` of the csproj/props files (BUILD 40 owns that failure mode).
@@ -63,8 +65,8 @@ The dependency foundation is genuinely good for a solo project: central package 
 - **Recommendation:** Set `<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>` in `Directory.Build.props`, commit the generated lock files, and add `--locked-mode` to the CI restore. Caveat: generate the lock files from a known-good state, since creating them requires a restore (do it right after a clean `git status`, and diff the props files afterward per the BUILD 40 recovery note).
 
 ### DEP-8: SDK and tool pinning is done right — keep dotnet-ef in lockstep when bumping EF  [Info] [Effort: S]
-- **Evidence:** `global.json` pins SDK `10.0.100` with `rollForward: latestFeature` (works with CI's `dotnet-version: 10.0.x`); `.config/dotnet-tools.json` pins `dotnet-ef` at `10.0.5` with `rollForward: false`, exactly matching the EF Core package versions in `Directory.Packages.props`.
-- **Impact:** Positive observation. The only latent risk is the undocumented coupling: when DEP-3's family bump happens, `dotnet-ef` must move to the same version or migration tooling drifts from the runtime packages.
+- **Evidence:** `global.json` pins SDK `10.0.100` with `rollForward: latestFeature` (works with CI's `dotnet-version: 10.0.x`); `.config/dotnet-tools.json` pins `dotnet-ef` at `10.0.9` with `rollForward: false`, exactly matching the EF Core package versions in `Directory.Packages.props` (both bumped together when the CVE-2026-40372 fix landed — the coupling this finding warns about was exercised for real and held).
+- **Impact:** Positive observation. The undocumented coupling is still undocumented (only proven correct once, by hand) — still worth writing down for the next person who bumps just one side.
 - **Recommendation:** Mention the coupling in the README's migration troubleshooting row (`dotnet ef migrations add ...` is already documented there), or in a comment in the tool manifest.
 
 ### DEP-9: Known-advisory review at pinned versions — clean to reviewer knowledge, unverified live  [Info] [Effort: S]
@@ -78,10 +80,10 @@ The dependency foundation is genuinely good for a solo project: central package 
 |----|----------|--------|--------|
 | DEP-1 | Medium | S | Add Dependabot (nuget + github-actions); gate NuGet audit warnings in CI |
 | DEP-2 | Medium | S | Record Bootstrap in libman.json, trim unused dist files, bump 5.3.x |
-| DEP-3 | Medium | S | Bump the Microsoft 10.0.x family in lockstep; verify patch level from CI |
 | DEP-4 | Medium | S | Move/duplicate the Microsoft.OpenApi pin rationale into Directory.Packages.props |
 | DEP-6 | Low | S | Comment the QuestPDF Community-license eligibility; README third-party note |
 | DEP-7 | Low | S | Enable RestorePackagesWithLockFile + locked-mode CI restore |
+| DEP-3 | Low | S | Bump Microsoft.NET.Test.Sdk / xunit.runner.visualstudio to current |
 | DEP-5 | Low | M | Vendor bootstrap-icons / Font Awesome / Quill via libman; drop CDN coupling |
 | DEP-8 | Info | S | Document the dotnet-ef ↔ EF Core version coupling |
 | DEP-9 | Info | S | Add a live vulnerable-package scan in CI |

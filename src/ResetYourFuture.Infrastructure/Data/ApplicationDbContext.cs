@@ -13,7 +13,8 @@ namespace ResetYourFuture.Infrastructure.Data;
 /// EF Core DbContext with ASP.NET Identity configured for ApplicationUser.
 /// Includes core domain entities for the psychosocial career guidance platform.
 /// </summary>
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext,
+    Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.IDataProtectionKeyContext
 {
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
@@ -70,6 +71,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     // --- Scheduled Sessions ---
     public DbSet<ScheduledSession> ScheduledSessions => Set<ScheduledSession>();
     public DbSet<SessionRegistration> SessionRegistrations => Set<SessionRegistration>();
+
+    // --- DataProtection keys (SCALE-4) ---
+    // Shared DB-backed key ring instead of the local filesystem: keys survive a redeploy/container
+    // rebuild and (unlike PersistKeysToFileSystem) are automatically visible to every instance
+    // sharing this database. Required by IDataProtectionKeyContext.
+    public DbSet<Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey> DataProtectionKeys => Set<Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey>();
 
     /// <summary>
     /// Register value converters that apply to all entities.

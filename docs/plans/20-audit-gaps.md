@@ -24,13 +24,13 @@ This split is judgment, not a formal rule — a few items (e.g. `CFG-1`) sit at 
 | Severity | Count (all 25 reports) |
 |----------|------------------------|
 | Critical | 0 |
-| High | 26 |
+| High | 19 |
 | Medium | 105 |
-| Low | 88 |
+| Low | 89 |
 | Info | 31 |
-| **Total** | **250** |
+| **Total** | **244** |
 
-> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. GAP-4 (High — unreadable submission panel + error banner; sources `UI-1`/`UI-2`) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: dropped `bg-light` on `AdminAssessmentSubmissions.razor`'s answers panel, added a dark text color to `#blazor-error-ui`. Details in the source reports' "Fixed since audit" notes.
+> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. GAP-4 (High — unreadable submission panel + error banner; sources `UI-1`/`UI-2`) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: dropped `bg-light` on `AdminAssessmentSubmissions.razor`'s answers panel, added a dark text color to `#blazor-error-ui`. GAP-8 (High — silent `SelfBaseUrl` misconfiguration; source `CFG-1`) — now fails fast outside Development via `ServiceRegistrationExtensions.ResolveSelfBaseUrl`. `AVAIL-1` (health/readiness endpoints) and `AVAIL-2` (unguarded startup migrate+seed) — `/health/live`+`/health/ready` mapped and the seed path now retries with backoff. GAP-3 (`UX-3`, blank NotFound page) — fixed via `Router.NotFoundPage` + a status-code re-execute dispatcher (the `<NotFound>` render fragment was removed in .NET 10). GAP-5 (`UX-4`, unconfirmed subscription downgrade) — Pricing now reuses Billing's `ConfirmModal`. GAP-7 (`OPS-1`, blog seeder could delete real content) — the delete/reseed branch is gone and the seeder is gated to Development like every other content seed. `SCALE-4` (DataProtection keys per-instance) — keys now persist to the shared SQL database via `PersistKeysToDbContext`, with a migration; also surfaced and fixed `DEP-3` (10.0.x package version skew) along the way — a live `dotnet list package --vulnerable` scan (not run at audit time; see DEP report's Methodology) turned up a real, currently-unpatched Critical CVE (CVE-2026-40372, DataProtection cookie/ticket forgery) against the pinned 10.0.5 line, fixed by bumping the whole `10.0.x` family to 10.0.9 in one commit. Details in the source reports' "Fixed since audit" notes.
 
 The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were the same root cause — admin user deletion — found independently by three different audit passes; that is now fixed. No other finding reached Critical: the suite's overall picture is "a lot of High-value, low-effort fixes" rather than "the app is on fire."
 
@@ -40,25 +40,9 @@ The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were 
 - **Source:** `UX-2` (33-audit-ux.md)
 - A failed submission (network blip, 403, server error) just re-enables the button with no error shown; "required" questions can be submitted empty. A student cannot tell whether their work was recorded.
 
-### GAP-3: Any mistyped or dead URL renders a fully blank page [High]
-- **Source:** `UX-3` (33-audit-ux.md)
-- `Routes.razor`'s `<NotFound>` has no layout, no message, no navigation — indistinguishable from a crash, and the page title still says "Home Page".
-
-### GAP-5: One misclick cancels a paid subscription [High]
-- **Source:** `UX-4` (33-audit-ux.md)
-- `Pricing.razor`'s "Downgrade to Free" calls `CancelSubscription` directly with no confirmation — the equivalent button on the Billing page already has a proper `ConfirmModal`; Pricing was never brought up to the same standard.
-
 ### GAP-6: Paid subscriptions never actually expire [High]
 - **Source:** `BIZ-1` (27-audit-business-logic.md)
 - `ExpiresAt` is computed at purchase time but never checked on read and never swept by a background job — once `IsActive=true`, access is permanent regardless of the term the user paid for.
-
-### GAP-7: The blog seeder can silently delete an operator's real articles on restart [High]
-- **Source:** `OPS-1` (42-audit-operational-readiness.md)
-- Unlike every other content seeder (gated to Development), the blog seeder runs unconditionally and, if no article has a Greek title, wipes the table and reseeds demo content — a heuristic left over from a bilingual migration that can't distinguish "legacy seed data" from "real English-only content someone just wrote."
-
-### GAP-8: Wrong `SelfBaseUrl` (or any host misconfiguration) renders every page empty with no error [High]
-- **Source:** `CFG-1` (39-audit-configuration.md)
-- Because SSR calls its own API over loopback HTTP (the `ARCH-1` architecture), a bad `SelfBaseUrl` doesn't throw — it silently falls back to `localhost` and every data-backed page just shows nothing. Straddles "broken now" (it's a bad failure mode today) and "will bite at deployment" (it only manifests once `SelfBaseUrl` needs to be something other than the default).
 
 ## 4. Will Bite Before / At Real Deployment
 
@@ -92,11 +76,8 @@ Grouped by theme; each line is `ID (report) — one-liner`. Full evidence/recomm
 - `SCALE-1` (35) — call/presence state is a process-local singleton; a second instance splits reality in two.
 - `SCALE-2` (35) — no SignalR backplane; cross-instance real-time delivery silently drops.
 - `SCALE-3` (35) — the loopback self-call topology assumes one addressable self.
-- `SCALE-4` (35) — DataProtection keys are per-instance (filesystem + DPAPI); auth cookies/tickets don't survive a second node.
 
 **Runtime — availability**
-- `AVAIL-1` (36) — no health/readiness endpoints anywhere.
-- `AVAIL-2` (36) — startup migrate+seed has no guard; an unreachable DB crashes the process before it binds a port.
 - `AVAIL-3` (36) — loopback consumers have no timeout/retry; a transient network blip crashes the Blazor circuit.
 - `AVAIL-4` (36) — direct consequence of `SCALE-1/2/4`: no failover is possible because no second instance can run correctly.
 
@@ -109,13 +90,6 @@ Ordered severity-desc, then "fixes the most other findings" first within a tier.
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| CFG-1 | High | S | Fail fast on bad `SelfBaseUrl` outside Development, matching the existing `Jwt:Key` fail-fast pattern |
-| AVAIL-2 | High | S | Bound-retry the startup migrate+seed instead of a hard crash |
-| AVAIL-1 | High | S | Add liveness/readiness health-check endpoints |
-| UX-3 | High | S | Give `<NotFound>` a real layout and message |
-| UX-4 | High | S | Reuse Billing's `ConfirmModal` on the Pricing downgrade button |
-| SCALE-4 | High | S | Move DataProtection keys off local filesystem/DPAPI before any multi-instance target |
-| OPS-1 | High | S | Remove the blog seeder's delete/reseed branch; gate it like every other content seeder |
 | UX-2 | High | M | Surface submission errors; enforce required questions client-side |
 | BIZ-1 | High | M | Enforce `ExpiresAt` on read + add an expiry sweep job |
 | SEC-1 | High | M | Reject refresh on security-stamp mismatch; bulk-revoke on password reset; add reuse detection |

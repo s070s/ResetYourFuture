@@ -92,4 +92,24 @@ public class MinimalEndpointsTests
 
         response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
     }
+
+    [Fact]
+    public async Task HealthLive_AnonymousReturns200_WithNoDependencyChecks()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/health/live");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task HealthReady_AnonymousReturns200_AgainstTheTestDatabase()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/health/ready");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
 }

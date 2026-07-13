@@ -23,12 +23,14 @@ Static analysis only — no app launch or browser. Examined:
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 4 |
+| High | 2 |
 | Medium | 9 |
 | Low | 2 |
 | Info | 1 |
 
-The flow fundamentals are strong where they were done deliberately: the localization system is exemplary (18 EN/EL resx pairs with perfect key parity, localized relative-time formatting, culture-aware `PaginationShowingFormat`), most list pages have real empty states with calls to action, several consumer pages implement the full loading → error → retry chain (`Courses`, `Billing`, `CourseDetail`, `Profile`, `LessonViewer` all offer a localized "Try again"), and destructive actions are usually gated by the shared `ConfirmModal`. The experience breaks down in the seams: ~100 user-facing strings are hardcoded in English so nearly every action's *feedback* ignores the chosen language; the assessment submission flow can fail without telling the user anything; unknown URLs render a blank page; and one button on Pricing cancels a subscription with no confirmation while the identical action on Billing gets a modal. These are all consistency failures — each has a correct in-repo pattern to copy.
+> **Fixed since audit:** UX-3 (High — unknown routes rendered a blank page) — Blazor's `<NotFound>` render fragment was removed in .NET 10 in favor of `Router.NotFoundPage`; the fix is a routable `Pages/NotFound.razor` wired via `NotFoundPage="typeof(NotFound)"` plus `app.UseStatusCodePagesWithReExecute("/__status-code-dispatch")` in `Program.cs` (a dispatcher endpoint that keeps `/api/*` on its JSON `ProblemDetails` contract and renders the Blazor page for everything else). UX-4 (High — unconfirmed subscription downgrade) — `Pricing.razor`'s downgrade button now goes through the same `ConfirmModal`/`BillingRes` strings as Billing's cancel flow.
+
+The flow fundamentals are strong where they were done deliberately: the localization system is exemplary (18 EN/EL resx pairs with perfect key parity, localized relative-time formatting, culture-aware `PaginationShowingFormat`), most list pages have real empty states with calls to action, several consumer pages implement the full loading → error → retry chain (`Courses`, `Billing`, `CourseDetail`, `Profile`, `LessonViewer` all offer a localized "Try again"), and destructive actions are gated by the shared `ConfirmModal` (now including Pricing). The remaining gaps: ~100 user-facing strings are hardcoded in English so nearly every action's *feedback* ignores the chosen language, and the assessment submission flow can fail without telling the user anything. Both are consistency failures with a correct in-repo pattern to copy.
 
 ## 3. Findings
 
@@ -42,15 +44,6 @@ The flow fundamentals are strong where they were done deliberately: the localiza
 - **Impact:** A student whose submission fails (network, 403, server error) sees the button re-enable and *nothing else* — they cannot tell whether their assessment was recorded; empty "required" submissions pollute admin submission data; a failed load looks like an eternal load.
 - **Recommendation:** Add `_error` state rendered near the submit button (copy the `_enrollError` pattern from `CourseDetail.razor:62-68`); validate `Required` questions in `HandleSubmit` before posting, focusing/flagging the first missing answer; convert the null-assessment branch after a caught load exception into the error+back pattern used by `LessonViewer.razor:10-14`.
 
-### UX-3: Unknown routes render a completely blank page  [High] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Routes.razor:10-12` — `<NotFound>` contains only `<PageTitle>Reset Your Future - Home Page</PageTitle>`: no `LayoutView`, no message, no navigation.
-- **Impact:** Any mistyped URL, stale bookmark, or dead link (e.g. an unpublished blog slug shared earlier) drops the user on a fully blank screen with no nav bar and no way onward — indistinguishable from a crash. The misleading page title ("Home Page") makes it worse.
-- **Recommendation:** Wrap in `<LayoutView Layout="@typeof(MainLayout)">` with a localized "page not found" message and a link home — the `Disabled.razor:5-18` page is the in-repo template for exactly this shape (heading + explanation + escape link).
-
-### UX-4: "Downgrade to Free" cancels the subscription with a single unconfirmed click  [High] [Effort: S]
-- **Evidence:** `Pages/Pricing.razor:92-97` — the downgrade button directly invokes `CancelSubscription`; `Pricing.razor.cs:69-97` calls `SubscriptionService.CancelAsync()` immediately. The **same operation** on the Billing page is properly guarded: `Billing.razor:85-100` wraps it in `ConfirmModal` with an explicit consequences body ("access until {date}").
-- **Impact:** One misclick on a pricing card cancels a paid subscription — the most consequential student-facing action in the app — with no warning, no consequences summary, and feedback only via a small message block below the grid (`Pricing.razor:119-124`).
-- **Recommendation:** Reuse the Billing `ConfirmModal` verbatim (title/body strings already exist in `BillingRes`); this is a one-screen change.
 
 ### UX-5: Action feedback is a single message slot styled "info", placed at the bottom of the page, with inconsistent dismissibility  [Medium] [Effort: M]
 - **Evidence:** The admin pages funnel every outcome — success ("User deleted") and failure ("Error deleting user") — into one `message` string rendered by `DismissibleAlert` with the default `AlertType="info"` (`DismissibleAlert.razor:16`): 9 of 11 usages never set a type (`AdminUsers.razor:117`, `AdminCourses.razor:85`, `AdminBlog.razor:89`, `AdminCategories.razor:62`, `AdminAssessments.razor:82`, `AdminAssessmentEdit.razor:186`, `AdminCourseEdit.razor:258`, `AdminLessonEdit.razor:137`, `AdminTestimonials.razor:107`); only `AdminAssessmentSubmissions.razor:89` and `MyCertificates.razor:64` pass `AlertType="danger"`. The alert is rendered **after** the table + pagination toolbar, i.e. below the fold on long pages. Dismissibility is arbitrary: `AdminUsers.razor:117`, `AdminBlog.razor:89`, `AdminTestimonials.razor:107` set `Dismissible="false"` (while still wiring a never-reachable `OnDismiss`), others are dismissible; non-dismissible messages persist until the next action replaces them.
@@ -116,8 +109,6 @@ The flow fundamentals are strong where they were done deliberately: the localiza
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| UX-3 | High | S | Give `<NotFound>` a layout, localized message, and link home |
-| UX-4 | High | S | Wrap Pricing's downgrade-to-free in the existing Billing ConfirmModal |
 | UX-1 | High | M | Localize the ~100 hardcoded strings via ErrorMessagesRes/SuccessMessagesRes; stop leaking `ex.Message` |
 | UX-2 | High | M | Surface assessment submit/load errors; enforce Required questions client-side |
 | UX-8 | Medium | S | Split NotAuthorized messaging: needs-login vs. lacks-role |
@@ -136,7 +127,7 @@ The flow fundamentals are strong where they were done deliberately: the localiza
 ## 5. Related Findings Elsewhere
 
 - **UI-2 (32)** — the `#blazor-error-ui` contrast defect; its hardcoded English text is counted under UX-1 here.
-- **UI-5 (32)** — modal focus trap/restore; the *flows* those modals guard are UX-4/UX-10 here.
+- **UI-5 (32)** — modal focus trap/restore; the *flows* those modals guard include UX-10 here (Pricing's downgrade flow, former UX-4, now also uses this modal).
 - **UI-9 (32)** — Chat's unlabeled raw spinner (component-level face of the loading-state inconsistency in UX-6).
 - **UI-10 (32)** — unlabeled search inputs belonging to the search flows in UX-13.
 - **10-plan-sorting-rollout.md** — sortable headers for every admin/student table (incl. AssessmentHistory's client-side full-list sort and Billing's bespoke table); deliberately not re-reported in UX-13.

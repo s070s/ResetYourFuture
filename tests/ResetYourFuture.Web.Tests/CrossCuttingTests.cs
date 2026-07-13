@@ -53,4 +53,30 @@ public class CrossCuttingTests
         response.Headers.Contains("Referrer-Policy").ShouldBeTrue();
         response.Headers.Contains("Permissions-Policy").ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task UnknownRoute_RendersNotFoundPage_NotBlank()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/this-route-does-not-exist-e2e");
+        var body = await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        body.ShouldContain("Page not found");
+        body.ShouldNotContain("Reset Your Future - Home Page");
+    }
+
+    [Fact]
+    public async Task UnknownApiRoute_StaysJsonProblemDetails()
+    {
+        var client = _factory.CreateClient();
+
+        var response = await client.GetAsync("/api/this-endpoint-does-not-exist-e2e");
+        var body = await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+        response.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
+        body.ShouldNotContain("Page not found");
+    }
 }

@@ -16,19 +16,16 @@ Read in full: `src/ResetYourFuture.Web/appsettings.json`, `appsettings.Developme
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 3 |
 | Info | 1 |
 
-Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design (blank-by-design keys in `appsettings.json`, gitignored `.env` seeded from `.env.template`, README Configuration table documenting each key), the custom `EnvFileLoader` runs *before* `CreateBuilder` so the standard environment-variable provider picks values up in the normal precedence chain, and the three most dangerous keys fail fast at startup with clear messages (JWT key length, admin password, missing email transport in Production). The weaknesses are at the edges: the one config value whose failure is *silent* rather than fast (`SelfBaseUrl`) is also the one every page depends on; the `.env.template` doesn't cover everything Production requires; options binding is entirely unvalidated; and a number of behavioral constants are compiled in.
+> **Fixed since audit:** CFG-1 (High — `SelfBaseUrl` fell back silently to localhost) — `ServiceRegistrationExtensions.ResolveSelfBaseUrl` now throws at startup outside Development when the value is unset or still points at localhost, mirroring the existing `Jwt:Key` fail-fast pattern; `.env.template` documents the key under a new Production-only section.
+
+Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design (blank-by-design keys in `appsettings.json`, gitignored `.env` seeded from `.env.template`, README Configuration table documenting each key), the custom `EnvFileLoader` runs *before* `CreateBuilder` so the standard environment-variable provider picks values up in the normal precedence chain, and the most dangerous keys fail fast at startup with clear messages (JWT key length, admin password, `SelfBaseUrl`, missing email transport in Production). The remaining weaknesses are at the edges: the `.env.template` doesn't cover everything Production requires; options binding is entirely unvalidated; and a number of behavioral constants are compiled in.
 
 ## 3. Findings
-
-### CFG-1: `SelfBaseUrl` falls back silently to localhost — every API-backed page renders empty when it's wrong  [High] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Startup/ServiceRegistrationExtensions.cs:213` — `var selfBase = builder.Configuration["SelfBaseUrl"] ?? "https://localhost:7090";` feeds the base address of all ~20 self-calling typed HttpClients (lines 216-253). The in-code NOTE (lines 204-210) itself states that in production a wrong value means "every API-backed page silently renders empty (ApiClientBase swallows non-success responses)". `.env.template` does not mention the key; `appsettings.json:10` carries only the dev value.
-- **Impact:** The single most load-bearing config value has the *worst* failure mode in the codebase: no exception, no log, just an empty site. Anyone deploying to a real host and missing this key gets a fully "running" app that shows no data — maximally confusing to debug.
-- **Recommendation:** Fail fast like the app already does for `Jwt:Key` (`AuthenticationSetupExtensions.cs:48-50`): in non-Development, throw at startup if `SelfBaseUrl` is unset or points at localhost. Add the key to `.env.template` and the README production checklist. (The self-HTTP-call architecture itself is report 21 (ARCH) territory; this finding is only about making the config failure loud.)
 
 ### CFG-2: `.env.template` is incomplete against what Production actually requires  [Medium] [Effort: S]
 - **Evidence:** `.env.template` covers `ConnectionStrings__DefaultConnection`, `Jwt__Key`, `AdminUser__Password`, `SeedData__StudentPassword`, `Payment__WebhookSecret` (commented), `AllowedHosts` (commented). Missing entirely: `Email__Smtp__Host`/`Port`/`Username`/`Password` — yet startup *throws* in non-Development without an SMTP host (`ServiceRegistrationExtensions.cs:49-53`); `SelfBaseUrl` (CFG-1); `Assistant__Enabled`/`Assistant__BaseUrl` (README's assistant setup section relies on editing appsettings instead).
@@ -69,7 +66,6 @@ Overall: the configuration design is thoughtful for a project of this scale — 
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| CFG-1 | High | S | Fail fast on unset/localhost SelfBaseUrl outside Development; add to template + checklist |
 | CFG-2 | Medium | S | Complete .env.template (SMTP, SelfBaseUrl, Assistant keys) |
 | CFG-3 | Medium | S | Fix .env precedence (env wins), strip quotes, log resolved path, handle read errors |
 | CFG-5 | Medium | S | PaymentOptions + fail-fast on missing WebhookSecret in non-Development |

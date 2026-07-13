@@ -1,4 +1,6 @@
-<Router AppAssembly="@typeof(Routes).Assembly">
+@using ResetYourFuture.Web.Pages
+
+<Router AppAssembly="@typeof(Routes).Assembly" NotFoundPage="typeof(NotFound)">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
             <NotAuthorized>
@@ -7,7 +9,4 @@
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
-    <NotFound>
-        <PageTitle>Reset Your Future - Home Page</PageTitle>
-    </NotFound>
 </Router>

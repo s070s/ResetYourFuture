@@ -252,4 +252,13 @@
   <data name="LastSeenDateFormat" xml:space="preserve">
     <value>last seen {0}</value>
   </data>
+  <data name="NotFoundTitle" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="NotFoundMessage" xml:space="preserve">
+    <value>The page you're looking for doesn't exist, was moved, or the link may be out of date.</value>
+  </data>
+  <data name="BackToHome" xml:space="preserve">
+    <value>Back to home</value>
+  </data>
 </root>

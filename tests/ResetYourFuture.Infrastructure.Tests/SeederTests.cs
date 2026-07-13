@@ -69,7 +69,32 @@ public sealed class SeederTests : IDisposable
         var secondCount = await db.BlogArticles.CountAsync();
 
         firstCount.ShouldBeGreaterThan(0);
-        secondCount.ShouldBe(firstCount); // bilingual data already present → skipped
+        secondCount.ShouldBe(firstCount); // articles already present → skipped, no delete/reseed
+    }
+
+    [Fact]
+    public async Task BlogArticleSeeder_NeverDeletesExistingEnglishOnlyArticles()
+    {
+        // OPS-1 regression: the seeder used to treat "no article has a Greek title" as
+        // pre-bilingual leftover data and delete + reseed it — silently destroying a real
+        // operator's English-only articles. It must now leave any existing data alone.
+        await using var db = DbContextFactory.CreateInMemory();
+        db.BlogArticles.Add(new()
+        {
+            Id = Guid.NewGuid(),
+            TitleEn = "A Real Operator's Article",
+            TitleEl = null,
+            Slug = "a-real-operators-article",
+            SummaryEn = "Written by a human, not the seeder.",
+            ContentEn = "Do not delete me.",
+            AuthorName = "The Operator"
+        });
+        await db.SaveChangesAsync();
+
+        await BlogArticleSeeder.SeedAsync(db, NullLogger.Instance);
+
+        (await db.BlogArticles.CountAsync()).ShouldBe(1);
+        (await db.BlogArticles.SingleAsync()).TitleEn.ShouldBe("A Real Operator's Article");
     }
 
     // ---- CourseSeeder --------------------------------------------------------

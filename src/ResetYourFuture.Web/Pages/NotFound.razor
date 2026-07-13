@@ -1,0 +1,17 @@
+@page "/not-found"
+
+@* Routable NotFoundPage target (required since .NET 10 — the Router's inline <NotFound>
+   render fragment is no longer supported; unmatched hard-navigation requests only reach this
+   page via Program.cs's UseStatusCodePagesWithReExecute("/not-found") re-execute). *@
+
+<PageTitle>@GlobalRes.NotFoundTitle</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <h1 class="h2 mb-4">@GlobalRes.NotFoundTitle</h1>
+            <p class="lead">@GlobalRes.NotFoundMessage</p>
+            <a href="/" class="btn btn-primary mt-3">@GlobalRes.BackToHome</a>
+        </div>
+    </div>
+</div>

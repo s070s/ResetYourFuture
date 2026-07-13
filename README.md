@@ -396,6 +396,7 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 | `Payment:MockEnabled` | `appsettings.Development.json` | `true` in dev — skips real Stripe; uses mock checkout. |
 | `Payment__WebhookSecret` | `.env` | Stripe HMAC signing secret. Leave unset in dev. |
 | `AllowedHosts` | `.env` or env var | Default `localhost;127.0.0.1`. **Set to your production domain** (e.g. `reset-your-future.com;www.reset-your-future.com`) before deploying. |
+| `SelfBaseUrl` | `.env` | The app's own real bound base address (used for its self-calling loopback API consumers). Defaults to `https://localhost:7090` in Development only — **startup throws** outside Development if unset or still pointing at localhost. |
 
 `appsettings.Development.json`: `SeedData:Enabled`, `SeedData:BulkStudentCount`, `SeedData:JsonPaths:*`, `Payment:MockEnabled`, dev connection string.
 
@@ -403,8 +404,10 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 - `ASPNETCORE_ENVIRONMENT=Production`
 - Real `Jwt__Key` (≥ 32 bytes), `ConnectionStrings__DefaultConnection` (no `TrustServerCertificate=True`)
 - `AllowedHosts` set to the production domain
+- `SelfBaseUrl` set to the app's real bound address (startup throws otherwise)
 - `IEmailService` real implementation registered (startup throws if absent in Production)
-- Migrations run automatically at startup (`MigrateAsync`); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
+- Migrations run automatically at startup (`MigrateAsync`, with bounded retry-with-backoff if the database isn't reachable yet); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
+- `/health/live` (process up, no dependency checks) and `/health/ready` (database + AI assistant status) are available for a load balancer/orchestrator to poll
 
 ---
 

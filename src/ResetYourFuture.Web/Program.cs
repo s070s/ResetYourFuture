@@ -1,4 +1,6 @@
 // Bring App and Routes razor components into scope
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 using ResetYourFuture.Web;
 using ResetYourFuture.Web.Hubs;
 using ResetYourFuture.Web.Logging;
@@ -16,7 +18,7 @@ builder.AddResetYourFutureServices();
 
 var app = builder.Build();
 
-await app.PrewarmAndSeedDatabaseAsync();
+await app.PrewarmAndSeedDatabaseWithRetryAsync();
 
 // --- Pipeline ---
 if (app.Environment.IsDevelopment())
@@ -60,9 +62,14 @@ else
 }
 
 // Converts any response that reaches a terminal error status code (400-599) with no body yet
-// written — e.g. bare NotFound()/Forbid()/Unauthorized() results, or 429 rate-limit rejections —
-// into the same application/problem+json envelope produced by AddProblemDetails() above.
-app.UseStatusCodePages();
+// written into a fitting representation. Re-executes against the dispatcher below, which keeps
+// /api/* on the JSON application/problem+json envelope (bare NotFound()/Forbid()/Unauthorized()
+// results, 429 rate-limit rejections — the contract API consumers expect) and renders the Blazor
+// NotFound page for everything else — most importantly a genuinely unmatched page route, which
+// the routing layer 404s on *before* the Router ever runs (the <NotFound> render fragment was
+// removed in .NET 10 in favor of Router.NotFoundPage) — so a mistyped/dead URL gets the app shell
+// instead of a bare 404 with no navigation (UX-3).
+app.UseStatusCodePagesWithReExecute("/__status-code-dispatch");
 
 app.UseRateLimiter();
 app.UseHttpsRedirection();
@@ -88,6 +95,19 @@ app.UseAuthorization();
 app.UseAntiforgery();
 
 app.MapInfrastructureEndpoints();
+
+// Target of UseStatusCodePagesWithReExecute above — branches on the ORIGINAL request path
+// (available via IStatusCodeReExecuteFeature, since this endpoint itself is always reached at
+// /__status-code-dispatch) so /api/* keeps its JSON contract while page routes get the Blazor
+// NotFound component. Not meant for direct navigation. Re-execution preserves the ORIGINAL HTTP
+// method (e.g. a POST that 403'd), so this must accept any verb — Map(), not MapGet().
+app.Map("/__status-code-dispatch", (HttpContext ctx) =>
+{
+    var originalPath = ctx.Features.Get<IStatusCodeReExecuteFeature>()?.OriginalPath;
+    return originalPath is not null && originalPath.StartsWith("/api", StringComparison.OrdinalIgnoreCase)
+        ? Results.Problem(statusCode: ctx.Response.StatusCode)
+        : (IResult)new RazorComponentResult<ResetYourFuture.Web.Pages.NotFound>();
+}).AllowAnonymous().ExcludeFromDescription();
 
 app.MapControllers();
 app.MapHub<ChatHub>("/hubs/chat");

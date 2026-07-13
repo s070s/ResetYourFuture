@@ -16,19 +16,16 @@ Read in full: `src/ResetYourFuture.Web/Startup/DatabaseSeedingExtensions.cs`, `s
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 2 |
 | Info | 1 |
 
-Overall: for a project that has never been operated, the operational *design instincts* are good — startup fails fast on missing admin password and email transport instead of limping, dev-only seeding is double-gated (environment AND config flag), the bulk seeder runs as a background service so it can't block boot, and the README production checklist is a real (if incomplete) operator document, which is more than most student projects have. What's missing is everything that only matters after day one: no backup or restore story for the two data stores, an auto-migration habit with no rollback procedure, a demo-content seeder that can destructively fire in production, and no runbook telling a future operator (including the author in six months) how to update, recover, or even notice a problem.
+> **Fixed since audit:** OPS-1 (High — blog seeder ran unconditionally and could delete operator-authored articles) — the delete/reseed branch is gone (`BlogArticleSeeder.SeedAsync` now only checks "skip if any articles exist"), and the call site moved inside the Development + `SeedData:Enabled` gate alongside the other content seeders. A regression test (`BlogArticleSeeder_NeverDeletesExistingEnglishOnlyArticles`) proves pre-existing English-only articles survive a reseed attempt.
+
+Overall: for a project that has never been operated, the operational *design instincts* are good — startup fails fast on missing admin password and email transport instead of limping, all content seeding (including blog, now) is double-gated (environment AND config flag), the bulk seeder runs as a background service so it can't block boot, and the README production checklist is a real (if incomplete) operator document, which is more than most student projects have. What's missing is everything that only matters after day one: no backup or restore story for the two data stores, an auto-migration habit with no rollback procedure, and no runbook telling a future operator (including the author in six months) how to update, recover, or even notice a problem.
 
 ## 3. Findings
-
-### OPS-1: Blog seeder runs in every environment and can delete operator-authored articles on restart  [High] [Effort: S]
-- **Evidence:** `Startup/DatabaseSeedingExtensions.cs:62` calls `BlogArticleSeeder.SeedAsync` unconditionally (unlike course/assessment/student seeding, which is gated at line 96 to Development + `SeedData:Enabled`). `Infrastructure/Seeding/BlogArticleSeeder.cs:17-31`: if articles exist but **none** has a Greek title (`TitleEl != null`), it executes `RemoveRange(db.BlogArticles)` and reseeds demo content. `TitleEl` is optional in authoring (bilingual fallback is a documented content rule).
-- **Impact:** Two distinct problems. (1) Every production database gets demo blog articles seeded into it on first boot. (2) Data loss: an operator who removes the demo posts and writes English-only articles has *all* blog content silently deleted and replaced with demo posts at the next restart — the one-shot "pre-bilingual migration" heuristic can't distinguish legacy seed data from real English-only content. Conditional but realistic, hence High rather than Critical.
-- **Recommendation:** The migration heuristic has served its purpose — remove the delete/reseed branch entirely (keep "skip if any articles exist"), and gate `BlogArticleSeeder` to Development + `SeedData:Enabled` alongside the other content seeders at `DatabaseSeedingExtensions.cs:96`. Roles, subscription plans, and the admin user are the only seeds that belong in production.
 
 ### OPS-2: No backup or restore procedure for either data store  [Medium] [Effort: S]
 - **Evidence:** The system has exactly two stores of irreplaceable state: the SQL database (users, enrollments, certificates, chat history) and uploaded files under `src/ResetYourFuture.Web/App_Data/Uploads` (`LocalFileStorage.cs:38` — avatars, lesson videos, certificate PDFs). Both are gitignored (`.gitignore`: `App_Data/`, `*.db`); LocalDB's MDF lives in the user profile. No backup script, schedule, or restore test exists anywhere in the repo or README.
@@ -61,22 +58,21 @@ Overall: for a project that has never been operated, the operational *design ins
 - **Recommendation:** Proportionate version: a single `Maintenance:Enabled` config flag checked by a small middleware that returns a static page for non-admins. Skip per-feature flags unless a concrete need appears.
 
 ### OPS-8: Environment gating of seeding is otherwise correct (positive observation)  [Info] [Effort: —]
-- **Evidence:** Course/assessment/student JSON seeds are gated to Development + `SeedData:Enabled` (`DatabaseSeedingExtensions.cs:96`); bulk students are additionally a non-blocking background service with the same double gate and a fail-safe skip when the seed password is unset (`BulkStudentSeedingService.cs:32-48`); roles/plans/admin are idempotent create-if-missing. Only the blog seeder (OPS-1) breaks the pattern.
-- **Impact:** None — recorded so the OPS-1 fix has a clear in-repo pattern to follow.
-- **Recommendation:** Align `BlogArticleSeeder` with this existing pattern (see OPS-1).
+- **Evidence:** Course/assessment/student JSON seeds are gated to Development + `SeedData:Enabled` (`DatabaseSeedingExtensions.cs:96`); bulk students are additionally a non-blocking background service with the same double gate and a fail-safe skip when the seed password is unset (`BulkStudentSeedingService.cs:32-48`); roles/plans/admin are idempotent create-if-missing. The blog seeder (former OPS-1) now follows the same pattern too.
+- **Impact:** None — positive observation, now uniform across every content seeder.
+- **Recommendation:** None; preserve.
 
 ## 4. Prioritized Action List
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| OPS-1 | High | S | Remove the blog seeder's delete/reseed branch; gate it to Development like other content seeds |
 | OPS-2 | Medium | S | Document + schedule DB and App_Data backup; rehearse one restore |
 | OPS-5 | Medium | S | Add MockEnabled, WebhookSecret, SelfBaseUrl, forwarded-headers to the production checklist |
 | OPS-3 | Medium | M | Write the update/migration runbook (backup-first, idempotent-script escape hatch) |
 | OPS-4 | Medium | M | Write docs/runbook.md covering the five likely incident scenarios |
 | OPS-6 | Low | S | Document admin password rotation reality and the break-glass re-seed path |
 | OPS-7 | Low | M | Optional Maintenance:Enabled middleware |
-| OPS-8 | Info | — | Keep the existing seeding-gate pattern; apply it in OPS-1 |
+| OPS-8 | Info | — | Keep the existing seeding-gate pattern (now uniform across all content seeders) |
 
 ## 5. Related Findings Elsewhere
 
