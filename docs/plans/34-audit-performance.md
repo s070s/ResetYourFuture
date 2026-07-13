@@ -19,9 +19,11 @@ NOT examined: actual profiling/benchmarks (static analysis only, app not launche
 |----------|-------|
 | Critical | 0 |
 | High | 1 |
-| Medium | 6 |
+| Medium | 5 |
 | Low | 5 |
 | Info | 1 |
+
+> **Fixed since audit:** PERF-2 (Medium — `ORDER BY`/range predicates ran against `nvarchar(48)` DateTimeOffset columns) — the columns are now native `datetimeoffset` on SQL Server (the `DateTimeOffsetToStringConverter` is scoped to the SQLite test provider and migration `ConvertDateTimeOffsetToNativeType` restored the type; owned by DB-2). Ordered/range date queries now use the native 10-byte type with no query rewrites, exactly as this finding anticipated.
 
 The query layer is unusually disciplined for a project at this stage: list endpoints are paged, correlated subqueries have been deliberately replaced with batched `GROUP BY`/join queries (`ChatQueryService`, `AdminUserService`, `CourseService`), chat lists use `Virtualize` with `@key`, searches are debounced, and there are well-placed 30-second caches (subscription status, assistant status, sitemap). The dominant cost is architectural: because every page's data arrives via a real HTTP request to the app's own API, each interaction pays JWT minting, full middleware traversal, a per-request user lookup, and double JSON serialization — multiplied by global InteractiveServer, which also routes every keystroke of `oninput`-bound inputs and every binary payload (avatars, certificate PDFs) through the SignalR circuit.
 
@@ -31,11 +33,6 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 - **Evidence:** 19 typed consumers call the app's own REST API over HTTP (`Startup/ServiceRegistrationExtensions.cs:211-254`). Per call: a fresh JWT is minted — `ApiClientBase.EnsureAuthorizationAsync` (`Consumers/ApiClientBase.cs:34-39`) → `ApiTokenProvider` → `AuthService.GetTokenAsync` builds a new `SymmetricSecurityKey` + `SigningCredentials` and signs (`Infrastructure/Services/AuthService.cs:276-291`); SSR-side, `SsrApiHandler` does the same per request (`Services/SsrApiHandler.cs:35-54`). The receiving side re-validates the JWT and performs a `userManager.FindByIdAsync` DB query on **every** loopback request (`Startup/AuthenticationSetupExtensions.cs:159-179`; the DB-coupling aspect is REL-7). Payloads are JSON-serialized in the controller and deserialized again in the consumer. A single Courses page load issues 3 parallel loopback calls (`Pages/Courses.razor.cs:40-44`); `AvatarDropdown` adds 2 more per circuit (PERF-5); Chat opens issue 2-4 (PERF-8).
 - **Impact:** Each logical "read some rows" costs an extra TLS-loopback HTTP round-trip, an HMAC sign + validate, one extra DB query, and two JSON passes — per consumer call, per page, per user. Latency stacks visibly on pages that fan out several calls, and CPU/GC load per interaction is a multiple of what in-process service calls would cost.
 - **Recommendation:** ARCH-1 owns the redesign (call Application services in-process). Short-term mitigations that don't change the architecture: cache the minted JWT per circuit (the code itself documents "the token is identical for every call within a circuit", `ApiClientBase.cs:28-33`) instead of re-signing per call; cache the `SymmetricSecurityKey`/`SigningCredentials` instances (they are config-constant); and cache the (userId → IsEnabled/securityStamp) check per REL-7 to drop the per-request DB read.
-
-### PERF-2: ORDER BY and range predicates run against nvarchar(48) DateTimeOffset columns  [Medium] [Effort: M]
-- **Evidence:** The model-wide `DateTimeOffsetToStringConverter` (`Infrastructure/Data/ApplicationDbContext.cs:65-71`) stores all 32 DateTimeOffset columns as `nvarchar(48)` (`ApplicationDbContextModelSnapshot.cs`, 32 occurrences). Sort/filter sites that hit them: `BlogArticleService.cs:37` (`OrderByDescending(a => a.PublishedAt)`) and `:80` (`CreatedAt`), `AdminCourseService.cs:40`, `SubscriptionService.cs:361` (billing history), `AssessmentService.cs:165` (`SubmittedAt`), plus every `RefreshToken.ExpiresAt` validity comparison.
-- **Impact:** Every such sort/compare is a string comparison over ~33-char values instead of an 8-10 byte native `datetimeoffset` — larger index entries (96 bytes vs 10), slower comparisons, more buffer-pool pressure. Ordering happens to stay correct only because all stored values are UTC (constant `+00:00` suffix); any non-UTC write would silently break ordering. Cheap now at demo volume; a genuine query-cost tax as blog/assessment/billing rows grow.
-- **Recommendation:** DB (30) owns the schema fix (DB-2: drop the converter for SQL Server, migrate columns to `datetimeoffset`). From the performance side, prioritize the migration before any table with an ordered DateTimeOffset column grows past trivial size; no query rewrites are needed once the type is native.
 
 ### PERF-3: Blog summary queries load full article bodies to build summaries  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/BlogArticleService.cs:34-41` — `GetPublishedSummariesAsync` does `ToListAsync()` on whole `BlogArticle` entities (including `ContentEn`/`ContentEl` rich-HTML bodies) and then maps to `BlogArticleSummaryDto`. Callers: the Home page (6 articles per render, `Pages/Home.razor.cs:99`) and the sitemap (up to 200 articles, `Startup/InfrastructureEndpointsExtensions.cs:228`).
@@ -102,7 +99,6 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 | PERF-7 | Medium | S | Build chat sender name/role from claims, not two DB queries per message |
 | PERF-4 | Medium | M | Move QuestPDF rendering off the lesson-completion request path |
 | PERF-5 | Medium | M | Serve avatars/certificates via direct HTTP endpoints, not the circuit |
-| PERF-2 | Medium | M | Migrate DateTimeOffset columns to native type (with DB-2), removing string sorts |
 | PERF-8 | Low | S | Single-fetch the newest chat page on conversation open |
 | PERF-9 | Low | S | Collapse the duplicate paged query in `GetPublishedCoursesAsync` |
 | PERF-10 | Low | S | Diff assistant index on projected hashes, not full rows |
@@ -113,7 +109,7 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 
 - **ARCH (21):** ARCH-1 owns the loopback-HTTP-to-self design that PERF-1 costs out; ARCH-7 owns the global InteractiveServer decision behind PERF-6's per-keystroke traffic.
 - **REL (26):** REL-7 owns the per-request `FindByIdAsync` in both auth hooks — the single biggest per-call item inside PERF-1's pipeline; REL-3 owns the consumer error-swallowing on those same calls.
-- **DB (30):** DB-2 owns the nvarchar(48) schema fix underlying PERF-2; DB-8 (unbounded blobs) amplifies PERF-3's over-fetch.
+- **DB (30):** DB-2 owned the nvarchar(48) schema fix underlying PERF-2 (both now fixed — columns are native `datetimeoffset`); DB-8 (unbounded blobs) amplifies PERF-3's over-fetch.
 - **SCALE (35):** Owns the multi-instance/user-growth consequences of the same hot paths (presence fan-out, circuit memory, chunk-cache growth).
 - **AVAIL (36):** Owns timeout/resilience of the loopback HttpClients whose per-call cost PERF-1 describes.
 - **UX (33):** Perceived-latency consequences (loading states during multi-call page loads) are UX territory.

@@ -79,16 +79,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey> DataProtectionKeys => Set<Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey>();
 
     /// <summary>
-    /// Register value converters that apply to all entities.
-    /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
-    /// storing as ISO 8601 strings makes ORDER BY work natively.
+    /// Register value converters that apply to all entities. SQLite cannot translate
+    /// DateTimeOffset comparisons/ordering to SQL, so under SQLite (used only by tests) these
+    /// columns are stored as ISO-8601 strings to keep ORDER BY working. SQL Server has native
+    /// <c>datetimeoffset</c> support and uses it — the string storage this convention used to
+    /// force on every provider degraded index density, range scans, and type safety in the real
+    /// (SQL Server) schema for a test-provider's benefit (DB-2 / TEST-5).
     /// </summary>
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Properties<DateTimeOffset>()
-            .HaveConversion<DateTimeOffsetToStringConverter>();
-        configurationBuilder.Properties<DateTimeOffset?>()
-            .HaveConversion<DateTimeOffsetToStringConverter>();
+        if (Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            configurationBuilder.Properties<DateTimeOffset>()
+                .HaveConversion<DateTimeOffsetToStringConverter>();
+            configurationBuilder.Properties<DateTimeOffset?>()
+                .HaveConversion<DateTimeOffsetToStringConverter>();
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
