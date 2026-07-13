@@ -197,4 +197,19 @@
 	<data name="Start" xml:space="preserve">
 		<value>Start</value>
 	</data>
+	<data name="Back" xml:space="preserve">
+		<value>← Back</value>
+	</data>
+	<data name="FailedToLoadAssessment" xml:space="preserve">
+		<value>Failed to load this assessment. Please try again.</value>
+	</data>
+	<data name="AssessmentNotFound" xml:space="preserve">
+		<value>This assessment could not be found.</value>
+	</data>
+	<data name="SubmitFailed" xml:space="preserve">
+		<value>Failed to submit your assessment. Please try again.</value>
+	</data>
+	<data name="RequiredQuestionMissing" xml:space="preserve">
+		<value>Please answer all required questions before submitting.</value>
+	</data>
 </root>

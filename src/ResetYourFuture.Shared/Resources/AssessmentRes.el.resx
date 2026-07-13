@@ -197,4 +197,19 @@
 	<data name="Start" xml:space="preserve">
 		<value>Έναρξη</value>
 	</data>
+	<data name="Back" xml:space="preserve">
+		<value>← Πίσω</value>
+	</data>
+	<data name="FailedToLoadAssessment" xml:space="preserve">
+		<value>Αποτυχία φόρτωσης αυτής της αξιολόγησης. Δοκιμάστε ξανά.</value>
+	</data>
+	<data name="AssessmentNotFound" xml:space="preserve">
+		<value>Αυτή η αξιολόγηση δεν βρέθηκε.</value>
+	</data>
+	<data name="SubmitFailed" xml:space="preserve">
+		<value>Αποτυχία υποβολής της αξιολόγησής σας. Δοκιμάστε ξανά.</value>
+	</data>
+	<data name="RequiredQuestionMissing" xml:space="preserve">
+		<value>Παρακαλώ απαντήστε σε όλες τις υποχρεωτικές ερωτήσεις πριν την υποβολή.</value>
+	</data>
 </root>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Shared.Resources;
 using System.Globalization;
 using System.Text.Json;
 
@@ -29,6 +30,10 @@ public partial class AssessmentForm
     private Dictionary<string, string> answers = new();
     private bool isSubmitting = false;
     private bool submitted = false;
+    private bool _loading = true;
+    private string? _loadError;
+    private string? _submitError;
+    private HashSet<string> _missingRequiredIds = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,12 +59,23 @@ public partial class AssessmentForm
                     answers[q.Id] = string.Empty;
                 }
             }
+            else
+            {
+                _loadError = AssessmentRes.AssessmentNotFound;
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading assessment {AssessmentId}.", AssessmentId);
+            _loadError = AssessmentRes.FailedToLoadAssessment;
+        }
+        finally
+        {
+            _loading = false;
         }
     }
+
+    private void GoBack() => Nav.NavigateTo("/assessments");
 
     private void ToggleMultiSelect(string questionId, string option, bool isChecked)
     {
@@ -80,6 +96,18 @@ public partial class AssessmentForm
 
     private async Task HandleSubmit()
     {
+        _submitError = null;
+        _missingRequiredIds = (questions ?? [])
+            .Where(q => q.Required && string.IsNullOrWhiteSpace(answers.GetValueOrDefault(q.Id)))
+            .Select(q => q.Id)
+            .ToHashSet();
+
+        if (_missingRequiredIds.Count > 0)
+        {
+            _submitError = AssessmentRes.RequiredQuestionMissing;
+            return;
+        }
+
         isSubmitting = true;
         try
         {
@@ -95,11 +123,13 @@ public partial class AssessmentForm
             else
             {
                 _logger.LogError("Assessment submission {AssessmentId} returned null.", AssessmentId);
+                _submitError = AssessmentRes.SubmitFailed;
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error submitting assessment {AssessmentId}.", AssessmentId);
+            _submitError = AssessmentRes.SubmitFailed;
         }
         finally
         {

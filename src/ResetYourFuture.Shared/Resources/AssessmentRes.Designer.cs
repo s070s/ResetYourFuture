@@ -356,5 +356,50 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Start", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to ← Back.
+        /// </summary>
+        public static string Back {
+            get {
+                return ResourceManager.GetString("Back", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to load this assessment. Please try again..
+        /// </summary>
+        public static string FailedToLoadAssessment {
+            get {
+                return ResourceManager.GetString("FailedToLoadAssessment", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This assessment could not be found..
+        /// </summary>
+        public static string AssessmentNotFound {
+            get {
+                return ResourceManager.GetString("AssessmentNotFound", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to submit your assessment. Please try again..
+        /// </summary>
+        public static string SubmitFailed {
+            get {
+                return ResourceManager.GetString("SubmitFailed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Please answer all required questions before submitting..
+        /// </summary>
+        public static string RequiredQuestionMissing {
+            get {
+                return ResourceManager.GetString("RequiredQuestionMissing", resourceCulture);
+            }
+        }
     }
 }

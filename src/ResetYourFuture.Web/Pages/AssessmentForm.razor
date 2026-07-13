@@ -3,9 +3,14 @@
 
 <h1>@assessment?.Title</h1>
 
-@if (assessment == null)
+@if (_loading)
 {
     <LoadingSpinner Label="@AssessmentRes.Loading" />
+}
+else if (_loadError is not null)
+{
+    <p class="text-danger">@_loadError</p>
+    <button class="btn btn-secondary" @onclick="GoBack">@AssessmentRes.Back</button>
 }
 else if (submitted)
 {
@@ -17,7 +22,7 @@ else if (submitted)
 }
 else
 {
-    <div class="assessment-description">@((MarkupString)(assessment.Description ?? ""))</div>
+    <div class="assessment-description">@((MarkupString)(assessment!.Description ?? ""))</div>
 
     <EditForm Model="@answers" OnValidSubmit="@HandleSubmit">
         @if (questions != null)
@@ -34,11 +39,11 @@ else
                     </label>
                     @if (question.Type == "text")
                     {
-                        <input id="@($"q-{question.Id}")" type="text" class="form-control" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]" />
+                        <input id="@($"q-{question.Id}")" type="text" class="form-control @(_missingRequiredIds.Contains(question.Id) ? "is-invalid" : "")" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]" />
                     }
                     else if (question.Type is "choice" or "single-select")
                     {
-                        <select id="@($"q-{question.Id}")" class="form-select" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]">
+                        <select id="@($"q-{question.Id}")" class="form-select @(_missingRequiredIds.Contains(question.Id) ? "is-invalid" : "")" aria-required="@(question.Required ? "true" : "false")" @bind="answers[question.Id]">
                             <option value="">@AssessmentRes.SelectPlaceholder</option>
                             @foreach (var option in question.Options ?? new List<string>())
                             {
@@ -73,13 +78,18 @@ else
                     }
                     else if (question.Type == "date")
                     {
-                        <input id="@($"q-{question.Id}")" type="date" class="form-control"
+                        <input id="@($"q-{question.Id}")" type="date" class="form-control @(_missingRequiredIds.Contains(question.Id) ? "is-invalid" : "")"
                                aria-required="@(question.Required ? "true" : "false")"
                                value="@answers[question.Id]"
                                @onchange="@(e => answers[question.Id] = e.Value?.ToString() ?? string.Empty)" />
                     }
                 </div>
             }
+        }
+
+        @if (_submitError is not null)
+        {
+            <p class="text-danger" role="alert">@_submitError</p>
         }
 
         <button type="submit" class="btn btn-primary" disabled="@isSubmitting">@AssessmentRes.SubmitAssessment</button>

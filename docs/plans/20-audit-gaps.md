@@ -24,21 +24,17 @@ This split is judgment, not a formal rule — a few items (e.g. `CFG-1`) sit at 
 | Severity | Count (all 25 reports) |
 |----------|------------------------|
 | Critical | 0 |
-| High | 19 |
+| High | 18 |
 | Medium | 105 |
 | Low | 89 |
 | Info | 31 |
-| **Total** | **244** |
+| **Total** | **243** |
 
-> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. GAP-4 (High — unreadable submission panel + error banner; sources `UI-1`/`UI-2`) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: dropped `bg-light` on `AdminAssessmentSubmissions.razor`'s answers panel, added a dark text color to `#blazor-error-ui`. GAP-8 (High — silent `SelfBaseUrl` misconfiguration; source `CFG-1`) — now fails fast outside Development via `ServiceRegistrationExtensions.ResolveSelfBaseUrl`. `AVAIL-1` (health/readiness endpoints) and `AVAIL-2` (unguarded startup migrate+seed) — `/health/live`+`/health/ready` mapped and the seed path now retries with backoff. GAP-3 (`UX-3`, blank NotFound page) — fixed via `Router.NotFoundPage` + a status-code re-execute dispatcher (the `<NotFound>` render fragment was removed in .NET 10). GAP-5 (`UX-4`, unconfirmed subscription downgrade) — Pricing now reuses Billing's `ConfirmModal`. GAP-7 (`OPS-1`, blog seeder could delete real content) — the delete/reseed branch is gone and the seeder is gated to Development like every other content seed. `SCALE-4` (DataProtection keys per-instance) — keys now persist to the shared SQL database via `PersistKeysToDbContext`, with a migration; also surfaced and fixed `DEP-3` (10.0.x package version skew) along the way — a live `dotnet list package --vulnerable` scan (not run at audit time; see DEP report's Methodology) turned up a real, currently-unpatched Critical CVE (CVE-2026-40372, DataProtection cookie/ticket forgery) against the pinned 10.0.5 line, fixed by bumping the whole `10.0.x` family to 10.0.9 in one commit. Details in the source reports' "Fixed since audit" notes.
+> **Fixed since audit:** GAP-1 (Critical — admin "Delete User" crashed for any user with chat/call history; sources `DB-1`/`REL-1`/`DQ-1`) — `DeleteUserAsync` now removes dependent chat/call/certificate/enrollment rows in the same transaction as the user, maps `DbUpdateException` → 409, with SQLite FK tests. GAP-4 (High — unreadable submission panel + error banner; sources `UI-1`/`UI-2`) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: dropped `bg-light` on `AdminAssessmentSubmissions.razor`'s answers panel, added a dark text color to `#blazor-error-ui`. GAP-8 (High — silent `SelfBaseUrl` misconfiguration; source `CFG-1`) — now fails fast outside Development via `ServiceRegistrationExtensions.ResolveSelfBaseUrl`. `AVAIL-1` (health/readiness endpoints) and `AVAIL-2` (unguarded startup migrate+seed) — `/health/live`+`/health/ready` mapped and the seed path now retries with backoff. GAP-3 (`UX-3`, blank NotFound page) — fixed via `Router.NotFoundPage` + a status-code re-execute dispatcher (the `<NotFound>` render fragment was removed in .NET 10). GAP-5 (`UX-4`, unconfirmed subscription downgrade) — Pricing now reuses Billing's `ConfirmModal`. GAP-7 (`OPS-1`, blog seeder could delete real content) — the delete/reseed branch is gone and the seeder is gated to Development like every other content seed. GAP-2 (`UX-2`, silent assessment failures) — `AssessmentForm` now surfaces load/submit errors and enforces required questions client-side. `SCALE-4` (DataProtection keys per-instance) — keys now persist to the shared SQL database via `PersistKeysToDbContext`, with a migration; also surfaced and fixed `DEP-3` (10.0.x package version skew) along the way — a live `dotnet list package --vulnerable` scan (not run at audit time; see DEP report's Methodology) turned up a real, currently-unpatched Critical CVE (CVE-2026-40372, DataProtection cookie/ticket forgery) against the pinned 10.0.5 line, fixed by bumping the whole `10.0.x` family to 10.0.9 in one commit. Details in the source reports' "Fixed since audit" notes.
 
 The former single Critical (`DB-1`) and its two siblings (`REL-1`, `DQ-1`) were the same root cause — admin user deletion — found independently by three different audit passes; that is now fixed. No other finding reached Critical: the suite's overall picture is "a lot of High-value, low-effort fixes" rather than "the app is on fire."
 
 ## 3. Broken Now — genuinely wrong behavior today
-
-### GAP-2: Assessment submission can fail with zero feedback, and required questions aren't enforced [High]
-- **Source:** `UX-2` (33-audit-ux.md)
-- A failed submission (network blip, 403, server error) just re-enables the button with no error shown; "required" questions can be submitted empty. A student cannot tell whether their work was recorded.
 
 ### GAP-6: Paid subscriptions never actually expire [High]
 - **Source:** `BIZ-1` (27-audit-business-logic.md)
@@ -90,7 +86,6 @@ Ordered severity-desc, then "fixes the most other findings" first within a tier.
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| UX-2 | High | M | Surface submission errors; enforce required questions client-side |
 | BIZ-1 | High | M | Enforce `ExpiresAt` on read + add an expiry sweep job |
 | SEC-1 | High | M | Reject refresh on security-stamp mismatch; bulk-revoke on password reset; add reuse detection |
 | TEST-1 | High | M | Add a SQLite-backed `CustomWebAppFactory` variant for constraint-sensitive suites |
