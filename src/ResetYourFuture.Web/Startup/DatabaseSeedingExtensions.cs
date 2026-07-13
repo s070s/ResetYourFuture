@@ -83,7 +83,16 @@ public static class DatabaseSeedingExtensions
         // cannot run migrations. Guarding keeps the test host bootable; in production the
         // SQL Server provider is always relational so behavior is unchanged.
         if (db.Database.IsRelational())
-            await db.Database.MigrateAsync();
+        {
+            // The migration chain is authored for SQL Server (nvarchar(max) column types etc.)
+            // and does not translate to SQLite. The SQLite-backed test host (TEST-1's
+            // SqliteWebAppFactory) therefore builds its schema from the current model with
+            // EnsureCreated — never migrations. Production (SQL Server) is unaffected.
+            if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+                await db.Database.EnsureCreatedAsync();
+            else
+                await db.Database.MigrateAsync();
+        }
 
         // Seed Roles
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

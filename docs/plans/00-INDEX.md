@@ -95,7 +95,7 @@ Severity is judged in context: this is a university certificate project, not a p
 | ARCH (21) | 0 | 1 | 4 | 3 | 2 | 10 |
 | CQ (22) | 0 | 0 | 3 | 5 | 2 | 10 |
 | MAINT (23) | 0 | 1 | 4 | 4 | 1 | 10 |
-| TEST (24) | 0 | 2 | 3 | 4 | 1 | 10 |
+| TEST (24) | 0 | 1 | 3 | 4 | 1 | 9 |
 | SEC (25) | 0 | 0 | 4 | 4 | 1 | 9 |
 | REL (26) | 0 | 0 | 4 | 4 | 0 | 8 |
 | BIZ (27) | 0 | 0 | 3 | 4 | 0 | 7 |
@@ -117,6 +117,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 3 | 4 | 2 | 9 |
 | DOC (44) | 0 | 0 | 3 | 4 | 2 | 9 |
 | GOV (45) | 0 | 0 | 2 | 3 | 3 | 8 |
-| **Total** | **0** | **16** | **105** | **89** | **31** | **241** |
+| **Total** | **0** | **15** | **105** | **89** | **31** | **240** |
 
-Counts reflect **open** findings — fixed findings are removed from their report, and downgraded findings (still open, less severe) move to their new severity row (each report carries a "Fixed since audit" note either way). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed, and so are the two High UI findings (`UI-1`, `UI-2`, dark-theme contrast) and nine High findings from Phase 5 (`CFG-1` fail-fast SelfBaseUrl, `AVAIL-1` health endpoints, `AVAIL-2` bounded startup retry, `UX-3` blank NotFound page, `UX-4` unconfirmed subscription downgrade, `OPS-1` destructive blog reseed, `UX-2` silent assessment failures, `BIZ-1` subscriptions never expiring, `SEC-1` refresh-token lifecycle/reuse detection). `SCALE-4` (DataProtection keys) is partially fixed and downgraded to Medium; `DEP-3` (`10.0.x` version skew) is partially fixed and downgraded to Low — fixing it surfaced and patched a real Critical CVE (CVE-2026-40372) along the way. See [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and the prioritized action list across the remaining Critical/High findings.
+Counts reflect **open** findings — fixed findings are removed from their report, and downgraded findings (still open, less severe) move to their new severity row (each report carries a "Fixed since audit" note either way). The original single Critical (`DB-1`) and two High siblings (`REL-1`, `DQ-1`) — admin user deletion — are fixed, and so are the two High UI findings (`UI-1`, `UI-2`, dark-theme contrast) and ten High findings from Phase 5 (`CFG-1` fail-fast SelfBaseUrl, `AVAIL-1` health endpoints, `AVAIL-2` bounded startup retry, `UX-3` blank NotFound page, `UX-4` unconfirmed subscription downgrade, `OPS-1` destructive blog reseed, `UX-2` silent assessment failures, `BIZ-1` subscriptions never expiring, `SEC-1` refresh-token lifecycle/reuse detection, `TEST-1` relational integration coverage via a SQLite-backed factory + migration-chain test). `SCALE-4` (DataProtection keys) is partially fixed and downgraded to Medium; `DEP-3` (`10.0.x` version skew) is partially fixed and downgraded to Low — fixing it surfaced and patched a real Critical CVE (CVE-2026-40372) along the way. See [20-audit-gaps.md](20-audit-gaps.md) §3 for the synthesis and the prioritized action list across the remaining Critical/High findings.

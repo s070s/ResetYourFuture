@@ -50,10 +50,10 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureTestServices(services =>
         {
-            // Swap SQL Server for InMemory. The options-configuration delegate (which calls
-            // UseSqlServer) must also be removed, otherwise EF Core applies BOTH providers
-            // and throws "Only a single database provider can be registered". That type is
-            // internal, so it is matched by name.
+            // Swap the production SQL Server provider for a test provider. The options-configuration
+            // delegate (which calls UseSqlServer) must also be removed, otherwise EF Core applies
+            // BOTH providers and throws "Only a single database provider can be registered". That
+            // type is internal, so it is matched by name.
             var efDescriptors = services.Where(d =>
                 d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>) ||
                 d.ServiceType == typeof(DbContextOptions) ||
@@ -62,13 +62,24 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             foreach (var d in efDescriptors)
                 services.Remove(d);
 
-            services.AddDbContext<ApplicationDbContext>(o => o.UseInMemoryDatabase(_dbName));
+            ConfigureDatabase(services);
 
             // The bulk student seeder hosted service is irrelevant to tests.
             var hosted = services.Where(d => d.ImplementationType == typeof(BulkStudentSeedingService)).ToList();
             foreach (var d in hosted)
                 services.Remove(d);
         });
+    }
+
+    /// <summary>
+    /// Registers the <see cref="ApplicationDbContext"/> test provider. The default is the EF Core
+    /// InMemory provider (fast, no schema); <see cref="SqliteWebAppFactory"/> overrides this with a
+    /// real relational SQLite database so constraint-sensitive suites exercise unique indexes,
+    /// <c>EF.Functions.Like</c> translation, and the soft-delete query filters that InMemory can't (TEST-1).
+    /// </summary>
+    protected virtual void ConfigureDatabase(IServiceCollection services)
+    {
+        services.AddDbContext<ApplicationDbContext>(o => o.UseInMemoryDatabase(_dbName));
     }
 
     /// <summary>Creates an HttpClient carrying a valid Bearer token for a freshly-seeded user in the given role.</summary>
