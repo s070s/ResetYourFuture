@@ -84,5 +84,9 @@ public enum BillingTransactionType
     FreePlanAssignment = 5,
 
     /// <summary>Same-tier plan switch (e.g. monthly → yearly of the same tier).</summary>
-    PlanSwitch = 6
+    PlanSwitch = 6,
+
+    /// <summary>System-initiated downgrade to Free after ExpiresAt passed unrenewed (BIZ-1) —
+    /// distinct from a user-initiated Downgrade/cancellation.</summary>
+    Expired = 7
 }

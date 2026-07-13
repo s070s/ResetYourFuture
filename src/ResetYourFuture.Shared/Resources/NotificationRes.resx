@@ -187,6 +187,9 @@
   <data name="SubscriptionExpiring" xml:space="preserve">
     <value>Your subscription expires soon</value>
   </data>
+  <data name="SubscriptionExpired" xml:space="preserve">
+    <value>Your {0} subscription has expired — you're now on the Free plan</value>
+  </data>
   <data name="ReviewApproved" xml:space="preserve">
     <value>Your review for "{0}" was approved</value>
   </data>

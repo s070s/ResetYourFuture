@@ -18,24 +18,21 @@ NOT examined: real Stripe API semantics (no live integration exists) and pricing
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 3 |
 | Low | 4 |
 | Info | 0 |
 
-Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. The headline gaps are lifecycle, not gating: paid subscriptions never actually expire, cancellation immediately forfeits paid time, and the real payment path is inert (checkout 503s in production and the webhook does not activate anything).
+> **Fixed since audit:** BIZ-1 (High — paid subscriptions never expired) — `GetUserStatusAsync`/`GetUserTierAsync` now require `IsActive && (ExpiresAt == null || ExpiresAt > UtcNow)`, so an expired-but-unswept row stops granting paid access immediately (verified live: backdating a real `ExpiresAt` to yesterday while leaving `IsActive=1` untouched correctly showed the user as Free and denied assessment access). A new `SubscriptionExpirySweeper` background service (15-minute poll, mirroring `CallRingMonitor`'s convention) also deactivates expired rows, reverts the user to Free, records a new `BillingTransactionType.Expired` transaction, and sends a `SubscriptionExpired` notification — so the stored state self-corrects even if nothing reads it in the meantime.
+
+Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. The remaining lifecycle gaps: cancellation immediately forfeits paid time (BIZ-2 — a natural follow-up now that the expiry sweep exists to drive a "keep access until period end" policy, but not tackled in this pass), and the real payment path is inert (checkout 503s in production and the webhook does not activate anything).
 
 ## 3. Findings
-
-### BIZ-1: Paid subscriptions never expire — `ExpiresAt` is never enforced  [High] [Effort: M]
-- **Evidence:** `Application/ApiServices/SubscriptionService.cs:68-121` — `GetUserStatusAsync` and `GetUserTierAsync` select the subscription where `us.IsActive` and return its plan tier/features **without any `ExpiresAt > now` check**. Nothing in the codebase deactivates a subscription when `ExpiresAt` passes (no background job; `AssignPlanAsync` only sets `IsActive=false` when a *new* plan is assigned).
-- **Impact:** Once a user is on a paid plan, `IsActive` stays true indefinitely. A monthly Plus/Pro subscription grants full access forever regardless of the `ExpiresAt` the code carefully computed at `AssignPlanAsync:222-229`. There is no renewal charge (mock) and no expiry, so paid entitlements never lapse. On any real deployment this is lost revenue and incorrect entitlement.
-- **Recommendation:** Treat a subscription as active only when `IsActive && (ExpiresAt == null || ExpiresAt > UtcNow)` in both status/tier reads, and add a background sweep (mirroring `CallRingMonitor`) that deactivates expired subscriptions and reverts users to Free (recording a `Downgrade`/expiry `BillingTransaction`).
 
 ### BIZ-2: Cancellation immediately revokes paid access, contradicting the documented "active until ExpiresAt" intent  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/SubscriptionService.cs:283-345` (`CancelSubscriptionAsync`) sets the current sub `IsActive=false`, stamps `CancelledAt`, and immediately creates a new **Free** active subscription. The `UserSubscription.CancelledAt` XML doc states "Subscription remains active until ExpiresAt after cancellation" — the code does the opposite.
 - **Impact:** A user who paid for a month and cancels on day 2 loses Plus/Pro access instantly and forfeits the remaining paid period. This is both a domain-rule inconsistency and a likely user-trust/refund issue on a real deployment.
-- **Recommendation:** Decide the intended policy. If "cancel = keep access until period end," set `CancelledAt` but leave `IsActive`/tier intact until an expiry sweep (BIZ-1) flips it at `ExpiresAt`. If "cancel = immediate," update the entity documentation to match.
+- **Recommendation:** Decide the intended policy. If "cancel = keep access until period end," set `CancelledAt` but leave `IsActive`/tier intact until `SubscriptionExpirySweeper` (added for BIZ-1) flips it at `ExpiresAt`. If "cancel = immediate," update the entity documentation to match.
 
 ### BIZ-3: Real payment path is inert — production checkout 503s and the webhook activates nothing  [Medium] [Effort: L]
 - **Evidence:** `Web/Controllers/SubscriptionController.cs:79-93` returns 503 (`pending_payment`) when `Payment:MockEnabled` is off (the production default). `SubscriptionController.cs:147-154` verifies the Stripe signature but then logs "Event processing not yet implemented" and returns 200 without dispatching to `AssignPlanAsync`.
@@ -71,7 +68,6 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| BIZ-1 | High | M | Enforce `ExpiresAt` in status/tier reads + add an expiry sweep that reverts to Free |
 | BIZ-2 | Medium | S | Align cancellation behaviour with intended policy (keep-until-expiry vs immediate) |
 | BIZ-3 | Medium | L | Implement webhook event dispatch + real checkout session for production |
 | BIZ-4 | Medium | S | Gate mock checkout to `IsDevelopment()` and mark mock transactions distinctly |

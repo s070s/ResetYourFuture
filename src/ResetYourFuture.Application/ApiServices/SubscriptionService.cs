@@ -77,10 +77,14 @@ public class SubscriptionService : ISubscriptionService
         if (_cache.TryGetValue(StatusCacheKey(userId), out UserSubscriptionStatusDto? cached) && cached is not null)
             return cached;
 
+        // BIZ-1: IsActive alone isn't enough — a subscription past its ExpiresAt hasn't been
+        // swept yet (SubscriptionExpirySweeper runs periodically, not instantly) and must not
+        // grant paid access in the meantime.
+        var now = DateTime.UtcNow;
         var activeSub = await _db.UserSubscriptions
             .AsNoTracking()
             .Include(us => us.SubscriptionPlan)
-            .Where(us => us.UserId == userId && us.IsActive)
+            .Where(us => us.UserId == userId && us.IsActive && (us.ExpiresAt == null || us.ExpiresAt > now))
             .FirstOrDefaultAsync(cancellationToken);
 
         UserSubscriptionStatusDto status;
@@ -115,10 +119,11 @@ public class SubscriptionService : ISubscriptionService
     public async Task<SubscriptionTier> GetUserTierAsync(
         string userId, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         var tier = await _db.UserSubscriptions
             .AsNoTracking()
             .Include(us => us.SubscriptionPlan)
-            .Where(us => us.UserId == userId && us.IsActive)
+            .Where(us => us.UserId == userId && us.IsActive && (us.ExpiresAt == null || us.ExpiresAt > now))
             .Select(us => (SubscriptionTier?)us.SubscriptionPlan.Tier)
             .FirstOrDefaultAsync(cancellationToken);
 

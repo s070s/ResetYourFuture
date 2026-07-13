@@ -47,8 +47,8 @@ public class SubscriptionServiceTests
             FeaturesJson = featuresJson
         };
 
-    private static UserSubscription ActiveSub(SubscriptionPlan plan) =>
-        new() { Id = Guid.NewGuid(), UserId = UserId, SubscriptionPlanId = plan.Id, IsActive = true };
+    private static UserSubscription ActiveSub(SubscriptionPlan plan, DateTime? expiresAt = null) =>
+        new() { Id = Guid.NewGuid(), UserId = UserId, SubscriptionPlanId = plan.Id, IsActive = true, ExpiresAt = expiresAt };
 
     // ---- GetPlansAsync -------------------------------------------------------
 
@@ -124,6 +124,35 @@ public class SubscriptionServiceTests
     }
 
     [Fact]
+    public async Task GetUserStatus_ExpiredSubscription_ReturnsFreeDefaults()
+    {
+        // BIZ-1: IsActive alone isn't enough — a subscription past ExpiresAt but not yet swept
+        // by SubscriptionExpirySweeper must not grant paid access.
+        await using var db = DbContextFactory.CreateInMemory();
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
+        db.SubscriptionPlans.Add(plan);
+        db.UserSubscriptions.Add(ActiveSub(plan, expiresAt: DateTime.UtcNow.AddDays(-1)));
+        await db.SaveChangesAsync();
+
+        var status = await NewService(db).GetUserStatusAsync(UserId);
+
+        status.Tier.ShouldBe(SubscriptionTier.Free);
+        status.PlanName.ShouldBe("Free");
+    }
+
+    [Fact]
+    public async Task GetUserStatus_NotYetExpiredSubscription_StillActive()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
+        db.SubscriptionPlans.Add(plan);
+        db.UserSubscriptions.Add(ActiveSub(plan, expiresAt: DateTime.UtcNow.AddDays(1)));
+        await db.SaveChangesAsync();
+
+        (await NewService(db).GetUserStatusAsync(UserId)).Tier.ShouldBe(SubscriptionTier.Pro);
+    }
+
+    [Fact]
     public async Task GetUserStatus_SecondCall_ServedFromCache()
     {
         await using var db = DbContextFactory.CreateInMemory();
@@ -164,6 +193,18 @@ public class SubscriptionServiceTests
         await db.SaveChangesAsync();
 
         (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTier.Plus);
+    }
+
+    [Fact]
+    public async Task GetUserTier_ExpiredSubscription_ReturnsFree()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var plan = Plan("Plus", SubscriptionTier.Plus, 5m);
+        db.SubscriptionPlans.Add(plan);
+        db.UserSubscriptions.Add(ActiveSub(plan, expiresAt: DateTime.UtcNow.AddMinutes(-1)));
+        await db.SaveChangesAsync();
+
+        (await NewService(db).GetUserTierAsync(UserId)).ShouldBe(SubscriptionTier.Free);
     }
 
     // ---- CreateCheckoutSessionAsync -----------------------------------------

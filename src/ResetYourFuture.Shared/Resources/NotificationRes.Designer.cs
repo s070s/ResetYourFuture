@@ -268,6 +268,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Your {0} subscription has expired — you&apos;re now on the Free plan.
+        /// </summary>
+        public static string SubscriptionExpired {
+            get {
+                return ResourceManager.GetString("SubscriptionExpired", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Your review for "{0}" was approved.
         /// </summary>
         public static string ReviewApproved {

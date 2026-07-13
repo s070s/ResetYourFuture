@@ -127,6 +127,9 @@
   <data name="SubscriptionExpiring" xml:space="preserve">
     <value>Η συνδρομή σας λήγει σύντομα</value>
   </data>
+  <data name="SubscriptionExpired" xml:space="preserve">
+    <value>Η συνδρομή σας στο {0} έληξε — είστε πλέον στο δωρεάν πλάνο</value>
+  </data>
   <data name="ReviewApproved" xml:space="preserve">
     <value>Η κριτική σας για το "{0}" εγκρίθηκε</value>
   </data>

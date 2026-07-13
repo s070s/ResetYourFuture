@@ -85,6 +85,7 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddSingleton<CallRegistry>();
         builder.Services.AddHostedService<CallRingMonitor>();
         builder.Services.AddHostedService<SessionStartMonitor>();
+        builder.Services.AddHostedService<SubscriptionExpirySweeper>();
         builder.Services.Configure<WebRtcOptions>(config.GetSection("WebRtc"));
         // Hub-only (no REST) — plain AddScoped, not AddHttpClient. Must be scoped (not transient
         // like ChatService) so CallOverlayHost and chat components share one instance/hub/state per circuit.
