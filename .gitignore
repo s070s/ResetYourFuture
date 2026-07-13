@@ -13,3 +13,8 @@ App_Data/
 DataProtection-Keys/
 *.user
 TestResults/
+
+# Playwright e2e suite (tests/e2e)
+node_modules/
+test-results/
+playwright-report/

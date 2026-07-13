@@ -96,6 +96,17 @@ Web integration tests boot the real ASP.NET Core pipeline through `WebApplicatio
 
 GitHub Actions runs restore, Release build, and `dotnet test` on every push and pull request, then uploads TRX results from `TestResults/*.trx`. There is no coverage gate or coverage artifact yet; the definition of done is a green `dotnet test` locally and in CI.
 
+### End-to-end tests (local)
+
+A Playwright smoke suite under [`tests/e2e/`](tests/e2e/README.md) covers the browser-only behaviors the .NET suite can't reach: login through the real auth redirect chain, a consumer-backed page actually rendering data (the silent-blank-render failure mode), the Greek culture switch, and a two-user video call connecting with fake media. It runs locally on demand (needs Node.js and the seeded Development database — it is not part of CI):
+
+```bash
+cd tests/e2e
+npm install
+npx playwright install chromium   # first time only
+npx playwright test
+```
+
 ---
 
 ## API Documentation (Swagger / OpenAPI)
