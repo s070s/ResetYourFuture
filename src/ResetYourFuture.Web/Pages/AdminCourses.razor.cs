@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -44,7 +46,7 @@ public partial class AdminCourses
         }
         catch (Exception ex)
         {
-            message = $"Error loading courses: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -90,12 +92,12 @@ public partial class AdminCourses
             if (await CourseConsumer.PublishCourseAsync(id))
             {
                 await LoadCourses();
-                message = "Course published";
+                message = AdminRes.CoursePublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -106,12 +108,12 @@ public partial class AdminCourses
             if (await CourseConsumer.UnpublishCourseAsync(id))
             {
                 await LoadCourses();
-                message = "Course unpublished";
+                message = AdminRes.CourseUnpublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -132,16 +134,16 @@ public partial class AdminCourses
             if (await CourseConsumer.DeleteCourseAsync(id))
             {
                 await LoadCourses();
-                message = "Course deleted";
+                message = AdminRes.CourseDeleted;
             }
             else
             {
-                message = "Error deleting course";
+                message = AdminRes.CourseDeleteFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 }

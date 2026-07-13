@@ -693,4 +693,133 @@
   <data name="ItemLabelSessions" xml:space="preserve">
     <value>συνεδρίες</value>
   </data>
+  <data name="CourseSaved" xml:space="preserve">
+    <value>Το μάθημα αποθηκεύτηκε επιτυχώς.</value>
+  </data>
+  <data name="CourseSaveFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την αποθήκευση του μαθήματος.</value>
+  </data>
+  <data name="CoursePublished" xml:space="preserve">
+    <value>Το μάθημα δημοσιεύτηκε.</value>
+  </data>
+  <data name="CourseUnpublished" xml:space="preserve">
+    <value>Η δημοσίευση του μαθήματος αναιρέθηκε.</value>
+  </data>
+  <data name="CourseDeleted" xml:space="preserve">
+    <value>Το μάθημα διαγράφηκε.</value>
+  </data>
+  <data name="CourseDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή του μαθήματος.</value>
+  </data>
+  <data name="PublishStatusUpdateFailed" xml:space="preserve">
+    <value>Απέτυχε η ενημέρωση της κατάστασης δημοσίευσης.</value>
+  </data>
+  <data name="ModuleSaved" xml:space="preserve">
+    <value>Η ενότητα αποθηκεύτηκε.</value>
+  </data>
+  <data name="ModuleDeleted" xml:space="preserve">
+    <value>Η ενότητα διαγράφηκε.</value>
+  </data>
+  <data name="ModuleDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή της ενότητας.</value>
+  </data>
+  <data name="DeleteModuleConfirm" xml:space="preserve">
+    <value>Διαγραφή αυτής της ενότητας και όλων των μαθημάτων της;</value>
+  </data>
+  <data name="LessonSaved" xml:space="preserve">
+    <value>Το μάθημα αποθηκεύτηκε.</value>
+  </data>
+  <data name="LessonDeleted" xml:space="preserve">
+    <value>Το μάθημα διαγράφηκε.</value>
+  </data>
+  <data name="LessonDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή του μαθήματος.</value>
+  </data>
+  <data name="DeleteLessonConfirm" xml:space="preserve">
+    <value>Διαγραφή αυτού του μαθήματος;</value>
+  </data>
+  <data name="LessonTitleRequired" xml:space="preserve">
+    <value>Ο τίτλος του μαθήματος είναι υποχρεωτικός.</value>
+  </data>
+  <data name="LessonCreateFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη δημιουργία του μαθήματος.</value>
+  </data>
+  <data name="LessonUpdateFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την ενημέρωση του μαθήματος.</value>
+  </data>
+  <data name="AssessmentPublished" xml:space="preserve">
+    <value>Η αξιολόγηση δημοσιεύτηκε.</value>
+  </data>
+  <data name="AssessmentUnpublished" xml:space="preserve">
+    <value>Η δημοσίευση της αξιολόγησης αναιρέθηκε.</value>
+  </data>
+  <data name="AssessmentDeleted" xml:space="preserve">
+    <value>Η αξιολόγηση διαγράφηκε.</value>
+  </data>
+  <data name="AssessmentSaveFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την αποθήκευση της αξιολόγησης.</value>
+  </data>
+  <data name="ArticleDeleted" xml:space="preserve">
+    <value>Το άρθρο διαγράφηκε.</value>
+  </data>
+  <data name="ArticleDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή του άρθρου.</value>
+  </data>
+  <data name="CoverImageUploadFailed" xml:space="preserve">
+    <value>Απέτυχε η μεταφόρτωση της εικόνας εξωφύλλου.</value>
+  </data>
+  <data name="SlugInUse" xml:space="preserve">
+    <value>Το slug χρησιμοποιείται ήδη. Επιλέξτε διαφορετικό slug.</value>
+  </data>
+  <data name="TestimonialDeleted" xml:space="preserve">
+    <value>Η μαρτυρία διαγράφηκε.</value>
+  </data>
+  <data name="TestimonialDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή της μαρτυρίας.</value>
+  </data>
+  <data name="TestimonialStatusUpdateFailed" xml:space="preserve">
+    <value>Απέτυχε η ενημέρωση της κατάστασης της μαρτυρίας.</value>
+  </data>
+  <data name="TestimonialSaveFailed" xml:space="preserve">
+    <value>Απέτυχε η αποθήκευση της μαρτυρίας. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="AvatarUploadFailed" xml:space="preserve">
+    <value>Απέτυχε η μεταφόρτωση της εικόνας. Ελέγξτε τον τύπο και το μέγεθος του αρχείου (έως 5 MB).</value>
+  </data>
+  <data name="AvatarRemoveFailed" xml:space="preserve">
+    <value>Απέτυχε η αφαίρεση της εικόνας.</value>
+  </data>
+  <data name="FullNameRequired" xml:space="preserve">
+    <value>Το ονοματεπώνυμο είναι υποχρεωτικό.</value>
+  </data>
+  <data name="QuoteRequired" xml:space="preserve">
+    <value>Το απόσπασμα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="UserStatusToggled" xml:space="preserve">
+    <value>Η κατάσταση του χρήστη άλλαξε.</value>
+  </data>
+  <data name="UserToggleFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την αλλαγή κατάστασης του χρήστη.</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>Ο χρήστης διαγράφηκε.</value>
+  </data>
+  <data name="UserDeleteFailed" xml:space="preserve">
+    <value>Σφάλμα κατά τη διαγραφή του χρήστη.</value>
+  </data>
+  <data name="PasswordMinLength" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες.</value>
+  </data>
+  <data name="PasswordUpdateFailed" xml:space="preserve">
+    <value>Απέτυχε η ενημέρωση του κωδικού πρόσβασης. Ελέγξτε τις απαιτήσεις κωδικού.</value>
+  </data>
+  <data name="TitleEnglishRequired" xml:space="preserve">
+    <value>Ο τίτλος (Αγγλικά) είναι υποχρεωτικός.</value>
+  </data>
+  <data name="PathSaveFailed" xml:space="preserve">
+    <value>Απέτυχε η αποθήκευση της διαδρομής μάθησης.</value>
+  </data>
+  <data name="ModuleSaveFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την αποθήκευση της ενότητας.</value>
+  </data>
 </root>

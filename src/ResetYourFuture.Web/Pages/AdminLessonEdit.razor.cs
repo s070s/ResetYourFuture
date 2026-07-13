@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
@@ -65,7 +67,7 @@ public partial class AdminLessonEdit
         }
         catch (Exception ex)
         {
-            message = $"Error loading lessons: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -122,7 +124,7 @@ public partial class AdminLessonEdit
     {
         if (string.IsNullOrWhiteSpace(lessonTitleEn))
         {
-            message = "Lesson title is required.";
+            message = AdminRes.LessonTitleRequired;
             return;
         }
 
@@ -151,7 +153,7 @@ public partial class AdminLessonEdit
                 }
                 else
                 {
-                    message = "Error creating lesson";
+                    message = AdminRes.LessonCreateFailed;
                     return;
                 }
             }
@@ -161,7 +163,7 @@ public partial class AdminLessonEdit
                 var updated = await LessonConsumer.UpdateLessonAsync(lessonId, request);
                 if (updated is null)
                 {
-                    message = "Error updating lesson";
+                    message = AdminRes.LessonUpdateFailed;
                     return;
                 }
             }
@@ -185,7 +187,7 @@ public partial class AdminLessonEdit
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
@@ -219,16 +221,16 @@ public partial class AdminLessonEdit
             if (success)
             {
                 await LoadLessons();
-                message = "Lesson deleted";
+                message = AdminRes.LessonDeleted;
             }
             else
             {
-                message = "Error deleting lesson";
+                message = AdminRes.LessonDeleteFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 

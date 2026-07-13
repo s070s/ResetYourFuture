@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -67,11 +69,11 @@ public partial class ModuleEditorModal
             if (result is not null)
                 await OnSaved.InvokeAsync();
             else
-                _errorMessage = "Error saving module.";
+                _errorMessage = AdminRes.ModuleSaveFailed;
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Error: {ex.Message}";
+            _errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {

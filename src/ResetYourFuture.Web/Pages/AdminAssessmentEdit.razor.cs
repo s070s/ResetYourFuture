@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Web;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
@@ -83,7 +85,7 @@ public partial class AdminAssessmentEdit
         }
         catch (Exception ex)
         {
-            message = $"Error loading assessment: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -271,11 +273,11 @@ public partial class AdminAssessmentEdit
             if (result is not null)
                 Nav.NavigateTo("/admin/assessments");
             else
-                message = "Error saving assessment";
+                message = AdminRes.AssessmentSaveFailed;
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {

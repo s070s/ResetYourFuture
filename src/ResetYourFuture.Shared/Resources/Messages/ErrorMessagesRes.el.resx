@@ -249,4 +249,7 @@
   <data name="FailedToSendResetLink" xml:space="preserve">
     <value>Σφάλμα κατά την αποστολή του συνδέσμου επαναφοράς.</value>
   </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Άρνηση πρόσβασης.</value>
+  </data>
 </root>

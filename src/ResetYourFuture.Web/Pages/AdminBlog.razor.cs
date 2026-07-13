@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -112,12 +114,12 @@ public partial class AdminBlog : IAsyncDisposable
             }
             else
             {
-                message = "Failed to update publish status";
+                message = AdminRes.PublishStatusUpdateFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -129,17 +131,17 @@ public partial class AdminBlog : IAsyncDisposable
             if (success)
             {
                 confirmDeleteId = null;
-                message = "Article deleted";
+                message = AdminRes.ArticleDeleted;
                 await LoadArticles();
             }
             else
             {
-                message = "Error deleting article";
+                message = AdminRes.ArticleDeleteFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 

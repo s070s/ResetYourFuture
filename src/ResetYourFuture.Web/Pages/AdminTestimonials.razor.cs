@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -86,12 +88,12 @@ public partial class AdminTestimonials
             }
             else
             {
-                message = "Failed to update testimonial status.";
+                message = AdminRes.TestimonialStatusUpdateFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -104,7 +106,7 @@ public partial class AdminTestimonials
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -117,7 +119,7 @@ public partial class AdminTestimonials
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -129,17 +131,17 @@ public partial class AdminTestimonials
             if (success)
             {
                 confirmDeleteId = null;
-                message = "Testimonial deleted.";
+                message = AdminRes.TestimonialDeleted;
                 await LoadTestimonials();
             }
             else
             {
-                message = "Error deleting testimonial.";
+                message = AdminRes.TestimonialDeleteFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 }

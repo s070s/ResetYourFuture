@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
 using Microsoft.AspNetCore.Components.Web;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Consumers;
@@ -91,7 +92,7 @@ public partial class AdminLearningPathEditor
 
         if (string.IsNullOrWhiteSpace(_titleEn))
         {
-            _error = "Title (English) is required.";
+            _error = AdminRes.TitleEnglishRequired;
             return;
         }
 
@@ -111,7 +112,7 @@ public partial class AdminLearningPathEditor
                 var updated = await PathConsumer.UpdateAsync(Id!.Value, request);
                 if (updated is null)
                 {
-                    _error = "Failed to save the learning path.";
+                    _error = AdminRes.PathSaveFailed;
                     return;
                 }
                 await LoadPathAsync();
@@ -121,7 +122,7 @@ public partial class AdminLearningPathEditor
                 var created = await PathConsumer.CreateAsync(request);
                 if (created is null)
                 {
-                    _error = "Failed to save the learning path.";
+                    _error = AdminRes.PathSaveFailed;
                     return;
                 }
                 Navigation.NavigateTo($"/admin/paths/{created.Id}");

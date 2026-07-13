@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 using System.Text.Json;
@@ -49,7 +50,7 @@ public partial class AdminAssessmentSubmissions
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading assessment: {ex.Message}";
+            errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
 
         await LoadSubmissions();
@@ -77,7 +78,7 @@ public partial class AdminAssessmentSubmissions
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading submissions: {ex.Message}";
+            errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
             _pagedResult = new PagedResult<AssessmentSubmissionListItemDto>([], 0, _page, _pageSize);
         }
     }

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Web;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
@@ -119,7 +121,7 @@ public partial class AdminCourseEdit
         }
         catch (Exception ex)
         {
-            message = $"Error loading course: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -163,7 +165,7 @@ public partial class AdminCourseEdit
         }
         catch (Exception ex)
         {
-            message = $"Error loading modules: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -217,7 +219,7 @@ public partial class AdminCourseEdit
                     Nav.NavigateTo($"/admin/courses/{created.Id}");
                     return;
                 }
-                message = "Error saving course";
+                message = AdminRes.CourseSaveFailed;
             }
             else
             {
@@ -226,17 +228,17 @@ public partial class AdminCourseEdit
                 {
                     await LoadCourse();
                     await LoadCategories();
-                    message = "Course saved successfully";
+                    message = AdminRes.CourseSaved;
                 }
                 else
                 {
-                    message = "Error saving course";
+                    message = AdminRes.CourseSaveFailed;
                 }
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
@@ -266,7 +268,7 @@ public partial class AdminCourseEdit
     {
         _showModuleModal = false;
         await LoadModulesAndLessons();
-        message = "Module saved";
+        message = AdminRes.ModuleSaved;
     }
 
     // ── Lesson modal ──
@@ -292,7 +294,7 @@ public partial class AdminCourseEdit
     {
         _showLessonModal = false;
         await LoadModulesAndLessons();
-        message = "Lesson saved";
+        message = AdminRes.LessonSaved;
     }
 
     // ── Delete ──
@@ -300,14 +302,14 @@ public partial class AdminCourseEdit
     private void DeleteModule(Guid moduleId)
     {
         _pendingDeleteModuleId = moduleId;
-        _pendingDeleteMessage = "Delete this module and all its lessons?";
+        _pendingDeleteMessage = AdminRes.DeleteModuleConfirm;
     }
 
     private void DeleteLesson(Guid lessonId, Guid moduleId)
     {
         _pendingDeleteLessonId = lessonId;
         _pendingDeleteLessonModuleId = moduleId;
-        _pendingDeleteMessage = "Delete this lesson?";
+        _pendingDeleteMessage = AdminRes.DeleteLessonConfirm;
     }
 
     private async Task ExecuteDeleteAsync()
@@ -323,16 +325,16 @@ public partial class AdminCourseEdit
                 {
                     lessonsMap.Remove(moduleId);
                     await LoadModulesAndLessons();
-                    message = "Module deleted";
+                    message = AdminRes.ModuleDeleted;
                 }
                 else
                 {
-                    message = "Error deleting module";
+                    message = AdminRes.ModuleDeleteFailed;
                 }
             }
             catch (Exception ex)
             {
-                message = $"Error: {ex.Message}";
+                message = ErrorMessagesRes.UnexpectedErrorTryAgain;
             }
         }
         else if (_pendingDeleteLessonId is { } lessonId)
@@ -346,16 +348,16 @@ public partial class AdminCourseEdit
                 if (success)
                 {
                     await LoadModulesAndLessons();
-                    message = "Lesson deleted";
+                    message = AdminRes.LessonDeleted;
                 }
                 else
                 {
-                    message = "Error deleting lesson";
+                    message = AdminRes.LessonDeleteFailed;
                 }
             }
             catch (Exception ex)
             {
-                message = $"Error: {ex.Message}";
+                message = ErrorMessagesRes.UnexpectedErrorTryAgain;
             }
         }
     }
@@ -377,12 +379,12 @@ public partial class AdminCourseEdit
             if (await CourseConsumer.PublishCourseAsync(CourseId))
             {
                 await LoadCourse();
-                message = "Course published";
+                message = AdminRes.CoursePublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -393,12 +395,12 @@ public partial class AdminCourseEdit
             if (await CourseConsumer.UnpublishCourseAsync(CourseId))
             {
                 await LoadCourse();
-                message = "Course unpublished";
+                message = AdminRes.CourseUnpublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 

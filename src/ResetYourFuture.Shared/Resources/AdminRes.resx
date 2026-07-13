@@ -674,4 +674,133 @@
   <data name="ItemLabelSessions" xml:space="preserve">
     <value>sessions</value>
   </data>
+  <data name="CourseSaved" xml:space="preserve">
+    <value>Course saved successfully.</value>
+  </data>
+  <data name="CourseSaveFailed" xml:space="preserve">
+    <value>Error saving course.</value>
+  </data>
+  <data name="CoursePublished" xml:space="preserve">
+    <value>Course published.</value>
+  </data>
+  <data name="CourseUnpublished" xml:space="preserve">
+    <value>Course unpublished.</value>
+  </data>
+  <data name="CourseDeleted" xml:space="preserve">
+    <value>Course deleted.</value>
+  </data>
+  <data name="CourseDeleteFailed" xml:space="preserve">
+    <value>Error deleting course.</value>
+  </data>
+  <data name="PublishStatusUpdateFailed" xml:space="preserve">
+    <value>Failed to update publish status.</value>
+  </data>
+  <data name="ModuleSaved" xml:space="preserve">
+    <value>Module saved.</value>
+  </data>
+  <data name="ModuleDeleted" xml:space="preserve">
+    <value>Module deleted.</value>
+  </data>
+  <data name="ModuleDeleteFailed" xml:space="preserve">
+    <value>Error deleting module.</value>
+  </data>
+  <data name="DeleteModuleConfirm" xml:space="preserve">
+    <value>Delete this module and all its lessons?</value>
+  </data>
+  <data name="LessonSaved" xml:space="preserve">
+    <value>Lesson saved.</value>
+  </data>
+  <data name="LessonDeleted" xml:space="preserve">
+    <value>Lesson deleted.</value>
+  </data>
+  <data name="LessonDeleteFailed" xml:space="preserve">
+    <value>Error deleting lesson.</value>
+  </data>
+  <data name="DeleteLessonConfirm" xml:space="preserve">
+    <value>Delete this lesson?</value>
+  </data>
+  <data name="LessonTitleRequired" xml:space="preserve">
+    <value>Lesson title is required.</value>
+  </data>
+  <data name="LessonCreateFailed" xml:space="preserve">
+    <value>Error creating lesson.</value>
+  </data>
+  <data name="LessonUpdateFailed" xml:space="preserve">
+    <value>Error updating lesson.</value>
+  </data>
+  <data name="AssessmentPublished" xml:space="preserve">
+    <value>Assessment published.</value>
+  </data>
+  <data name="AssessmentUnpublished" xml:space="preserve">
+    <value>Assessment unpublished.</value>
+  </data>
+  <data name="AssessmentDeleted" xml:space="preserve">
+    <value>Assessment deleted.</value>
+  </data>
+  <data name="AssessmentSaveFailed" xml:space="preserve">
+    <value>Error saving assessment.</value>
+  </data>
+  <data name="ArticleDeleted" xml:space="preserve">
+    <value>Article deleted.</value>
+  </data>
+  <data name="ArticleDeleteFailed" xml:space="preserve">
+    <value>Error deleting article.</value>
+  </data>
+  <data name="CoverImageUploadFailed" xml:space="preserve">
+    <value>Cover image upload failed.</value>
+  </data>
+  <data name="SlugInUse" xml:space="preserve">
+    <value>Slug already in use. Please choose a different slug.</value>
+  </data>
+  <data name="TestimonialDeleted" xml:space="preserve">
+    <value>Testimonial deleted.</value>
+  </data>
+  <data name="TestimonialDeleteFailed" xml:space="preserve">
+    <value>Error deleting testimonial.</value>
+  </data>
+  <data name="TestimonialStatusUpdateFailed" xml:space="preserve">
+    <value>Failed to update testimonial status.</value>
+  </data>
+  <data name="TestimonialSaveFailed" xml:space="preserve">
+    <value>Failed to save testimonial. Please try again.</value>
+  </data>
+  <data name="AvatarUploadFailed" xml:space="preserve">
+    <value>Avatar upload failed. Check file type and size (max 5 MB).</value>
+  </data>
+  <data name="AvatarRemoveFailed" xml:space="preserve">
+    <value>Failed to remove avatar.</value>
+  </data>
+  <data name="FullNameRequired" xml:space="preserve">
+    <value>Full Name is required.</value>
+  </data>
+  <data name="QuoteRequired" xml:space="preserve">
+    <value>Quote is required.</value>
+  </data>
+  <data name="UserStatusToggled" xml:space="preserve">
+    <value>User enable/disable toggled.</value>
+  </data>
+  <data name="UserToggleFailed" xml:space="preserve">
+    <value>Error toggling user.</value>
+  </data>
+  <data name="UserDeleted" xml:space="preserve">
+    <value>User deleted.</value>
+  </data>
+  <data name="UserDeleteFailed" xml:space="preserve">
+    <value>Error deleting user.</value>
+  </data>
+  <data name="PasswordMinLength" xml:space="preserve">
+    <value>Password must be at least 8 characters.</value>
+  </data>
+  <data name="PasswordUpdateFailed" xml:space="preserve">
+    <value>Failed to update password. Check password requirements.</value>
+  </data>
+  <data name="TitleEnglishRequired" xml:space="preserve">
+    <value>Title (English) is required.</value>
+  </data>
+  <data name="PathSaveFailed" xml:space="preserve">
+    <value>Failed to save the learning path.</value>
+  </data>
+  <data name="ModuleSaveFailed" xml:space="preserve">
+    <value>Error saving module.</value>
+  </data>
 </root>

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Shared.Components.Forms;
@@ -95,7 +97,7 @@ public partial class AdminBlogEditor
                 if (path is not null)
                     _coverImageUrl = path;
                 else
-                    _error = "Cover image upload failed.";
+                    _error = AdminRes.CoverImageUploadFailed;
             }
             finally
             {
@@ -158,7 +160,7 @@ public partial class AdminBlogEditor
 
             if (result is null)
             {
-                _error = "Slug already in use. Please choose a different slug.";
+                _error = AdminRes.SlugInUse;
                 return;
             }
 
@@ -172,7 +174,7 @@ public partial class AdminBlogEditor
         }
         catch (Exception ex)
         {
-            _error = $"Error: {ex.Message}";
+            _error = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {

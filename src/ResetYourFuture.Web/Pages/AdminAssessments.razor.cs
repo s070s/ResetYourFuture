@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -44,7 +46,7 @@ public partial class AdminAssessments
         }
         catch (Exception ex)
         {
-            message = $"Error loading assessments: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -78,12 +80,12 @@ public partial class AdminAssessments
             if (await AssessmentConsumer.PublishAssessmentAsync(id))
             {
                 await LoadAssessments();
-                message = "Assessment published";
+                message = AdminRes.AssessmentPublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -94,12 +96,12 @@ public partial class AdminAssessments
             if (await AssessmentConsumer.UnpublishAssessmentAsync(id))
             {
                 await LoadAssessments();
-                message = "Assessment unpublished";
+                message = AdminRes.AssessmentUnpublished;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -125,12 +127,12 @@ public partial class AdminAssessments
             if (await AssessmentConsumer.DeleteAssessmentAsync(id))
             {
                 await LoadAssessments();
-                message = "Assessment deleted";
+                message = AdminRes.AssessmentDeleted;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 }

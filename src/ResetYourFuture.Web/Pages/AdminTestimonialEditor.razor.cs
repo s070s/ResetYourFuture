@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
@@ -71,7 +73,7 @@ public partial class AdminTestimonialEditor
             }
             else
             {
-                _error = "Avatar upload failed. Check file type and size (max 5 MB).";
+                _error = AdminRes.AvatarUploadFailed;
             }
         }
         finally
@@ -94,7 +96,7 @@ public partial class AdminTestimonialEditor
             }
             else
             {
-                _error = "Failed to remove avatar.";
+                _error = AdminRes.AvatarRemoveFailed;
             }
         }
         finally
@@ -109,12 +111,12 @@ public partial class AdminTestimonialEditor
 
         if (string.IsNullOrWhiteSpace(_fullName))
         {
-            _error = "Full Name is required.";
+            _error = AdminRes.FullNameRequired;
             return;
         }
         if (string.IsNullOrWhiteSpace(_quoteText))
         {
-            _error = "Quote is required.";
+            _error = AdminRes.QuoteRequired;
             return;
         }
 
@@ -138,7 +140,7 @@ public partial class AdminTestimonialEditor
 
             if (result is null)
             {
-                _error = "Failed to save testimonial. Please try again.";
+                _error = AdminRes.TestimonialSaveFailed;
                 return;
             }
 
@@ -146,7 +148,7 @@ public partial class AdminTestimonialEditor
         }
         catch (Exception ex)
         {
-            _error = $"Error: {ex.Message}";
+            _error = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {

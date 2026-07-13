@@ -1787,5 +1787,392 @@ namespace ResetYourFuture.Shared.Resources {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Course saved successfully..
+        /// </summary>
+        public static string CourseSaved {
+            get {
+                return ResourceManager.GetString("CourseSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error saving course..
+        /// </summary>
+        public static string CourseSaveFailed {
+            get {
+                return ResourceManager.GetString("CourseSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Course published..
+        /// </summary>
+        public static string CoursePublished {
+            get {
+                return ResourceManager.GetString("CoursePublished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Course unpublished..
+        /// </summary>
+        public static string CourseUnpublished {
+            get {
+                return ResourceManager.GetString("CourseUnpublished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Course deleted..
+        /// </summary>
+        public static string CourseDeleted {
+            get {
+                return ResourceManager.GetString("CourseDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting course..
+        /// </summary>
+        public static string CourseDeleteFailed {
+            get {
+                return ResourceManager.GetString("CourseDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to update publish status..
+        /// </summary>
+        public static string PublishStatusUpdateFailed {
+            get {
+                return ResourceManager.GetString("PublishStatusUpdateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Module saved..
+        /// </summary>
+        public static string ModuleSaved {
+            get {
+                return ResourceManager.GetString("ModuleSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Module deleted..
+        /// </summary>
+        public static string ModuleDeleted {
+            get {
+                return ResourceManager.GetString("ModuleDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting module..
+        /// </summary>
+        public static string ModuleDeleteFailed {
+            get {
+                return ResourceManager.GetString("ModuleDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete this module and all its lessons?.
+        /// </summary>
+        public static string DeleteModuleConfirm {
+            get {
+                return ResourceManager.GetString("DeleteModuleConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lesson saved..
+        /// </summary>
+        public static string LessonSaved {
+            get {
+                return ResourceManager.GetString("LessonSaved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lesson deleted..
+        /// </summary>
+        public static string LessonDeleted {
+            get {
+                return ResourceManager.GetString("LessonDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting lesson..
+        /// </summary>
+        public static string LessonDeleteFailed {
+            get {
+                return ResourceManager.GetString("LessonDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete this lesson?.
+        /// </summary>
+        public static string DeleteLessonConfirm {
+            get {
+                return ResourceManager.GetString("DeleteLessonConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lesson title is required..
+        /// </summary>
+        public static string LessonTitleRequired {
+            get {
+                return ResourceManager.GetString("LessonTitleRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error creating lesson..
+        /// </summary>
+        public static string LessonCreateFailed {
+            get {
+                return ResourceManager.GetString("LessonCreateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error updating lesson..
+        /// </summary>
+        public static string LessonUpdateFailed {
+            get {
+                return ResourceManager.GetString("LessonUpdateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment published..
+        /// </summary>
+        public static string AssessmentPublished {
+            get {
+                return ResourceManager.GetString("AssessmentPublished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment unpublished..
+        /// </summary>
+        public static string AssessmentUnpublished {
+            get {
+                return ResourceManager.GetString("AssessmentUnpublished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assessment deleted..
+        /// </summary>
+        public static string AssessmentDeleted {
+            get {
+                return ResourceManager.GetString("AssessmentDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error saving assessment..
+        /// </summary>
+        public static string AssessmentSaveFailed {
+            get {
+                return ResourceManager.GetString("AssessmentSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Article deleted..
+        /// </summary>
+        public static string ArticleDeleted {
+            get {
+                return ResourceManager.GetString("ArticleDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting article..
+        /// </summary>
+        public static string ArticleDeleteFailed {
+            get {
+                return ResourceManager.GetString("ArticleDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cover image upload failed..
+        /// </summary>
+        public static string CoverImageUploadFailed {
+            get {
+                return ResourceManager.GetString("CoverImageUploadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Slug already in use. Please choose a different slug..
+        /// </summary>
+        public static string SlugInUse {
+            get {
+                return ResourceManager.GetString("SlugInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Testimonial deleted..
+        /// </summary>
+        public static string TestimonialDeleted {
+            get {
+                return ResourceManager.GetString("TestimonialDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting testimonial..
+        /// </summary>
+        public static string TestimonialDeleteFailed {
+            get {
+                return ResourceManager.GetString("TestimonialDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to update testimonial status..
+        /// </summary>
+        public static string TestimonialStatusUpdateFailed {
+            get {
+                return ResourceManager.GetString("TestimonialStatusUpdateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to save testimonial. Please try again..
+        /// </summary>
+        public static string TestimonialSaveFailed {
+            get {
+                return ResourceManager.GetString("TestimonialSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avatar upload failed. Check file type and size (max 5 MB)..
+        /// </summary>
+        public static string AvatarUploadFailed {
+            get {
+                return ResourceManager.GetString("AvatarUploadFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to remove avatar..
+        /// </summary>
+        public static string AvatarRemoveFailed {
+            get {
+                return ResourceManager.GetString("AvatarRemoveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Full Name is required..
+        /// </summary>
+        public static string FullNameRequired {
+            get {
+                return ResourceManager.GetString("FullNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quote is required..
+        /// </summary>
+        public static string QuoteRequired {
+            get {
+                return ResourceManager.GetString("QuoteRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User enable/disable toggled..
+        /// </summary>
+        public static string UserStatusToggled {
+            get {
+                return ResourceManager.GetString("UserStatusToggled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error toggling user..
+        /// </summary>
+        public static string UserToggleFailed {
+            get {
+                return ResourceManager.GetString("UserToggleFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User deleted..
+        /// </summary>
+        public static string UserDeleted {
+            get {
+                return ResourceManager.GetString("UserDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error deleting user..
+        /// </summary>
+        public static string UserDeleteFailed {
+            get {
+                return ResourceManager.GetString("UserDeleteFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password must be at least 8 characters..
+        /// </summary>
+        public static string PasswordMinLength {
+            get {
+                return ResourceManager.GetString("PasswordMinLength", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to update password. Check password requirements..
+        /// </summary>
+        public static string PasswordUpdateFailed {
+            get {
+                return ResourceManager.GetString("PasswordUpdateFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Title (English) is required..
+        /// </summary>
+        public static string TitleEnglishRequired {
+            get {
+                return ResourceManager.GetString("TitleEnglishRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to save the learning path..
+        /// </summary>
+        public static string PathSaveFailed {
+            get {
+                return ResourceManager.GetString("PathSaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error saving module..
+        /// </summary>
+        public static string ModuleSaveFailed {
+            get {
+                return ResourceManager.GetString("ModuleSaveFailed", resourceCulture);
+            }
+        }
+        
     }
 }

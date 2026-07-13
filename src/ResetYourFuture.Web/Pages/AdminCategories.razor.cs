@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
 using ResetYourFuture.Web.Consumers;
@@ -52,7 +53,7 @@ public partial class AdminCategories
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -125,7 +126,7 @@ public partial class AdminCategories
         }
         catch (Exception ex)
         {
-            _formError = $"Error: {ex.Message}";
+            _formError = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
@@ -154,7 +155,7 @@ public partial class AdminCategories
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Application.ApiInterfaces;
@@ -63,7 +64,7 @@ public partial class AdminUsers : IAsyncDisposable
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
         {
-            message = "Access denied";
+            message = ErrorMessagesRes.AccessDenied;
         }
     }
 
@@ -154,7 +155,7 @@ public partial class AdminUsers : IAsyncDisposable
     {
         if (string.IsNullOrWhiteSpace(_resetPwdNew) || _resetPwdNew.Length < 8)
         {
-            _resetPwdError = "Password must be at least 8 characters.";
+            _resetPwdError = AdminRes.PasswordMinLength;
             return;
         }
 
@@ -177,12 +178,12 @@ public partial class AdminUsers : IAsyncDisposable
             }
             else
             {
-                _resetPwdError = "Failed to update password. Check password requirements.";
+                _resetPwdError = AdminRes.PasswordUpdateFailed;
             }
         }
         catch (Exception ex)
         {
-            _resetPwdError = $"Error: {ex.Message}";
+            _resetPwdError = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
@@ -198,16 +199,16 @@ public partial class AdminUsers : IAsyncDisposable
             if (result.HasValue)
             {
                 await LoadUsers();
-                message = "User enable/disable toggled";
+                message = AdminRes.UserStatusToggled;
             }
             else
             {
-                message = "Error toggling user";
+                message = AdminRes.UserToggleFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 
@@ -220,16 +221,16 @@ public partial class AdminUsers : IAsyncDisposable
             {
                 confirmDeleteId = null;
                 await LoadUsers();
-                message = "User deleted";
+                message = AdminRes.UserDeleted;
             }
             else
             {
-                message = "Error deleting user";
+                message = AdminRes.UserDeleteFailed;
             }
         }
         catch (Exception ex)
         {
-            message = $"Error: {ex.Message}";
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 

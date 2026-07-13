@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources;
+using ResetYourFuture.Shared.Resources.Messages;
 using Microsoft.AspNetCore.Components.Forms;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
@@ -78,7 +80,7 @@ public partial class LessonEditorModal
     {
         if (string.IsNullOrWhiteSpace(_titleEn))
         {
-            _errorMessage = "Lesson title is required.";
+            _errorMessage = AdminRes.LessonTitleRequired;
             return;
         }
 
@@ -104,7 +106,7 @@ public partial class LessonEditorModal
                 var created = await LessonConsumer.CreateLessonAsync(request);
                 if (created is null)
                 {
-                    _errorMessage = "Error creating lesson.";
+                    _errorMessage = AdminRes.LessonCreateFailed;
                     return;
                 }
                 lessonId = created.Id;
@@ -115,7 +117,7 @@ public partial class LessonEditorModal
                 var updated = await LessonConsumer.UpdateLessonAsync(lessonId, request);
                 if (updated is null)
                 {
-                    _errorMessage = "Error updating lesson.";
+                    _errorMessage = AdminRes.LessonUpdateFailed;
                     return;
                 }
             }
@@ -144,7 +146,7 @@ public partial class LessonEditorModal
         }
         catch (Exception ex)
         {
-            _errorMessage = $"Error: {ex.Message}";
+            _errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
