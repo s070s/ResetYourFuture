@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.DTOs;
@@ -77,7 +78,7 @@ public partial class Courses : IDisposable
         }
         catch (Exception ex)
         {
-            _error = "Failed to load courses. Please try again.";
+            _error = ErrorMessagesRes.FailedToLoadCourses;
             _logger.LogError(ex, "Failed to load courses.");
         }
         finally

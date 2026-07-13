@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Shared.Resources.Messages;
 using System.Net.Http.Json;
 
 namespace ResetYourFuture.Web.Pages;
@@ -11,6 +12,7 @@ public partial class ForgotPassword
     [Inject] private IAuthService AuthService { get; set; } = default!;
     // HttpClient retained exclusively for the dev-only reset endpoint (not in IAuthService)
     [Inject] private HttpClient Http { get; set; } = default!;
+    [Inject] private ILogger<ForgotPassword> Logger { get; set; } = default!;
 
     private ForgotPasswordRequestDto forgotPasswordRequest = new();
     private string? successMessage;
@@ -31,16 +33,17 @@ public partial class ForgotPassword
             var result = await AuthService.ForgotPasswordAsync(forgotPasswordRequest);
             if (result.Success)
             {
-                successMessage = result.Message ?? "If the email exists, a reset link has been sent.";
+                successMessage = result.Message ?? SuccessMessagesRes.PasswordResetLinkSent;
             }
             else
             {
-                errorMessage = result.Message ?? "Error sending reset link";
+                errorMessage = result.Message ?? ErrorMessagesRes.FailedToSendResetLink;
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            Logger.LogError(ex, "Forgot-password request failed.");
+            errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
         finally
         {
@@ -52,7 +55,7 @@ public partial class ForgotPassword
     {
         if (string.IsNullOrEmpty(devNewPassword) || string.IsNullOrEmpty(forgotPasswordRequest.Email))
         {
-            errorMessage = "Please enter email and new password";
+            errorMessage = ErrorMessagesRes.EnterEmailAndPassword;
             return;
         }
 
@@ -67,16 +70,17 @@ public partial class ForgotPassword
 
             if (response.IsSuccessStatusCode)
             {
-                successMessage = "Password reset successfully! You can now log in with the new password.";
+                successMessage = SuccessMessagesRes.PasswordResetSuccessful;
             }
             else
             {
-                errorMessage = "Error resetting password";
+                errorMessage = ErrorMessagesRes.PasswordResetFailed;
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            Logger.LogError(ex, "Dev password reset failed.");
+            errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
     }
 

@@ -14,6 +14,7 @@ public partial class Login
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private IWebHostEnvironment Env { get; set; } = default!;
     [Inject] private IHttpClientFactory HttpClientFactory { get; set; } = default!;
+    [Inject] private ILogger<Login> Logger { get; set; } = default!;
 
     private LoginRequestDto loginRequest = new();
     private string? errorMessage;
@@ -77,11 +78,12 @@ public partial class Login
         }
         catch (HttpRequestException)
         {
-            errorMessage = "Unable to connect to the server. Please try again.";
+            errorMessage = ErrorMessagesRes.UnableToConnect;
         }
         catch (Exception ex)
         {
-            errorMessage = $"An unexpected error occurred: {ex.Message}";
+            Logger.LogError(ex, "Unexpected error during login.");
+            errorMessage = ErrorMessagesRes.UnexpectedErrorTryAgain;
         }
 
         isLoading = false;

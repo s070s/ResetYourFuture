@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.DTOs;
@@ -118,7 +119,7 @@ public partial class CourseDetail
             _course = await CourseService.GetCourseAsync(CourseId, CurrentLang);
             if (_course is null)
             {
-                _error = "Course not found.";
+                _error = ErrorMessagesRes.CourseNotFound;
             }
             else
             {
@@ -129,7 +130,7 @@ public partial class CourseDetail
         }
         catch (Exception ex)
         {
-            _error = "Failed to load course. Please try again.";
+            _error = ErrorMessagesRes.FailedToLoadCourse;
             _logger.LogError(ex, "Failed to load course {CourseId}.", CourseId);
         }
         finally
@@ -162,7 +163,7 @@ public partial class CourseDetail
         }
         catch (Exception ex)
         {
-            _enrollError = "Failed to enroll. Please try again.";
+            _enrollError = ErrorMessagesRes.FailedToEnroll;
             _logger.LogError(ex, "Failed to enroll in course {CourseId}.", CourseId);
         }
         finally

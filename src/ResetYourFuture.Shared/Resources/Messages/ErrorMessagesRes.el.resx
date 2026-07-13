@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -218,5 +218,35 @@
   </data>
   <data name="CategoryNotFound" xml:space="preserve">
     <value>Η κατηγορία δεν βρέθηκε</value>
+  </data>
+  <data name="UnexpectedErrorTryAgain" xml:space="preserve">
+    <value>Παρουσιάστηκε μη αναμενόμενο σφάλμα. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="UnableToConnect" xml:space="preserve">
+    <value>Δεν ήταν δυνατή η σύνδεση με τον διακομιστή. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="EnterEmailAndPassword" xml:space="preserve">
+    <value>Παρακαλώ εισαγάγετε email και νέο κωδικό πρόσβασης.</value>
+  </data>
+  <data name="PasswordResetFailed" xml:space="preserve">
+    <value>Σφάλμα κατά την επαναφορά του κωδικού πρόσβασης.</value>
+  </data>
+  <data name="FailedToLoadBilling" xml:space="preserve">
+    <value>Απέτυχε η φόρτωση των στοιχείων χρέωσης. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="FailedToCancel" xml:space="preserve">
+    <value>Η ακύρωση απέτυχε. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="FailedToLoadCourses" xml:space="preserve">
+    <value>Απέτυχε η φόρτωση των μαθημάτων. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="FailedToLoadCourse" xml:space="preserve">
+    <value>Απέτυχε η φόρτωση του μαθήματος. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="FailedToEnroll" xml:space="preserve">
+    <value>Η εγγραφή απέτυχε. Δοκιμάστε ξανά.</value>
+  </data>
+  <data name="FailedToSendResetLink" xml:space="preserve">
+    <value>Σφάλμα κατά την αποστολή του συνδέσμου επαναφοράς.</value>
   </data>
 </root>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -38,7 +39,7 @@ public partial class Billing
         }
         catch (Exception ex)
         {
-            _error = "Failed to load billing information. Please try again.";
+            _error = ErrorMessagesRes.FailedToLoadBilling;
             _logger.LogError(ex, "Failed to load billing overview.");
         }
         finally
@@ -107,7 +108,7 @@ public partial class Billing
         catch (Exception ex)
         {
             _cancelSuccess = false;
-            _cancelMessage = "Failed to cancel. Please try again.";
+            _cancelMessage = ErrorMessagesRes.FailedToCancel;
             _logger.LogError(ex, "Failed to cancel subscription.");
         }
         finally
