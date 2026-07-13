@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PathsTitle" xml:space="preserve">
+    <value>Μαθησιακές Διαδρομές</value>
+  </data>
+  <data name="NoPathsYet" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη διαθέσιμες μαθησιακές διαδρομές.</value>
+  </data>
+  <data name="StepsCountFormat" xml:space="preserve">
+    <value>{0} μαθήματα</value>
+  </data>
+  <data name="ProgressFormat" xml:space="preserve">
+    <value>{0} από {1} ολοκληρώθηκαν</value>
+  </data>
+  <data name="ViewPath" xml:space="preserve">
+    <value>Προβολή διαδρομής</value>
+  </data>
+  <data name="BackToPaths" xml:space="preserve">
+    <value>Επιστροφή στις διαδρομές</value>
+  </data>
+  <data name="StepLocked" xml:space="preserve">
+    <value>Κλειδωμένο</value>
+  </data>
+  <data name="StepNext" xml:space="preserve">
+    <value>Επόμενο</value>
+  </data>
+  <data name="StepCompleted" xml:space="preserve">
+    <value>Ολοκληρώθηκε</value>
+  </data>
+  <data name="GoToCourse" xml:space="preserve">
+    <value>Μετάβαση στο μάθημα</value>
+  </data>
+  <data name="SignInToTrackProgress" xml:space="preserve">
+    <value>Συνδεθείτε για να παρακολουθείτε την πρόοδό σας σε αυτή τη διαδρομή.</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Φόρτωση διαδρομών…</value>
+  </data>
+  <data name="PathNotFound" xml:space="preserve">
+    <value>Η μαθησιακή διαδρομή δεν βρέθηκε.</value>
+  </data>
+  <data name="AdminPageTitle" xml:space="preserve">
+    <value>Μαθησιακές Διαδρομές</value>
+  </data>
+  <data name="NewPath" xml:space="preserve">
+    <value>Νέα διαδρομή</value>
+  </data>
+  <data name="EditPath" xml:space="preserve">
+    <value>Επεξεργασία Διαδρομής</value>
+  </data>
+  <data name="NoPathsFound" xml:space="preserve">
+    <value>Δεν βρέθηκαν μαθησιακές διαδρομές.</value>
+  </data>
+  <data name="ColTitle" xml:space="preserve">
+    <value>Τίτλος</value>
+  </data>
+  <data name="ColCategory" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="ColSteps" xml:space="preserve">
+    <value>Βήματα</value>
+  </data>
+  <data name="ColOrder" xml:space="preserve">
+    <value>Σειρά</value>
+  </data>
+  <data name="ColStatus" xml:space="preserve">
+    <value>Κατάσταση</value>
+  </data>
+  <data name="ColActions" xml:space="preserve">
+    <value>Ενέργειες</value>
+  </data>
+  <data name="StatusDraft" xml:space="preserve">
+    <value>Πρόχειρο</value>
+  </data>
+  <data name="StatusPublished" xml:space="preserve">
+    <value>Δημοσιευμένο</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Επεξεργασία</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Δημοσίευση</value>
+  </data>
+  <data name="Unpublish" xml:space="preserve">
+    <value>Απόσυρση</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Διαγραφή</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Επιβεβαίωση διαγραφής;</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Ακύρωση</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="FieldTitleEn" xml:space="preserve">
+    <value>Τίτλος (Αγγλικά)</value>
+  </data>
+  <data name="FieldTitleEl" xml:space="preserve">
+    <value>Τίτλος (Ελληνικά)</value>
+  </data>
+  <data name="FieldDescriptionEn" xml:space="preserve">
+    <value>Περιγραφή (Αγγλικά)</value>
+  </data>
+  <data name="FieldDescriptionEl" xml:space="preserve">
+    <value>Περιγραφή (Ελληνικά)</value>
+  </data>
+  <data name="FieldCategory" xml:space="preserve">
+    <value>Κατηγορία</value>
+  </data>
+  <data name="NoCategory" xml:space="preserve">
+    <value>Χωρίς κατηγορία</value>
+  </data>
+  <data name="FieldDisplayOrder" xml:space="preserve">
+    <value>Σειρά εμφάνισης</value>
+  </data>
+  <data name="StepsSectionTitle" xml:space="preserve">
+    <value>Βήματα</value>
+  </data>
+  <data name="NoStepsYet" xml:space="preserve">
+    <value>Δεν υπάρχουν ακόμη βήματα. Προσθέστε ένα μάθημα παρακάτω.</value>
+  </data>
+  <data name="AddStepsHint" xml:space="preserve">
+    <value>Αποθηκεύστε πρώτα τη διαδρομή για να προσθέσετε βήματα.</value>
+  </data>
+  <data name="AddStep" xml:space="preserve">
+    <value>Προσθήκη βήματος</value>
+  </data>
+  <data name="SelectCourse" xml:space="preserve">
+    <value>Επιλέξτε μάθημα…</value>
+  </data>
+  <data name="MoveUp" xml:space="preserve">
+    <value>Μετακίνηση επάνω</value>
+  </data>
+  <data name="MoveDown" xml:space="preserve">
+    <value>Μετακίνηση κάτω</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="SaveError" xml:space="preserve">
+    <value>Αποτυχία αποθήκευσης της μαθησιακής διαδρομής. Δοκιμάστε ξανά.</value>
+  </data>
+</root>

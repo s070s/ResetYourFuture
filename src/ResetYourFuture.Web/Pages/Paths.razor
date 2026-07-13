@@ -1,0 +1,44 @@
+@page "/paths"
+
+<PageTitle>@PathRes.PathsTitle</PageTitle>
+
+<h1>@PathRes.PathsTitle</h1>
+
+@if (_loading)
+{
+    <LoadingSpinner Label="@PathRes.Loading" />
+}
+else if (_paths.Count == 0)
+{
+    <p>@PathRes.NoPathsYet</p>
+}
+else
+{
+    <div class="paths-list">
+        @foreach (var path in _paths)
+        {
+            <div class="path-card" @key="path.Id" role="button" tabindex="0"
+                 @onclick="() => ViewPath(path.Id)"
+                 @onkeydown="@(e => { if (e.IsActivationKey()) ViewPath(path.Id); })">
+                <div class="path-card-header">
+                    <h3>@path.Title</h3>
+                    @if (path.CategoryName is not null)
+                    {
+                        <span class="category-chip">@path.CategoryName</span>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(path.Description))
+                {
+                    <p class="description">@path.Description</p>
+                }
+                <div class="meta">
+                    <span class="steps-count">@string.Format(PathRes.StepsCountFormat, path.StepCount)</span>
+                    @if (path.CompletedSteps > 0)
+                    {
+                        <span class="progress-badge">@string.Format(PathRes.ProgressFormat, path.CompletedSteps, path.StepCount)</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

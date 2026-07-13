@@ -1,0 +1,27 @@
+.step-list {
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.step-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+}
+
+.step-order {
+    font-weight: 600;
+    color: var(--text-light-muted);
+}
+
+.step-course-title {
+    color: var(--text-light-normal);
+}

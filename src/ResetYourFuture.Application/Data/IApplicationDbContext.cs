@@ -29,6 +29,8 @@ public interface IApplicationDbContext
     DbSet<AssistantContentChunk> AssistantContentChunks { get; }
     DbSet<Notification> Notifications { get; }
     DbSet<CourseReview> CourseReviews { get; }
+    DbSet<LearningPath> LearningPaths { get; }
+    DbSet<LearningPathStep> LearningPathSteps { get; }
 
     // Identity role tables used by ChatQueryService for role lookups
     DbSet<IdentityUserRole<string>> UserRoles { get; }

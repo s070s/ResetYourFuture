@@ -1,0 +1,111 @@
+.back-link {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--text-light-muted);
+    text-decoration: none;
+}
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+.path-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.description {
+    color: var(--text-light-normal);
+    max-width: 700px;
+    margin: 0.5rem 0 1.5rem;
+}
+
+.path-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.path-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+}
+
+    .path-step.step-next {
+        border-color: var(--text-accent);
+    }
+
+    .path-step.step-locked {
+        opacity: 0.6;
+    }
+
+.step-marker {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    background: var(--bg-info-subtle);
+    color: var(--text-accent);
+}
+
+    .step-completed .step-marker {
+        background: var(--color-success);
+        color: #fff;
+    }
+
+.step-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.step-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-title {
+    font-weight: 600;
+    color: var(--text-light-normal);
+}
+
+.step-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+    .badge-completed {
+        background: var(--bg-success-subtle, rgba(25, 135, 84, 0.15));
+        color: var(--color-success);
+    }
+
+    .badge-next {
+        background: var(--bg-info-subtle);
+        color: var(--text-accent);
+    }
+
+    .badge-locked {
+        background: var(--bg-warning-subtle);
+        color: var(--text-light-muted);
+    }

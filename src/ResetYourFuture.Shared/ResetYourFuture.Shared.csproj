@@ -212,6 +212,20 @@
       <DependentUpon>ReviewRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Path -->
+    <EmbeddedResource Update="Resources\PathRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PathRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\PathRes.el.resx">
+      <DependentUpon>PathRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\PathRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PathRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Search -->
     <EmbeddedResource Update="Resources\SearchRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

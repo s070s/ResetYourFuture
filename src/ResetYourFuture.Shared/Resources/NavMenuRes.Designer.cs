@@ -257,5 +257,14 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("CourseReviews", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Paths.
+        /// </summary>
+        public static string Paths {
+            get {
+                return ResourceManager.GetString("Paths", resourceCulture);
+            }
+        }
     }
 }

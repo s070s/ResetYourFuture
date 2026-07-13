@@ -1,0 +1,111 @@
+@page "/admin/paths/new"
+@page "/admin/paths/{Id:guid}"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@(_isEditMode ? PathRes.EditPath : PathRes.NewPath)</PageTitle>
+
+<div class="admin-container">
+    <h1 class="h2">@(_isEditMode ? PathRes.EditPath : PathRes.NewPath)</h1>
+
+    @if (_error is not null)
+    {
+        <div class="alert alert-danger">@_error</div>
+    }
+
+    <div class="row g-3" style="max-width: 700px;">
+        <div class="col-md-6">
+            <label class="form-label" for="p-titleen">@PathRes.FieldTitleEn <span class="text-danger" aria-hidden="true">*</span></label>
+            <input id="p-titleen" type="text" class="form-control" @bind="_titleEn" maxlength="200" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" for="p-titleel">@PathRes.FieldTitleEl</label>
+            <input id="p-titleel" type="text" class="form-control" @bind="_titleEl" maxlength="200" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" for="p-descen">@PathRes.FieldDescriptionEn</label>
+            <textarea id="p-descen" class="form-control" rows="3" maxlength="2000" @bind="_descriptionEn"></textarea>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" for="p-descel">@PathRes.FieldDescriptionEl</label>
+            <textarea id="p-descel" class="form-control" rows="3" maxlength="2000" @bind="_descriptionEl"></textarea>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label" for="p-category">@PathRes.FieldCategory</label>
+            <select id="p-category" class="form-select" value="@(_categoryId?.ToString() ?? "")" @onchange="OnCategoryChanged">
+                <option value="">@PathRes.NoCategory</option>
+                @foreach (var category in _categories)
+                {
+                    <option value="@category.Id">@category.NameEn</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label" for="p-order">@PathRes.FieldDisplayOrder</label>
+            <input id="p-order" type="number" class="form-control" @bind="_displayOrder" min="1" />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button class="btn btn-primary" @onclick="Save" disabled="@_isBusy">
+            @if (_isBusy)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            @PathRes.Save
+        </button>
+        <button class="btn btn-secondary" @onclick="Cancel" disabled="@_isBusy">@PathRes.Cancel</button>
+    </div>
+
+    <hr class="my-4" />
+
+    <h2 class="h4">@PathRes.StepsSectionTitle</h2>
+
+    @if (!_isEditMode)
+    {
+        <div class="alert alert-info py-2">@PathRes.AddStepsHint</div>
+    }
+    else
+    {
+        @if (_steps.Count == 0)
+        {
+            <p>@PathRes.NoStepsYet</p>
+        }
+        else
+        {
+            <ol class="step-list">
+                @foreach (var step in _steps)
+                {
+                    <li class="step-row" @key="step.Id">
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm btn-outline-secondary" title="@PathRes.MoveUp"
+                                    disabled="@(step.StepOrder == 1)"
+                                    @onclick="() => MoveStepUp(step.Id)">↑</button>
+                            <button class="btn btn-sm btn-outline-secondary" title="@PathRes.MoveDown"
+                                    disabled="@(step.StepOrder == _steps.Count)"
+                                    @onclick="() => MoveStepDown(step.Id)">↓</button>
+                        </div>
+                        <span class="step-order">@step.StepOrder.</span>
+                        <span class="step-course-title">@step.CourseTitle</span>
+                        <button class="btn btn-sm btn-outline-danger ms-auto" @onclick="() => RemoveStep(step.Id)">@PathRes.Remove</button>
+                    </li>
+                }
+            </ol>
+        }
+
+        <div class="d-flex gap-2 align-items-center mt-3" style="max-width:500px">
+            <select class="form-select" value="@(_selectedCourseIdToAdd?.ToString() ?? "")" @onchange="OnCourseToAddChanged">
+                <option value="">@PathRes.SelectCourse</option>
+                @foreach (var course in AvailableCoursesToAdd)
+                {
+                    <option value="@course.Id">@course.TitleEn</option>
+                }
+            </select>
+            <button class="btn btn-primary text-nowrap" disabled="@(_selectedCourseIdToAdd is null)" @onclick="AddStep">@PathRes.AddStep</button>
+        </div>
+    }
+</div>

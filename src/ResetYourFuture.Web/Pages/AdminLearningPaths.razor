@@ -1,0 +1,88 @@
+@page "/admin/paths"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@PathRes.AdminPageTitle</PageTitle>
+
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2">@PathRes.AdminPageTitle</h1>
+        <button class="btn btn-primary text-nowrap" @onclick="NewPath">@PathRes.NewPath</button>
+    </div>
+
+    @if (pagedResult == null)
+    {
+        <LoadingSpinner Label="@PathRes.Loading" />
+    }
+    else if (!pagedResult.Items.Any())
+    {
+        <p>@PathRes.NoPathsFound</p>
+    }
+    else
+    {
+        <ScrollableTable Items="pagedResult.Items" TItem="AdminLearningPathDto">
+            <HeaderRow>
+                <tr>
+                    <SortableColumnHeader ColumnKey="displayorder" Label="@PathRes.ColOrder"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <SortableColumnHeader ColumnKey="titleen" Label="@PathRes.ColTitle"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@PathRes.ColCategory</th>
+                    <th>@PathRes.ColSteps</th>
+                    <SortableColumnHeader ColumnKey="ispublished" Label="@PathRes.ColStatus"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@PathRes.ColActions</th>
+                </tr>
+            </HeaderRow>
+            <RowTemplate Context="path">
+                <tr @key="path.Id">
+                    <td data-label="@PathRes.ColOrder">@path.DisplayOrder</td>
+                    <td data-label="@PathRes.ColTitle">@path.TitleEn</td>
+                    <td data-label="@PathRes.ColCategory">@(path.CategoryName ?? "—")</td>
+                    <td data-label="@PathRes.ColSteps">@path.StepCount</td>
+                    <td data-label="@PathRes.ColStatus">
+                        <StatusBadge IsActive="path.IsPublished"
+                                     ActiveText="@PathRes.StatusPublished"
+                                     InactiveText="@PathRes.StatusDraft" />
+                    </td>
+                    <td data-label="@PathRes.ColActions">
+                        <button class="btn btn-sm btn-primary me-1" @onclick="() => EditPath(path.Id)">@PathRes.Edit</button>
+                        @if (path.IsPublished)
+                        {
+                            <button class="btn btn-sm btn-warning me-1" @onclick="() => Unpublish(path.Id)">@PathRes.Unpublish</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => Publish(path.Id)">@PathRes.Publish</button>
+                        }
+                        @if (confirmDeleteId == path.Id)
+                        {
+                            <button class="btn btn-sm btn-danger me-1" @onclick="() => DeletePath(path.Id)">@PathRes.ConfirmDelete</button>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@PathRes.Cancel</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => confirmDeleteId = path.Id">@PathRes.Delete</button>
+                        }
+                    </td>
+                </tr>
+            </RowTemplate>
+        </ScrollableTable>
+
+        <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                TotalPages="pagedResult.TotalPages"
+                                TotalCount="pagedResult.TotalCount"
+                                PageSize="pagedResult.PageSize"
+                                HasPreviousPage="pagedResult.HasPreviousPage"
+                                HasNextPage="pagedResult.HasNextPage"
+                                PageSizeOptions="PageSizeOptions"
+                                ItemLabel="paths"
+                                OnPageSizeChanged="OnPageSizeChanged"
+                                OnPreviousPage="PreviousPage"
+                                OnNextPage="NextPage" />
+    }
+
+    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
+</div>

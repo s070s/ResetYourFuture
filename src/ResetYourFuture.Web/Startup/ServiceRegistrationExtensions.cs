@@ -60,6 +60,7 @@ public static class ServiceRegistrationExtensions
         // impl) regardless of Assistant:Enabled — see the Disabled branch below.
         builder.Services.AddScoped<ISiteSearchService, SiteSearchService>();
         builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
+        builder.Services.AddScoped<ILearningPathService, LearningPathService>();
         // Web-layer dispatcher (needs IHubContext<NotificationHub>) so Application/Infrastructure
         // services can raise notifications through the framework-agnostic INotificationDispatcher.
         builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -280,6 +281,10 @@ public static class ServiceRegistrationExtensions
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<ISearchConsumer, SearchConsumer>(c => c.BaseAddress = new Uri(selfBase));
         builder.Services.AddHttpClient<IAdminCourseReviewConsumer, AdminCourseReviewConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<IPathConsumer, PathConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<IAdminLearningPathConsumer, AdminLearningPathConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
     }
 }

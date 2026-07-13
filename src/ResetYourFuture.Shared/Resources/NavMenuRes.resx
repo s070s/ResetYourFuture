@@ -183,4 +183,7 @@
   <data name="CourseReviews" xml:space="preserve">
     <value>Reviews</value>
   </data>
+  <data name="Paths" xml:space="preserve">
+    <value>Paths</value>
+  </data>
 </root>

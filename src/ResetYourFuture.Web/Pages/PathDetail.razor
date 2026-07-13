@@ -1,0 +1,67 @@
+@page "/paths/{Id:guid}"
+
+<PageTitle>@(_path?.Title ?? PathRes.PathsTitle)</PageTitle>
+
+@if (_loading)
+{
+    <LoadingSpinner Label="@PathRes.Loading" />
+}
+else if (_path is null)
+{
+    <p>@PathRes.PathNotFound</p>
+    <a class="btn btn-secondary" href="/paths">@PathRes.BackToPaths</a>
+}
+else
+{
+    <a class="back-link" href="/paths">&larr; @PathRes.BackToPaths</a>
+
+    <div class="path-detail-header">
+        <h1>@_path.Title</h1>
+        @if (_path.CategoryName is not null)
+        {
+            <span class="category-chip">@_path.CategoryName</span>
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(_path.Description))
+    {
+        <p class="description">@_path.Description</p>
+    }
+
+    <AuthorizeView>
+        <NotAuthorized>
+            <div class="alert alert-info">@PathRes.SignInToTrackProgress</div>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <ol class="path-steps">
+        @foreach (var step in _path.Steps)
+        {
+            <li class="path-step @(step.IsCompleted ? "step-completed" : "") @(step.IsLocked ? "step-locked" : "") @(step.IsNext ? "step-next" : "")"
+                @key="step.CourseId">
+                <div class="step-marker">@step.StepOrder</div>
+                <div class="step-body">
+                    <div class="step-title-row">
+                        <span class="step-title">@step.CourseTitle</span>
+                        @if (step.IsCompleted)
+                        {
+                            <span class="step-badge badge-completed">@PathRes.StepCompleted</span>
+                        }
+                        else if (step.IsNext)
+                        {
+                            <span class="step-badge badge-next">@PathRes.StepNext</span>
+                        }
+                        else if (step.IsLocked)
+                        {
+                            <span class="step-badge badge-locked">@PathRes.StepLocked</span>
+                        }
+                    </div>
+                    @if (!step.IsLocked)
+                    {
+                        <a class="btn btn-sm btn-outline-primary" href="@($"/courses/{step.CourseId}")">@PathRes.GoToCourse</a>
+                    }
+                </div>
+            </li>
+        }
+    </ol>
+}

@@ -63,6 +63,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     // --- Course Reviews ---
     public DbSet<CourseReview> CourseReviews => Set<CourseReview>();
 
+    // --- Learning Paths ---
+    public DbSet<LearningPath> LearningPaths => Set<LearningPath>();
+    public DbSet<LearningPathStep> LearningPathSteps => Set<LearningPathStep>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;
@@ -133,6 +137,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         builder.Entity<LessonCompletion>()
             .HasQueryFilter(lc => !lc.Lesson.IsDeleted);
+
+        builder.Entity<LearningPathStep>()
+            .HasQueryFilter(s => !s.Course!.IsDeleted);
     }
 
     // ---------------------------------------------------------------------------

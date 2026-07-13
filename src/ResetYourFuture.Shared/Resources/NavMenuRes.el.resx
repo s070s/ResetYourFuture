@@ -183,4 +183,7 @@
   <data name="CourseReviews" xml:space="preserve">
     <value>Κριτικές</value>
   </data>
+  <data name="Paths" xml:space="preserve">
+    <value>Διαδρομές</value>
+  </data>
 </root>
