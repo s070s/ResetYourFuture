@@ -158,7 +158,25 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Label_GdprConsent", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to By registering, you agree to our.
+        /// </summary>
+        public static string ConsentPolicyIntro {
+            get {
+                return ResourceManager.GetString("ConsentPolicyIntro", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to and our.
+        /// </summary>
+        public static string ConsentPolicyAnd {
+            get {
+                return ResourceManager.GetString("ConsentPolicyAnd", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Date of Birth.
         /// </summary>

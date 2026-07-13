@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>Last updated: July 2026</value>
+  </data>
+  <data name="EducationalNoticeTitle" xml:space="preserve">
+    <value>Educational project</value>
+  </data>
+  <data name="EducationalNotice" xml:space="preserve">
+    <value>Reset Your Future is a university certificate project. The policies below are written to reflect how the platform actually handles data, but it is not a commercial service and these pages are not legal advice.</value>
+  </data>
+  <data name="PrivacyTitle" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>Reset Your Future is an online career-counselling and e-learning platform. This policy explains what personal data we collect when you use it, why we process that data, how long we keep it, and the rights you have over it. Reset Your Future is a university certificate project built for educational purposes; it is not a commercial service, and you should not enter real crisis details or highly sensitive personal information into it.</value>
+  </data>
+  <data name="PrivacyDataTitle" xml:space="preserve">
+    <value>What data we collect</value>
+  </data>
+  <data name="PrivacyDataBody" xml:space="preserve">
+    <value>When you create an account we store your name, email address, date of birth and, optionally, a profile picture. As you use the platform we also store your course enrolments and progress, your assessment answers and results, any certificates you earn, your subscription and billing history, and the messages and calls you exchange through the built-in chat and video features. We record the date you gave consent and technical audit information such as who created or last changed a record.</value>
+  </data>
+  <data name="PrivacyPurposeTitle" xml:space="preserve">
+    <value>Why we process your data</value>
+  </data>
+  <data name="PrivacyPurposeBody" xml:space="preserve">
+    <value>We process your data to give you access to your account, deliver the courses and assessments you sign up for, show your progress and certificates, run the chat and video features, and manage subscriptions. The lawful basis is the performance of our agreement with you and, for the assessment answers described below, your explicit consent.</value>
+  </data>
+  <data name="PrivacySpecialTitle" xml:space="preserve">
+    <value>Assessment (special-category) data</value>
+  </data>
+  <data name="PrivacySpecialBody" xml:space="preserve">
+    <value>Some assessments ask about your wellbeing, motivation and personal circumstances. These answers may reveal information that data-protection law treats as special-category data. We only process them to generate your assessment results and guidance, and we ask for your consent when you register. Please do not use the assessments or the AI assistant to report an emergency or a crisis — they are educational tools, not a substitute for professional or medical advice.</value>
+  </data>
+  <data name="PrivacyRetentionTitle" xml:space="preserve">
+    <value>How long we keep your data</value>
+  </data>
+  <data name="PrivacyRetentionBody" xml:space="preserve">
+    <value>We keep your account data for as long as your account exists. If you ask us to delete your account, we remove your personal data together with the dependent records (chat, calls, enrolments and certificates) tied to it. Because this is an educational project, the database may also be reset periodically.</value>
+  </data>
+  <data name="PrivacyRightsTitle" xml:space="preserve">
+    <value>Your rights</value>
+  </data>
+  <data name="PrivacyRightsBody" xml:space="preserve">
+    <value>You have the right to access the personal data we hold about you, to correct it, to ask us to delete it, and to withdraw your consent at any time. You can update most of your details from your profile page, and you can request deletion of your account. As this is a student project rather than a live service, requests are handled on a best-effort basis.</value>
+  </data>
+  <data name="PrivacyCookiesTitle" xml:space="preserve">
+    <value>Cookies</value>
+  </data>
+  <data name="PrivacyCookiesBody" xml:space="preserve">
+    <value>We use only essential cookies: one to keep you signed in, one to remember an administrator's impersonation session, and one to remember your language choice. We do not use analytics, advertising or third-party tracking cookies.</value>
+  </data>
+  <data name="PrivacyContactTitle" xml:space="preserve">
+    <value>Contact and changes</value>
+  </data>
+  <data name="PrivacyContactBody" xml:space="preserve">
+    <value>We may update this policy as the platform evolves; the date above shows when it last changed. As an educational project there is no dedicated data-protection office — questions can be raised through the project's public channels linked in the footer.</value>
+  </data>
+  <data name="TermsTitle" xml:space="preserve">
+    <value>Terms of Service</value>
+  </data>
+  <data name="TermsIntro" xml:space="preserve">
+    <value>These terms govern your use of Reset Your Future. By creating an account or using the platform you agree to them. Reset Your Future is a university certificate project provided for educational purposes and free of charge.</value>
+  </data>
+  <data name="TermsServiceTitle" xml:space="preserve">
+    <value>The service</value>
+  </data>
+  <data name="TermsServiceBody" xml:space="preserve">
+    <value>Reset Your Future offers online courses, career and wellbeing assessments, certificates, and chat and video features. Because it is a student project, features may change, break, or be reset without notice, and availability is not guaranteed.</value>
+  </data>
+  <data name="TermsAccountsTitle" xml:space="preserve">
+    <value>Your account</value>
+  </data>
+  <data name="TermsAccountsBody" xml:space="preserve">
+    <value>You are responsible for the accuracy of the details you provide and for keeping your password secure. You must be old enough under your local law to consent to using an online service; where a parent or guardian's consent is required, you confirm you have it.</value>
+  </data>
+  <data name="TermsAcceptableTitle" xml:space="preserve">
+    <value>Acceptable use</value>
+  </data>
+  <data name="TermsAcceptableBody" xml:space="preserve">
+    <value>You agree not to misuse the platform: no unlawful, harmful or abusive behaviour, no attempts to access other users' data or to disrupt the service, and no uploading of content you have no right to share. We may suspend accounts that break these rules.</value>
+  </data>
+  <data name="TermsContentTitle" xml:space="preserve">
+    <value>Content and intellectual property</value>
+  </data>
+  <data name="TermsContentBody" xml:space="preserve">
+    <value>Course materials, text and branding on the platform belong to their respective owners and are provided for your personal, educational use only. Content you submit — such as profile details and assessment answers — remains yours; you grant us permission to process it to provide the service as described in the Privacy Policy.</value>
+  </data>
+  <data name="TermsAssessmentsTitle" xml:space="preserve">
+    <value>Assessments and AI assistant</value>
+  </data>
+  <data name="TermsAssessmentsBody" xml:space="preserve">
+    <value>The assessments and the AI assistant provide general, automated guidance for learning purposes. They are not professional, medical, psychological, legal or financial advice, and you should not rely on them for important decisions or in an emergency. Always seek a qualified professional where appropriate.</value>
+  </data>
+  <data name="TermsDisclaimerTitle" xml:space="preserve">
+    <value>Disclaimers and liability</value>
+  </data>
+  <data name="TermsDisclaimerBody" xml:space="preserve">
+    <value>The platform is provided "as is", without warranties of any kind. As an educational project offered free of charge, we are not liable for any loss arising from its use, to the extent permitted by law.</value>
+  </data>
+  <data name="TermsChangesTitle" xml:space="preserve">
+    <value>Changes and contact</value>
+  </data>
+  <data name="TermsChangesBody" xml:space="preserve">
+    <value>We may update these terms as the project develops; the date above shows when they last changed. Continued use after a change means you accept the updated terms. Questions can be raised through the project's public channels linked in the footer.</value>
+  </data>
+</root>

@@ -102,6 +102,12 @@
             <label for="gdprConsent" class="form-check-label">
                 @GlobalRes.Label_GdprConsent
             </label>
+            <div class="form-text">
+                @GlobalRes.ConsentPolicyIntro
+                <a href="/privacy" target="_blank" rel="noopener">@LegalRes.PrivacyTitle</a>
+                @GlobalRes.ConsentPolicyAnd
+                <a href="/terms" target="_blank" rel="noopener">@LegalRes.TermsTitle</a>.
+            </div>
             <ValidationMessage For="@(() => registerRequest.GdprConsent)" />
         </div>
 

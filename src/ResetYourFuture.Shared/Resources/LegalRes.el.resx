@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="LastUpdated" xml:space="preserve">
+    <value>Τελευταία ενημέρωση: Ιούλιος 2026</value>
+  </data>
+  <data name="EducationalNoticeTitle" xml:space="preserve">
+    <value>Εκπαιδευτικό έργο</value>
+  </data>
+  <data name="EducationalNotice" xml:space="preserve">
+    <value>Το Reset Your Future είναι μια πανεπιστημιακή εργασία πιστοποίησης. Οι παρακάτω πολιτικές αντικατοπτρίζουν τον τρόπο με τον οποίο η πλατφόρμα διαχειρίζεται πραγματικά τα δεδομένα, αλλά δεν πρόκειται για εμπορική υπηρεσία και οι σελίδες αυτές δεν αποτελούν νομική συμβουλή.</value>
+  </data>
+  <data name="PrivacyTitle" xml:space="preserve">
+    <value>Πολιτική Απορρήτου</value>
+  </data>
+  <data name="PrivacyIntro" xml:space="preserve">
+    <value>Το Reset Your Future είναι μια διαδικτυακή πλατφόρμα επαγγελματικού προσανατολισμού και ηλεκτρονικής μάθησης. Η παρούσα πολιτική εξηγεί ποια προσωπικά δεδομένα συλλέγουμε όταν τη χρησιμοποιείτε, γιατί τα επεξεργαζόμαστε, για πόσο καιρό τα διατηρούμε και ποια δικαιώματα έχετε επ' αυτών. Το Reset Your Future είναι μια πανεπιστημιακή εργασία πιστοποίησης που δημιουργήθηκε για εκπαιδευτικούς σκοπούς· δεν είναι εμπορική υπηρεσία και δεν θα πρέπει να καταχωρείτε πραγματικά στοιχεία κρίσης ή ιδιαίτερα ευαίσθητες προσωπικές πληροφορίες.</value>
+  </data>
+  <data name="PrivacyDataTitle" xml:space="preserve">
+    <value>Ποια δεδομένα συλλέγουμε</value>
+  </data>
+  <data name="PrivacyDataBody" xml:space="preserve">
+    <value>Όταν δημιουργείτε λογαριασμό, αποθηκεύουμε το όνομά σας, τη διεύθυνση email, την ημερομηνία γέννησης και, προαιρετικά, μια εικόνα προφίλ. Καθώς χρησιμοποιείτε την πλατφόρμα, αποθηκεύουμε επίσης τις εγγραφές σας σε μαθήματα και την πρόοδό σας, τις απαντήσεις και τα αποτελέσματα των αξιολογήσεών σας, τυχόν πιστοποιητικά που κερδίζετε, το ιστορικό συνδρομών και χρεώσεων, καθώς και τα μηνύματα και τις κλήσεις που ανταλλάσσετε μέσω των ενσωματωμένων λειτουργιών συνομιλίας και βίντεο. Καταγράφουμε την ημερομηνία που δώσατε τη συγκατάθεσή σας, καθώς και τεχνικές πληροφορίες ελέγχου, όπως ποιος δημιούργησε ή τροποποίησε τελευταίος μια εγγραφή.</value>
+  </data>
+  <data name="PrivacyPurposeTitle" xml:space="preserve">
+    <value>Γιατί επεξεργαζόμαστε τα δεδομένα σας</value>
+  </data>
+  <data name="PrivacyPurposeBody" xml:space="preserve">
+    <value>Επεξεργαζόμαστε τα δεδομένα σας για να σας παρέχουμε πρόσβαση στον λογαριασμό σας, να προσφέρουμε τα μαθήματα και τις αξιολογήσεις στα οποία εγγράφεστε, να εμφανίζουμε την πρόοδο και τα πιστοποιητικά σας, να λειτουργούμε τις υπηρεσίες συνομιλίας και βίντεο και να διαχειριζόμαστε τις συνδρομές. Η νομική βάση είναι η εκτέλεση της συμφωνίας μας μαζί σας και, για τις απαντήσεις των αξιολογήσεων που περιγράφονται παρακάτω, η ρητή συγκατάθεσή σας.</value>
+  </data>
+  <data name="PrivacySpecialTitle" xml:space="preserve">
+    <value>Δεδομένα αξιολογήσεων (ειδικής κατηγορίας)</value>
+  </data>
+  <data name="PrivacySpecialBody" xml:space="preserve">
+    <value>Ορισμένες αξιολογήσεις θέτουν ερωτήσεις σχετικά με την ευημερία, τα κίνητρα και τις προσωπικές σας συνθήκες. Οι απαντήσεις αυτές ενδέχεται να αποκαλύπτουν πληροφορίες που η νομοθεσία για την προστασία δεδομένων αντιμετωπίζει ως δεδομένα ειδικής κατηγορίας. Τις επεξεργαζόμαστε αποκλειστικά για να δημιουργήσουμε τα αποτελέσματα και την καθοδήγηση της αξιολόγησής σας και ζητάμε τη συγκατάθεσή σας κατά την εγγραφή. Παρακαλούμε μη χρησιμοποιείτε τις αξιολογήσεις ή τον βοηθό τεχνητής νοημοσύνης για να αναφέρετε επείγον περιστατικό ή κατάσταση κρίσης — είναι εκπαιδευτικά εργαλεία και όχι υποκατάστατο επαγγελματικής ή ιατρικής συμβουλής.</value>
+  </data>
+  <data name="PrivacyRetentionTitle" xml:space="preserve">
+    <value>Για πόσο διατηρούμε τα δεδομένα σας</value>
+  </data>
+  <data name="PrivacyRetentionBody" xml:space="preserve">
+    <value>Διατηρούμε τα δεδομένα του λογαριασμού σας για όσο διάστημα υπάρχει ο λογαριασμός σας. Εάν μας ζητήσετε να διαγράψουμε τον λογαριασμό σας, αφαιρούμε τα προσωπικά σας δεδομένα μαζί με τις εξαρτώμενες εγγραφές (συνομιλίες, κλήσεις, εγγραφές σε μαθήματα και πιστοποιητικά) που συνδέονται με αυτόν. Επειδή πρόκειται για εκπαιδευτικό έργο, η βάση δεδομένων ενδέχεται επίσης να επαναφέρεται περιοδικά.</value>
+  </data>
+  <data name="PrivacyRightsTitle" xml:space="preserve">
+    <value>Τα δικαιώματά σας</value>
+  </data>
+  <data name="PrivacyRightsBody" xml:space="preserve">
+    <value>Έχετε το δικαίωμα να αποκτήσετε πρόσβαση στα προσωπικά δεδομένα που τηρούμε για εσάς, να τα διορθώσετε, να ζητήσετε τη διαγραφή τους και να ανακαλέσετε τη συγκατάθεσή σας ανά πάσα στιγμή. Μπορείτε να ενημερώσετε τα περισσότερα στοιχεία σας από τη σελίδα του προφίλ σας και να ζητήσετε τη διαγραφή του λογαριασμού σας. Καθώς πρόκειται για φοιτητική εργασία και όχι για ζωντανή υπηρεσία, τα αιτήματα διεκπεραιώνονται με τη μέγιστη δυνατή προσπάθεια.</value>
+  </data>
+  <data name="PrivacyCookiesTitle" xml:space="preserve">
+    <value>Cookies</value>
+  </data>
+  <data name="PrivacyCookiesBody" xml:space="preserve">
+    <value>Χρησιμοποιούμε μόνο απαραίτητα cookies: ένα για να παραμένετε συνδεδεμένοι, ένα για να θυμόμαστε τη συνεδρία υποκατάστασης ενός διαχειριστή και ένα για να θυμόμαστε την επιλογή γλώσσας σας. Δεν χρησιμοποιούμε cookies ανάλυσης, διαφήμισης ή παρακολούθησης τρίτων.</value>
+  </data>
+  <data name="PrivacyContactTitle" xml:space="preserve">
+    <value>Επικοινωνία και αλλαγές</value>
+  </data>
+  <data name="PrivacyContactBody" xml:space="preserve">
+    <value>Ενδέχεται να επικαιροποιήσουμε την παρούσα πολιτική καθώς η πλατφόρμα εξελίσσεται· η παραπάνω ημερομηνία δείχνει πότε άλλαξε τελευταία φορά. Ως εκπαιδευτικό έργο, δεν διαθέτει ειδικό γραφείο προστασίας δεδομένων — ερωτήσεις μπορούν να υποβληθούν μέσω των δημόσιων καναλιών του έργου που συνδέονται στο υποσέλιδο.</value>
+  </data>
+  <data name="TermsTitle" xml:space="preserve">
+    <value>Όροι Χρήσης</value>
+  </data>
+  <data name="TermsIntro" xml:space="preserve">
+    <value>Οι παρόντες όροι διέπουν τη χρήση του Reset Your Future. Δημιουργώντας λογαριασμό ή χρησιμοποιώντας την πλατφόρμα, τους αποδέχεστε. Το Reset Your Future είναι μια πανεπιστημιακή εργασία πιστοποίησης που παρέχεται για εκπαιδευτικούς σκοπούς και δωρεάν.</value>
+  </data>
+  <data name="TermsServiceTitle" xml:space="preserve">
+    <value>Η υπηρεσία</value>
+  </data>
+  <data name="TermsServiceBody" xml:space="preserve">
+    <value>Το Reset Your Future προσφέρει διαδικτυακά μαθήματα, αξιολογήσεις επαγγελματικού προσανατολισμού και ευημερίας, πιστοποιητικά, καθώς και λειτουργίες συνομιλίας και βίντεο. Επειδή πρόκειται για φοιτητική εργασία, οι λειτουργίες ενδέχεται να αλλάξουν, να παρουσιάσουν προβλήματα ή να επαναφερθούν χωρίς προειδοποίηση, και η διαθεσιμότητα δεν είναι εγγυημένη.</value>
+  </data>
+  <data name="TermsAccountsTitle" xml:space="preserve">
+    <value>Ο λογαριασμός σας</value>
+  </data>
+  <data name="TermsAccountsBody" xml:space="preserve">
+    <value>Είστε υπεύθυνοι για την ακρίβεια των στοιχείων που παρέχετε και για την ασφάλεια του κωδικού πρόσβασής σας. Πρέπει να έχετε την ηλικία που απαιτεί η τοπική σας νομοθεσία για να συναινέσετε στη χρήση μιας διαδικτυακής υπηρεσίας· όπου απαιτείται η συγκατάθεση γονέα ή κηδεμόνα, βεβαιώνετε ότι τη διαθέτετε.</value>
+  </data>
+  <data name="TermsAcceptableTitle" xml:space="preserve">
+    <value>Αποδεκτή χρήση</value>
+  </data>
+  <data name="TermsAcceptableBody" xml:space="preserve">
+    <value>Συμφωνείτε να μην κάνετε κατάχρηση της πλατφόρμας: καμία παράνομη, επιβλαβής ή προσβλητική συμπεριφορά, καμία απόπειρα πρόσβασης στα δεδομένα άλλων χρηστών ή διατάραξης της υπηρεσίας, και καμία μεταφόρτωση περιεχομένου που δεν έχετε δικαίωμα να κοινοποιήσετε. Ενδέχεται να αναστείλουμε λογαριασμούς που παραβιάζουν τους κανόνες αυτούς.</value>
+  </data>
+  <data name="TermsContentTitle" xml:space="preserve">
+    <value>Περιεχόμενο και πνευματική ιδιοκτησία</value>
+  </data>
+  <data name="TermsContentBody" xml:space="preserve">
+    <value>Το εκπαιδευτικό υλικό, τα κείμενα και η επωνυμία της πλατφόρμας ανήκουν στους αντίστοιχους δικαιούχους και παρέχονται αποκλειστικά για προσωπική, εκπαιδευτική χρήση. Το περιεχόμενο που υποβάλλετε — όπως στοιχεία προφίλ και απαντήσεις αξιολογήσεων — παραμένει δικό σας· μας παραχωρείτε την άδεια να το επεξεργαστούμε για την παροχή της υπηρεσίας, όπως περιγράφεται στην Πολιτική Απορρήτου.</value>
+  </data>
+  <data name="TermsAssessmentsTitle" xml:space="preserve">
+    <value>Αξιολογήσεις και βοηθός τεχνητής νοημοσύνης</value>
+  </data>
+  <data name="TermsAssessmentsBody" xml:space="preserve">
+    <value>Οι αξιολογήσεις και ο βοηθός τεχνητής νοημοσύνης παρέχουν γενική, αυτοματοποιημένη καθοδήγηση για εκπαιδευτικούς σκοπούς. Δεν αποτελούν επαγγελματική, ιατρική, ψυχολογική, νομική ή οικονομική συμβουλή και δεν θα πρέπει να βασίζεστε σε αυτά για σημαντικές αποφάσεις ή σε περίπτωση έκτακτης ανάγκης. Απευθυνθείτε πάντα σε εξειδικευμένο επαγγελματία όπου κρίνεται απαραίτητο.</value>
+  </data>
+  <data name="TermsDisclaimerTitle" xml:space="preserve">
+    <value>Αποποίηση ευθύνης</value>
+  </data>
+  <data name="TermsDisclaimerBody" xml:space="preserve">
+    <value>Η πλατφόρμα παρέχεται «ως έχει», χωρίς εγγυήσεις οποιουδήποτε είδους. Ως εκπαιδευτικό έργο που προσφέρεται δωρεάν, δεν φέρουμε ευθύνη για οποιαδήποτε ζημία προκύψει από τη χρήση της, στον βαθμό που επιτρέπεται από τον νόμο.</value>
+  </data>
+  <data name="TermsChangesTitle" xml:space="preserve">
+    <value>Αλλαγές και επικοινωνία</value>
+  </data>
+  <data name="TermsChangesBody" xml:space="preserve">
+    <value>Ενδέχεται να επικαιροποιήσουμε τους παρόντες όρους καθώς το έργο εξελίσσεται· η παραπάνω ημερομηνία δείχνει πότε άλλαξαν τελευταία φορά. Η συνέχιση της χρήσης μετά από μια αλλαγή σημαίνει ότι αποδέχεστε τους επικαιροποιημένους όρους. Ερωτήσεις μπορούν να υποβληθούν μέσω των δημόσιων καναλιών του έργου που συνδέονται στο υποσέλιδο.</value>
+  </data>
+</root>

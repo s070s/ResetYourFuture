@@ -657,3 +657,84 @@ input[type="date"].form-control:focus {
     background: var(--bg-neutral-subtle);
     color: var(--text-accent);
 }
+
+/* ================================================
+   Legal pages — Privacy Policy and Terms of Service.
+   Shared prose layout owned by /privacy and /terms.
+   ================================================ */
+.legal-page {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: var(--space-6) var(--space-4);
+}
+
+.legal-header {
+    margin-bottom: var(--space-5);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.legal-header h1 {
+    color: var(--text-strong-normal);
+    margin: 0 0 var(--space-2);
+}
+
+.legal-updated {
+    color: var(--text-light-muted);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.legal-notice {
+    background: var(--bg-info-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-bottom: var(--space-5);
+    color: var(--text-light-normal);
+}
+
+.legal-notice strong {
+    color: var(--text-accent);
+}
+
+.legal-intro {
+    color: var(--text-light-normal);
+    font-size: 1.05rem;
+    margin-bottom: var(--space-5);
+}
+
+.legal-content section {
+    margin-bottom: var(--space-5);
+}
+
+.legal-content section h2 {
+    color: var(--text-accent);
+    font-size: 1.25rem;
+    margin: 0 0 var(--space-3);
+}
+
+.legal-content section p {
+    color: var(--text-light-normal);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.legal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.legal-footer a {
+    color: var(--text-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.legal-footer a:hover {
+    text-decoration: underline;
+}

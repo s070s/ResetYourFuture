@@ -627,6 +627,25 @@
     text-align: center;
 }
 
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: var(--text-light-normal);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: var(--text-accent);
+    text-decoration: underline;
+}
+
 .footer-bottom p {
     color: var(--text-light-normal);
     font-size: 0.875rem;

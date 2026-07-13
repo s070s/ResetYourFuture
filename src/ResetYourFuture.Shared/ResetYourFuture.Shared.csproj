@@ -128,6 +128,20 @@
       <DependentUpon>ErrorMessagesRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Legal -->
+    <EmbeddedResource Update="Resources\LegalRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LegalRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\LegalRes.el.resx">
+      <DependentUpon>LegalRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\LegalRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LegalRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Global -->
     <EmbeddedResource Update="Resources\GlobalRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

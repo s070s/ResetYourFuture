@@ -18,19 +18,16 @@ NOT examined: contractual DPA/processor agreements and jurisdiction-specific obl
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 2 |
+| High | 1 |
 | Medium | 3 |
 | Low | 2 |
 | Info | 1 |
 
-The project shows GDPR *awareness* — registration requires explicit `GdprConsent` (validated true via `[Range(typeof(bool),"true","true")]`), consent date is captured, an under-18 branch and a `ParentalConsentGiven` flag exist, cookies in use are functional/essential (no analytics or marketing trackers), and the admin delete is labelled a GDPR action. But awareness outpaces implementation: there is no privacy policy or terms page for the consent to point at, no data-access/portability export, erasure is incomplete and technically blocked, sensitive psychosocial assessment answers are stored in plaintext with no special-category handling, and there is no retention policy or purge. For a university certificate project these are appropriately mid-severity, but two would be blocking on any real deployment handling real people's data.
+The project shows GDPR *awareness* — registration requires explicit `GdprConsent` (validated true via `[Range(typeof(bool),"true","true")]`), consent date is captured, an under-18 branch and a `ParentalConsentGiven` flag exist, cookies in use are functional/essential (no analytics or marketing trackers), and the admin delete is labelled a GDPR action. But awareness outpaces implementation: there is now a bilingual privacy/terms notice for the consent to point at (COMP-1, fixed), but there is still no data-access/portability export, erasure is incomplete and technically blocked, sensitive psychosocial assessment answers are stored in plaintext with no special-category handling, and there is no retention policy or purge. For a university certificate project these are appropriately mid-severity, but one would be blocking on any real deployment handling real people's data.
+
+> **Fixed since audit:** COMP-1 (High — consent captured against no policy) — added bilingual `/privacy` (Privacy Policy) and `/terms` (Terms of Service) pages backed by a new `LegalRes` resource set (EN + EL, hand-edited Designer), reflecting the COMP-8 data inventory, the special-category assessment handling, retention, rights, and essential-cookies posture. The registration consent checkbox now carries a help line — "By registering, you agree to our Privacy Policy and our Terms of Service" — linking both pages, and the public landing footer links them too. Verified live in EN and EL. The pages are honest about being a non-commercial university project and note they are not legal advice.
 
 ## 3. Findings
-
-### COMP-1: No privacy policy or terms page — consent is captured against nothing  [High] [Effort: M]
-- **Evidence:** `Web/Pages/Register.razor:101-105` renders a `GdprConsent` checkbox with label `GlobalRes.Label_GdprConsent`, but a repo-wide search for privacy/terms/cookie/consent UI found only this checkbox — there is no `/privacy`, `/terms`, or cookie-notice page, and the label does not link to a policy.
-- **Impact:** GDPR/e-Privacy require that consent be informed — the data subject must be told what is collected, the lawful basis, retention, and their rights, before consenting. A bare "I consent" checkbox with no linked policy is not valid informed consent. On any real deployment this undermines the lawful basis for all processing.
-- **Recommendation:** Add published Privacy Policy and Terms pages (bilingual, matching the en-GB/el-GR support) covering the data inventory below, and link them from the registration consent label and the footer.
 
 ### COMP-2: Sensitive psychosocial data stored in plaintext with no special-category handling  [High] [Effort: L]
 - **Evidence:** `Domain/Entities/AssessmentSubmission.cs` stores `AnswersJson`/`SummaryJson` for a "psychosocial career counseling platform" (`AssistantService.cs:138` describes the platform); persisted verbatim by `AssessmentService.SubmitAssessmentAsync:134-145`. No encryption-at-rest, access logging, or GDPR Art. 9 special-category classification exists. The assistant system prompt itself acknowledges users may describe "a crisis or serious distress" (`AssistantService.cs:141`).
@@ -71,7 +68,6 @@ The project shows GDPR *awareness* — registration requires explicit `GdprConse
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| COMP-1 | High | M | Publish bilingual Privacy Policy + Terms; link from consent + footer |
 | COMP-2 | High | L | Classify/encrypt assessment answers as special-category; explicit consent + access controls |
 | COMP-3 | Medium | M | Implement complete, reliable erasure (anonymise + dependent cleanup) + user request path |
 | COMP-4 | Medium | M | Add "download my data" export (access/portability) |

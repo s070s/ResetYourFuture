@@ -186,6 +186,12 @@
   <data name="Label_GdprConsent" xml:space="preserve">
     <value>Συγκατατίθεμαι στην επεξεργασία των προσωπικών μου δεδομένων (απαιτείται).</value>
   </data>
+  <data name="ConsentPolicyIntro" xml:space="preserve">
+    <value>Με την εγγραφή σας, συμφωνείτε με την</value>
+  </data>
+  <data name="ConsentPolicyAnd" xml:space="preserve">
+    <value>και τους</value>
+  </data>
   <data name="Label_Registering" xml:space="preserve">
     <value>Εγγραφή...</value>
   </data>

@@ -186,6 +186,12 @@
   <data name="Label_GdprConsent" xml:space="preserve">
     <value>I consent to the processing of my personal data (required).</value>
   </data>
+  <data name="ConsentPolicyIntro" xml:space="preserve">
+    <value>By registering, you agree to our</value>
+  </data>
+  <data name="ConsentPolicyAnd" xml:space="preserve">
+    <value>and our</value>
+  </data>
   <data name="Label_Registering" xml:space="preserve">
     <value>Registering...</value>
   </data>
