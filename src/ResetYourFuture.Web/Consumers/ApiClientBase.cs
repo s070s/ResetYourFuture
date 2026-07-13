@@ -12,9 +12,19 @@ namespace ResetYourFuture.Web.Consumers;
 /// <c>SsrApiHandler</c>) is unavailable. Without this, interactive calls went out unauthenticated,
 /// the API answered 401, and these helpers silently returned default — appearing to the user as
 /// blank/empty pages or no-op actions.
+///
+/// Every request also runs through <see cref="ExecuteAsync{T}"/> (AVAIL-3): a network-level failure
+/// on the loopback call (connection refused/reset during a redeploy, or the request-level timeout
+/// configured on the client) is caught and degraded to <c>default</c>/<c>false</c> instead of
+/// propagating into the calling Razor component, which in Blazor Server would tear down the whole
+/// circuit and show the generic "reload" error banner. Idempotent GETs additionally get a couple of
+/// fast retries so a momentary connection blip recovers instead of blanking the page; non-idempotent
+/// verbs are never retried (a POST that timed out may already have been processed server-side).
 /// </summary>
 public abstract class ApiClientBase
 {
+    private const int MaxGetAttempts = 3;
+
     protected readonly HttpClient Http;
     private readonly ApiTokenProvider _tokenProvider;
 
@@ -38,85 +48,87 @@ public abstract class ApiClientBase
             string.IsNullOrEmpty(token) ? null : new AuthenticationHeaderValue("Bearer", token);
     }
 
-    protected async Task<T?> GetAsync<T>(string url, CancellationToken ct = default)
+    /// <summary>
+    /// Sends a request and reads its response, degrading network failures to <paramref name="fallback"/>
+    /// rather than letting them crash the circuit. <paramref name="retryable"/> should be true only for
+    /// idempotent requests; retries fire on fast-failing connection errors, never on timeouts.
+    /// </summary>
+    private async Task<T?> ExecuteAsync<T>(
+        Func<CancellationToken, Task<HttpResponseMessage>> send,
+        Func<HttpResponseMessage, CancellationToken, Task<T?>> read,
+        bool retryable,
+        T? fallback,
+        CancellationToken ct)
     {
-        await EnsureAuthorizationAsync();
-        var response = await Http.GetAsync(url, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct)
-            : default;
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                await EnsureAuthorizationAsync();
+                using var response = await send(ct);
+                return response.IsSuccessStatusCode ? await read(response, ct) : fallback;
+            }
+            catch (HttpRequestException) when (retryable && attempt < MaxGetAttempts)
+            {
+                // Connection refused/reset fails fast (no timeout wait) — a brief blip during a
+                // redeploy usually clears within a retry or two.
+                await Task.Delay(RetryDelay(attempt), ct);
+            }
+            catch (Exception ex) when (IsNetworkFailure(ex, ct))
+            {
+                // Final connection failure, or a request-level timeout (never retried, to avoid
+                // stacking waits and re-issuing a possibly-applied write): degrade, don't crash.
+                return fallback;
+            }
+        }
     }
 
-    protected async Task<byte[]?> GetBytesAsync(string url, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.GetAsync(url, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadAsByteArrayAsync(ct)
-            : null;
-    }
+    // A caller-cancellation surfaces as cancellation (rethrown); an HttpClient timeout raises a
+    // TaskCanceledException whose token is the internal timeout token, not the caller's.
+    private static bool IsNetworkFailure(Exception ex, CancellationToken ct) =>
+        ex is HttpRequestException ||
+        (ex is TaskCanceledException && !ct.IsCancellationRequested);
 
-    protected async Task<T?> PostAsync<T>(string url, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync(url, null, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<T>(cancellationToken: ct)
-            : default;
-    }
+    private static TimeSpan RetryDelay(int attempt) =>
+        TimeSpan.FromMilliseconds(100 * attempt + Random.Shared.Next(0, 50));
 
-    protected async Task<bool> ActionAsync(string url, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync(url, null, ct);
-        return response.IsSuccessStatusCode;
-    }
+    protected Task<T?> GetAsync<T>(string url, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.GetAsync(url, c),
+            (r, c) => r.Content.ReadFromJsonAsync<T>(cancellationToken: c), retryable: true, fallback: default, ct);
 
-    protected async Task<TResult?> PostJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsJsonAsync(url, body, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
-            : default;
-    }
+    protected Task<byte[]?> GetBytesAsync(string url, CancellationToken ct = default) =>
+        ExecuteAsync<byte[]?>(c => Http.GetAsync(url, c),
+            async (r, c) => await r.Content.ReadAsByteArrayAsync(c), retryable: true, fallback: null, ct);
 
-    protected async Task<bool> PostJsonActionAsync<TBody>(string url, TBody body, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsJsonAsync(url, body, ct);
-        return response.IsSuccessStatusCode;
-    }
+    protected Task<T?> PostAsync<T>(string url, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsync(url, null, c),
+            (r, c) => r.Content.ReadFromJsonAsync<T>(cancellationToken: c), retryable: false, fallback: default, ct);
 
-    protected async Task<TResult?> PutJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PutAsJsonAsync(url, body, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
-            : default;
-    }
+    protected Task<bool> ActionAsync(string url, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsync(url, null, c),
+            (_, _) => Task.FromResult(true), retryable: false, fallback: false, ct);
 
-    protected async Task<bool> DeleteAsync(string url, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.DeleteAsync(url, ct);
-        return response.IsSuccessStatusCode;
-    }
+    protected Task<TResult?> PostJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsJsonAsync(url, body, c),
+            (r, c) => r.Content.ReadFromJsonAsync<TResult>(cancellationToken: c), retryable: false, fallback: default, ct);
 
-    protected async Task<TResult?> PostFormAsync<TResult>(string url, HttpContent form, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync(url, form, ct);
-        return response.IsSuccessStatusCode
-            ? await response.Content.ReadFromJsonAsync<TResult>(cancellationToken: ct)
-            : default;
-    }
+    protected Task<bool> PostJsonActionAsync<TBody>(string url, TBody body, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsJsonAsync(url, body, c),
+            (_, _) => Task.FromResult(true), retryable: false, fallback: false, ct);
 
-    protected async Task<bool> PostFormActionAsync(string url, HttpContent form, CancellationToken ct = default)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync(url, form, ct);
-        return response.IsSuccessStatusCode;
-    }
+    protected Task<TResult?> PutJsonAsync<TBody, TResult>(string url, TBody body, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PutAsJsonAsync(url, body, c),
+            (r, c) => r.Content.ReadFromJsonAsync<TResult>(cancellationToken: c), retryable: false, fallback: default, ct);
+
+    protected Task<bool> DeleteAsync(string url, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.DeleteAsync(url, c),
+            (_, _) => Task.FromResult(true), retryable: false, fallback: false, ct);
+
+    protected Task<TResult?> PostFormAsync<TResult>(string url, HttpContent form, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsync(url, form, c),
+            (r, c) => r.Content.ReadFromJsonAsync<TResult>(cancellationToken: c), retryable: false, fallback: default, ct);
+
+    protected Task<bool> PostFormActionAsync(string url, HttpContent form, CancellationToken ct = default) =>
+        ExecuteAsync(c => Http.PostAsync(url, form, c),
+            (_, _) => Task.FromResult(true), retryable: false, fallback: false, ct);
 }

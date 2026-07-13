@@ -269,57 +269,71 @@ public static class ServiceRegistrationExtensions
     {
         var selfBase = ResolveSelfBaseUrl(builder.Configuration["SelfBaseUrl"], builder.Environment.IsDevelopment());
 
-        // Named client for dev-only endpoints (no auth handler needed)
-        builder.Services.AddHttpClient("SelfClient", c => c.BaseAddress = new Uri(selfBase));
+        // A bounded per-request timeout (AVAIL-3) so a hung loopback call fails in seconds instead of
+        // HttpClient's 100-second default; ApiClientBase catches the resulting TaskCanceledException and
+        // degrades the page rather than crashing the circuit.
+        void Configure(HttpClient c)
+        {
+            c.BaseAddress = new Uri(selfBase);
+            c.Timeout = TimeSpan.FromSeconds(30);
+        }
 
-        builder.Services.AddHttpClient<ICourseConsumer, CourseConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        // The assistant client streams a Server-Sent Events response that can legitimately run longer
+        // than any request timeout, so it keeps the default (unbounded-enough) timeout — its bespoke
+        // StreamChatAsync already catches connection failures itself.
+        void ConfigureStreaming(HttpClient c) => c.BaseAddress = new Uri(selfBase);
+
+        // Named client for dev-only endpoints (no auth handler needed)
+        builder.Services.AddHttpClient("SelfClient", Configure);
+
+        builder.Services.AddHttpClient<ICourseConsumer, CourseConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAssessmentConsumer, AssessmentConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAssessmentConsumer, AssessmentConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ISubscriptionConsumer, SubscriptionConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ISubscriptionConsumer, SubscriptionConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IProfileConsumer, ProfileConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IProfileConsumer, ProfileConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminAnalyticsConsumer, AdminAnalyticsConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminAnalyticsConsumer, AdminAnalyticsConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminUserConsumer, AdminUserConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminUserConsumer, AdminUserConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminCourseConsumer, AdminCourseConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminCourseConsumer, AdminCourseConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ICategoryConsumer, CategoryConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ICategoryConsumer, CategoryConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminCategoryConsumer, AdminCategoryConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminCategoryConsumer, AdminCategoryConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminModuleConsumer, AdminModuleConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminModuleConsumer, AdminModuleConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminLessonConsumer, AdminLessonConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminLessonConsumer, AdminLessonConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminAssessmentConsumer, AdminAssessmentConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ICertificateConsumer, CertificateConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ICertificateConsumer, CertificateConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IBlogConsumer, BlogConsumer>(c => c.BaseAddress = new Uri(selfBase));
-        builder.Services.AddHttpClient<IAdminBlogConsumer, AdminBlogConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IBlogConsumer, BlogConsumer>(Configure);
+        builder.Services.AddHttpClient<IAdminBlogConsumer, AdminBlogConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ITestimonialConsumer, TestimonialConsumer>(c => c.BaseAddress = new Uri(selfBase));
-        builder.Services.AddHttpClient<IAdminTestimonialConsumer, AdminTestimonialConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ITestimonialConsumer, TestimonialConsumer>(Configure);
+        builder.Services.AddHttpClient<IAdminTestimonialConsumer, AdminTestimonialConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IChatService, ChatService>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAssistantConsumer, AssistantConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAssistantConsumer, AssistantConsumer>(ConfigureStreaming)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<INotificationConsumer, NotificationConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<INotificationConsumer, NotificationConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ISearchConsumer, SearchConsumer>(c => c.BaseAddress = new Uri(selfBase));
-        builder.Services.AddHttpClient<IAdminCourseReviewConsumer, AdminCourseReviewConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ISearchConsumer, SearchConsumer>(Configure);
+        builder.Services.AddHttpClient<IAdminCourseReviewConsumer, AdminCourseReviewConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IPathConsumer, PathConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IPathConsumer, PathConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminLearningPathConsumer, AdminLearningPathConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminLearningPathConsumer, AdminLearningPathConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<ISessionConsumer, SessionConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<ISessionConsumer, SessionConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
-        builder.Services.AddHttpClient<IAdminSessionConsumer, AdminSessionConsumer>(c => c.BaseAddress = new Uri(selfBase))
+        builder.Services.AddHttpClient<IAdminSessionConsumer, AdminSessionConsumer>(Configure)
             .AddHttpMessageHandler<SsrApiHandler>();
     }
 }
