@@ -67,12 +67,11 @@ else
             {
                 var isLocked = _userTier < course.RequiredTier && !course.IsEnrolled;
 
-                <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id"
-                     role="button" tabindex="0"
-                     @onclick="() => ViewCourse(course)"
-                     @onkeydown="@(e => { if (e.IsActivationKey()) ViewCourse(course); })">
+                <div class="course-card @(isLocked ? "course-locked" : "")" @key="course.Id">
                     <div class="course-card-header">
-                        <h3>@course.Title</h3>
+                        <h3>
+                            <a class="course-card-link" href="@(isLocked ? "/pricing" : $"/courses/{course.Id}")">@course.Title</a>
+                        </h3>
                         <div class="d-flex align-items-center gap-2">
                             @if (course.CategoryName is not null)
                             {
@@ -105,10 +104,8 @@ else
                         }
                         @if (isLocked)
                         {
-                            <span class="locked-badge" role="button" tabindex="0"
-                                  @onclick:stopPropagation="true" @onclick="GoToPricing"
-                                  @onkeydown:stopPropagation="true"
-                                  @onkeydown="@(e => { if (e.IsActivationKey()) GoToPricing(); })">
+                            @* Visual label only — the whole card already links to /pricing for locked courses. *@
+                            <span class="locked-badge">
                                 @string.Format(CourseRes.UpgradeToFormat, course.RequiredTier)
                             </span>
                         }

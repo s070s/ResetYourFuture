@@ -8,6 +8,7 @@
 }
 
 .course-card {
+    position: relative; /* anchor for the stretched .course-card-link overlay */
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 1.5rem;
@@ -20,14 +21,38 @@
         border-color: var(--text-accent);
     }
 
-    .course-card:focus-visible {
+    /* The card itself is no longer focusable — the real focus target is the title link,
+       so mirror its focus ring onto the whole card for the same visual affordance. */
+    .course-card:has(.course-card-link:focus-visible) {
         outline: 2px solid var(--text-accent);
         outline-offset: 2px;
     }
 
     .course-card h3 {
         margin: 0 0 0.5rem 0;
+    }
+
+    .course-card-link {
         color: var(--text-light-normal);
+        text-decoration: none;
+    }
+
+        .course-card-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Stretch the link's hit area over the entire card (the card-link a11y pattern):
+           one real link navigates, screen readers announce just the course title. */
+        .course-card-link::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+        }
+
+    /* Keep any links inside the rich-text description clickable above the stretched overlay. */
+    .course-card .description a {
+        position: relative;
+        z-index: 1;
     }
 
     .course-card .description {
@@ -90,21 +115,11 @@
     border-style: dashed;
 }
 
+/* A plain visual label now — the whole card links to /pricing for locked courses. */
 .locked-badge {
     color: var(--color-error);
     font-weight: bold;
-    cursor: pointer;
     font-size: 0.85rem;
 }
-
-    .locked-badge:hover {
-        text-decoration: underline;
-    }
-
-    .locked-badge:focus-visible {
-        outline: 2px solid var(--text-accent);
-        outline-offset: 2px;
-        text-decoration: underline;
-    }
 
 /* Pagination styles are in shared-components.css */

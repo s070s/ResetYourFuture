@@ -132,17 +132,6 @@ public partial class Courses : IDisposable
         catch (OperationCanceledException) { }
     }
 
-    private void ViewCourse(CourseListItemDto course)
-    {
-        // Enrolled courses are always accessible, even after a plan downgrade
-        if (_userTier < course.RequiredTier && !course.IsEnrolled)
-        {
-            Navigation.NavigateTo("/pricing");
-            return;
-        }
-        Navigation.NavigateTo($"/courses/{course.Id}");
-    }
-
     private void GoToPricing() => Navigation.NavigateTo("/pricing");
 
     public void Dispose()

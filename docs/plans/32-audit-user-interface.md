@@ -24,21 +24,18 @@ NOT examined: runtime rendering, real contrast measurements in a browser, JS int
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 7 |
 | Low | 4 |
 | Info | 1 |
+
+> **Fixed since audit:** UI-3 (High — clickable course cards were `role="button"` with a second nested `role="button"` upgrade badge inside, violating the ARIA content model) — `Courses.razor` now uses the card-link pattern: the `<h3>` holds a single real `<a>` (to `/courses/{id}`, or `/pricing` for a locked course) whose `::after` stretches over the whole card, and the upgrade badge is a plain visual `<span>` sibling (the card already links to `/pricing`). No nested interactive elements remain; the card keeps a focus ring via `:has(a:focus-visible)`. `CourseDetail.razor`'s lesson rows (same whole-row `role="button"` shape but no nesting) got an explicit `aria-label` so the accessible name is just the lesson title. Verified live with Playwright: 10 cards, none `role="button"`/tabbable, the stretched link covers the card, the badge is non-interactive, and the link is keyboard-focusable.
 
 > **Fixed since audit:** UI-1/UI-2 (both High — `bg-light` submission panel and unstyled `#blazor-error-ui` were both ~1:1-2:1 contrast) — fixed as part of `13-plan-visual-polish.md`'s WI-6 pass: `AdminAssessmentSubmissions.razor`'s answers panel dropped `bg-light`, and `#blazor-error-ui`/its `.reload`/`.dismiss` links now use `color: var(--bg-primary)` against the yellow background.
 
 The UI layer is in better shape than most student projects: a coherent dark-theme token set in `app.css`, a documented CSS consolidation rule that is mostly followed, a genuinely good mobile card-table transformation with 100% `data-label` coverage on all 12 data tables, a skip link, `aria-sort` on sortable headers, `aria-pressed` on the culture selector, visually-hidden text for icon-only cells, `role="log"`/`aria-live` on the chat pane, and a global `prefers-reduced-motion` kill-switch already in place. The remaining problems are at the edges: interactive-element nesting inside clickable cards, keyboard operability applied on one page but forgotten on its admin twin, modals without a focus trap, and a set of consistency drifts (duplicated `.tier-badge`, unstyled sort-indicator classes, bespoke Billing table) that the repo's own conventions already prohibit.
 
 ## 3. Findings
-
-### UI-3: Clickable course cards nest interactive controls inside `role="button"`  [High] [Effort: M]
-- **Evidence:** `src/ResetYourFuture.Web/Pages/Courses.razor:70-107` — the whole `.course-card` div is `role="button" tabindex="0"` and contains an `<h3>`, rich-text description, and, for locked courses, a second nested `role="button" tabindex="0"` (`.locked-badge`, lines 101-106) with `stopPropagation` handlers.
-- **Impact:** Nested interactive elements inside a button violate the ARIA content model: screen readers flatten the entire card (title + HTML description + badges) into one enormous accessible name, the inner "Upgrade to …" control is unreachable/announced unpredictably, and focus order shows two stops for one card with no visual distinction between them.
-- **Recommendation:** Use the card-link pattern: make the `<h3>` contain the real link/button that navigates, stretch its hit area with a pseudo-element (`::after` covering the card), and keep the upgrade badge a sibling interactive element outside the link. `CourseDetail.razor:97-121` lesson items have the same whole-row `role="button"` shape but with no nested controls, so they only need the accessible-name cleanup, not restructuring.
 
 ### UI-4: Keyboard operability of collapsible headers is inconsistent — admin module headers are mouse-only  [Medium] [Effort: S]
 - **Evidence:** `src/ResetYourFuture.Web/Pages/CourseDetail.razor:78-83` does it right: `role="button" tabindex="0" aria-expanded @onclick @onkeydown(IsActivationKey)`. Its admin twin `src/ResetYourFuture.Web/Pages/AdminCourseEdit.razor:117-120` has `role="button"` and `aria-expanded` but **no `tabindex` and no `@onkeydown`**. The expandable answers toggle in `AdminAssessmentSubmissions.razor:37-40` is a real `<button>` (good) but lacks `aria-expanded` for the row it controls.
@@ -104,7 +101,6 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| UI-3 | High | M | Restructure course cards to the card-link pattern; unnest the upgrade badge |
 | UI-4 | Medium | S | Add `tabindex="0"` + activation-key handler to AdminCourseEdit collapsible headers; `aria-expanded` on ViewAnswers |
 | UI-7 | Medium | S | Consolidate `.tier-badge` into shared-components.css next to `.category-chip` |
 | UI-8 | Medium | S | Style `.sort-active` / `.sort-arrow--inactive` in shared-components.css |

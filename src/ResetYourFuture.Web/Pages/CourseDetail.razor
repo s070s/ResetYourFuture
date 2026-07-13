@@ -97,6 +97,7 @@ else
                                     <li class="lesson-item @(lesson.IsCompleted ? "completed" : "")"
                                         role="button"
                                         tabindex="0"
+                                        aria-label="@lesson.Title"
                                         @onclick="() => ViewLesson(lesson.Id)"
                                         @onkeydown="@(e => { if (e.IsActivationKey()) ViewLesson(lesson.Id); })">
                                         <span class="lesson-icon" aria-hidden="true">
