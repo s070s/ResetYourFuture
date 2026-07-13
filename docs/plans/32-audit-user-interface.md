@@ -5,7 +5,7 @@
 | Finding prefix | UI |
 | Created | 2026-07-11 |
 | Scope | Component-level visual correctness, consistency, and accessibility across the 32 routable pages, 30 shared components, layout components, `wwwroot/css/app.css`, `wwwroot/css/shared-components.css`, and 36 scoped `.razor.css` files |
-| Delegated | Flow-level UX (navigation, feedback, empty/error states, bilingual experience) → 33 (UX). Hardcoded/missing localized *strings* → 33 (UX); localization *infrastructure* → 39 (CFG). Render-tree/CSS performance → 34 (PERF). Motion, tokens, skeletons, focus-ring rollout already planned → [13-plan-visual-polish.md](13-plan-visual-polish.md) (referenced, not re-reported). Table sorting gaps → [10-plan-sorting-rollout.md](10-plan-sorting-rollout.md). |
+| Delegated | Flow-level UX (navigation, feedback, empty/error states, bilingual experience) → 33 (UX). Hardcoded/missing localized *strings* → 33 (UX); localization *infrastructure* → 39 (CFG). Render-tree/CSS performance → 34 (PERF). Motion, tokens, skeletons, focus-ring rollout already implemented (see the plan-13 note in [00-INDEX.md](00-INDEX.md); not re-reported). Table sorting gaps → [10-plan-sorting-rollout.md](10-plan-sorting-rollout.md). |
 
 ## 1. Methodology
 

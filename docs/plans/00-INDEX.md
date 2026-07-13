@@ -18,7 +18,7 @@ Numeric prefix = recommended reading order. Production status is tracked in the 
 | 10 | ~~10-plan-sorting-rollout.md~~ | Plans | — | 🏁 implemented 2026-07-12, file removed |
 | 11 | ~~11-plan-ollama-agent.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
 | 12 | ~~12-plan-five-features.md~~ | Plans | — | 🏁 implemented 2026-07-13, file removed |
-| 13 | [13-plan-visual-polish.md](13-plan-visual-polish.md) | Plans | — | 🔶 core implemented 2026-07-13; mechanical sweep + 2 micro-interactions deferred |
+| 13 | ~~13-plan-visual-polish.md~~ | Plans | — | 🏁 core implemented 2026-07-13, file removed; optional cosmetic polish deferred (see note below) |
 | 20 | [20-audit-gaps.md](20-audit-gaps.md) — missing / not working as intended | Synthesis | GAP | ✅ |
 | 21 | [21-audit-architecture.md](21-audit-architecture.md) | Foundation | ARCH | ✅ |
 | 22 | [22-audit-code-quality.md](22-audit-code-quality.md) | Foundation | CQ | ✅ |
@@ -49,6 +49,19 @@ Numeric prefix = recommended reading order. Production status is tracked in the 
 Production order differs from reading order: plans (10–13) were written first from codebase exploration,
 then audits 21–45 in seven grouped analysis passes (A: 21–24, B: 25–29, C: 30–31, D: 32–33, E: 34–36,
 F: 37–42, G: 43–45), and 20-audit-gaps.md last as a synthesis of all Critical/High findings.
+
+> **Plan 13 — deferred cosmetic polish (optional, not started).** The visual-polish plan's core shipped
+> (design-token system, global `:focus-visible` ring, button/table-row micro-interactions, scroll-reveal,
+> `SkeletonBlock` on 8 representative pages, the `prefers-reduced-motion` kill-switch, tab-hidden animation
+> pausing) and it also absorbed UI-1/UI-2. The plan file was removed as done; these optional items were
+> consciously deferred to keep the phase bounded and are the only outstanding polish — zero-risk, pick up any time:
+> - Mechanical sweep of hardcoded px/ms/hex literals → design tokens across the ~28 remaining `.razor.css`
+>   files (plus `shared-components.css`); do it file-by-file with a visual diff.
+> - Two micro-interactions: card hover (`translateY(-2px)` + shadow crossfade) and nav-link underline scale-in.
+> - `SkeletonBlock` swap on the ~14 list pages still using `LoadingSpinner` (spinner is correct for sub-second
+>   loads per the plan's Decision 5, but several are paged lists that would benefit); grep `LoadingSpinner` under `Pages/`.
+> - Formal Lighthouse scoring + DevTools paint-flashing / FPS traces (never run; the transform/opacity-only
+>   performance rule was instead verified by reading every animated CSS rule).
 
 ## Severity scale (audits)
 

@@ -5,7 +5,7 @@
 | Finding prefix | UX |
 | Created | 2026-07-11 |
 | Scope | Flow-level experience: navigation structure and discoverability, feedback after actions, error/empty/loading states, form validation experience, confirmation patterns, bilingual (EN/EL) experience across the 32 routable pages |
-| Delegated | Component-level visual correctness/a11y → 32 (UI). Localization *infrastructure* (culture cookie, resx pipeline) → 39 (CFG) — missing/hardcoded *strings* are owned here. Table sorting gaps → [10-plan-sorting-rollout.md](10-plan-sorting-rollout.md). Visual polish (motion, skeletons, tokens) → [13-plan-visual-polish.md](13-plan-visual-polish.md). Circuit crash/reconnect behavior → 26 (REL). |
+| Delegated | Component-level visual correctness/a11y → 32 (UI). Localization *infrastructure* (culture cookie, resx pipeline) → 39 (CFG) — missing/hardcoded *strings* are owned here. Table sorting gaps → [10-plan-sorting-rollout.md](10-plan-sorting-rollout.md). Visual polish (motion, skeletons, tokens) → implemented (see the plan-13 note in [00-INDEX.md](00-INDEX.md)). Circuit crash/reconnect behavior → 26 (REL). |
 
 ## 1. Methodology
 
