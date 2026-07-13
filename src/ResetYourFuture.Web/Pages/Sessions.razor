@@ -1,0 +1,86 @@
+@page "/sessions"
+@attribute [Authorize]
+
+<PageTitle>@SessionRes.PageTitle</PageTitle>
+
+<h1>@SessionRes.PageTitle</h1>
+
+@if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+
+@if (_loading)
+{
+    <LoadingSpinner Label="@SessionRes.Loading" />
+}
+else if (_sessions.Count == 0)
+{
+    <p>@SessionRes.NoUpcomingSessions</p>
+}
+else
+{
+    <div class="sessions-list">
+        @foreach (var session in _sessions)
+        {
+            <div class="session-card" @key="session.Id">
+                <div class="session-card-header">
+                    <h3>@session.Title</h3>
+                    <span class="status-chip status-@session.Status.ToLowerInvariant()">
+                        @(session.Status switch
+                        {
+                            "Live" => SessionRes.StatusLive,
+                            "Ended" => SessionRes.StatusEnded,
+                            "Cancelled" => SessionRes.StatusCancelled,
+                            _ => SessionRes.StatusScheduled
+                        })
+                    </span>
+                </div>
+                <div class="session-meta">
+                    <span>@string.Format(SessionRes.HostedByFormat, session.HostName)</span>
+                    @if (session.CourseTitle is not null)
+                    {
+                        <span class="category-chip">@session.CourseTitle</span>
+                    }
+                </div>
+                <div class="session-meta">
+                    <span>@session.StartsAtUtc.ToLocalTime().ToString("f")</span>
+                    <span>@string.Format(SessionRes.DurationFormat, session.DurationMinutes)</span>
+                    <span>@string.Format(SessionRes.ParticipantsFormat, session.RegisteredCount, session.MaxParticipants)</span>
+                </div>
+
+                <div class="session-actions">
+                    @if (session.IsHost || session.IsRegistered)
+                    {
+                        @if (session.CallSessionId is not null)
+                        {
+                            <span class="text-light-muted">@SessionRes.CallInProgress</span>
+                        }
+                        else if (session.Status == "Live")
+                        {
+                            <button class="btn btn-sm btn-success" disabled="@_joining" @onclick="() => JoinOrStartAsync(session)">
+                                @(session.IsHost ? SessionRes.StartSession : SessionRes.JoinSession)
+                            </button>
+                        }
+                        else if (session.IsRegistered)
+                        {
+                            <span class="registered-badge">@SessionRes.Registered</span>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => UnregisterAsync(session.Id)">@SessionRes.Unregister</button>
+                        }
+                    }
+                    else if (session.Status == "Scheduled")
+                    {
+                        @if (session.RegisteredCount >= session.MaxParticipants)
+                        {
+                            <span class="text-light-muted">@SessionRes.Full</span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-primary" @onclick="() => RegisterAsync(session.Id)">@SessionRes.Register</button>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

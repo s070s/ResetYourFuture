@@ -226,6 +226,20 @@
       <DependentUpon>PathRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Session -->
+    <EmbeddedResource Update="Resources\SessionRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SessionRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SessionRes.el.resx">
+      <DependentUpon>SessionRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\SessionRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SessionRes.resx</DependentUpon>
+    </Compile>
+
     <!-- Search -->
     <EmbeddedResource Update="Resources\SearchRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

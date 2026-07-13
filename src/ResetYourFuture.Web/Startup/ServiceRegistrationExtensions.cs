@@ -61,6 +61,7 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<ISiteSearchService, SiteSearchService>();
         builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
         builder.Services.AddScoped<ILearningPathService, LearningPathService>();
+        builder.Services.AddScoped<IScheduledSessionService, ScheduledSessionService>();
         // Web-layer dispatcher (needs IHubContext<NotificationHub>) so Application/Infrastructure
         // services can raise notifications through the framework-agnostic INotificationDispatcher.
         builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
@@ -81,6 +82,7 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<ICallQueryService, CallQueryService>();
         builder.Services.AddSingleton<CallRegistry>();
         builder.Services.AddHostedService<CallRingMonitor>();
+        builder.Services.AddHostedService<SessionStartMonitor>();
         builder.Services.Configure<WebRtcOptions>(config.GetSection("WebRtc"));
         // Hub-only (no REST) — plain AddScoped, not AddHttpClient. Must be scoped (not transient
         // like ChatService) so CallOverlayHost and chat components share one instance/hub/state per circuit.
@@ -285,6 +287,10 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHttpClient<IPathConsumer, PathConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<IAdminLearningPathConsumer, AdminLearningPathConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<ISessionConsumer, SessionConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<IAdminSessionConsumer, AdminSessionConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
     }
 }

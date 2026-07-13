@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="PageTitle" xml:space="preserve">
+    <value>Live Sessions</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading sessions…</value>
+  </data>
+  <data name="NoUpcomingSessions" xml:space="preserve">
+    <value>No upcoming sessions right now.</value>
+  </data>
+  <data name="StatusScheduled" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="StatusLive" xml:space="preserve">
+    <value>Live</value>
+  </data>
+  <data name="StatusEnded" xml:space="preserve">
+    <value>Ended</value>
+  </data>
+  <data name="StatusCancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="HostedByFormat" xml:space="preserve">
+    <value>Hosted by {0}</value>
+  </data>
+  <data name="DurationFormat" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="ParticipantsFormat" xml:space="preserve">
+    <value>{0} / {1} registered</value>
+  </data>
+  <data name="CallInProgress" xml:space="preserve">
+    <value>Call in progress</value>
+  </data>
+  <data name="StartSession" xml:space="preserve">
+    <value>Start Session</value>
+  </data>
+  <data name="JoinSession" xml:space="preserve">
+    <value>Join</value>
+  </data>
+  <data name="Registered" xml:space="preserve">
+    <value>You're registered</value>
+  </data>
+  <data name="Unregister" xml:space="preserve">
+    <value>Unregister</value>
+  </data>
+  <data name="Full" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="RegisterError" xml:space="preserve">
+    <value>Failed to register for this session.</value>
+  </data>
+  <data name="JoinError" xml:space="preserve">
+    <value>Failed to start the call. Please try again.</value>
+  </data>
+  <data name="AdminPageTitle" xml:space="preserve">
+    <value>Live Sessions</value>
+  </data>
+  <data name="NewSession" xml:space="preserve">
+    <value>New session</value>
+  </data>
+  <data name="EditSession" xml:space="preserve">
+    <value>Edit Session</value>
+  </data>
+  <data name="NoSessionsFound" xml:space="preserve">
+    <value>No scheduled sessions found.</value>
+  </data>
+  <data name="ColTitle" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="ColHost" xml:space="preserve">
+    <value>Host</value>
+  </data>
+  <data name="ColCourse" xml:space="preserve">
+    <value>Course</value>
+  </data>
+  <data name="ColWhen" xml:space="preserve">
+    <value>Starts</value>
+  </data>
+  <data name="ColParticipants" xml:space="preserve">
+    <value>Participants</value>
+  </data>
+  <data name="ColStatus" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="ColActions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="CancelSession" xml:space="preserve">
+    <value>Cancel session</value>
+  </data>
+  <data name="FieldTitleEn" xml:space="preserve">
+    <value>Title (English)</value>
+  </data>
+  <data name="FieldTitleEl" xml:space="preserve">
+    <value>Title (Greek)</value>
+  </data>
+  <data name="FieldCourse" xml:space="preserve">
+    <value>Related course</value>
+  </data>
+  <data name="NoCourse" xml:space="preserve">
+    <value>No related course</value>
+  </data>
+  <data name="FieldStartsAt" xml:space="preserve">
+    <value>Starts at</value>
+  </data>
+  <data name="FieldDuration" xml:space="preserve">
+    <value>Duration (minutes)</value>
+  </data>
+  <data name="FieldMaxParticipants" xml:space="preserve">
+    <value>Max participants</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="SaveError" xml:space="preserve">
+    <value>Failed to save the session. Please try again.</value>
+  </data>
+  <data name="CancelConfirmFormat" xml:space="preserve">
+    <value>Cancel "{0}"? Registered students will no longer see it as upcoming.</value>
+  </data>
+</root>

@@ -186,4 +186,7 @@
   <data name="Paths" xml:space="preserve">
     <value>Διαδρομές</value>
   </data>
+  <data name="Sessions" xml:space="preserve">
+    <value>Ζωντανές Συνεδρίες</value>
+  </data>
 </root>

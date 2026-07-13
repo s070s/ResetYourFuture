@@ -67,6 +67,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<LearningPath> LearningPaths => Set<LearningPath>();
     public DbSet<LearningPathStep> LearningPathSteps => Set<LearningPathStep>();
 
+    // --- Scheduled Sessions ---
+    public DbSet<ScheduledSession> ScheduledSessions => Set<ScheduledSession>();
+    public DbSet<SessionRegistration> SessionRegistrations => Set<SessionRegistration>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;

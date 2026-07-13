@@ -1,0 +1,134 @@
+@page "/admin/sessions"
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>@SessionRes.AdminPageTitle</PageTitle>
+
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h2">@SessionRes.AdminPageTitle</h1>
+        <button class="btn btn-primary text-nowrap" @onclick="ShowAddModal">@SessionRes.NewSession</button>
+    </div>
+
+    @if (pagedResult == null)
+    {
+        <LoadingSpinner Label="@SessionRes.Loading" />
+    }
+    else if (!pagedResult.Items.Any())
+    {
+        <p>@SessionRes.NoSessionsFound</p>
+    }
+    else
+    {
+        <ScrollableTable Items="pagedResult.Items" TItem="AdminScheduledSessionDto">
+            <HeaderRow>
+                <tr>
+                    <SortableColumnHeader ColumnKey="titleen" Label="@SessionRes.ColTitle"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@SessionRes.ColHost</th>
+                    <th>@SessionRes.ColCourse</th>
+                    <SortableColumnHeader ColumnKey="startsatutc" Label="@SessionRes.ColWhen"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@SessionRes.ColParticipants</th>
+                    <SortableColumnHeader ColumnKey="status" Label="@SessionRes.ColStatus"
+                                          CurrentSortBy="@_sortBy" CurrentSortDir="@_sortDir"
+                                          OnSort="OnSort" />
+                    <th>@SessionRes.ColActions</th>
+                </tr>
+            </HeaderRow>
+            <RowTemplate Context="session">
+                <tr @key="session.Id">
+                    <td data-label="@SessionRes.ColTitle">@session.TitleEn</td>
+                    <td data-label="@SessionRes.ColHost">@session.HostName</td>
+                    <td data-label="@SessionRes.ColCourse">@(session.CourseTitle ?? "—")</td>
+                    <td data-label="@SessionRes.ColWhen">@session.StartsAtUtc.ToLocalTime().ToString("g")</td>
+                    <td data-label="@SessionRes.ColParticipants">@session.RegisteredCount / @session.MaxParticipants</td>
+                    <td data-label="@SessionRes.ColStatus">@session.Status</td>
+                    <td data-label="@SessionRes.ColActions">
+                        @if (session.Status is "Scheduled")
+                        {
+                            <button class="btn btn-sm btn-primary me-1" @onclick="() => ShowEditModal(session)">@SessionRes.Edit</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestCancel(session)">@SessionRes.CancelSession</button>
+                        }
+                    </td>
+                </tr>
+            </RowTemplate>
+        </ScrollableTable>
+
+        <AdminPaginationToolbar CurrentPage="pagedResult.Page"
+                                TotalPages="pagedResult.TotalPages"
+                                TotalCount="pagedResult.TotalCount"
+                                PageSize="pagedResult.PageSize"
+                                HasPreviousPage="pagedResult.HasPreviousPage"
+                                HasNextPage="pagedResult.HasNextPage"
+                                PageSizeOptions="PageSizeOptions"
+                                ItemLabel="sessions"
+                                OnPageSizeChanged="OnPageSizeChanged"
+                                OnPreviousPage="PreviousPage"
+                                OnNextPage="NextPage" />
+    }
+
+    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
+</div>
+
+<FormModal IsVisible="_formModalVisible"
+           Title="@(_editingId is null ? SessionRes.NewSession : SessionRes.EditSession)"
+           OnClose="CloseFormModal">
+    <Body>
+        @if (_formError is not null)
+        {
+            <div class="alert alert-danger py-1">@_formError</div>
+        }
+        <div class="mb-3">
+            <label class="form-label">@SessionRes.FieldTitleEn</label>
+            <input class="form-control" @bind="_formTitleEn" maxlength="200" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@SessionRes.FieldTitleEl</label>
+            <input class="form-control" @bind="_formTitleEl" maxlength="200" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@SessionRes.FieldCourse</label>
+            <select class="form-select" value="@(_formCourseId?.ToString() ?? "")" @onchange="OnCourseChanged">
+                <option value="">@SessionRes.NoCourse</option>
+                @foreach (var course in _courses)
+                {
+                    <option value="@course.Id">@course.TitleEn</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">@SessionRes.FieldStartsAt</label>
+            <input type="datetime-local" class="form-control" @bind="_formStartsAtLocal" />
+        </div>
+        <div class="row g-3">
+            <div class="col-6">
+                <label class="form-label">@SessionRes.FieldDuration</label>
+                <input type="number" class="form-control" @bind="_formDurationMinutes" min="5" max="480" />
+            </div>
+            <div class="col-6">
+                <label class="form-label">@SessionRes.FieldMaxParticipants</label>
+                <input type="number" class="form-control" @bind="_formMaxParticipants" min="1" max="6" />
+            </div>
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-secondary" @onclick="CloseFormModal" disabled="@_isSaving">@SessionRes.Cancel</button>
+        <button class="btn btn-primary" @onclick="SubmitForm" disabled="@(_isSaving || string.IsNullOrWhiteSpace(_formTitleEn))">
+            @if (_isSaving)
+            {
+                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            }
+            @SessionRes.Save
+        </button>
+    </Footer>
+</FormModal>
+
+<ConfirmModal IsVisible="@(_pendingCancel is not null)"
+              Title="@SessionRes.CancelSession"
+              Message="@(_pendingCancel is not null ? string.Format(SessionRes.CancelConfirmFormat, _pendingCancel.TitleEn) : "")"
+              ConfirmLabel="@SessionRes.CancelSession"
+              CancelLabel="@SessionRes.Cancel"
+              OnConfirm="ConfirmCancel"
+              OnCancel="@(() => _pendingCancel = null)" />
