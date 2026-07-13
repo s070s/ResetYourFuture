@@ -18,19 +18,16 @@ NOT examined at the code level: TLS/reverse-proxy config, DataProtection key-rin
 | Severity | Count |
 |----------|-------|
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 4 |
 | Info | 1 |
 
-Overall the security foundations are notably strong for a certificate project: HttpOnly + `SameSite=Strict` auth cookie (which neutralises CSRF on the cookie-authenticated API surface), security-stamp revalidation on every cookie request and every JWT validation, SHA-256-hashed rotating refresh tokens, HMAC-SHA256 Stripe signature verification with timestamp replay rejection, an HTML sanitizer applied at every rich-text write path, a hardened public media endpoint (`sandbox` CSP + extension allowlist), and DataProtection-signed sign-in tickets. The remaining gaps are concentrated in refresh-token lifecycle (survives password reset), token-in-query-string exposure, incomplete rate-limiter coverage, and a CSP that still relies on `unsafe-inline` for scripts. None are exploitable to a full compromise in the current dev/demo configuration, but one (refresh-token lifecycle) would bite on any real deployment.
+> **Fixed since audit:** SEC-1 (High — refresh tokens survived password reset and had no reuse detection) — `RefreshToken` now carries `SecurityStampAtIssuance`, checked on every `RefreshAsync` call (a stale stamp both rejects and revokes the token); every password-reset path (`AuthApiService.ResetPasswordAsync`/`DevResetPasswordAsync`, `AdminUserService.SetPasswordAsync`, and the Blazor-circuit `AuthService.ResetPasswordAsync`) now bulk-revokes the user's active refresh tokens; and presenting an already-revoked token now walks and revokes the whole `ReplacedByTokenId` descendant chain (reuse detection). Verified live against the real JWT API: rotation, replay-of-a-spent-token rejection, chain-wide revocation on reuse, and admin-forced-reset invalidating a token minted before it. Caught and fixed a real bug along the way — `ExecuteUpdateAsync` (the initial implementation) throws `InvalidOperationException` on the EF InMemory provider the test suite uses; switched to tracked-mutation + `SaveChangesAsync`, matching the pattern `NotificationService.cs` already uses for the same reason.
+
+Overall the security foundations are notably strong for a certificate project: HttpOnly + `SameSite=Strict` auth cookie (which neutralises CSRF on the cookie-authenticated API surface), security-stamp revalidation on every cookie request, every JWT validation, and now every refresh-token use, SHA-256-hashed rotating refresh tokens with reuse detection, HMAC-SHA256 Stripe signature verification with timestamp replay rejection, an HTML sanitizer applied at every rich-text write path, a hardened public media endpoint (`sandbox` CSP + extension allowlist), and DataProtection-signed sign-in tickets. The remaining gaps: token-in-query-string exposure, incomplete rate-limiter coverage, and a CSP that still relies on `unsafe-inline` for scripts. None are exploitable to a full compromise in the current dev/demo configuration.
 
 ## 3. Findings
-
-### SEC-1: Refresh tokens survive password reset / security-stamp rotation and lack reuse detection  [High] [Effort: M]
-- **Evidence:** `Application/ApiServices/AuthApiService.cs:178-229` (`RefreshAsync`) validates only `RevokedAt`, `ExpiresAt`, and `user.IsEnabled` — it never compares the user's current `SecurityStamp`. `ResetPasswordAsync` (`:249-268`), `ForcePasswordResetAsync`/`SetPasswordAsync` (`AdminUserService.cs:234-320`) rotate the security stamp but never revoke stored `RefreshTokens`. There is no reuse-detection: replaying an already-rotated (revoked) token is rejected but does not revoke the descendant token chain (`:186`).
-- **Impact:** A stolen or leaked refresh token remains valid for its full 7–30 day lifetime even after the victim resets their password or an admin forces a reset — the attacker keeps minting fresh 15-minute access tokens (the newly minted access token embeds the *current* stamp, so JWT validation passes). Password reset therefore does not fully evict an attacker. Absent reuse detection, a token-theft chain cannot be detected/severed.
-- **Recommendation:** In `RefreshAsync`, reject when `stored.User.SecurityStamp` differs from the stamp captured at issuance (store the stamp on `RefreshToken`, or re-check via `UserManager`), and on any password-reset path bulk-revoke the user's active refresh tokens (`ExecuteUpdate` setting `RevokedAt`). Add reuse detection: if a token whose `RevokedAt` is set is presented, revoke the whole chain via `ReplacedByTokenId`.
 
 ### SEC-2: Access tokens transmitted in query strings (SignalR hubs and lesson-asset streaming)  [Medium] [Effort: M]
 - **Evidence:** `Startup/AuthenticationSetupExtensions.cs:145-158` reads the JWT from `?access_token=` for `/hubs/chat`, `/hubs/call`, and `/api/lessons`. `Web/Pages/LessonViewer.razor.cs:152-178` builds `<video>`/`<iframe>` URLs that append `&access_token={jwt}` to `/api/lessons/{id}/asset`.
@@ -81,7 +78,6 @@ Overall the security foundations are notably strong for a certificate project: H
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| SEC-1 | High | M | Invalidate refresh tokens on password reset + add security-stamp check and reuse-detection chain revocation |
 | SEC-2 | Medium | M | Remove raw JWT from lesson-asset URLs; ensure `access_token` is stripped from logs |
 | SEC-3 | Medium | S | Add per-user default limiter + `auth`-class limits on password/checkout/submit endpoints |
 | SEC-4 | Medium | S | Make the Stripe webhook fail closed when the signing secret is absent |

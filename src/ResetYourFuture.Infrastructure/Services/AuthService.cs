@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
@@ -316,6 +317,19 @@ public class AuthService : IAuthService
         var result = await _userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
         if (!result.Succeeded)
             return new AuthResponseDto { Success = false, Errors = result.Errors.Select(e => e.Description) };
+
+        // SEC-1: this rotated SecurityStamp. This path doesn't itself issue JWT refresh tokens
+        // (Blazor circuits use the cookie flow above), but the same user may hold ones minted via
+        // the /api/auth/* REST path — revoke them too so *any* password-reset path fully evicts
+        // a stolen credential, not just the one whose UI happened to be used. Tracked mutation +
+        // SaveChanges (not ExecuteUpdateAsync) so this runs on every provider, including the EF
+        // InMemory provider integration tests use.
+        var activeTokens = await _context.RefreshTokens
+            .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null)
+            .ToListAsync();
+        foreach (var token in activeTokens)
+            token.RevokedAt = DateTimeOffset.UtcNow;
+        await _context.SaveChangesAsync();
 
         _logger.LogInformation("Password reset for {Email}", request.Email);
         return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetSuccessful };

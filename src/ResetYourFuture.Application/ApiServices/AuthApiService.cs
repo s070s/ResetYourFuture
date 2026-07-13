@@ -158,7 +158,8 @@ public class AuthApiService(
             UserId = user.Id,
             TokenHash = HashToken(refreshToken),
             ExpiresAt = refreshTokenExpiration,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            SecurityStampAtIssuance = user.SecurityStamp
         };
 
         context.RefreshTokens.Add(refreshTokenEntity);
@@ -183,9 +184,20 @@ public class AuthApiService(
             .Include(rt => rt.User)
             .FirstOrDefaultAsync(rt => rt.TokenHash == tokenHash);
 
-        if (stored is null || stored.RevokedAt is not null || stored.ExpiresAt <= DateTimeOffset.UtcNow)
+        if (stored is null || stored.ExpiresAt <= DateTimeOffset.UtcNow)
         {
-            logger.LogWarning("Refresh attempt with invalid, expired, or revoked token.");
+            logger.LogWarning("Refresh attempt with invalid or expired token.");
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidOrExpiredRefreshToken });
+        }
+
+        // SEC-1 reuse detection: a token is only ever revoked by rotation (below) or by one of
+        // the other guards in this method — so presenting an already-revoked token again means
+        // it was stolen and the legitimate rotation already happened. Sever the whole descendant
+        // chain rather than just this one token, since the thief may already hold a later token too.
+        if (stored.RevokedAt is not null)
+        {
+            await RevokeTokenChainAsync(stored);
+            logger.LogWarning("Refresh token reuse detected for user {UserId} — revoked the token chain.", stored.UserId);
             return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidOrExpiredRefreshToken });
         }
 
@@ -199,6 +211,17 @@ public class AuthApiService(
             return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountIsDisabled });
         }
 
+        // SEC-1: a password reset (self-service or admin-forced) rotates SecurityStamp but this
+        // token was minted before that — reject it instead of letting a stolen token keep working
+        // for its full remaining lifetime after the victim thinks they've secured their account.
+        if (stored.SecurityStampAtIssuance != user.SecurityStamp)
+        {
+            stored.RevokedAt = DateTimeOffset.UtcNow;
+            await context.SaveChangesAsync();
+            logger.LogWarning("Refresh attempt with stale security stamp for user {UserId} (password changed since issuance).", user.Id);
+            return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidOrExpiredRefreshToken });
+        }
+
         // Rotate: revoke the old token and issue a new pair
         var newRefreshTokenPlain = tokenService.GenerateRefreshToken();
         var newEntity = new RefreshToken
@@ -207,7 +230,8 @@ public class AuthApiService(
             UserId = user.Id,
             TokenHash = HashToken(newRefreshTokenPlain),
             ExpiresAt = DateTimeOffset.UtcNow.AddDays(7),
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            SecurityStampAtIssuance = user.SecurityStamp
         };
 
         stored.RevokedAt = DateTimeOffset.UtcNow;
@@ -226,6 +250,33 @@ public class AuthApiService(
             RefreshToken = newRefreshTokenPlain,
             Expiration = expiration
         });
+    }
+
+    /// <summary>
+    /// SEC-1 reuse-detection response: walks the rotation chain forward from an already-revoked
+    /// token that was just presented again, revoking every still-active descendant. Bounded by
+    /// <c>MaxChainLength</c> so a corrupted/cyclic <c>ReplacedByTokenId</c> chain can't loop forever.
+    /// </summary>
+    private async Task RevokeTokenChainAsync(RefreshToken start)
+    {
+        const int maxChainLength = 50;
+        var now = DateTimeOffset.UtcNow;
+        var nextId = start.ReplacedByTokenId;
+        var hops = 0;
+
+        while (nextId is not null && hops++ < maxChainLength)
+        {
+            var next = await context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Id == nextId);
+            if (next is null)
+                break;
+
+            if (next.RevokedAt is null)
+                next.RevokedAt = now;
+
+            nextId = next.ReplacedByTokenId;
+        }
+
+        await context.SaveChangesAsync();
     }
 
     public async Task<AuthResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request, Func<string, string, string> buildResetUrl)
@@ -262,6 +313,18 @@ public class AuthApiService(
             // Return generic message — specific errors would confirm account existence or reveal policy hints.
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidRequest });
         }
+
+        // SEC-1: ResetPasswordAsync rotated SecurityStamp, which RefreshAsync's stamp check will
+        // now reject on its own — this bulk revoke just makes that outcome immediate/explicit
+        // instead of waiting for the next refresh attempt to discover the mismatch. Tracked
+        // mutation + SaveChanges (not ExecuteUpdateAsync) so this runs on every provider,
+        // including the EF InMemory provider integration tests use.
+        var activeTokens = await context.RefreshTokens
+            .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null)
+            .ToListAsync();
+        foreach (var token in activeTokens)
+            token.RevokedAt = DateTimeOffset.UtcNow;
+        await context.SaveChangesAsync();
 
         logger.LogInformation("Password reset for {Email}", request.Email);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetSuccessful });
@@ -315,6 +378,13 @@ public class AuthApiService(
 
         if (!result.Succeeded)
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Errors = result.Errors.Select(e => e.Description) });
+
+        var devActiveTokens = await context.RefreshTokens
+            .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null)
+            .ToListAsync();
+        foreach (var token in devActiveTokens)
+            token.RevokedAt = DateTimeOffset.UtcNow;
+        await context.SaveChangesAsync();
 
         logger.LogInformation("Password reset for {Email} (dev mode)", request.Email);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = "Password reset (dev mode)" });

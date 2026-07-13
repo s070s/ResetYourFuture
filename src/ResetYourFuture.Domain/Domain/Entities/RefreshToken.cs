@@ -28,6 +28,15 @@ public class RefreshToken
     /// </summary>
     public Guid? ReplacedByTokenId { get; set; }
 
+    /// <summary>
+    /// The user's <c>SecurityStamp</c> at the moment this token was issued (SEC-1). Checked on
+    /// every refresh so a password reset / admin-forced reset invalidates outstanding refresh
+    /// tokens immediately, instead of leaving them valid for their full 7-30 day lifetime.
+    /// Null on rows issued before this field existed — treated as an automatic mismatch (forces
+    /// one re-login), which is the safe default for a security-sensitive migration.
+    /// </summary>
+    public string? SecurityStampAtIssuance { get; set; }
+
     // Navigation
     public ApplicationUser User { get; set; } = null!;
 }
