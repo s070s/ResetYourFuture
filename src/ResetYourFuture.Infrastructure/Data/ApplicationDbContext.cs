@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
@@ -18,11 +20,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
+    // Encrypts the special-category assessment answer/summary columns at rest (COMP-2). Null when
+    // no DataProtection provider is injected (e.g. lightweight test contexts constructed directly),
+    // in which case those columns are stored as plaintext. The provider is a DI singleton, so every
+    // context in a given process makes the same choice — the built model stays consistent.
+    private readonly EncryptedStringConverter? _sensitiveDataConverter;
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-        IHttpContextAccessor? httpContextAccessor = null)
+        IHttpContextAccessor? httpContextAccessor = null,
+        IDataProtectionProvider? dataProtectionProvider = null)
         : base(options)
     {
         _httpContextAccessor = httpContextAccessor;
+        _sensitiveDataConverter = dataProtectionProvider is null
+            ? null
+            : new EncryptedStringConverter(
+                dataProtectionProvider.CreateProtector("ResetYourFuture.AssessmentSubmission.SensitiveData.v1"));
+    }
+
+    /// <summary>
+    /// True when this context encrypts the special-category assessment columns at rest (COMP-2),
+    /// i.e. a DataProtection provider was injected. Read by <see cref="EncryptionAwareModelCacheKeyFactory"/>
+    /// so an encrypted and a plaintext context never share a cached model in the same process.
+    /// </summary>
+    public bool SensitiveDataEncryptionEnabled => _sensitiveDataConverter is not null;
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.ReplaceService<IModelCacheKeyFactory, EncryptionAwareModelCacheKeyFactory>();
     }
 
     // --- Core Domain DbSets ---
@@ -103,6 +129,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
         // Apply all entity configurations from this assembly
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+
+        // Encrypt the special-category assessment answers/summary at rest (COMP-2) when a
+        // DataProtection provider is available. string -> string keeps the nvarchar column type,
+        // so no migration is needed; these columns are never filtered/ordered/indexed on.
+        if (_sensitiveDataConverter is not null)
+        {
+            builder.Entity<AssessmentSubmission>(entity =>
+            {
+                entity.Property(s => s.AnswersJson).HasConversion(_sensitiveDataConverter);
+                entity.Property(s => s.SummaryJson).HasConversion(_sensitiveDataConverter);
+            });
+        }
 
         // ApplicationUser configuration (Identity-specific)
         builder.Entity<ApplicationUser>(entity =>
