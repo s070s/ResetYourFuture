@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Web.Services;
 
 namespace ResetYourFuture.Web.Hubs;
 
@@ -19,15 +21,21 @@ public class ChatHub : Hub
 {
     private readonly IApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly INotificationDispatcher _notifications;
+    private readonly NotificationConnectionTracker _notificationTracker;
     private readonly ILogger<ChatHub> _logger;
 
     public ChatHub(
         IApplicationDbContext db,
         UserManager<ApplicationUser> userManager,
+        INotificationDispatcher notifications,
+        NotificationConnectionTracker notificationTracker,
         ILogger<ChatHub> logger)
     {
         _db = db;
         _userManager = userManager;
+        _notifications = notifications;
+        _notificationTracker = notificationTracker;
         _logger = logger;
     }
 
@@ -142,6 +150,19 @@ public class ChatHub : Hub
             message.SentAt);
 
         await Clients.Group($"user_{recipientId}").SendAsync("ChatNotification", notification);
+
+        // Only persist to the notification inbox when the recipient has no app tab open at all —
+        // an active session already gets the live toast above, so this avoids flooding the inbox
+        // during a back-and-forth conversation while still catching "you got a message while away".
+        if (!_notificationTracker.IsOnline(recipientId))
+        {
+            await _notifications.DispatchAsync(
+                recipientId,
+                NotificationType.ChatMessage,
+                "ChatMessageReceived",
+                [$"{sender.FirstName} {sender.LastName}"],
+                "/chat");
+        }
     }
 
     /// <summary>

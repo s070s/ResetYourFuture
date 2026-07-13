@@ -57,6 +57,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     // --- AI Assistant ---
     public DbSet<AssistantContentChunk> AssistantContentChunks => Set<AssistantContentChunk>();
 
+    // --- Notifications ---
+    public DbSet<Notification> Notifications => Set<Notification>();
+
     /// <summary>
     /// Register value converters that apply to all entities.
     /// SQLite cannot translate DateTimeOffset comparisons/ordering to SQL;

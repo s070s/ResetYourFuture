@@ -17,6 +17,7 @@ public class CertificateService : ICertificateService
 {
     private readonly IApplicationDbContext _db;
     private readonly IFileStorage _storage;
+    private readonly INotificationDispatcher _notifications;
     private readonly ILogger<CertificateService> _logger;
 
     static CertificateService()
@@ -29,10 +30,12 @@ public class CertificateService : ICertificateService
     public CertificateService(
         IApplicationDbContext db,
         IFileStorage storage,
+        INotificationDispatcher notifications,
         ILogger<CertificateService> logger)
     {
         _db = db;
         _storage = storage;
+        _notifications = notifications;
         _logger = logger;
     }
 
@@ -120,6 +123,14 @@ public class CertificateService : ICertificateService
         _logger.LogInformation(
             "Certificate {CertificateId} issued for user {UserId} on course {CourseId}.",
             certificate.Id, userId, courseId);
+
+        await _notifications.DispatchAsync(
+            userId,
+            NotificationType.CertificateIssued,
+            "CertificateIssued",
+            [course.TitleEn],
+            "/my-certificates",
+            cancellationToken);
 
         return certificate;
     }

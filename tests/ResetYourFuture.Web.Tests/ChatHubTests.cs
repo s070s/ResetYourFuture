@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
+using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Web.Hubs;
+using ResetYourFuture.Web.Services;
 using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
@@ -27,6 +30,8 @@ public class ChatHubTests
         public required HubCallerContext Context;
         public required IGroupManager Groups;
         public required UserManager<ApplicationUser> Um;
+        public required INotificationDispatcher Notifications;
+        public required NotificationConnectionTracker Tracker;
     }
 
     private static ApplicationUser AppUser(string id, bool enabled = true) =>
@@ -48,15 +53,21 @@ public class ChatHubTests
 
         var groups = Substitute.For<IGroupManager>();
         var um = IdentityMocks.MockUserManager();
+        var notifications = Substitute.For<INotificationDispatcher>();
+        var tracker = new NotificationConnectionTracker();
 
-        var hub = new ChatHub(db, um, NullLogger<ChatHub>.Instance)
+        var hub = new ChatHub(db, um, notifications, tracker, NullLogger<ChatHub>.Instance)
         {
             Clients = clients,
             Context = context,
             Groups = groups
         };
 
-        return new Harness { Hub = hub, Caller = caller, Group = group, Context = context, Groups = groups, Um = um };
+        return new Harness
+        {
+            Hub = hub, Caller = caller, Group = group, Context = context, Groups = groups, Um = um,
+            Notifications = notifications, Tracker = tracker
+        };
     }
 
     private static ChatConversation Conversation(string creator, string participant) =>
@@ -185,6 +196,42 @@ public class ChatHubTests
         (await db.ChatConversations.FirstAsync()).LastMessageContent.ShouldBe("hello world");
         await h.Group.Received().SendCoreAsync("ReceiveMessage", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
         await h.Group.Received().SendCoreAsync("ChatNotification", Arg.Any<object?[]>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SendMessage_RecipientOffline_DispatchesPersistedNotification()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var conv = Conversation(Me, Other);
+        db.ChatConversations.Add(conv);
+        await db.SaveChangesAsync();
+        var h = BuildHub(db, Me, isAdmin: true);
+        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
+        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string> { "Admin" });
+        // Recipient has no NotificationHub connection — Tracker starts empty, i.e. offline.
+
+        await h.Hub.SendMessage(conv.Id, "hello");
+
+        await h.Notifications.Received(1).DispatchAsync(
+            Other, NotificationType.ChatMessage, "ChatMessageReceived", Arg.Any<IReadOnlyList<string>>(), "/chat", Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SendMessage_RecipientOnline_SkipsPersistedNotification()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var conv = Conversation(Me, Other);
+        db.ChatConversations.Add(conv);
+        await db.SaveChangesAsync();
+        var h = BuildHub(db, Me, isAdmin: true);
+        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
+        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string> { "Admin" });
+        h.Tracker.MarkConnected(Other); // recipient has the app open
+
+        await h.Hub.SendMessage(conv.Id, "hello");
+
+        await h.Notifications.DidNotReceiveWithAnyArgs().DispatchAsync(
+            default!, default, default!, default, default, default);
     }
 
     [Fact]

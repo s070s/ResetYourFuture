@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
+using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Application.ApiServices;
@@ -17,7 +19,7 @@ public class SubscriptionServiceTests
 {
     private const string UserId = "user-1";
 
-    private static SubscriptionService NewService(ApplicationDbContext db, bool mockPayment = true)
+    private static SubscriptionService NewService(ApplicationDbContext db, bool mockPayment = true, INotificationDispatcher? notifications = null)
     {
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -27,7 +29,8 @@ public class SubscriptionServiceTests
             .Build();
 
         return new SubscriptionService(
-            db, NullLogger<SubscriptionService>.Instance, new MemoryCache(new MemoryCacheOptions()), config);
+            db, NullLogger<SubscriptionService>.Instance, new MemoryCache(new MemoryCacheOptions()),
+            notifications ?? Substitute.For<INotificationDispatcher>(), config);
     }
 
     private static SubscriptionPlan Plan(

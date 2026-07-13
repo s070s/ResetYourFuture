@@ -1,0 +1,54 @@
+@implements IAsyncDisposable
+
+<AuthorizeView>
+    <Authorized>
+        <div class="notification-bell" @onfocusout="HandleFocusOut" tabindex="-1">
+            <button class="bell-button" @onclick="ToggleDropdown" @onclick:stopPropagation="true"
+                    title="@NotificationRes.OpenNotifications" aria-label="@BellAriaLabel"
+                    aria-haspopup="menu" aria-expanded="@(isOpen ? "true" : "false")">
+                <span class="bi bi-bell bell-icon" aria-hidden="true"></span>
+                @if (_unreadCount > 0)
+                {
+                    <span class="unread-badge">@(_unreadCount > 99 ? "99+" : _unreadCount.ToString())</span>
+                }
+            </button>
+
+            @if (isOpen)
+            {
+                <div class="notification-panel" role="menu">
+                    <div class="notification-panel-header">
+                        <span>@NotificationRes.Title</span>
+                        @if (_unreadCount > 0)
+                        {
+                            <button type="button" class="mark-all-read-btn" @onclick="MarkAllReadAsync">@NotificationRes.MarkAllRead</button>
+                        }
+                    </div>
+
+                    @if (_loading)
+                    {
+                        <div class="notification-empty">@NotificationRes.Loading</div>
+                    }
+                    else if (_recent.Count == 0)
+                    {
+                        <div class="notification-empty">@NotificationRes.Empty</div>
+                    }
+                    else
+                    {
+                        <div class="notification-list">
+                            @foreach (var n in _recent)
+                            {
+                                <button type="button" class="notification-item @(n.IsRead ? "" : "unread")"
+                                        @onclick="() => HandleClick(n)">
+                                    <span class="notification-text">@NotificationMessageFormatter.Format(n)</span>
+                                    <span class="notification-time">@RelativeTime(n.CreatedAt)</span>
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    <a class="view-all-link" href="/notifications" @onclick="Close">@NotificationRes.ViewAll</a>
+                </div>
+            }
+        </div>
+    </Authorized>
+</AuthorizeView>

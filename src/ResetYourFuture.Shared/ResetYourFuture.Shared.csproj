@@ -198,6 +198,20 @@
       <DependentUpon>ProfileRes.resx</DependentUpon>
     </Compile>
 
+    <!-- Notification -->
+    <EmbeddedResource Update="Resources\NotificationRes.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>NotificationRes.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\NotificationRes.el.resx">
+      <DependentUpon>NotificationRes.resx</DependentUpon>
+    </EmbeddedResource>
+    <Compile Update="Resources\NotificationRes.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NotificationRes.resx</DependentUpon>
+    </Compile>
+
     <!-- NavMenu -->
     <EmbeddedResource Update="Resources\NavMenuRes.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -37,14 +37,10 @@
 
 ## 4. Work Items (one per feature)
 
-### WI-1: In-App Notification Center
-**Why:** every interactive feature (chat, grading, subscriptions, sessions) currently ends in silence unless the user is on the right page; SignalR + presence make delivery nearly free. Highest cross-feature payoff, so it ships first.
-- **Entities + migration:** `Notification` (Id, UserId, Type enum, TitleKey/BodyArgs for localized rendering, LinkUrl, IsRead, CreatedAt; index on `(UserId, IsRead, CreatedAt)`), migration `AddNotifications`.
-- **Backend:** `NotificationService` (create/mark-read/list paged, prune old), `INotificationDispatcher` that persists **then** pushes via a new lightweight `NotificationHub` (or piggybacks on `ChatHub` connection) to online users; emit points: chat message received while offline from that conversation, certificate issued, subscription activated/expiring, (later) review approved + session reminders.
-- **API + consumer:** `NotificationsController` (`GET /api/notifications` paged, `POST /{id}/read`, `POST /read-all`), `NotificationConsumer` per loopback convention.
-- **UI:** bell + unread badge in `Layout/MainLayout.razor` (next to `AvatarDropdown`), dropdown panel with mark-as-read, full `/notifications` page using `ScrollableTable` + sorting pattern from 10-plan. New `NotificationRes.resx` (+ `.el`).
-- **Effort:** L. **Depends on:** nothing.
-- **Acceptance:** an event raised while the user is online shows the badge live (no refresh); offline events appear on next login; localized in both cultures.
+### ~~WI-1: In-App Notification Center~~ ✅ DONE
+`Notification` entity (plain, Cascade FK to ApplicationUser) + migration `AddNotifications`; `NotificationService` (CRUD) + `INotificationDispatcher` (framework-agnostic interface in Application, implemented in Web via `NotificationDispatcher` using `IHubContext<NotificationHub>` — lets Infrastructure's `CertificateService` and Application's `SubscriptionService` raise notifications without a SignalR dependency); `NotificationHub` (connects globally like `CallHub`, `user_{userId}` groups) + `NotificationConnectionTracker` (per-user connection refcount, doubles as an online/offline signal). Emit points wired: chat message received while the recipient has no live connection at all (an active session already gets the existing live toast, so this avoids flooding the inbox), certificate issued, subscription activated via real checkout. Subscription-expiring emit deferred until BIZ-1's expiry sweep job exists (Phase 5) — wiring it now would mean building that job prematurely.
+UI: `NotificationBell` (bell + unread badge, dropdown with mark-as-read, mounted in `MainLayout` next to `AvatarDropdown`) opens its own SignalR connection for live badge updates; full `/notifications` page uses `ScrollableTable` + `SortableColumnHeader` + `AdminPaginationToolbar` per the 10-plan pattern (createdat/isread sortable). New `NotificationRes.resx` (+ `.el`, hand-edited `Designer.cs`); TitleKey+BodyArgs stored (not pre-rendered text) so the same row renders correctly in whichever culture it's viewed in.
+Tests: `NotificationSearchExtensionsTests`, `NotificationServiceTests`, `NotificationHubTests` (connect/disconnect/multi-tab), `NotificationsControllerTests` (authz + cross-user isolation), plus two `ChatHubTests` covering the online/offline dispatch decision. Verified live: bell renders, empty state, full page, EN/EL localization, no console errors, clean server boot.
 
 ### WI-2: Course Reviews & Ratings
 **Why:** social proof drives enrollment; the testimonials pattern (entity, moderation queue, admin page) is a near copy-paste; ratings feed the agent's `recommend_courses` tool (11-plan WI-B2).

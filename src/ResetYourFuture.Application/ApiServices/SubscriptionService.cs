@@ -20,15 +20,19 @@ public class SubscriptionService : ISubscriptionService
     private readonly IApplicationDbContext _db;
     private readonly ILogger<SubscriptionService> _logger;
     private readonly IMemoryCache _cache;
+    private readonly INotificationDispatcher _notifications;
     private readonly bool _mockPaymentEnabled;
 
     private static string StatusCacheKey(string userId) => $"sub_status:{userId}";
 
-    public SubscriptionService(IApplicationDbContext db, ILogger<SubscriptionService> logger, IMemoryCache cache, IConfiguration configuration)
+    public SubscriptionService(
+        IApplicationDbContext db, ILogger<SubscriptionService> logger, IMemoryCache cache,
+        INotificationDispatcher notifications, IConfiguration configuration)
     {
         _db = db;
         _logger = logger;
         _cache = cache;
+        _notifications = notifications;
         _mockPaymentEnabled = configuration.GetValue<bool>("Payment:MockEnabled");
     }
 
@@ -194,6 +198,14 @@ public class SubscriptionService : ISubscriptionService
         });
         await _db.SaveChangesAsync(cancellationToken);
         _cache.Remove(StatusCacheKey(userId));
+
+        await _notifications.DispatchAsync(
+            userId,
+            NotificationType.SubscriptionActivated,
+            "SubscriptionActivated",
+            [plan.Name],
+            "/billing",
+            cancellationToken);
 
         return new CheckoutSessionDto(
             mockSessionId,

@@ -17,7 +17,7 @@ namespace ResetYourFuture.Infrastructure.Tests;
 public class CertificateServiceTests
 {
     private static CertificateService NewService(ApplicationDbContext db, IFileStorage storage) =>
-        new(db, storage, NullLogger<CertificateService>.Instance);
+        new(db, storage, Substitute.For<INotificationDispatcher>(), NullLogger<CertificateService>.Instance);
 
     private static async Task<(Course course, string userId)> SeedCompletedAsync(
         ApplicationDbContext db, string? displayName = null, int[]? durations = null)

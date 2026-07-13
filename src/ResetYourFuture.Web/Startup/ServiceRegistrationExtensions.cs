@@ -55,6 +55,13 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<ICertificateService, CertificateService>();
         builder.Services.AddScoped<IBlogArticleService, BlogArticleService>();
         builder.Services.AddScoped<ITestimonialService, TestimonialService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        // Web-layer dispatcher (needs IHubContext<NotificationHub>) so Application/Infrastructure
+        // services can raise notifications through the framework-agnostic INotificationDispatcher.
+        builder.Services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
+        // Tracks live NotificationHub connections (per-user refcount) — the hub connects globally
+        // in MainLayout, so this doubles as an online/offline signal for dispatch decisions.
+        builder.Services.AddSingleton<NotificationConnectionTracker>();
 
         // --- Web Services ---
         builder.Services.AddScoped<IAuthService, AuthService>();
@@ -261,6 +268,8 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHttpClient<IChatService, ChatService>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
         builder.Services.AddHttpClient<IAssistantConsumer, AssistantConsumer>(c => c.BaseAddress = new Uri(selfBase))
+            .AddHttpMessageHandler<SsrApiHandler>();
+        builder.Services.AddHttpClient<INotificationConsumer, NotificationConsumer>(c => c.BaseAddress = new Uri(selfBase))
             .AddHttpMessageHandler<SsrApiHandler>();
     }
 }
