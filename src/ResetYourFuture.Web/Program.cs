@@ -13,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.ValidateRequiredConfig();
 
 // --- Logging ---
-builder.Logging.AddFileLogger("Logs");
+// LOG-6: anchor the log directory to the content root, not the (launch-dependent) working
+// directory, so logs always land in the same place and the daily digest (LOG-1) can find them.
+var logsDirectory = Path.Combine(builder.Environment.ContentRootPath, "Logs");
+builder.Logging.AddFileLogger(logsDirectory);
 
 builder.AddResetYourFutureAuthentication();
 builder.AddResetYourFutureServices();
@@ -126,7 +129,7 @@ app.MapRazorComponents<App>()
    .AddInteractiveServerRenderMode();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("ResetYourFuture.Web started. Logs: {LogsPath}", Path.GetFullPath("Logs"));
+logger.LogInformation("ResetYourFuture.Web started. Logs: {LogsPath}", logsDirectory);
 
 app.Run();
 

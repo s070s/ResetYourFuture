@@ -162,6 +162,9 @@ public static class ServiceRegistrationExtensions
         // AVAIL-5: broadcasts a clean "server is stopping" notice to chat/call clients on shutdown.
         builder.Services.AddHostedService<GracefulShutdownNotifier>();
 
+        // LOG-1: daily digest that surfaces the previous day's error count so logs aren't write-only.
+        builder.Services.AddHostedService<LogErrorDigestService>();
+
         // --- Health checks (AVAIL-1) ---
         // "database" and "assistant" are tagged "ready" so /health/ready reflects both; the
         // assistant check reports Degraded (not Unhealthy) when Ollama is unreachable, since the
