@@ -582,6 +582,15 @@
   <data name="ConfirmDeleteLesson" xml:space="preserve">
     <value>Διαγραφή αυτού του μαθήματος;</value>
   </data>
+  <data name="ConfirmDeleteUser" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτόν τον χρήστη; Αυτό αφαιρεί οριστικά τις εγγραφές, τις υποβολές, τα πιστοποιητικά και το ιστορικό συνομιλιών/κλήσεών του.</value>
+  </data>
+  <data name="ConfirmDeleteArticle" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το άρθρο;</value>
+  </data>
+  <data name="ConfirmDeleteTestimonial" xml:space="preserve">
+    <value>Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή τη μαρτυρία;</value>
+  </data>
   <data name="EditArticle" xml:space="preserve">
     <value>Επεξεργασία άρθρου</value>
   </data>

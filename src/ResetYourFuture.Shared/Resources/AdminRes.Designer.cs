@@ -509,7 +509,34 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ConfirmDeleteLesson", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete this user?....
+        /// </summary>
+        public static string ConfirmDeleteUser {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteUser", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete this article?.
+        /// </summary>
+        public static string ConfirmDeleteArticle {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteArticle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to delete this testimonial?.
+        /// </summary>
+        public static string ConfirmDeleteTestimonial {
+            get {
+                return ResourceManager.GetString("ConfirmDeleteTestimonial", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Confirm Password.
         /// </summary>

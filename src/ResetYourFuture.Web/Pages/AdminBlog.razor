@@ -74,15 +74,7 @@
                                 {
                                     <button class="btn btn-sm btn-success me-1" @onclick="() => TogglePublish(article)">@AdminRes.Publish</button>
                                 }
-                                @if (confirmDeleteId == article.Id)
-                                {
-                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteArticle(article.Id)">@AdminRes.ConfirmDelete</button>
-                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => confirmDeleteId = article.Id">@AdminRes.Delete</button>
-                                }
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDeleteArticle(article.Id)">@AdminRes.Delete</button>
                             </td>
                         </tr>
                     </RowTemplate>
@@ -106,3 +98,11 @@
         </NotAuthorized>
     </AuthorizeView>
 </div>
+
+<ConfirmModal IsVisible="@(confirmDeleteId is not null)"
+              Title="@AdminRes.ConfirmTitle"
+              Message="@AdminRes.ConfirmDeleteArticle"
+              ConfirmLabel="@AdminRes.Delete"
+              CancelLabel="@AdminRes.Cancel"
+              OnConfirm="DeleteArticle"
+              OnCancel="CancelDeleteArticle" />

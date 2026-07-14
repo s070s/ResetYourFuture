@@ -91,15 +91,7 @@
                                 {
                                     <button class="btn btn-sm btn-success me-1" @onclick="() => ToggleActive(item.Id)">@AdminRes.Activate</button>
                                 }
-                                @if (confirmDeleteId == item.Id)
-                                {
-                                    <button class="btn btn-sm btn-danger me-1" @onclick="() => DeleteTestimonial(item.Id)">@AdminRes.ConfirmDelete</button>
-                                    <button class="btn btn-sm btn-outline-secondary" @onclick="() => confirmDeleteId = null">@AdminRes.Cancel</button>
-                                }
-                                else
-                                {
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => confirmDeleteId = item.Id">@AdminRes.Delete</button>
-                                }
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDeleteTestimonial(item.Id)">@AdminRes.Delete</button>
                             </td>
                         </tr>
                     </RowTemplate>
@@ -123,3 +115,11 @@
         </NotAuthorized>
     </AuthorizeView>
 </div>
+
+<ConfirmModal IsVisible="@(confirmDeleteId is not null)"
+              Title="@AdminRes.ConfirmTitle"
+              Message="@AdminRes.ConfirmDeleteTestimonial"
+              ConfirmLabel="@AdminRes.Delete"
+              CancelLabel="@AdminRes.Cancel"
+              OnConfirm="DeleteTestimonial"
+              OnCancel="CancelDeleteTestimonial" />

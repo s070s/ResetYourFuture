@@ -224,14 +224,22 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private async Task DeleteUser(string userId)
+    private void RequestDeleteUser(string userId) => confirmDeleteId = userId;
+
+    private void CancelDeleteUser() => confirmDeleteId = null;
+
+    private async Task DeleteUser()
     {
+        if (confirmDeleteId is not { } userId)
+            return;
+
+        confirmDeleteId = null;
+
         try
         {
             var success = await UserConsumer.DeleteUserAsync(userId);
             if (success)
             {
-                confirmDeleteId = null;
                 await LoadUsers();
                 message = AdminRes.UserDeleted;
                 messageType = "success";

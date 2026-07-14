@@ -563,6 +563,15 @@
 	<data name="ConfirmDeleteLesson" xml:space="preserve">
 		<value>Delete this lesson?</value>
 	</data>
+	<data name="ConfirmDeleteUser" xml:space="preserve">
+		<value>Are you sure you want to delete this user? This permanently removes their enrollments, submissions, certificates, and chat/call history.</value>
+	</data>
+	<data name="ConfirmDeleteArticle" xml:space="preserve">
+		<value>Are you sure you want to delete this article?</value>
+	</data>
+	<data name="ConfirmDeleteTestimonial" xml:space="preserve">
+		<value>Are you sure you want to delete this testimonial?</value>
+	</data>
 	<data name="EditArticle" xml:space="preserve">
 		<value>Edit Article</value>
 	</data>

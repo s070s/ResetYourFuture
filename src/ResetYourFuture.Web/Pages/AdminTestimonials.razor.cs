@@ -129,14 +129,22 @@ public partial class AdminTestimonials
         }
     }
 
-    private async Task DeleteTestimonial(Guid id)
+    private void RequestDeleteTestimonial(Guid id) => confirmDeleteId = id;
+
+    private void CancelDeleteTestimonial() => confirmDeleteId = null;
+
+    private async Task DeleteTestimonial()
     {
+        if (confirmDeleteId is not { } id)
+            return;
+
+        confirmDeleteId = null;
+
         try
         {
             var success = await TestimonialConsumer.DeleteAsync(id);
             if (success)
             {
-                confirmDeleteId = null;
                 message = AdminRes.TestimonialDeleted;
                 messageType = "success";
                 await LoadTestimonials();

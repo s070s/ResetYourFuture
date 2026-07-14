@@ -127,14 +127,22 @@ public partial class AdminBlog : IAsyncDisposable
         }
     }
 
-    private async Task DeleteArticle(Guid id)
+    private void RequestDeleteArticle(Guid id) => confirmDeleteId = id;
+
+    private void CancelDeleteArticle() => confirmDeleteId = null;
+
+    private async Task DeleteArticle()
     {
+        if (confirmDeleteId is not { } id)
+            return;
+
+        confirmDeleteId = null;
+
         try
         {
             var success = await BlogConsumer.DeleteArticleAsync(id);
             if (success)
             {
-                confirmDeleteId = null;
                 message = AdminRes.ArticleDeleted;
                 messageType = "success";
                 await LoadArticles();
