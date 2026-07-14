@@ -19,28 +19,18 @@ NOT examined: contractual DPA/processor agreements and jurisdiction-specific obl
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 3 |
-| Low | 2 |
+| Medium | 0 |
+| Low | 3 |
 | Info | 1 |
 
-The project shows GDPR *awareness* — registration requires explicit `GdprConsent` (validated true via `[Range(typeof(bool),"true","true")]`), consent date is captured, an under-18 branch and a `ParentalConsentGiven` flag exist, cookies in use are functional/essential (no analytics or marketing trackers), and the admin delete is labelled a GDPR action. Awareness has now been matched by implementation on the two blocking items: there is a bilingual privacy/terms notice for the consent to point at (COMP-1, fixed), and the special-category assessment answers are encrypted at rest (COMP-2, fixed). What remains is mid-severity: no data-access/portability export, erasure is incomplete and technically blocked, and there is no retention policy or purge.
+The project shows GDPR *awareness* — registration requires explicit `GdprConsent` (validated true via `[Range(typeof(bool),"true","true")]`), consent date is captured, an under-18 branch and a `ParentalConsentGiven` flag exist, cookies in use are functional/essential (no analytics or marketing trackers), and the admin delete is labelled a GDPR action. Awareness has now been matched by implementation: bilingual privacy/terms notices exist (COMP-1, fixed), special-category assessment answers are encrypted at rest (COMP-2, fixed), erasure now has a working self-service path (COMP-3, fixed), a "download my data" export covers access/portability (COMP-4, fixed), and expired refresh tokens are purged (COMP-5, fixed for its quick-win slice — the broader per-category retention-policy question is now Low, since it's a policy decision more than a code gap).
 
 ## 3. Findings
 
-### COMP-3: Right to erasure is incomplete and technically blocked  [Medium] [Effort: M]
-- **Evidence:** `AdminController.DeleteUser` is documented "GDPR data deletion" but `AdminUserService.DeleteUserAsync:183-199` hard-deletes via Identity and is blocked by Restrict FKs on chat/call rows (see DQ-1/REL-1). Even when it succeeds, chat message content, call records, and assessment answers referencing the user are either cascade-deleted inconsistently or left in place; there is no anonymisation and no self-service erasure request.
-- **Impact:** A data subject's erasure request cannot be reliably fulfilled: the operation fails for active users (those with chat/call history) and leaves residual personal data or over-deletes retained records for others. There is no user-initiated erasure at all.
-- **Recommendation:** Implement a deterministic erasure workflow (anonymise PII, remove or pseudonymise chat/assessment content, retain only what a lawful basis requires) that succeeds for all users, and expose a user-facing erasure request path. Depends on the DQ-1 deletion-strategy decision.
-
-### COMP-4: No data access/portability export  [Medium] [Effort: M]
-- **Evidence:** Reviewed the full controller set — there is no endpoint that returns a user's personal data (profile, enrollments, submissions, chat, billing) in a portable form. `ProfileController` only returns the basic profile.
-- **Impact:** GDPR Art. 15 (access) and Art. 20 (portability) require providing the subject's data on request in a machine-readable format. There is no way to satisfy this today.
-- **Recommendation:** Add an authenticated "download my data" export (JSON) aggregating profile, consent record, enrollments/completions, assessment submissions, certificates, billing history, and chat.
-
-### COMP-5: No data-retention policy or purge for personal data  [Medium] [Effort: M]
-- **Evidence:** No scheduled purge exists for `RefreshToken` (revoked/expired rows accumulate — `AuthApiService` never deletes them), `ChatMessage`/`CallSession` history, `AssessmentSubmission`, or `BillingTransaction`. `CallRingMonitor` sweeps *dangling* sessions but never prunes old data.
-- **Impact:** Personal data is retained indefinitely with no defined retention period, contrary to GDPR storage-limitation (Art. 5(1)(e)). Revoked refresh-token rows also grow unbounded.
-- **Recommendation:** Define retention periods per data category and add a purge job (revoked/expired refresh tokens first — quick win; then aged chat/call/assessment data per policy).
+### COMP-5: No data-retention policy for chat/call/assessment history  [Low] [Effort: M]
+- **Evidence:** `ChatMessage`/`CallSession`/`AssessmentSubmission`/`BillingTransaction` rows are retained indefinitely with no defined retention period. **Fixed (2026-07-14):** the "quick win" half of this finding — expired `RefreshToken` rows accumulating forever — is resolved by `RefreshTokenPurgeService` (a background sweep, matching `SubscriptionExpirySweeper`'s convention, that deletes rows past `ExpiresAt`; safe purely by expiry since `AuthApiService.RefreshAsync` checks `ExpiresAt <= now` before ever consulting `RevokedAt`).
+- **Impact:** What remains is the broader question of retention periods for chat/call/assessment/billing history — that's a business/legal policy decision (how long is "necessary" for this platform's purposes under GDPR storage-limitation, Art. 5(1)(e)), not a code gap the way the refresh-token accumulation was. Downgraded from Medium: the concrete, code-only piece is done.
+- **Recommendation:** Once retention periods per category are decided, add purge jobs for aged chat/call/assessment/billing data following the same `BackgroundService` sweep pattern.
 
 ### COMP-6: Under-18 registration proceeds without parental-consent enforcement  [Low] [Effort: M]
 - **Evidence:** `AuthApiService.RegisterAsync:49-54` logs "Under-18 user registered … Parental consent not yet implemented" and allows the registration; `ApplicationUser.ParentalConsentGiven:65-69` is a documented placeholder never set or checked.
@@ -61,17 +51,15 @@ The project shows GDPR *awareness* — registration requires explicit `GdprConse
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| COMP-3 | Medium | M | Implement complete, reliable erasure (anonymise + dependent cleanup) + user request path |
-| COMP-4 | Medium | M | Add "download my data" export (access/portability) |
-| COMP-5 | Medium | M | Define retention periods + purge job (start with revoked/expired refresh tokens) |
+| COMP-5 | Low | M | Define retention periods for chat/call/assessment/billing history; add purge jobs once decided |
 | COMP-6 | Low | M | Enforce under-18 parental-consent gate |
 | COMP-7 | Low | M | Granular, withdrawable consent by purpose |
 | COMP-8 | Info | S | Maintain a Record of Processing Activities |
 
 ## 5. Related Findings Elsewhere
 
-- **DQ (28):** DQ-1 — the FK/cascade design that makes erasure (COMP-3) technically impossible today; owns the constraint decision.
-- **REL (26):** REL-1 — the unhandled exception that surfaces when erasure is attempted on a user with chat/call history.
-- **SEC (25):** SEC-1 (refresh-token lifecycle) and SEC-10 (secret handling) — the token store whose retention COMP-5 also addresses.
-- **BIZ (27):** BIZ — subscription/billing records are part of the retained personal-data set.
+- **DQ (28):** DQ-1 — the FK/cascade design; COMP-3's erasure path (fixed) explicitly cleans up chat/call/certificate rows before the Identity delete rather than relying on cascade alone.
+- **REL (26):** REL-1 — the unhandled exception that used to surface when erasure was attempted on a user with chat/call history; unblocked, same as COMP-3.
+- **SEC (25):** SEC-1 (refresh-token lifecycle) and SEC-10 (secret handling) — the token store whose expired-row purge COMP-5 also addresses (fixed for that slice).
+- **BIZ (27):** BIZ — subscription/billing records are part of the retained personal-data set (now included in COMP-4's export).
 - **UX (33):** Consent-flow wording and the presence/visibility of policy links in the registration UX.

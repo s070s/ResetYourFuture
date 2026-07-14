@@ -159,6 +159,8 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 |--------|-------|-------------|------|
 | `GET` | `api/profile` | Get current user's profile | Yes |
 | `PUT` | `api/profile` | Update profile | Yes |
+| `DELETE` | `api/profile` | Delete own account (GDPR erasure) | Yes |
+| `GET` | `api/profile/export` | Download own data (GDPR access/portability) | Yes |
 | `POST` | `api/profile/avatar` | Upload avatar | Yes |
 | `GET` | `api/profile/avatar` | Get avatar | Yes |
 | `POST` | `api/profile/change-password` | Change password | Yes |
@@ -529,14 +531,14 @@ On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.
 | JWT tokens | HS256, 15-min expiry, security-stamp validated on every request, key ≥ 32 bytes enforced at startup |
 | Refresh tokens | SHA-256-hashed, single-use rotation; revoked token chain tracked |
 | XSS prevention | All rich-text inputs sanitised with Ganss.Xss (`IHtmlSanitizer`) |
-| Rate limiting | `"auth"` policy (global) on register / login / confirm-email / forgot-password / reset-password; `"assistant"` policy (per-user) on the AI chat endpoint |
+| Rate limiting | `"auth"` policy (global) on register / login / confirm-email / forgot-password / reset-password; `"assistant"` and `"sensitive"` policies (per-user) on the AI chat endpoint and on state-changing account actions (password change, avatar upload, checkout, assessment submission, account delete/export) |
 | HSTS | Enabled in Production; skipped in Development |
 | Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (`camera`/`microphone`/`display-capture` allowed same-origin for video calls; `geolocation` denied) |
 | File uploads | Content-type allowlist enforced per upload type (image / PDF / video); extension allowlist on media serve |
 | Sitemap | Slugs XML-escaped via `SecurityElement.Escape()` |
 | Account enumeration | Login, forgot-password, reset-password all return generic messages; duplicate-email registration mapped to generic error |
 | Sensitive data at rest | Special-category assessment answers (`AnswersJson`/`SummaryJson`) encrypted at rest via ASP.NET Core Data Protection (transparent EF value converter); the Data Protection key ring is persisted to the database |
-| GDPR posture | Bilingual Privacy Policy (`/privacy`) and Terms (`/terms`) linked from the registration consent and the landing footer; registration requires explicit consent with captured timestamp |
+| GDPR posture | Bilingual Privacy Policy (`/privacy`) and Terms (`/terms`) linked from the registration consent and the landing footer; registration requires explicit consent with captured timestamp; self-service account erasure and "download my data" export from the Profile page; expired refresh tokens purged on a background sweep |
 
 ---
 
