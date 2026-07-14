@@ -33,9 +33,6 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new AuthResponseDto { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-
         var result = await _authApiService.RegisterAsync(request, (userId, token) =>
             Url.Action("ConfirmEmail", "Auth", new { userId, token }, Request.Scheme));
         return result.ToEmbeddedActionResult();
@@ -59,9 +56,6 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new AuthResponseDto { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-
         var result = await _authApiService.LoginAsync(request);
         return result.ToEmbeddedActionResult();
     }
@@ -75,9 +69,6 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenRequestDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new AuthResponseDto { Success = false, Message = "Refresh token is required." });
-
         var result = await _authApiService.RefreshAsync(request);
         return result.ToEmbeddedActionResult();
     }
@@ -101,9 +92,6 @@ public class AuthController : ControllerBase
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResponseDto>> ResetPassword([FromBody] ResetPasswordRequestDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new AuthResponseDto { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
-
         var result = await _authApiService.ResetPasswordAsync(request);
         return result.ToEmbeddedActionResult();
     }

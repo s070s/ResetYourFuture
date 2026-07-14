@@ -44,7 +44,8 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
     {
         var name = request.NameEn.Trim();
         if (await NameExistsAsync(name, excludeId: null, cancellationToken))
-            return ServiceResult<AdminCategoryDto>.BadRequest(error: ErrorMessagesRes.CategoryNameExists);
+            // API-3: 409, not 400 — this is "retry with a different name", not "fix your input shape".
+            return ServiceResult<AdminCategoryDto>.Conflict(error: ErrorMessagesRes.CategoryNameExists);
 
         var category = new Category
         {
@@ -67,7 +68,8 @@ public class AdminCategoryService(IApplicationDbContext db, ILogger<AdminCategor
 
         var name = request.NameEn.Trim();
         if (await NameExistsAsync(name, excludeId: id, cancellationToken))
-            return ServiceResult<AdminCategoryDto>.BadRequest(error: ErrorMessagesRes.CategoryNameExists);
+            // API-3: 409, not 400 — this is "retry with a different name", not "fix your input shape".
+            return ServiceResult<AdminCategoryDto>.Conflict(error: ErrorMessagesRes.CategoryNameExists);
 
         category.NameEn = name;
         category.NameEl = NormalizeOptional(request.NameEl);

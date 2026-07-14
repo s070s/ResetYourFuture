@@ -106,7 +106,8 @@ public class AdminAssessmentsController : ControllerBase
         // Ensure the requested key is unique to avoid duplicates
         if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key))
         {
-            return BadRequest($"Assessment with key '{request.Key}' already exists");
+            // API-3: 409, not 400 — this is "retry with a different key", not "fix your input shape".
+            return Conflict($"Assessment with key '{request.Key}' already exists");
         }
 
         // DQ-4: reject malformed/structurally-wrong schemas here instead of only failing later
@@ -139,8 +140,9 @@ public class AdminAssessmentsController : ControllerBase
 
         var categoryNameEn = await GetCategoryNameEnAsync(categoryId);
 
-        // Return 201 Created with location header pointing to the assessments list endpoint
-        return CreatedAtAction(nameof(GetAssessments), new
+        // API-4: point Location at the by-id GET, not the paged list (which would resolve to
+        // "/api/admin/assessments?id={guid}" — a bogus query string on a collection route).
+        return CreatedAtAction(nameof(GetAssessmentById), new
         {
             id = assessment.Id
         }, assessment.ToAdminDto(categoryNameEn));
@@ -162,7 +164,8 @@ public class AdminAssessmentsController : ControllerBase
         // Ensure the new key does not clash with another assessment
         if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key && a.Id != id))
         {
-            return BadRequest($"Assessment with key '{request.Key}' already exists");
+            // API-3: 409, not 400 — this is "retry with a different key", not "fix your input shape".
+            return Conflict($"Assessment with key '{request.Key}' already exists");
         }
 
         // DQ-4: reject malformed/structurally-wrong schemas here instead of only failing later

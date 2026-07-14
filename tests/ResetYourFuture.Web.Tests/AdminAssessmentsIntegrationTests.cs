@@ -51,4 +51,19 @@ public class AdminAssessmentsIntegrationTests : IClassFixture<CustomWebAppFactor
 
         response.StatusCode.ShouldBe(HttpStatusCode.Created);
     }
+
+    [Fact]
+    public async Task CreateAssessment_DuplicateKey_Returns409()
+    {
+        // API-3: uniqueness violations are a Conflict ("retry with a different key"), not a
+        // BadRequest ("fix your input shape").
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+        var key = $"dup-{Guid.NewGuid():N}";
+        var schemaJson = "{\"questions\":[{\"id\":\"q1\",\"type\":\"text\"}]}";
+        (await client.PostAsJsonAsync("/api/admin/assessments", Request(key, schemaJson))).StatusCode.ShouldBe(HttpStatusCode.Created);
+
+        var response = await client.PostAsJsonAsync("/api/admin/assessments", Request(key, schemaJson));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+    }
 }

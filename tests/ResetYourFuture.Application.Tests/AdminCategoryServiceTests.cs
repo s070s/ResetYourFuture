@@ -28,15 +28,16 @@ public class AdminCategoryServiceTests
     }
 
     [Fact]
-    public async Task CreateCategory_DuplicateNameCaseInsensitive_ReturnsBadRequest()
+    public async Task CreateCategory_DuplicateNameCaseInsensitive_ReturnsConflict()
     {
+        // API-3: 409, not 400 — "retry with a different name" is a conflict, not a bad request.
         await using var db = DbContextFactory.CreateInMemory();
         db.Categories.Add(new Category { Id = Guid.NewGuid(), NameEn = "Career" });
         await db.SaveChangesAsync();
 
         var result = await NewService(db).CreateCategoryAsync(new SaveCategoryRequest("CAREER", null));
 
-        result.StatusCode.ShouldBe(400);
+        result.StatusCode.ShouldBe(409);
         (await db.Categories.CountAsync()).ShouldBe(1);
     }
 
@@ -66,8 +67,9 @@ public class AdminCategoryServiceTests
     }
 
     [Fact]
-    public async Task UpdateCategory_DuplicateNameOfAnotherCategory_ReturnsBadRequest()
+    public async Task UpdateCategory_DuplicateNameOfAnotherCategory_ReturnsConflict()
     {
+        // API-3: 409, not 400 — "retry with a different name" is a conflict, not a bad request.
         await using var db = DbContextFactory.CreateInMemory();
         var a = new Category { Id = Guid.NewGuid(), NameEn = "Career" };
         var b = new Category { Id = Guid.NewGuid(), NameEn = "Mindset" };
@@ -76,7 +78,7 @@ public class AdminCategoryServiceTests
 
         var result = await NewService(db).UpdateCategoryAsync(b.Id, new SaveCategoryRequest("career", null));
 
-        result.StatusCode.ShouldBe(400);
+        result.StatusCode.ShouldBe(409);
     }
 
     [Fact]
