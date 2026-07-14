@@ -13,8 +13,8 @@ public class CertificateConsumer(HttpClient http, ResetYourFuture.Web.Services.A
     public Task<CertificateDto?> IssueCertificateAsync(Guid courseId, string lang = "en")
         => PostAsync<CertificateDto>($"api/certificates/issue/{courseId}?lang={lang}");
 
-    public Task<byte[]?> DownloadCertificateAsync(Guid certificateId)
-        => GetBytesAsync($"api/certificates/{certificateId}/download");
+    // PERF-5: the certificate PDF is downloaded straight from the API over same-origin HTTP
+    // (see MyCertificates), so there's no longer a loopback byte-fetch consumer method.
 
     public Task<CertificateVerificationDto?> VerifyAsync(Guid verificationId, string lang = "en")
         => GetAsync<CertificateVerificationDto>($"api/certificates/verify/{verificationId}?lang={lang}");

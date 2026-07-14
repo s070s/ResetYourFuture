@@ -79,6 +79,9 @@ public class ProfileController(IProfileService profileService, IAdminUserService
             return NotFound();
 
         var (stream, contentType) = avatar.Value;
+        // Served directly to the browser <img> (PERF-5). Cache privately; the caller appends a
+        // filename-derived ?v= token that changes on upload, so a long max-age is safe.
+        Response.Headers.CacheControl = "private, max-age=86400";
         return File(stream, contentType);
     }
 

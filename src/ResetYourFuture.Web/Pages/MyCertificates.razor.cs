@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
@@ -10,13 +9,11 @@ namespace ResetYourFuture.Web.Pages;
 public partial class MyCertificates
 {
     [Inject] private ICertificateConsumer CertificateConsumer { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
     [Inject] private ILogger<MyCertificates> _logger { get; set; } = default!;
 
     private List<CertificateDto>? _certificates;
     private bool _loading = true;
     private string _error = string.Empty;
-    private Guid? _downloading;
 
     private static string CurrentLang =>
         CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
@@ -36,38 +33,5 @@ public partial class MyCertificates
         {
             _loading = false;
         }
-    }
-
-    private async Task DownloadAsync(CertificateDto cert)
-    {
-        _downloading = cert.Id;
-
-        try
-        {
-            var bytes = await CertificateConsumer.DownloadCertificateAsync(cert.Id);
-            if (bytes is not null)
-            {
-                var fileName = ToSafeFileName($"Certificate - {cert.RecipientName} - {cert.CourseTitle}") + ".pdf";
-                await JSRuntime.InvokeVoidAsync("downloadFile", fileName, "application/pdf", bytes);
-            }
-            else
-            {
-                _error = CertificateRes.NotAvailable;
-            }
-        }
-        catch (Exception ex)
-        {
-            _error = CertificateRes.DownloadFailed;
-            _logger.LogError(ex, "Failed to download certificate {CertificateId}.", cert.Id);
-        }
-        finally
-        {
-            _downloading = null;
-        }
-    }
-    private static string ToSafeFileName(string input)
-    {
-        var safe = string.Concat(input.Select(c => c is '/' or '\\' or ':' or '*' or '?' or '"' or '<' or '>' or '|' ? '_' : c));
-        return safe.Length > 100 ? safe[..100].TrimEnd() : safe;
     }
 }

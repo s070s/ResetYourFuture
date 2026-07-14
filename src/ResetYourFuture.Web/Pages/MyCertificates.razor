@@ -34,19 +34,15 @@ else
                         </p>
                     </div>
                     <div class="card-footer d-flex gap-2 flex-wrap">
-                        <button class="btn btn-sm btn-primary"
-                                disabled="@(_downloading == cert.Id)"
-                                @onclick="() => DownloadAsync(cert)">
-                            @if (_downloading == cert.Id)
-                            {
-                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                            }
-                            else
-                            {
-                                <span class="bi bi-download me-1" aria-hidden="true"></span>
-                            }
+                        @* PERF-5: download straight from the API over HTTP (same-origin cookie auth)
+                           instead of pulling the PDF bytes through the SignalR circuit. *@
+                        <a class="btn btn-sm btn-primary"
+                           href="/api/certificates/@cert.Id/download"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <span class="bi bi-download me-1" aria-hidden="true"></span>
                             @CertificateRes.DownloadPdf
-                        </button>
+                        </a>
                         <a class="btn btn-sm btn-outline-secondary"
                            href="certificate/@cert.VerificationId"
                            target="_blank"

@@ -19,7 +19,7 @@ public partial class AvatarDropdown : IDisposable
 
     private bool isOpen;
     private bool _isImpersonating;
-    private string? avatarDataUrl;
+    private string? avatarUrl;
 
     protected override void OnInitialized()
     {
@@ -57,7 +57,7 @@ public partial class AvatarDropdown : IDisposable
             if (state.User.Identity?.IsAuthenticated == true)
                 await LoadAvatarAsync();
             else
-                avatarDataUrl = null;
+                avatarUrl = null;
 
             await InvokeAsync(StateHasChanged);
         }
@@ -81,12 +81,13 @@ public partial class AvatarDropdown : IDisposable
             var profile = await ProfileConsumer.GetProfileAsync();
             if (profile is not null && !string.IsNullOrEmpty(profile.AvatarPath))
             {
-                var avatar = await ProfileConsumer.GetAvatarAsync();
-                if (avatar is not null)
-                {
-                    avatarDataUrl = $"data:{avatar.Value.ContentType};base64,{Convert.ToBase64String(avatar.Value.Data)}";
-                    return;
-                }
+                // PERF-5: point the <img> at the same-origin avatar endpoint (cookie-authenticated
+                // via the MultiAuth scheme) instead of fetching the bytes over loopback and pushing
+                // a multi-MB base64 data URL through the circuit. The filename-derived version busts
+                // the browser cache when a new avatar is uploaded.
+                var version = Uri.EscapeDataString(Path.GetFileName(profile.AvatarPath));
+                avatarUrl = $"/api/profile/avatar?v={version}";
+                return;
             }
         }
         catch
@@ -94,7 +95,7 @@ public partial class AvatarDropdown : IDisposable
             // Not authenticated or profile unavailable — show default icon
         }
 
-        avatarDataUrl = null;
+        avatarUrl = null;
     }
 
     private void ToggleDropdown() => isOpen = !isOpen;
