@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Extensions;
 
@@ -29,8 +30,7 @@ public class AdminCategoriesController(IAdminCategoryService adminCategoryServic
         [FromQuery] string sortDir = "asc",
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await adminCategoryService.GetCategoriesAsync(page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);

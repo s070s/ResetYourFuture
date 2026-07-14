@@ -516,12 +516,14 @@ public class SubscriptionServiceTests
     [Fact]
     public async Task GetBillingOverview_ClampsPagingArguments()
     {
+        // API-7: clamp-to-max semantics — an oversized pageSize is capped at 100, not reset
+        // to some smaller default.
         await using var db = DbContextFactory.CreateInMemory();
 
         var overview = await NewService(db).GetBillingOverviewAsync(UserId, page: 0, pageSize: 999);
 
         overview.Transactions.Page.ShouldBe(1);
-        overview.Transactions.PageSize.ShouldBe(10);
+        overview.Transactions.PageSize.ShouldBe(100);
     }
 
     private static BillingTransaction Txn(SubscriptionPlan plan, string description, DateTime createdAt) =>

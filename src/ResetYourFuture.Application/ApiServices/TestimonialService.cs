@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
@@ -36,8 +37,7 @@ public class TestimonialService : ITestimonialService
     public async Task<PagedResult<AdminTestimonialDto>> GetAllForAdminAsync(
         int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = _db.Testimonials.AsNoTracking();
 

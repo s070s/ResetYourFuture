@@ -138,8 +138,7 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
     public async Task<PagedResult<AdminLearningPathDto>> GetAllForAdminAsync(
         int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = db.LearningPaths.AsNoTracking();
         var totalCount = await query.CountAsync(cancellationToken);

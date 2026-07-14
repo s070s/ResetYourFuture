@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Web.Extensions;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
@@ -31,8 +32,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         [FromQuery] int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await chatService.GetConversationsAsync(UserId, page, pageSize, cancellationToken);
         return Ok(result);
@@ -48,8 +48,7 @@ public class ChatController(IChatQueryService chatService) : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await chatService.GetMessagesAsync(UserId, conversationId, page, pageSize, cancellationToken);
         return result.ToActionResult(this);

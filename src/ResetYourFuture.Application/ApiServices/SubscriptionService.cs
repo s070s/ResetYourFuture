@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
@@ -388,10 +389,7 @@ public class SubscriptionService : ISubscriptionService
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
         string userId, int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc", CancellationToken cancellationToken = default)
     {
-        if (page < 1)
-            page = 1;
-        if (pageSize < 1 || pageSize > 100)
-            pageSize = 10;
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var status = await GetUserStatusAsync(userId, cancellationToken);
 

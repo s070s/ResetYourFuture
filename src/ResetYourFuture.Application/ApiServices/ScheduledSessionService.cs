@@ -136,8 +136,7 @@ public class ScheduledSessionService(IApplicationDbContext db, ILogger<Scheduled
     public async Task<PagedResult<AdminScheduledSessionDto>> GetAllForAdminAsync(
         int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = db.ScheduledSessions.AsNoTracking();
         var totalCount = await query.CountAsync(cancellationToken);

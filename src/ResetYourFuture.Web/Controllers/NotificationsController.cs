@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -29,8 +30,7 @@ public class NotificationsController(INotificationService notifications) : Contr
         [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await notifications.GetPagedAsync(UserId, page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);

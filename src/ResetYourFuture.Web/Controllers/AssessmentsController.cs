@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Extensions;
 using System.Security.Claims;
@@ -34,8 +35,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
         [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await assessmentService.GetPublishedAssessmentsAsync(UserId, page, pageSize, lang, categoryId, search, cancellationToken);
         return result.ToActionResult(this);
@@ -73,8 +73,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
         [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var submissions = await assessmentService.GetMySubmissionsAsync(UserId, page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(submissions);

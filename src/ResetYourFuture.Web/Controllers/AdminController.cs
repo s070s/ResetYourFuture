@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Extensions;
 using System.Security.Claims;
@@ -33,8 +34,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
         [FromQuery] string sortDir = "asc",
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await adminUserService.GetUsersAsync(page, pageSize, search, sortBy, sortDir, cancellationToken);
         return Ok(result);

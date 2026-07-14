@@ -58,8 +58,7 @@ public class BlogArticleService : IBlogArticleService
     public async Task<PagedResult<AdminBlogArticleDto>> GetAllForAdminAsync(
         int page, int pageSize, string? search, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = _db.BlogArticles.AsNoTracking();
 

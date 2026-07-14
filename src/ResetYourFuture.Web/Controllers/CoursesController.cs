@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Web.Extensions;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
@@ -34,10 +35,7 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
         [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
-        if (page < 1)
-            page = 1;
-        if (pageSize < 1 || pageSize > 100)
-            pageSize = 10;
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await courseService.GetPublishedCoursesAsync(UserId, page, pageSize, lang, categoryId, search, cancellationToken);
         return Ok(result);

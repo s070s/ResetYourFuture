@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
 
@@ -42,8 +43,7 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
         [FromQuery] string sortDir = "desc",
         CancellationToken cancellationToken = default)
     {
-        page = Math.Max(1, page);
-        pageSize = Math.Clamp(pageSize, 1, 100);
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var result = await adminCourseService.GetCoursesAsync(page, pageSize, sortBy, sortDir, cancellationToken);
         return Ok(result);

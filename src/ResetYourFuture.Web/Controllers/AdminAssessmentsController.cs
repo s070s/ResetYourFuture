@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiServices;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
@@ -52,8 +53,7 @@ public class AdminAssessmentsController : ControllerBase
         [FromQuery] string sortBy = "createdat",
         [FromQuery] string sortDir = "desc")
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = _db.AssessmentDefinitions.AsNoTracking();
 
@@ -307,8 +307,7 @@ public class AdminAssessmentsController : ControllerBase
         [FromQuery] string sortBy = "submittedat",
         [FromQuery] string sortDir = "desc")
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1 || pageSize > 100) pageSize = 10;
+        (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         // Ensure the assessment exists before querying submissions
         var assessmentExists = await _db.AssessmentDefinitions.AnyAsync(a => a.Id == id);
