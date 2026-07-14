@@ -20,7 +20,8 @@ public class StartupConfigValidationTests
     {
         ["Jwt:Key"] = "production-signing-key-at-least-32-bytes-long-1234567890",
         ["AdminUser:Password"] = "Admin-Pass-1!",
-        ["Email:Smtp:Host"] = "smtp.example.com"
+        ["Email:Smtp:Host"] = "smtp.example.com",
+        ["Sitemap:BaseUrl"] = "https://reset-your-future.com"
     };
 
     [Fact]
@@ -83,6 +84,17 @@ public class StartupConfigValidationTests
 
         var ex = Should.Throw<InvalidOperationException>(() => builder.ValidateRequiredConfig());
         ex.Message.ShouldContain("Email:Smtp:Host");
+    }
+
+    [Fact]
+    public void MissingSitemapBaseUrl_Throws()
+    {
+        var config = ValidProductionConfig();
+        config.Remove("Sitemap:BaseUrl");
+        var builder = NewBuilder("Production", config);
+
+        var ex = Should.Throw<InvalidOperationException>(() => builder.ValidateRequiredConfig());
+        ex.Message.ShouldContain("Sitemap:BaseUrl");
     }
 
     [Fact]

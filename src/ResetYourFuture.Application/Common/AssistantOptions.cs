@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ResetYourFuture.Application.Common;
 
 /// <summary>Binds the "Assistant" configuration section for the local AI helper.
-/// All models run locally via an Ollama sidecar — no cloud API keys involved.</summary>
+/// All models run locally via an Ollama sidecar — no cloud API keys involved.
+/// Validated at startup (CFG-4) so a malformed value fails fast rather than deep in registration.</summary>
 public sealed class AssistantOptions
 {
     public const string SectionName = "Assistant";
@@ -11,6 +14,7 @@ public sealed class AssistantOptions
     /// (CustomWebAppFactory sets Assistant__Enabled=false).</summary>
     public bool Enabled { get; set; } = true;
 
+    [Url]
     public string BaseUrl { get; set; } = "http://localhost:11434";
 
     public string ChatModel { get; set; } = "qwen3:1.7b";
@@ -24,17 +28,22 @@ public sealed class AssistantOptions
     public bool AutoPullModels { get; set; } = true;
 
     /// <summary>Maximum retrieved context chunks injected into the system prompt per question.</summary>
+    [Range(1, 1000)]
     public int MaxContextChunks { get; set; } = 6;
 
+    [Range(1, 100000)]
     public int MaxOutputTokens { get; set; } = 500;
 
+    [Range(0.0, 2.0)]
     public float Temperature { get; set; } = 0.3f;
 
     /// <summary>Per-user chat requests allowed per minute (rate-limit policy "assistant").</summary>
+    [Range(1, 100000)]
     public int RequestsPerMinute { get; set; } = 10;
 
     /// <summary>Maximum tool-invocation rounds per chat request (FunctionInvokingChatClient
     /// MaximumIterationsPerRequest) — stops pathological tool loops while allowing a
     /// question that needs two lookups to complete.</summary>
+    [Range(0, 100)]
     public int MaxToolRounds { get; set; } = 3;
 }

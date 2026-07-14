@@ -39,7 +39,13 @@ public static class ServiceRegistrationExtensions
         // point it at Papercut/Mailhog in Development or a real relay (SES/SendGrid SMTP/etc.) in prod.
         // With no SMTP host configured, Development falls back to StubEmailService (logs only); any other
         // environment fails fast so emails are never silently swallowed in production.
-        builder.Services.Configure<EmailOptions>(config.GetSection(EmailOptions.SectionName));
+        // CFG-4: validate at startup so a typo'd SMTP port fails fast, not at the first email send.
+        builder.Services.AddOptions<EmailOptions>()
+            .Bind(config.GetSection(EmailOptions.SectionName))
+            .Validate(o => o.Smtp.Port is > 0 and <= 65535, "Email:Smtp:Port must be between 1 and 65535.")
+            .ValidateOnStart();
+        // CFG-5: bind the Payment section in one place (MockEnabled / WebhookSecret).
+        builder.Services.Configure<PaymentOptions>(config.GetSection(PaymentOptions.SectionName));
         if (!string.IsNullOrWhiteSpace(config["Email:Smtp:Host"]))
         {
             builder.Services.AddScoped<IEmailService, SmtpEmailService>();
@@ -88,7 +94,10 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHostedService<SessionStartMonitor>();
         builder.Services.AddHostedService<SubscriptionExpirySweeper>();
         builder.Services.AddHostedService<RefreshTokenPurgeService>();
-        builder.Services.Configure<WebRtcOptions>(config.GetSection("WebRtc"));
+        builder.Services.AddOptions<WebRtcOptions>()
+            .Bind(config.GetSection("WebRtc"))
+            .ValidateDataAnnotations()   // CFG-4
+            .ValidateOnStart();
         // Hub-only (no REST) — plain AddScoped, not AddHttpClient. Must be scoped (not transient
         // like ChatService) so CallOverlayHost and chat components share one instance/hub/state per circuit.
         builder.Services.AddScoped<ICallService, CallService>();
@@ -109,7 +118,10 @@ public static class ServiceRegistrationExtensions
         // no Ollama dependency) so the admin reindex endpoint never 500s; when disabled, IAssistantService
         // resolves to a no-op that reports unavailable instead of the real Ollama-backed pipeline —
         // that's what keeps Ollama out of CI/test hosts entirely.
-        builder.Services.Configure<AssistantOptions>(config.GetSection(AssistantOptions.SectionName));
+        builder.Services.AddOptions<AssistantOptions>()
+            .Bind(config.GetSection(AssistantOptions.SectionName))
+            .ValidateDataAnnotations()   // CFG-4
+            .ValidateOnStart();
         var assistantOptions = config.GetSection(AssistantOptions.SectionName).Get<AssistantOptions>() ?? new AssistantOptions();
         builder.Services.AddSingleton<AssistantIndexSignal>();
         // Runtime availability (Disabled/OllamaUnreachable/DownloadingModels/Ready) is always

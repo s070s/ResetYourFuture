@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
@@ -29,7 +29,7 @@ public class SubscriptionService : ISubscriptionService
 
     public SubscriptionService(
         IApplicationDbContext db, ILogger<SubscriptionService> logger, IMemoryCache cache,
-        INotificationDispatcher notifications, IConfiguration configuration, IHostEnvironment environment)
+        INotificationDispatcher notifications, IOptions<PaymentOptions> paymentOptions, IHostEnvironment environment)
     {
         _db = db;
         _logger = logger;
@@ -38,7 +38,7 @@ public class SubscriptionService : ISubscriptionService
         // BIZ-4: the mock-payment grant path must never run outside Development, regardless of
         // how Payment:MockEnabled is set — a config flag alone is one accidental copy-paste away
         // from granting free upgrades in a real environment.
-        _mockPaymentEnabled = environment.IsDevelopment() && configuration.GetValue<bool>("Payment:MockEnabled");
+        _mockPaymentEnabled = environment.IsDevelopment() && paymentOptions.Value.MockEnabled;
     }
 
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync(CancellationToken cancellationToken = default)

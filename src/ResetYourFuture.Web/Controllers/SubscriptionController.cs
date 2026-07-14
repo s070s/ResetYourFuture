@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using System.Security.Claims;
@@ -24,16 +26,16 @@ public class SubscriptionController : ControllerBase
 {
     private readonly ISubscriptionService _subscriptionService;
     private readonly ILogger<SubscriptionController> _logger;
-    private readonly IConfiguration _configuration;
+    private readonly PaymentOptions _paymentOptions;
 
     public SubscriptionController(
         ISubscriptionService subscriptionService,
         ILogger<SubscriptionController> logger,
-        IConfiguration configuration)
+        IOptions<PaymentOptions> paymentOptions)
     {
         _subscriptionService = subscriptionService;
         _logger = logger;
-        _configuration = configuration;
+        _paymentOptions = paymentOptions.Value;
     }
 
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
@@ -109,7 +111,7 @@ public class SubscriptionController : ControllerBase
         var rawBody = await reader.ReadToEndAsync(cancellationToken);
         Request.Body.Seek(0, SeekOrigin.Begin);
 
-        var webhookSecret = _configuration["Payment:WebhookSecret"];
+        var webhookSecret = _paymentOptions.WebhookSecret;
         if (string.IsNullOrWhiteSpace(webhookSecret))
         {
             _logger.LogWarning("Stripe webhook received but Payment:WebhookSecret is not configured — rejecting.");

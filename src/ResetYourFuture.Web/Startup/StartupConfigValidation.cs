@@ -37,6 +37,11 @@ public static class StartupConfigValidation
             errors.Add("SeedData:StudentPassword is required when SeedData:Enabled=true. Set it via User Secrets.");
         }
 
+        // CFG-4: the sitemap endpoint used to throw at request time (first crawler hit) when this
+        // was blank — validate it here so the operator learns at startup instead.
+        if (string.IsNullOrWhiteSpace(config["Sitemap:BaseUrl"]))
+            errors.Add("Sitemap:BaseUrl is required. Set it in appsettings.json (App/public base URL).");
+
         if (errors.Count > 0)
             throw new InvalidOperationException(
                 "Startup configuration is incomplete:" + Environment.NewLine +

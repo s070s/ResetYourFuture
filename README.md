@@ -435,6 +435,7 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 - `AllowedHosts` set to the production domain
 - `SelfBaseUrl` set to the app's real bound address (startup throws otherwise)
 - `Email:Smtp:Host` (+ credentials) configured so `SmtpEmailService` sends real email (startup throws in Production when no SMTP host is set)
+- `Payment__WebhookSecret` set if Stripe webhooks are used — the webhook endpoint returns **503** without it and never skips signature verification. (`Payment:MockEnabled` is ignored outside Development, so mock checkout can't grant free upgrades in production.)
 - Migrations run automatically at startup (`MigrateAsync`, with bounded retry-with-backoff if the database isn't reachable yet); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
 - `/health/live` (process up, no dependency checks) and `/health/ready` (database + AI assistant status) are available for a load balancer/orchestrator to poll
 

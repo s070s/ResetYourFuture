@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Application.ApiServices;
@@ -23,19 +24,14 @@ public class SubscriptionServiceTests
     private static SubscriptionService NewService(
         ApplicationDbContext db, bool mockPayment = true, INotificationDispatcher? notifications = null, bool isDevelopment = true)
     {
-        var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Payment:MockEnabled"] = mockPayment ? "true" : "false"
-            })
-            .Build();
+        var paymentOptions = Options.Create(new PaymentOptions { MockEnabled = mockPayment });
 
         var environment = Substitute.For<IHostEnvironment>();
         environment.EnvironmentName = isDevelopment ? Environments.Development : Environments.Production;
 
         return new SubscriptionService(
             db, NullLogger<SubscriptionService>.Instance, new MemoryCache(new MemoryCacheOptions()),
-            notifications ?? Substitute.For<INotificationDispatcher>(), config, environment);
+            notifications ?? Substitute.For<INotificationDispatcher>(), paymentOptions, environment);
     }
 
     private static SubscriptionPlan Plan(
