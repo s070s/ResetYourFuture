@@ -241,6 +241,15 @@ namespace ResetYourFuture.Shared.Resources.Messages {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Your answers don't match this assessment's questions..
+        /// </summary>
+        public static string AssessmentAnswersInvalid {
+            get {
+                return ResourceManager.GetString("AssessmentAnswersInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Assessment not found or not published.
         /// </summary>
         public static string AssessmentNotFoundOrUnpublished {

@@ -9,6 +9,7 @@ using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Application.DTOs;
 using System.Security.Claims;
+using System.Text.Json;
 
 
 namespace ResetYourFuture.Web.Controllers;
@@ -108,6 +109,13 @@ public class AdminAssessmentsController : ControllerBase
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        // DQ-4: reject malformed/structurally-wrong schemas here instead of only failing later
+        // at render time (AssessmentService.ResolveSchemaJsonByLang) or submit time.
+        if (!IsStructurallyValidSchemaJson(request.SchemaJson))
+        {
+            return BadRequest("SchemaJson must be a JSON object with a 'questions' or 'sections' array.");
+        }
+
         var categoryId = await AdminCategoryService.ResolveCategoryAsync(_db, request.CategoryId, request.NewCategoryName);
 
         // Build a new assessment entity with provided data and initial metadata
@@ -157,6 +165,13 @@ public class AdminAssessmentsController : ControllerBase
             return BadRequest($"Assessment with key '{request.Key}' already exists");
         }
 
+        // DQ-4: reject malformed/structurally-wrong schemas here instead of only failing later
+        // at render time (AssessmentService.ResolveSchemaJsonByLang) or submit time.
+        if (!IsStructurallyValidSchemaJson(request.SchemaJson))
+        {
+            return BadRequest("SchemaJson must be a JSON object with a 'questions' or 'sections' array.");
+        }
+
         var categoryId = await AdminCategoryService.ResolveCategoryAsync(_db, request.CategoryId, request.NewCategoryName);
 
         // Apply updates and metadata (updated time and user)
@@ -177,6 +192,22 @@ public class AdminAssessmentsController : ControllerBase
 
         // Map updated entity to DTO and return 200 OK
         return Ok(assessment.ToAdminDto(categoryNameEn));
+    }
+
+    private static bool IsStructurallyValidSchemaJson(string schemaJson)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(schemaJson);
+            var root = doc.RootElement;
+            return root.ValueKind == JsonValueKind.Object &&
+                ((root.TryGetProperty("questions", out var questions) && questions.ValueKind == JsonValueKind.Array) ||
+                 (root.TryGetProperty("sections", out var sections) && sections.ValueKind == JsonValueKind.Array));
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     private async Task<string?> GetCategoryNameEnAsync(Guid? categoryId)

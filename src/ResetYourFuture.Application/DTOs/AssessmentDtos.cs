@@ -27,8 +27,11 @@ public record AssessmentDefinitionDto(
 /// </summary>
 public record SaveAssessmentDefinitionRequest(
     [Required, MaxLength(100)] string Key,
-    [Required, MaxLength(300)] string TitleEn,
-    [MaxLength(300)] string? TitleEl,
+    // DQ-3: TitleEn/TitleEl capped to match AssessmentDefinitionConfiguration's column
+    // length (200) — a longer value would pass this check and then throw a SQL truncation
+    // error on SaveChanges.
+    [Required, MaxLength(200)] string TitleEn,
+    [MaxLength(200)] string? TitleEl,
     [MaxLength(1000)] string? DescriptionEn,
     [MaxLength(1000)] string? DescriptionEl,
     [Required] string SchemaJson,

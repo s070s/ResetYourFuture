@@ -67,7 +67,7 @@ public class SubscriptionService : ISubscriptionService
             sp.Price,
             sp.BillingPeriod.ToString(),
             sp.Tier,
-            DeserializeFeatures(sp.FeaturesJson),
+            DeserializeFeatures(sp.FeaturesJson, sp.Id, sp.Name),
             sp.IsActive
         )).ToList();
 
@@ -112,7 +112,7 @@ public class SubscriptionService : ISubscriptionService
                 activeSub.StartedAt,
                 activeSub.ExpiresAt,
                 activeSub.IsActive,
-                DeserializeFeatures(activeSub.SubscriptionPlan.FeaturesJson)
+                DeserializeFeatures(activeSub.SubscriptionPlan.FeaturesJson, activeSub.SubscriptionPlanId, activeSub.SubscriptionPlan.Name)
             );
         }
 
@@ -425,7 +425,7 @@ public class SubscriptionService : ISubscriptionService
         };
     }
 
-    private PlanFeaturesDto? DeserializeFeatures(string? json)
+    private PlanFeaturesDto? DeserializeFeatures(string? json, Guid? planId = null, string? planName = null)
     {
         if (string.IsNullOrWhiteSpace(json))
             return null;
@@ -438,7 +438,10 @@ public class SubscriptionService : ISubscriptionService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to deserialize plan features JSON.");
+            // DQ-4: include which plan is corrupt — every subscriber on it silently drops to
+            // null Features (GetUserStatusAsync callers then treat that as no-features/Free-like)
+            // until the row is repaired, so an operator needs to know which plan to fix.
+            _logger.LogError(ex, "Failed to deserialize plan features JSON for plan {PlanId} ({PlanName}).", planId, planName);
             return null;
         }
     }

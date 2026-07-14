@@ -177,6 +177,9 @@
   <data name="AssessmentAccessRequiresPlus" xml:space="preserve">
     <value>Η πρόσβαση σε αξιολογήσεις απαιτεί συνδρομή Plus ή ανώτερη.</value>
   </data>
+  <data name="AssessmentAnswersInvalid" xml:space="preserve">
+    <value>Οι απαντήσεις σου δεν αντιστοιχούν στις ερωτήσεις αυτής της αξιολόγησης.</value>
+  </data>
   <data name="AssessmentNotFoundOrUnpublished" xml:space="preserve">
     <value>Η αξιολόγηση δεν βρέθηκε ή δεν έχει δημοσιευτεί</value>
   </data>

@@ -109,6 +109,12 @@ public class AssessmentService(
         if (userStatus.Tier < assessment.RequiredTier)
             return ServiceResult<AssessmentSubmissionDto>.Forbidden(error: string.Format(ErrorMessagesRes.AssessmentRequiresTierFormat, assessment.RequiredTier));
 
+        // DQ-2: reject answers that aren't well-formed JSON, reference a question id that
+        // doesn't exist on this assessment, or leave a required question unanswered — instead of
+        // persisting whatever was posted and only discovering the mismatch when rendering history.
+        if (!AnswersMatchSchema(request.AnswersJson, assessment.SchemaJson))
+            return ServiceResult<AssessmentSubmissionDto>.BadRequest(error: ErrorMessagesRes.AssessmentAnswersInvalid);
+
         var submission = new AssessmentSubmission
         {
             Id = Guid.NewGuid(),
@@ -154,7 +160,7 @@ public class AssessmentService(
         return cache.GetOrCreate(cacheKey, entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
-            return ResolveSchemaJsonByLang(schemaJson, isEl);
+            return ResolveSchemaJsonByLang(assessmentId, schemaJson, isEl);
         })!;
     }
 
@@ -163,31 +169,14 @@ public class AssessmentService(
     /// Handles both flat {"questions":[...]} and sectioned {"sections":[{"questions":[...]}]} schemas.
     /// Maps labelEn/labelEl or label/labelEl → label, and optionsEn/optionsEl or options/optionsEl → options.
     /// </summary>
-    private string ResolveSchemaJsonByLang(string schemaJson, bool isEl)
+    private string ResolveSchemaJsonByLang(Guid assessmentId, string schemaJson, bool isEl)
     {
         try
         {
             using var doc = JsonDocument.Parse(schemaJson);
             var root = doc.RootElement;
 
-            // Collect all question elements from either flat or sectioned schema formats.
-            var allQuestions = new List<JsonElement>();
-            if (root.TryGetProperty("questions", out var flatQ) && flatQ.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var q in flatQ.EnumerateArray())
-                    allQuestions.Add(q);
-            }
-            else if (root.TryGetProperty("sections", out var sections) && sections.ValueKind == JsonValueKind.Array)
-            {
-                foreach (var section in sections.EnumerateArray())
-                {
-                    if (section.TryGetProperty("questions", out var sectionQ) && sectionQ.ValueKind == JsonValueKind.Array)
-                    {
-                        foreach (var q in sectionQ.EnumerateArray())
-                            allQuestions.Add(q);
-                    }
-                }
-            }
+            var allQuestions = CollectQuestions(root);
 
             using var ms = new MemoryStream();
             using var writer = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = false });
@@ -258,8 +247,101 @@ public class AssessmentService(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to resolve schema JSON by language; returning original.");
+            // DQ-4: include the assessment id — this is the only signal an operator gets that a
+            // specific assessment's schema is corrupt (students still see the raw original JSON).
+            logger.LogError(ex, "Failed to resolve schema JSON by language for assessment {AssessmentId}; returning original.", assessmentId);
             return schemaJson;
         }
+    }
+
+    /// Collects question elements from either a flat {"questions":[...]} or sectioned
+    /// {"sections":[{"questions":[...]}]} schema.
+    private static List<JsonElement> CollectQuestions(JsonElement schemaRoot)
+    {
+        var questions = new List<JsonElement>();
+
+        if (schemaRoot.TryGetProperty("questions", out var flatQ) && flatQ.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var q in flatQ.EnumerateArray())
+                questions.Add(q);
+        }
+        else if (schemaRoot.TryGetProperty("sections", out var sections) && sections.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var section in sections.EnumerateArray())
+            {
+                if (section.TryGetProperty("questions", out var sectionQ) && sectionQ.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var q in sectionQ.EnumerateArray())
+                        questions.Add(q);
+                }
+            }
+        }
+
+        return questions;
+    }
+
+    /// <summary>
+    /// DQ-2: structural validation only — confirms <paramref name="answersJson"/> is a JSON
+    /// object whose keys are all real question ids on this assessment and that every
+    /// <c>required</c> question has a non-blank answer. Does not check answer value/type against
+    /// the question's declared type or options — those can legitimately differ between the En/El
+    /// option sets a submission may have been rendered against, so per-value checks are left to
+    /// client-side validation (AssessmentForm.razor.cs) to avoid false-rejecting a valid Greek
+    /// (or English) submission.
+    /// </summary>
+    private static bool AnswersMatchSchema(string answersJson, string schemaJson)
+    {
+        JsonElement answersRoot;
+        try
+        {
+            using var answersDoc = JsonDocument.Parse(answersJson);
+            if (answersDoc.RootElement.ValueKind != JsonValueKind.Object)
+                return false;
+            answersRoot = answersDoc.RootElement.Clone();
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+
+        // Extracted as plain strings (not JsonElements) while schemaDoc is still alive — a
+        // JsonElement from CollectQuestions would become invalid once schemaDoc is disposed.
+        var questionIds = new HashSet<string>();
+        var requiredIds = new HashSet<string>();
+        try
+        {
+            using var schemaDoc = JsonDocument.Parse(schemaJson);
+            foreach (var q in CollectQuestions(schemaDoc.RootElement))
+            {
+                if (!q.TryGetProperty("id", out var idProp) || idProp.ValueKind != JsonValueKind.String)
+                    continue;
+                var qid = idProp.GetString()!;
+                questionIds.Add(qid);
+                if (q.TryGetProperty("required", out var reqProp) && reqProp.ValueKind == JsonValueKind.True)
+                    requiredIds.Add(qid);
+            }
+        }
+        catch (JsonException)
+        {
+            // A corrupt stored schema (DQ-4) can't be validated against — don't compound the
+            // failure by also rejecting every submission for it.
+            return true;
+        }
+
+        foreach (var answer in answersRoot.EnumerateObject())
+        {
+            if (!questionIds.Contains(answer.Name))
+                return false;
+        }
+
+        foreach (var requiredId in requiredIds)
+        {
+            if (!answersRoot.TryGetProperty(requiredId, out var value) ||
+                value.ValueKind != JsonValueKind.String ||
+                string.IsNullOrWhiteSpace(value.GetString()))
+                return false;
+        }
+
+        return true;
     }
 }

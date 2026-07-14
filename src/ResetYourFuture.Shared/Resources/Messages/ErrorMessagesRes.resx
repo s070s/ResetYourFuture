@@ -177,6 +177,9 @@
   <data name="AssessmentAccessRequiresPlus" xml:space="preserve">
     <value>Assessment access requires a Plus subscription or higher.</value>
   </data>
+  <data name="AssessmentAnswersInvalid" xml:space="preserve">
+    <value>Your answers don't match this assessment's questions.</value>
+  </data>
   <data name="AssessmentNotFoundOrUnpublished" xml:space="preserve">
     <value>Assessment not found or not published</value>
   </data>

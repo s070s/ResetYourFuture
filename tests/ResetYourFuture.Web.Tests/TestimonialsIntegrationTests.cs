@@ -51,4 +51,18 @@ public class TestimonialsIntegrationTests : IClassFixture<CustomWebAppFactory>
 
         (await client.GetAsync($"/api/admin/testimonials/{Guid.NewGuid()}")).StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }
+
+    [Fact]
+    public async Task AdminTestimonials_Create_FullNameOverColumnLength_Returns400()
+    {
+        // DQ-3: FullName must stay within TestimonialConfiguration's HasMaxLength(150) — a
+        // longer value used to pass this DTO check and then throw a SQL truncation error on
+        // SaveChanges (500) instead of a clean 400.
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+        var request = new SaveTestimonialRequest(new string('a', 151), "QA", "Contoso", "Great platform!", 0, true);
+
+        var response = await client.PostAsJsonAsync("/api/admin/testimonials", request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
 }
