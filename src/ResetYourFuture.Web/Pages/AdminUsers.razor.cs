@@ -25,6 +25,7 @@ public partial class AdminUsers : IAsyncDisposable
     private string _sortDir = "asc";
     private string? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
+    private bool _loadFailed;
 
     private bool _resetPwdModalVisible;
     private string? _resetPwdUserId;
@@ -54,6 +55,7 @@ public partial class AdminUsers : IAsyncDisposable
 
     private async Task LoadUsers()
     {
+        _loadFailed = false;
         try
         {
             pagedResult = await UserConsumer.GetUsersAsync(
@@ -67,6 +69,15 @@ public partial class AdminUsers : IAsyncDisposable
         {
             message = ErrorMessagesRes.AccessDenied;
             messageType = "danger";
+            _loadFailed = true;
+        }
+        catch (Exception ex)
+        {
+            // UX-6: any other failure (network, 500, etc.) used to be unhandled here and crash
+            // the circuit; pagedResult stays null so the skeleton would otherwise spin forever.
+            message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
+            _loadFailed = true;
         }
     }
 

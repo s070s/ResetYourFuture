@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using ResetYourFuture.Shared.Resources.Messages;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 
@@ -10,9 +11,15 @@ public partial class AdminAnalytics
     [Inject] private ILogger<AdminAnalytics> _logger { get; set; } = default!;
 
     private AnalyticsSummaryDto? stats;
+    private bool _loading = true;
+    private string? _error;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
     {
+        _loading = true;
+        _error = null;
         try
         {
             stats = await Analytics.GetSummaryAsync();
@@ -20,6 +27,11 @@ public partial class AdminAnalytics
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading analytics.");
+            _error = ErrorMessagesRes.FailedToLoadAnalytics;
+        }
+        finally
+        {
+            _loading = false;
         }
     }
 }

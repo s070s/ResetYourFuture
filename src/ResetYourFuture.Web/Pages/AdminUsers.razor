@@ -17,7 +17,11 @@
 
     <AuthorizeView Roles="Admin">
         <Authorized>
-            @if (pagedResult == null)
+            @if (_loadFailed)
+            {
+                <button class="btn btn-secondary" @onclick="LoadUsers">@GlobalRes.TryAgain</button>
+            }
+            else if (pagedResult == null)
             {
                 <SkeletonBlock Rows="8" Height="2.75rem" />
             }

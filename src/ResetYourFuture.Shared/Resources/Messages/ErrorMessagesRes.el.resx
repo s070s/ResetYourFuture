@@ -243,6 +243,9 @@
   <data name="FailedToLoadCourses" xml:space="preserve">
     <value>Απέτυχε η φόρτωση των μαθημάτων. Δοκιμάστε ξανά.</value>
   </data>
+  <data name="FailedToLoadAnalytics" xml:space="preserve">
+    <value>Απέτυχε η φόρτωση των αναλυτικών στοιχείων. Δοκιμάστε ξανά.</value>
+  </data>
   <data name="FailedToLoadCourse" xml:space="preserve">
     <value>Απέτυχε η φόρτωση του μαθήματος. Δοκιμάστε ξανά.</value>
   </data>

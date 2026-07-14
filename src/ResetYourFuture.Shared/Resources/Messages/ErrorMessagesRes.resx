@@ -243,6 +243,9 @@
   <data name="FailedToLoadCourses" xml:space="preserve">
     <value>Failed to load courses. Please try again.</value>
   </data>
+  <data name="FailedToLoadAnalytics" xml:space="preserve">
+    <value>Failed to load analytics. Please try again.</value>
+  </data>
   <data name="FailedToLoadCourse" xml:space="preserve">
     <value>Failed to load course. Please try again.</value>
   </data>

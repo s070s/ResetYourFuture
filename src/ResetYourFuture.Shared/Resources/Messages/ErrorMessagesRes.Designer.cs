@@ -436,7 +436,16 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("FailedToLoadCourses", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to load analytics. Please try again..
+        /// </summary>
+        public static string FailedToLoadAnalytics {
+            get {
+                return ResourceManager.GetString("FailedToLoadAnalytics", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to load course. Please try again..
         /// </summary>

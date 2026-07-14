@@ -5,11 +5,16 @@
 
 <h1 class="h2">@AdminRes.PageTitle</h1>
 
-@if (stats == null)
+@if (_loading)
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
 }
-else
+else if (_error is not null)
+{
+    <p class="text-danger">@_error</p>
+    <button class="btn btn-secondary" @onclick="LoadAsync">@GlobalRes.TryAgain</button>
+}
+else if (stats is not null)
 {
     <div class="row">
         <div class="col-md-3 mb-3">
