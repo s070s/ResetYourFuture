@@ -19,28 +19,13 @@ NOT examined: index selection/coverage and column types for performance → DB (
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 0 |
 | Low | 3 |
 | Info | 1 |
 
-Overall data integrity is well tended: unique constraints back every natural key that matters (one certificate per user-course, one enrollment per user-course, ordered-pair chat uniqueness, one active subscription via filtered index, one call-participant per session), a global soft-delete query filter plus matching dependent filters prevent the classic "principal filtered out" surprise, `AuditableEntity` stamps created/updated automatically, and both certificate and enrollment insert paths handle the duplicate-key race. The weak spots are unvalidated JSON payloads (assessment answers, plan features, assessment schema), and a DTO/column length mismatch that will throw on save.
+Overall data integrity is well tended: unique constraints back every natural key that matters (one certificate per user-course, one enrollment per user-course, ordered-pair chat uniqueness, one active subscription via filtered index, one call-participant per session), a global soft-delete query filter plus matching dependent filters prevent the classic "principal filtered out" surprise, `AuditableEntity` stamps created/updated automatically, and both certificate and enrollment insert paths handle the duplicate-key race. All three Medium findings are now fixed: assessment answers are validated against the referenced schema on submit (DQ-2), a sweep for the same DTO/column length-mismatch pattern found and fixed it in three places, not just testimonials (DQ-3), and both the assessment-schema write path and the plan-features/schema-resolution error logs now carry enough context to catch and diagnose corrupt JSON (DQ-4).
 
 ## 3. Findings
-
-### DQ-2: Assessment answers are stored as unvalidated free-form JSON  [Medium] [Effort: M]
-- **Evidence:** `AssessmentService.SubmitAssessmentAsync:134-145` persists `request.AnswersJson` / `SummaryJson` verbatim. The DTO caps length only (`SubmitAssessmentRequest`: `AnswersJson [MaxLength(50_000)]`, `SummaryJson [MaxLength(20_000)]`, `AssessmentDtos.cs`). There is no validation that the JSON is well-formed or that it conforms to the assessment's `SchemaJson`.
-- **Impact:** A client can submit arbitrary (or malformed) JSON that does not match the assessment's questions. Stored submissions may be un-parseable or semantically meaningless, corrupting any later analysis/history rendering and breaking the "answers correspond to a schema" invariant.
-- **Recommendation:** Validate `AnswersJson` parses as JSON and matches the referenced assessment schema (question keys/types) server-side before persisting; reject with 400 otherwise.
-
-### DQ-3: DTO `MaxLength` exceeds the persisted column length on testimonials → save-time failure  [Medium] [Effort: S]
-- **Evidence:** `SaveTestimonialRequest` allows `FullName`/`RoleOrTitle`/`CompanyOrContext` up to `MaxLength(200)` (`DTOs/Testimonials/SaveTestimonialRequest.cs:10-12`), but `TestimonialConfiguration.cs:13-21` caps those columns at `HasMaxLength(150)`.
-- **Impact:** A 151–200 character value passes DTO validation and then throws on `SaveChanges` (SQL Server string-truncation error → 500). The two length rules disagree, so valid-per-DTO input is invalid-per-schema.
-- **Recommendation:** Align the DTO `MaxLength` to the column (150), or widen the column to 200. Audit other DTO/column pairs for the same drift.
-
-### DQ-4: Plan features and assessment schema JSON are parsed defensively but never validated on write  [Medium] [Effort: M]
-- **Evidence:** `SubscriptionService.DeserializeFeatures:387-403` swallows a malformed `FeaturesJson` and returns `null`, which then silently falls back to default Free features. `AssessmentService.ResolveSchemaJsonByLang:197-295` catches parse errors and returns the original string. `SaveAssessmentDefinitionRequest.SchemaJson` is `[Required] string` with no structural validation (`AssessmentDtos.cs`).
-- **Impact:** A plan row with corrupt `FeaturesJson` silently degrades every subscriber on it to Free-tier features with no error (entitlement data-integrity bug). A malformed assessment schema is stored and only fails at render time. Bad data enters the system unremarked.
-- **Recommendation:** Validate `FeaturesJson`/`SchemaJson` structure at write time (seeder + admin save), and log at Error (not silently default) when an existing row fails to deserialize so corruption is visible.
 
 ### DQ-5: Subscription plans are re-seeded with fresh GUIDs and never repaired  [Low] [Effort: S]
 - **Evidence:** `SubscriptionPlanSeeder.SeedAsync:17-21` is idempotent by "any plans exist" — it assigns `Guid.NewGuid()` per plan on first seed and skips entirely thereafter.
@@ -66,9 +51,6 @@ Overall data integrity is well tended: unique constraints back every natural key
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| DQ-2 | Medium | M | Validate assessment answers against schema on submit |
-| DQ-3 | Medium | S | Reconcile testimonial DTO `MaxLength` with column length |
-| DQ-4 | Medium | M | Validate feature/schema JSON on write; log (not silently default) on corrupt rows |
 | DQ-5 | Low | S | Deterministic-ID upsert seeding for subscription plans |
 | DQ-6 | Low | S | Guard/test the single-active-subscription invariant across both providers |
 | DQ-7 | Low | S | Document the snapshot-first certificate pattern |
@@ -76,8 +58,7 @@ Overall data integrity is well tended: unique constraints back every natural key
 
 ## 5. Related Findings Elsewhere
 
-- **REL (26):** DQ-3's mismatch produces a save-time 500.
 - **COMP (29):** PII in chat/assessment rows; COMP owns the regulatory obligation and special-category classification of assessment answers. GDPR erasure itself is unblocked (former DQ-1/REL-1, fixed).
-- **BIZ (27):** DQ-4's silent Free-feature fallback affects entitlement correctness (BIZ tier gating); DQ-6 backs the one-active-subscription rule.
+- **BIZ (27):** DQ-6 backs the one-active-subscription rule.
 - **DB (30):** Index/column type design, migration history, and provider-specific schema differences.
 - **SEC (25):** Input validation on rich-text/JSON write paths overlaps with sanitizer coverage.
