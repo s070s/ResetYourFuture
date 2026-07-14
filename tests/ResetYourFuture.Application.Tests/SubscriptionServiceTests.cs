@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ResetYourFuture.Application.ApiInterfaces;
@@ -19,7 +20,8 @@ public class SubscriptionServiceTests
 {
     private const string UserId = "user-1";
 
-    private static SubscriptionService NewService(ApplicationDbContext db, bool mockPayment = true, INotificationDispatcher? notifications = null)
+    private static SubscriptionService NewService(
+        ApplicationDbContext db, bool mockPayment = true, INotificationDispatcher? notifications = null, bool isDevelopment = true)
     {
         var config = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
@@ -28,9 +30,12 @@ public class SubscriptionServiceTests
             })
             .Build();
 
+        var environment = Substitute.For<IHostEnvironment>();
+        environment.EnvironmentName = isDevelopment ? Environments.Development : Environments.Production;
+
         return new SubscriptionService(
             db, NullLogger<SubscriptionService>.Instance, new MemoryCache(new MemoryCacheOptions()),
-            notifications ?? Substitute.For<INotificationDispatcher>(), config);
+            notifications ?? Substitute.For<INotificationDispatcher>(), config, environment);
     }
 
     private static SubscriptionPlan Plan(
@@ -249,6 +254,38 @@ public class SubscriptionServiceTests
         (await db.BillingTransactions.SingleAsync()).Type.ShouldBe(BillingTransactionType.Purchase);
     }
 
+    [Fact]
+    public async Task CreateCheckout_Mock_MarksTransactionDescriptionAsMock()
+    {
+        // BIZ-4: a mock (unpaid) grant must never be mistaken for a real charge in reporting.
+        await using var db = DbContextFactory.CreateInMemory();
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
+        db.SubscriptionPlans.Add(plan);
+        await db.SaveChangesAsync();
+
+        await NewService(db).CreateCheckoutSessionAsync(UserId, plan.Id);
+
+        (await db.BillingTransactions.SingleAsync()).Description.ShouldStartWith("[MOCK]");
+    }
+
+    [Fact]
+    public async Task CreateCheckout_MockEnabledOutsideDevelopment_ReturnsPendingWithoutPersisting()
+    {
+        // BIZ-4: Payment:MockEnabled=true must never grant a free plan outside Development —
+        // the environment check guards against an accidental config flag in a real deployment.
+        await using var db = DbContextFactory.CreateInMemory();
+        var plan = Plan("Pro", SubscriptionTier.Pro, 20m);
+        db.SubscriptionPlans.Add(plan);
+        await db.SaveChangesAsync();
+
+        var result = await NewService(db, mockPayment: true, isDevelopment: false)
+            .CreateCheckoutSessionAsync(UserId, plan.Id);
+
+        result.Status.ShouldBe("pending_payment");
+        (await db.UserSubscriptions.CountAsync()).ShouldBe(0);
+        (await db.BillingTransactions.CountAsync()).ShouldBe(0);
+    }
+
     [Theory]
     [InlineData(SubscriptionTier.Plus, SubscriptionTier.Pro, BillingTransactionType.Upgrade)]
     [InlineData(SubscriptionTier.Pro, SubscriptionTier.Plus, BillingTransactionType.Downgrade)]
@@ -414,8 +451,9 @@ public class SubscriptionServiceTests
     }
 
     [Fact]
-    public async Task Cancel_ActivePaidPlan_DowngradesToFree()
+    public async Task Cancel_ActivePaidPlanWithNoExpiry_DowngradesToFreeImmediately()
     {
+        // Lifetime plans (ExpiresAt = null) have no period-end to wait out.
         await using var db = DbContextFactory.CreateInMemory();
         var pro = Plan("Pro", SubscriptionTier.Pro, 20m);
         var free = Plan("Free", SubscriptionTier.Free, 0m);
@@ -429,6 +467,30 @@ public class SubscriptionServiceTests
         var active = await db.UserSubscriptions.SingleAsync(s => s.IsActive);
         active.SubscriptionPlanId.ShouldBe(free.Id);
         (await db.BillingTransactions.SingleAsync()).Type.ShouldBe(BillingTransactionType.Downgrade);
+    }
+
+    [Fact]
+    public async Task Cancel_ActivePaidPlanWithExpiresAt_KeepsAccessUntilExpiry()
+    {
+        // BIZ-2: cancelling a metered plan must not forfeit the period already paid for —
+        // the subscription stays active/paid-tier, just stamped CancelledAt, until
+        // SubscriptionExpirySweeper reverts it to Free at ExpiresAt.
+        await using var db = DbContextFactory.CreateInMemory();
+        var pro = Plan("Pro", SubscriptionTier.Pro, 20m);
+        var expiresAt = DateTime.UtcNow.AddDays(20);
+        db.SubscriptionPlans.Add(pro);
+        var sub = ActiveSub(pro, expiresAt);
+        db.UserSubscriptions.Add(sub);
+        await db.SaveChangesAsync();
+
+        var result = await NewService(db).CancelSubscriptionAsync(UserId);
+
+        result.Success.ShouldBeTrue();
+        var active = await db.UserSubscriptions.SingleAsync(s => s.IsActive);
+        active.SubscriptionPlanId.ShouldBe(pro.Id);
+        active.CancelledAt.ShouldNotBeNull();
+        active.ExpiresAt.ShouldBe(expiresAt);
+        (await db.BillingTransactions.CountAsync()).ShouldBe(0);
     }
 
     // ---- GetBillingOverviewAsync --------------------------------------------

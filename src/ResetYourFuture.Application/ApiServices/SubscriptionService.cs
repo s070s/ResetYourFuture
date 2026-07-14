@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
@@ -27,13 +28,16 @@ public class SubscriptionService : ISubscriptionService
 
     public SubscriptionService(
         IApplicationDbContext db, ILogger<SubscriptionService> logger, IMemoryCache cache,
-        INotificationDispatcher notifications, IConfiguration configuration)
+        INotificationDispatcher notifications, IConfiguration configuration, IHostEnvironment environment)
     {
         _db = db;
         _logger = logger;
         _cache = cache;
         _notifications = notifications;
-        _mockPaymentEnabled = configuration.GetValue<bool>("Payment:MockEnabled");
+        // BIZ-4: the mock-payment grant path must never run outside Development, regardless of
+        // how Payment:MockEnabled is set — a config flag alone is one accidental copy-paste away
+        // from granting free upgrades in a real environment.
+        _mockPaymentEnabled = environment.IsDevelopment() && configuration.GetValue<bool>("Payment:MockEnabled");
     }
 
     public async Task<List<SubscriptionPlanDto>> GetPlansAsync(CancellationToken cancellationToken = default)
@@ -197,7 +201,8 @@ public class SubscriptionService : ISubscriptionService
             Amount = plan.Price,
             Currency = "EUR",
             Type = transactionType,
-            Description = $"{transactionType} to {plan.Name}",
+            // BIZ-4: prefixed so a mock (unpaid) grant is never mistaken for a real charge in reporting.
+            Description = $"[MOCK] {transactionType} to {plan.Name}",
             StripeSessionId = mockSessionId,
             CreatedAt = DateTime.UtcNow
         });
@@ -313,53 +318,71 @@ public class SubscriptionService : ISubscriptionService
 
         var previousPlanName = activeSub.SubscriptionPlan.Name;
 
-        // Deactivate current subscription
-        activeSub.IsActive = false;
-        activeSub.CancelledAt = DateTime.UtcNow;
-
-        // Assign Free plan
-        var freePlan = await _db.SubscriptionPlans
-            .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTier.Free && sp.IsActive, cancellationToken);
-
-        if (freePlan is null)
+        // BIZ-2: cancellation stops renewal, it does not forfeit the period already paid for.
+        // Lifetime plans have no ExpiresAt to wait out, so they still downgrade immediately;
+        // every other plan just gets stamped CancelledAt and keeps IsActive/tier intact —
+        // SubscriptionExpirySweeper reverts it to Free at ExpiresAt like any natural expiry.
+        if (activeSub.ExpiresAt is null)
         {
-            return new CancelSubscriptionResultDto(false, "Free plan not available. Please contact support.");
+            activeSub.IsActive = false;
+            activeSub.CancelledAt = DateTime.UtcNow;
+
+            var freePlan = await _db.SubscriptionPlans
+                .FirstOrDefaultAsync(sp => sp.Tier == SubscriptionTier.Free && sp.IsActive, cancellationToken);
+
+            if (freePlan is null)
+            {
+                return new CancelSubscriptionResultDto(false, "Free plan not available. Please contact support.");
+            }
+
+            var newSub = new UserSubscription
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                SubscriptionPlanId = freePlan.Id,
+                StartedAt = DateTime.UtcNow,
+                ExpiresAt = null,
+                IsActive = true
+            };
+
+            _db.UserSubscriptions.Add(newSub);
+
+            // Record the downgrade transaction
+            _db.BillingTransactions.Add(new BillingTransaction
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                SubscriptionPlanId = freePlan.Id,
+                Amount = 0m,
+                Currency = "EUR",
+                Type = BillingTransactionType.Downgrade,
+                Description = $"Cancelled {previousPlanName} — downgraded to Free",
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _db.SaveChangesAsync(cancellationToken);
+
+            _cache.Remove(StatusCacheKey(userId));
+
+            _logger.LogInformation(
+                "User {UserId} cancelled lifetime plan {PreviousPlan} and downgraded to Free immediately.",
+                userId, previousPlanName);
+
+            return new CancelSubscriptionResultDto(true, $"Your {previousPlanName} plan has been cancelled. You are now on the Free plan.");
         }
 
-        var newSub = new UserSubscription
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            SubscriptionPlanId = freePlan.Id,
-            StartedAt = DateTime.UtcNow,
-            ExpiresAt = null,
-            IsActive = true
-        };
-
-        _db.UserSubscriptions.Add(newSub);
-
-        // Record the downgrade transaction
-        _db.BillingTransactions.Add(new BillingTransaction
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            SubscriptionPlanId = freePlan.Id,
-            Amount = 0m,
-            Currency = "EUR",
-            Type = BillingTransactionType.Downgrade,
-            Description = $"Cancelled {previousPlanName} — downgraded to Free",
-            CreatedAt = DateTime.UtcNow
-        });
-
+        activeSub.CancelledAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(cancellationToken);
 
         _cache.Remove(StatusCacheKey(userId));
 
         _logger.LogInformation(
-            "User {UserId} cancelled {PreviousPlan} and downgraded to Free.",
-            userId, previousPlanName);
+            "User {UserId} cancelled {PreviousPlan}; access remains until {ExpiresAt}.",
+            userId, previousPlanName, activeSub.ExpiresAt);
 
-        return new CancelSubscriptionResultDto(true, $"Your {previousPlanName} plan has been cancelled. You are now on the Free plan.");
+        return new CancelSubscriptionResultDto(
+            true,
+            $"Your {previousPlanName} plan has been cancelled. You'll keep access until {activeSub.ExpiresAt:dd MMM yyyy}.");
     }
 
     public async Task<BillingOverviewDto> GetBillingOverviewAsync(
