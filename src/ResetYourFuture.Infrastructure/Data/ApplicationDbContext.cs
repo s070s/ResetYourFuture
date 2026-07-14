@@ -199,7 +199,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
             }
         }
 
-        // Global soft-delete filter for all AuditableEntity subtypes
+        // Global soft-delete filter for all AuditableEntity subtypes, plus DB-7's concurrency
+        // token: every AuditableEntity gets a DB-generated RowVersion column checked on every
+        // UPDATE, so a stale read-modify-write throws instead of silently last-write-winning.
         foreach (var entityType in builder.Model.GetEntityTypes())
         {
             if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
@@ -208,6 +210,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
                 var prop = Expression.Property(param, nameof(AuditableEntity.IsDeleted));
                 var filter = Expression.Lambda(Expression.Not(prop), param);
                 builder.Entity(entityType.ClrType).HasQueryFilter(filter);
+
+                builder.Entity(entityType.ClrType)
+                    .Property(nameof(AuditableEntity.RowVersion))
+                    .IsRowVersion();
             }
         }
 

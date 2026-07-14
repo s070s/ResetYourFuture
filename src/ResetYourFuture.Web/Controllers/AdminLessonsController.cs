@@ -109,8 +109,19 @@ public class AdminLessonsController : ControllerBase
         lesson.UpdatedAt = DateTimeOffset.UtcNow;
         lesson.UpdatedByUserId = UserId;
 
-        // Persist changes to the database.
-        await _db.SaveChangesAsync();
+        // DB-7: RowVersion (AuditableEntity) is included in this UPDATE's WHERE clause
+        // automatically — no DTO/client round-trip needed, since the lesson was loaded and saved
+        // within this same request. If another request updated this lesson in between (the
+        // read-modify-write race the finding describes), zero rows match and EF throws instead of
+        // silently overwriting that request's change.
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Conflict("This lesson was modified by someone else. Reload and try again.");
+        }
 
         // Return 200 OK with the updated DTO.
         return Ok(lesson.ToAdminDto());

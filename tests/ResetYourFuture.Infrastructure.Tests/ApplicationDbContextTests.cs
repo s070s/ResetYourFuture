@@ -196,4 +196,38 @@ public class ApplicationDbContextTests
 
         enrollment.EnrolledAt.Kind.ShouldBe(DateTimeKind.Utc);
     }
+
+    [Fact]
+    public async Task ConcurrentEdit_StaleRowVersion_ThrowsConcurrencyException()
+    {
+        // DB-7: RowVersion is DB-generated in production (SQL Server's rowversion type is
+        // auto-incremented by the engine itself on every UPDATE — not something the app sets,
+        // and not something the InMemory test provider can simulate on its own). This proves
+        // EF's optimistic-concurrency check is correctly wired for Lesson — the same WHERE-clause
+        // comparison AdminLessonsController.UpdateLesson's try/catch relies on — by manufacturing
+        // the "stale original value" state a real concurrent SQL Server write would leave behind.
+        var dbName = Guid.NewGuid().ToString("N");
+        Guid lessonId;
+        await using (var seedDb = CtxWithUser("seed", dbName))
+        {
+            var seedCourse = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+            var seedModule = new Module { Id = Guid.NewGuid(), TitleEn = "M", CourseId = seedCourse.Id };
+            var seedLesson = new Lesson { Id = Guid.NewGuid(), TitleEn = "L", ModuleId = seedModule.Id };
+            lessonId = seedLesson.Id;
+            seedDb.Courses.Add(seedCourse);
+            seedDb.Modules.Add(seedModule);
+            seedDb.Lessons.Add(seedLesson);
+            await seedDb.SaveChangesAsync();
+        }
+
+        await using var db = CtxWithUser("editor", dbName);
+        var lesson = await db.Lessons.FirstAsync(l => l.Id == lessonId);
+        lesson.TitleEn = "Edited";
+
+        // Simulate another writer having already changed the row version in between this
+        // request's read and its save (what SQL Server would really do on a concurrent UPDATE).
+        db.Entry(lesson).OriginalValues[nameof(Lesson.RowVersion)] = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+        await Should.ThrowAsync<DbUpdateConcurrencyException>(() => db.SaveChangesAsync());
+    }
 }
