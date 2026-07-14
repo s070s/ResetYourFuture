@@ -19,33 +19,18 @@ NOT examined at the code level: TLS/reverse-proxy config, DataProtection key-rin
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
-| Low | 4 |
+| Medium | 0 |
+| Low | 5 |
 | Info | 1 |
 
-Overall the security foundations are notably strong for a certificate project: HttpOnly + `SameSite=Strict` auth cookie (which neutralises CSRF on the cookie-authenticated API surface), security-stamp revalidation on every cookie request, every JWT validation, and now every refresh-token use, SHA-256-hashed rotating refresh tokens with reuse detection, HMAC-SHA256 Stripe signature verification with timestamp replay rejection, an HTML sanitizer applied at every rich-text write path, a hardened public media endpoint (`sandbox` CSP + extension allowlist), and DataProtection-signed sign-in tickets. The remaining gaps: token-in-query-string exposure, incomplete rate-limiter coverage, and a CSP that still relies on `unsafe-inline` for scripts. None are exploitable to a full compromise in the current dev/demo configuration.
+Overall the security foundations are notably strong for a certificate project: HttpOnly + `SameSite=Strict` auth cookie (which neutralises CSRF on the cookie-authenticated API surface), security-stamp revalidation on every cookie request, every JWT validation, and now every refresh-token use, SHA-256-hashed rotating refresh tokens with reuse detection, HMAC-SHA256 Stripe signature verification with timestamp replay rejection, an HTML sanitizer applied at every rich-text write path, a hardened public media endpoint (`sandbox` CSP + extension allowlist), and DataProtection-signed sign-in tickets. All four Medium findings are now fixed or substantially addressed: the lesson-asset endpoint uses a scoped single-lesson token instead of the general access JWT, sensitive endpoints carry a per-user rate limiter, the Stripe webhook fails closed without a configured secret, and the CSP's `script-src` no longer needs `'unsafe-inline'` (its `style-src` counterpart and self-hosting the two CDN assets remain open — see SEC-5). None of the remaining Low findings are exploitable to a full compromise in the current dev/demo configuration.
 
 ## 3. Findings
 
-### SEC-2: Access tokens transmitted in query strings (SignalR hubs and lesson-asset streaming)  [Medium] [Effort: M]
-- **Evidence:** `Startup/AuthenticationSetupExtensions.cs:145-158` reads the JWT from `?access_token=` for `/hubs/chat`, `/hubs/call`, and `/api/lessons`. `Web/Pages/LessonViewer.razor.cs:152-178` builds `<video>`/`<iframe>` URLs that append `&access_token={jwt}` to `/api/lessons/{id}/asset`.
-- **Impact:** Bearer JWTs land in browser history, server request logs, and any intermediary/proxy access logs. A 15-minute token captured from a log grants the holder the user's identity until expiry. The lesson-asset URL is especially exposed because it is embedded in rendered HTML the browser stores.
-- **Recommendation:** SignalR-over-WebSocket query-string tokens are a framework constraint, but keep their lifetime minimal and ensure request logging strips `access_token` (coordinate with LOG-37). For lesson assets, prefer a short-lived signed path token (DataProtection, single-asset scope) or a cookie-authenticated asset endpoint instead of the raw JWT in the URL.
-
-### SEC-3: Several sensitive state-changing endpoints have no rate limiting  [Medium] [Effort: S]
-- **Evidence:** Only two limiter policies exist — `"auth"` (fixed window 10/min, applied to `AuthController` methods) and `"assistant"` (`ServiceRegistrationExtensions.cs:145-167`). No global limiter is configured. `ProfileController.ChangePassword` / `UploadAvatar`, `AdminController.SetPassword` / `ForcePasswordReset`, `SubscriptionController.CreateCheckout`, `AssessmentsController.SubmitAssessment`, and `ChatController` carry no `[EnableRateLimiting]`. `ChatHub.SendMessage` has only a per-message length cap, no send-rate cap.
-- **Impact:** Unbounded request volume enables password-change brute force (bounded by lockout, but still), avatar/upload storage abuse, assessment-submission spam, and chat flooding. No back-pressure exists for a single authenticated abuser.
-- **Recommendation:** Add a sensible per-user default limiter (mirroring the `"assistant"` partition pattern) and attach `"auth"`-class limits to `change-password`, `set-password`, and `force-password-reset`. Consider a lightweight send-rate guard in `ChatHub`.
-
-### SEC-4: Stripe webhook accepts unsigned requests when `Payment:WebhookSecret` is unset  [Medium] [Effort: S]
-- **Evidence:** `Web/Controllers/SubscriptionController.cs:100-155`. The endpoint is `[AllowAnonymous]`; when `Payment:WebhookSecret` is blank (the production default — the key is unset in `appsettings.json` and only optionally set via env) it logs a warning and returns `200 OK` without verifying any signature (`:111-115`).
-- **Impact:** Anyone can POST to `/api/subscriptions/webhook` and receive a success acknowledgement. Today the handler performs no state change (event dispatch is unimplemented — see BIZ), so it is not yet exploitable for privilege escalation, but the fail-open default is a latent vulnerability: the moment event dispatch is wired without first requiring the secret, forged events could grant paid tiers.
-- **Recommendation:** Fail closed — if the endpoint is reachable and no secret is configured, reject (or require an explicit `Payment:MockEnabled` bypass gate that is never on in production). Never dispatch subscription-granting events on an unverified request.
-
-### SEC-5: Content-Security-Policy relies on `script-src 'unsafe-inline'` plus broad CDN allowances  [Medium] [Effort: M]
-- **Evidence:** `Startup/SecurityHeadersMiddlewareExtensions.cs:26-37`: `script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net`, `style-src` also `'unsafe-inline'`, plus `cdn.jsdelivr.net` / `cdnjs.cloudflare.com` in script/style/font/connect.
-- **Impact:** `'unsafe-inline'` on `script-src` means the CSP provides no meaningful defence against injected inline scripts — any stored/reflected HTML that slips past the sanitizer executes. The sanitizer is currently applied everywhere rich HTML is written (verified), so this is defence-in-depth rather than an active hole, but it removes the CSP as a second layer.
-- **Recommendation:** Move Blazor's inline bootstrap to a nonce-based CSP (`script-src 'self' 'nonce-…'`) and drop `'unsafe-inline'` for scripts; self-host the two CDN assets to tighten `script-src`/`style-src` to `'self'`. Coordinate with the Blazor circuit-init script requirement noted in the file.
+### SEC-5: CSP `style-src` still relies on `'unsafe-inline'`; two CDN assets remain externally hosted  [Low] [Effort: M]
+- **Evidence:** `Startup/SecurityHeadersMiddlewareExtensions.cs` — `script-src` no longer needs `'unsafe-inline'` (fixed: the app's only inline-script surface was two `<link onload="...">` lazy-CSS attributes in `App.razor`, now handled by an external `wwwroot/js/lazy-css.js`; verified live via the served CSP header and a clean browser console). `style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com` remains: dozens of components legitimately bind `style="@expr"`, a common Razor pattern, and the two CDN origins (bootstrap-icons, Font Awesome, Quill JS/CSS) are still allow-listed by hostname rather than self-hosted.
+- **Impact:** `style-src 'unsafe-inline'` is a materially smaller risk than the `script-src` case that was fixed — CSS injection can exfiltrate via `:has()`/attribute selectors or deface, but cannot directly execute arbitrary script. The CDN dependency means a compromised CDN could serve malicious CSS/JS, mitigated somewhat by the existing SRI hash on the Font Awesome `<link>` (Quill's script/style tags have none).
+- **Recommendation:** Auditing every inline `style="@expr"` binding across ~70 components to move to CSS custom properties/classes is a separate, much larger pass — do it opportunistically. Self-hosting the two CDN assets (vendor the files under `wwwroot/lib/`) is more contained and could land independently; add SRI to the Quill `<script>`/`<link>` tags either way.
 
 ### SEC-6: DEBUG-only auth-bypass endpoints allow arbitrary email-confirm and password reset  [Low] [Effort: S]
 - **Evidence:** `Web/Controllers/AuthController.cs:134-160` (`dev/confirm-email`, `dev/reset-password`), backed by `AuthApiService.DevConfirmEmailAsync` / `DevResetPasswordAsync` (`:288-321`). Guarded by both `#if DEBUG` (compiled out of Release) and a runtime `_env.IsDevelopment()` check.
@@ -76,10 +61,7 @@ Overall the security foundations are notably strong for a certificate project: H
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| SEC-2 | Medium | M | Remove raw JWT from lesson-asset URLs; ensure `access_token` is stripped from logs |
-| SEC-3 | Medium | S | Add per-user default limiter + `auth`-class limits on password/checkout/submit endpoints |
-| SEC-4 | Medium | S | Make the Stripe webhook fail closed when the signing secret is absent |
-| SEC-5 | Medium | M | Move to nonce-based CSP; drop `script-src 'unsafe-inline'`; self-host CDN assets |
+| SEC-5 | Low | M | Audit `style="@expr"` bindings toward dropping `style-src 'unsafe-inline'`; self-host the two CDN assets |
 | SEC-6 | Low | S | CI gate against shipping DEBUG builds; startup assertion for dev-only endpoints |
 | SEC-7 | Low | S | Return generic credentials error for unconfirmed accounts on the Blazor login path |
 | SEC-8 | Low | S | Strengthen password policy + compromised-password screening |
@@ -89,8 +71,8 @@ Overall the security foundations are notably strong for a certificate project: H
 ## 5. Related Findings Elsewhere
 
 - **REL (26):** `DeleteUser` throws an unhandled exception (Restrict FKs) — same code path this report treats for authz; REL owns the crash/failure-mode angle.
-- **REL (26):** SSR loopback consumers (`ApiClientBase`) swallow non-success responses → silent blank pages; interacts with SEC-2's asset flow.
-- **BIZ (27):** Webhook event dispatch is unimplemented (why SEC-4 is not yet exploitable) and mock payment grants plans without charge.
+- **REL (26):** SSR loopback consumers (`ApiClientBase`) swallow non-success responses → silent blank pages; interacted with the now-fixed lesson-asset flow (SEC-2).
+- **BIZ (27):** Webhook event dispatch is unimplemented (why the pre-fix SEC-4 fail-open default wasn't yet exploitable) and mock payment grants plans without charge.
 - **COMP (29):** GDPR erasure completeness, special-category (psychosocial) data at rest, and minor-consent enforcement — the regulatory counterparts to the account/data handling reviewed here.
 - **DQ (28):** DTO/column `MaxLength` mismatch on testimonials can 500 on save (input-validation integrity).
 - **CFG (39):** `AllowedHosts` restricted to localhost, HSTS toggle, and production secret provisioning.

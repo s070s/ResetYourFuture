@@ -35,7 +35,7 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 ### BIZ-3: Real payment path is inert — production checkout 503s and the webhook activates nothing  [Medium] [Effort: L]
 - **Evidence:** `Web/Controllers/SubscriptionController.cs:79-93` returns 503 (`pending_payment`) when `Payment:MockEnabled` is off (the production default). `SubscriptionController.cs:147-154` verifies the Stripe signature but then logs "Event processing not yet implemented" and returns 200 without dispatching to `AssignPlanAsync`.
 - **Impact:** There is no working way to purchase a plan in a non-mock (production) configuration: checkout cannot complete, and even a correctly signed `checkout.session.completed` event does not grant a tier. Monetisation is non-functional outside Development.
-- **Recommendation:** Implement the documented event dispatch (`checkout.session.completed → AssignPlanAsync`, `customer.subscription.updated → tier update`, `customer.subscription.deleted → revert to Free`) inside a transaction, and wire a real checkout-session creation. Ensure the webhook fails closed first (SEC-4).
+- **Recommendation:** Implement the documented event dispatch (`checkout.session.completed → AssignPlanAsync`, `customer.subscription.updated → tier update`, `customer.subscription.deleted → revert to Free`) inside a transaction, and wire a real checkout-session creation. The webhook already fails closed without a configured signing secret (SEC-4, fixed) — the safety precondition for wiring dispatch is in place.
 
 ### BIZ-4: Mock checkout grants any plan with zero payment  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/SubscriptionService.cs:145-202` — when `Payment:MockEnabled` is true, `CreateCheckoutSessionAsync` calls `AssignPlanAsync` and records a paid-looking `BillingTransaction` **without any charge**. `MockEnabled=true` is set in `appsettings.Development.json`.
@@ -76,7 +76,7 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 
 ## 5. Related Findings Elsewhere
 
-- **SEC (25):** Webhook fails open when the signing secret is unset (SEC-4) — the security counterpart to BIZ-3.
+- **SEC (25):** Webhook now fails closed when the signing secret is unset (SEC-4, fixed) — the security counterpart to BIZ-3.
 - **REL (26):** Certificate auto-generation failure is swallowed on completion (REL-5); admin-seed failure ignored (REL-4).
 - **DQ (28):** Billing/subscription referential integrity and the one-active-subscription filtered index diverging between SQL Server and SQLite tests.
 - **COMP (29):** Minor (under-18) registration proceeds without parental-consent enforcement — a domain rule owned by COMP for its regulatory nature.

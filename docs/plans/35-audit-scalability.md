@@ -93,5 +93,5 @@ This is a deliberately single-instance application, and — to its credit — it
 - **PERF (34):** PERF-5 (data-URL avatars) is the largest single per-circuit memory item in SCALE-8; PERF-1 quantifies the per-call cost of the loopback topology.
 - **AVAIL (36):** Single-instance pinning (SCALE-1/2/4) is why zero-downtime deploys are impossible — AVAIL owns the restart/drain consequences.
 - **DB (30):** DB-11 (RefreshToken growth) is the same unbounded-growth pattern as SCALE-11; DB-14 endorses the current chunk-storage design SCALE-10 puts a ceiling on.
-- **SEC (25):** SEC-3's rate-limiting gaps worsen under SCALE-7's per-instance limiter multiplication.
+- **SEC (25):** SEC-3 added a per-user rate limiter on several previously-unprotected endpoints; SCALE-7's per-instance limiter multiplication applies to it (and every other ASP.NET Core rate limiter here) the same way.
 - **CLOUD (41):** Owns the concrete provisioning (Redis, blob storage, TURN, load balancer) that the High findings here would consume.
