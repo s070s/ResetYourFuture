@@ -76,7 +76,7 @@ The schema is well above student-project average: every entity has an explicit `
 
 ## 5. Related Findings Elsewhere
 
-- **31 (API):** API-1 (error envelope) covers the single-envelope response shape; API-3 (missing Conflict semantics) pairs with DB-7's concurrency-conflict mapping (fixed for Lesson, mechanical rollout remaining).
+- **31 (API):** all nine Medium findings fixed, including the single ProblemDetails envelope shape/content-type and 409-for-conflicts semantics, which now pair with DB-7's concurrency-conflict mapping (fixed for Lesson, mechanical rollout remaining across the other six controllers).
 - **25 (SEC):** ownership/authorization checks on data access (e.g. lesson-asset enrollment checks) and injection posture are SEC's; DB only asserts schema shape here.
 - **28 (DQ):** validation of the JSON payload *contents* (AnswersJson/SchemaJson well-formedness, business rules — DQ-2/DQ-4, fixed), seed-data integrity, and any existing duplicate-category cleanup (DB-5's index is now the DB-level backstop).
 - **34 (PERF):** query performance, N+1, and measurement of the index observations in DB-12/DB-14.
