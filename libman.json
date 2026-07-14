@@ -1,0 +1,15 @@
+{
+  "//": "DEP-2: records the provenance of the vendored front-end libraries and gives them an update path (`libman restore` / `libman update`). Only the files the app actually references are kept, trimming the previously-full Bootstrap dist. Bump the version here and run `libman update` to update.",
+  "version": "1.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap/",
+      "files": [
+        "dist/css/bootstrap.min.css",
+        "dist/css/bootstrap.min.css.map"
+      ]
+    }
+  ]
+}
