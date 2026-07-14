@@ -17,23 +17,15 @@ Read in full: `.github/workflows/tests.yml` (the only workflow), `global.json`, 
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 2 |
+| Medium | 0 |
 | Low | 5 |
 | Info | 1 |
 
-Overall: the build foundation is genuinely solid — SDK pinned via `global.json` (10.0.100, rollForward latestFeature), central package management with every version pinned in `Directory.Packages.props`, `dotnet-ef` pinned in `.config/dotnet-tools.json` with `rollForward: false`, and a clean CI workflow that restores, builds Release, tests, and uploads TRX results with clearly-labeled dummy secrets. Per the severity ground rules for this project, the absence of CD cannot rate above the debt it is. The two Medium findings are the ones that bite *developers today or the first deployer*: a known, repo-undocumented failure mode where a plain restore silently rewrites the pinned OpenApi package and breaks the build, and a CI matrix that never exercises the real database provider or migrations.
+Overall: the build foundation is genuinely solid — SDK pinned via `global.json`, central package management with every version pinned in `Directory.Packages.props`, `dotnet-ef` pinned in `.config/dotnet-tools.json`, and a clean CI workflow. Both Medium findings are now resolved: the Microsoft.OpenApi auto-pin trap is documented in-repo and guarded by committed `packages.lock.json` files plus CI `--locked-mode` (BUILD-1), and a new CI job applies the whole migration chain against a real SQL Server container so a SQL-Server-only migration break no longer ships green (BUILD-2). What remains is five Low items and one Info.
 
 ## 3. Findings
 
-### BUILD-1: The NuGet OpenApi auto-pin trap is undocumented and unguarded in the repo  [Medium] [Effort: S]
-- **Evidence:** `Directory.Packages.props` pins the sensitive trio: `Microsoft.OpenApi` 2.9.0 (line 23), `Microsoft.AspNetCore.OpenApi` 10.0.5 (line 14), `Swashbuckle.AspNetCore.SwaggerUI` 10.2.1 (line 29). The known failure mode (from this project's development history): a plain `dotnet build`/`restore` can silently pin an incompatible `Microsoft.OpenApi` version into the csproj/`Directory.Packages.props`, breaking the build; the fix is `git checkout` of the mutated files. Neither README (verified: no mention of pinning/restore hazards) nor any comment in `Directory.Packages.props` records this. No `packages.lock.json` exists, and CI (`.github/workflows/tests.yml:28`) runs an unlocked `dotnet restore`.
-- **Impact:** Any new contributor (or the project author on a new machine) hits a broken build with no in-repo explanation of why or how to recover; worst case they "fix" it by committing the incompatible pin. CI would then go red (or worse, green on the wrong version) with no signal that the manifest itself was mutated.
-- **Recommendation:** Three cheap layers: (1) a comment block above the `Microsoft.OpenApi` line in `Directory.Packages.props` naming the trap and the `git checkout` recovery; (2) a short README "Known build issue" note; (3) enable `<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>` in `Directory.Build.props`, commit the lock files, and add `--locked-mode` to the CI restore so any silent pin change fails loudly.
-
-### BUILD-2: CI never exercises the real database provider or migrations  [Medium] [Effort: M]
-- **Evidence:** `.github/workflows/tests.yml:9` — `runs-on: ubuntu-latest`; tests use EF InMemory/SQLite (`Directory.Packages.props:18-19,28`; `Startup/DatabaseSeedingExtensions.cs:43-47` explicitly skips `MigrateAsync` on non-relational providers). Development uses Windows LocalDB (`appsettings.Development.json:9`). Nothing anywhere runs the migration chain against SQL Server.
-- **Impact:** Migrations execute automatically at every production startup (`DatabaseSeedingExtensions.cs:46-47`), yet the only place they ever run against the real provider is a deployment. A migration that is valid for SQLite/InMemory but broken on SQL Server (type/index/collation differences) ships green and takes the app down at boot (procedure consequence → OPS-3 in report 42).
-- **Recommendation:** Add one CI job using the `mcr.microsoft.com/mssql/server` service container: set the connection string env var, run a tiny console/test entry that calls `MigrateAsync` (and optionally boots `WebApplicationFactory` against it). Ubuntu-hosted SQL Server containers work on the free runner tier.
+> The two Medium findings (BUILD-1 OpenApi pin trap, BUILD-2 SQL Server migration CI) are fixed — see git (`Fix BUILD-1 and BUILD-2`). The remaining open items are five Low and one Info.
 
 ### BUILD-3: No publish artifact, versioning, or release process  [Low] [Effort: M]
 - **Evidence:** `.github/workflows/tests.yml` ends at TRX upload — no `dotnet publish`, no artifact of the app itself; `Directory.Build.props` sets no `Version`/`InformationalVersion`; no git tags or GitHub Releases conventions in evidence; nothing stamps a build with its commit.
@@ -67,10 +59,10 @@ Overall: the build foundation is genuinely solid — SDK pinned via `global.json
 
 ## 4. Prioritized Action List
 
+Both Medium items (BUILD-1, BUILD-2) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| BUILD-1 | Medium | S | Document the OpenApi auto-pin trap in-repo; add lock files + `--locked-mode` in CI |
-| BUILD-2 | Medium | M | CI job running migrations (and optionally the test host) against a SQL Server container |
 | BUILD-4 | Low | S | Concurrency group, push-to-master only, `global-json-file`, NuGet cache |
 | BUILD-5 | Low | S | Collect and upload code coverage |
 | BUILD-6 | Low | S | Warnings-as-errors in CI builds |
