@@ -77,6 +77,6 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 ## 5. Related Findings Elsewhere
 
 - **SEC (25):** Webhook now fails closed when the signing secret is unset (SEC-4, fixed) — the security counterpart to BIZ-3.
-- **REL (26):** Certificate auto-generation failure is swallowed on completion (REL-5); admin-seed failure ignored (REL-4).
+- **REL (26):** Certificate auto-generation failure (REL-5) and admin-seed failure (REL-4) are now surfaced rather than swallowed — both fixed.
 - **DQ (28):** Billing/subscription referential integrity and the one-active-subscription filtered index diverging between SQL Server and SQLite tests.
 - **COMP (29):** Minor (under-18) registration proceeds without parental-consent enforcement — a domain rule owned by COMP for its regulatory nature.

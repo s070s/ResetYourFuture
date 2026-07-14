@@ -19,33 +19,18 @@ NOT examined: SQL Server failover behaviour (retry-on-failure is configured, `Au
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
-| Low | 4 |
+| Medium | 0 |
+| Low | 5 |
 | Info | 0 |
 
-Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. The main weaknesses are a registration flow that can 500 after the account is already created, and an SSR consumer layer that swallows failures into blank UI.
+Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. All four Medium findings are now fixed or reassessed: registration email failure no longer 500s after account creation (REL-2), admin-seed and certificate-generation failures are now surfaced instead of swallowed (REL-4, REL-5), and REL-3's operator-visibility gap turned out to already be closed by the framework's default HTTP logging handlers (see below) — what remains of it is a larger, disproportionate UI-contract change, so it is now tracked as Low.
 
 ## 3. Findings
 
-### REL-2: Registration can 500 after the account is already created when email delivery fails  [Medium] [Effort: S]
-- **Evidence:** `Application/ApiServices/AuthApiService.cs:56-92` — the user is created (`CreateAsync`), assigned the Student role, given a Free plan, and only then `await emailService.SendEmailConfirmationAsync(...)` is called with no try/catch (`:86`). `SmtpEmailService` (MailKit) is the transport whenever `Email:Smtp:Host` is set.
-- **Impact:** If the SMTP relay is unreachable or rejects the message, the awaited send throws, the controller returns 500, but the `ApplicationUser` row, role, and Free subscription have already been committed. The user sees a failure yet cannot re-register (duplicate email) and never receives a confirmation link — a stuck, unconfirmed, un-loginable account.
-- **Recommendation:** Move email delivery outside the account-creation success path (fire-and-forget with logging, or an outbox/retry queue), and return success once the account exists. Surface a "resend confirmation" affordance rather than failing registration on transient SMTP errors.
-
-### REL-3: SSR loopback consumers swallow non-success responses into blank UI  [Medium] [Effort: M]
-- **Evidence:** `Web/Consumers/ApiClientBase.cs:41-80` — `GetAsync`/`PostAsync`/`PostJsonAsync` return `default`/`null` on any non-2xx response with no logging or error propagation. The class comment itself documents that unauthenticated/failed calls "silently returned default — appearing to the user as blank/empty pages." The self-base-URL + loopback-TLS caveat is documented in `ServiceRegistrationExtensions.cs:204-210`.
-- **Impact:** Any API error (401, 403, 500, TLS handshake failure against the loopback cert in a misconfigured deployment) renders as an empty page or silently no-op action, with nothing logged at the consumer layer. Failures are invisible to both user and operator.
-- **Recommendation:** Log non-success responses (status + URL) in `ApiClientBase`, and distinguish "empty result" from "call failed" so pages can render an error state. Longer term, calling the application services in-process (rather than over HTTP-to-self) removes the entire failure class (see ARCH/MAINT).
-
-### REL-4: Admin-user seeding failure at startup is silently ignored  [Medium] [Effort: S]
-- **Evidence:** `Startup/DatabaseSeedingExtensions.cs:87-92` — `CreateAsync(admin, adminPassword)` result is only acted on inside `if (result.Succeeded)`; the failure branch neither logs nor throws.
-- **Impact:** If the admin password fails Identity's policy (or any other create error occurs), the app starts with **no admin account** and no signal that seeding failed. The platform is left with no administrative access and the operator has no indication why.
-- **Recommendation:** On `!result.Succeeded`, log the errors at Error level and throw (fail-fast, consistent with the existing "AdminUser:Password is required" throw at `:68-70`).
-
-### REL-5: Certificate auto-generation failure is swallowed on lesson completion  [Medium] [Effort: S]
-- **Evidence:** `Application/ApiServices/CourseService.cs:344-360` — when a course is completed and the user has certificate access, `certificateService.GetOrGenerateAsync` is wrapped in try/catch that only logs; the method then returns `courseCompleted: true`.
-- **Impact:** The student is told the course/lesson is complete and a certificate should exist, but PDF generation (QuestPDF) or storage failures leave no certificate and no user-visible error. The `IssueCertificate` endpoint would later re-attempt, so it is recoverable, but the silent gap between "completed" and "no certificate" is confusing and unmonitored.
-- **Recommendation:** Keep the completion resilient, but record the failure in a way an operator/user can act on (a retry flag, or surfacing "certificate pending" state), and ensure the log is at Error with course/user context (it currently is).
+### REL-3: SSR loopback consumers swallow non-success responses into blank UI  [Low] [Effort: M]
+- **Evidence:** `Web/Consumers/ApiClientBase.cs:41-80` — `GetAsync`/`PostAsync`/`PostJsonAsync` return `default`/`null` on any non-2xx response, with no *application-level* logging or error propagation. **Reassessed (2026-07-14):** the "nothing logged" half of the original evidence is stale. `AddHttpClient<TInterface, TImpl>` (`ServiceRegistrationExtensions.cs`) wires .NET's default `HttpClientFactory` logging handlers on every consumer, and those log every request's status code — including non-success ones — at Information level with no code required: verified live via `src/ResetYourFuture.Web/Logs/log-*.txt`, e.g. `[INFORMATION] [System.Net.Http.HttpClient.ITestimonialConsumer.LogicalHandler] End processing HTTP request after 10ms - 200`. Neither `appsettings.json`'s `Logging:LogLevel` section nor `Logging/FileLogger.cs` filters that category out, so failure status codes reach the log file today. Operator visibility (the finding's original headline risk) is therefore already solved by the framework, not missing.
+- **Impact:** What remains is narrower than originally scoped: pages still can't distinguish "genuinely empty result" from "call failed" (both come back as `default`/`null`/`false` from `ExecuteAsync`), so a failed call still renders as an empty state to the *user* rather than an error state. Fixing that requires changing `ExecuteAsync`'s return contract (e.g. a `Result<T>` wrapper) across all ~25 typed consumers in `Web/Consumers/` and every calling Razor page that consumes them — disproportionate for what's left once the operator-visibility half is accounted for.
+- **Recommendation:** No further action for the operator-visibility angle (already covered). If the user-facing distinction is wanted later, land it as its own scoped effort — start with the highest-traffic pages rather than a blanket contract change across all consumers. Longer term, calling the application services in-process (rather than over HTTP-to-self) removes the entire failure class (see ARCH/MAINT).
 
 ### REL-6: Hosted-service exceptions outside the poll/index try-block can fault the host  [Low] [Effort: S]
 - **Evidence:** `Infrastructure/Seeding/BulkStudentSeedingService.cs:30-51` runs `BulkStudentSeeder.SeedAsync` with no surrounding try/catch (only the missing-password guard). `AssistantIndexer` (`Web/Services/AssistantIndexer.cs`) and `CallRingMonitor` correctly guard each iteration, but a throw during `BulkStudentSeeder.SeedAsync` propagates out of `ExecuteAsync`.
@@ -71,10 +56,7 @@ Overall reliability is above average for the project's stage. The background ser
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| REL-2 | Medium | S | Decouple confirmation email from account creation; don't fail registration on SMTP error |
-| REL-3 | Medium | M | Log non-success responses in `ApiClientBase`; distinguish empty vs failed |
-| REL-4 | Medium | S | Fail-fast (log + throw) when admin seeding fails |
-| REL-5 | Medium | S | Surface/track certificate auto-generation failures on completion |
+| REL-3 | Low | M | (Optional) distinguish empty vs failed results in the UI — operator logging already covered by the framework |
 | REL-6 | Low | S | Wrap `BulkStudentSeedingService` work in try/catch-log |
 | REL-7 | Low | M | Cache security-stamp/IsEnabled to bound per-request DB dependency |
 | REL-8 | Low | M | Make refresh rotation atomic + unique to prevent double-spend |
@@ -85,4 +67,4 @@ Overall reliability is above average for the project's stage. The background ser
 - **SEC (25):** Refresh-token lifecycle (SEC-1) — REL-8 is the concurrency angle of the same token flow; SEC owns the security/reuse-detection angle.
 - **COMP (29):** GDPR erasure is unblocked now that user deletion works (former REL-1, fixed); COMP owns the remaining regulatory obligations.
 - **BIZ (27):** Payment webhook/activation gaps determine whether the mock-vs-real payment failure modes matter.
-- **OBS (38) / LOG (37):** Silent swallows (REL-3, REL-5) argue for structured error logging + alerting.
+- **OBS (38) / LOG (37):** REL-3's remaining user-facing gap (empty vs failed result) still argues for structured error-state rendering; the operator-side logging is already handled by the framework's default `HttpClientFactory` handlers.
