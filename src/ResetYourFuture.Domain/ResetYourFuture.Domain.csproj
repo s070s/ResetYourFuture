@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--
+      Exists solely so ApplicationUser (Identity/Identity/ApplicationUser.cs) can derive from
+      IdentityUser and so its navigation properties to domain entities (Enrollments,
+      RefreshTokens, ...) work without a separate mapping layer. This is a deliberate,
+      pragmatic call for this codebase (ARCH-3) — it is not a license for other Domain types
+      to acquire HTTP/hosting dependencies.
+    -->
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

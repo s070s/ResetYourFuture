@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Extensions;
 using ResetYourFuture.Application.Mappings;
-using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 
 namespace ResetYourFuture.Application.ApiServices;

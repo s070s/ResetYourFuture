@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Application.Extensions;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Enums;
-using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
-namespace ResetYourFuture.Domain.Tests;
+namespace ResetYourFuture.Application.Tests;
 
 /// <summary>
 /// <see cref="UserSearchExtensions"/> ApplySort / ApplySearch run as EF queries.

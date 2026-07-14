@@ -4,8 +4,8 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Application.Extensions;
 using ResetYourFuture.Domain.Enums;
-using ResetYourFuture.Domain.Extensions;
 using ResetYourFuture.Domain.Identity;
 
 namespace ResetYourFuture.Application.ApiServices;
