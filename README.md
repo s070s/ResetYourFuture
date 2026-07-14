@@ -428,6 +428,8 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 | `Payment__WebhookSecret` | `.env` | Stripe HMAC signing secret. Leave unset in dev. |
 | `AllowedHosts` | `.env` or env var | Default `localhost;127.0.0.1`. **Set to your production domain** (e.g. `reset-your-future.com;www.reset-your-future.com`) before deploying. |
 | `SelfBaseUrl` | `.env` | The app's own real bound base address (used for its self-calling loopback API consumers). Defaults to `https://localhost:7090` in Development only — **startup throws** outside Development if unset or still pointing at localhost. |
+| `Email__Smtp__Host` (+ `Port`/`Username`/`Password`/`FromAddress`) | `.env` | SMTP relay for real email via `SmtpEmailService` (MailKit). Set it to send real mail; leave unset in Development to use the logging stub. **Required outside Development** — startup throws without it. |
+| `Assistant__Enabled` / `Assistant__BaseUrl` | `.env` or `appsettings.json` | Toggle the local AI assistant (default on) and point it at a non-default Ollama host. |
 
 `appsettings.Development.json`: `SeedData:Enabled`, `SeedData:BulkStudentCount`, `SeedData:JsonPaths:*`, `Payment:MockEnabled`, dev connection string.
 
