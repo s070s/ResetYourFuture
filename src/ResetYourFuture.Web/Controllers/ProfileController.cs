@@ -19,7 +19,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Tags("Profile")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
-public class ProfileController(IProfileService profileService) : ControllerBase
+public class ProfileController(IProfileService profileService, IAdminUserService adminUserService) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
         ?? throw new UnauthorizedAccessException("User ID not found");
@@ -89,6 +89,20 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     public async Task<ActionResult<bool>> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         var result = await profileService.ChangePasswordAsync(UserId, request);
+        return result.ToActionResult(this);
+    }
+
+    /// <summary>
+    /// COMP-3: self-service erasure — permanently deletes the current user's own account and
+    /// associated data (chat/call history, certificates, enrollments; everything else cascades).
+    /// Reuses the same deletion logic the admin "GDPR data deletion" action uses, so an admin
+    /// account is rejected here too (AdminUserService.DeleteUserAsync's own guard).
+    /// </summary>
+    [HttpDelete]
+    [EnableRateLimiting("sensitive")]
+    public async Task<ActionResult<string>> DeleteAccount(CancellationToken cancellationToken = default)
+    {
+        var result = await adminUserService.DeleteUserAsync(UserId, cancellationToken);
         return result.ToActionResult(this);
     }
 }

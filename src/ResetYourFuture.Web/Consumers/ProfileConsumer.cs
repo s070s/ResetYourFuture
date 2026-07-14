@@ -40,4 +40,7 @@ public class ProfileConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTo
 
     public Task<bool> ChangePasswordAsync(ChangePasswordRequest request)
         => PostJsonActionAsync("api/profile/change-password", request);
+
+    public Task<bool> DeleteAccountAsync()
+        => DeleteAsync("api/profile");
 }

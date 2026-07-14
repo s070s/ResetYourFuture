@@ -13,4 +13,5 @@ public interface IProfileConsumer
     Task<(byte[] Data, string ContentType)?> GetAvatarAsync();
     Task<bool> UploadAvatarAsync(IBrowserFile file);
     Task<bool> ChangePasswordAsync(ChangePasswordRequest request);
+    Task<bool> DeleteAccountAsync();
 }

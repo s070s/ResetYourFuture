@@ -89,6 +89,29 @@
                 @if (!_isImpersonating)
                 {
                     <button class="btn btn-secondary mt-3" @onclick="Logout">@ProfileRes.BtnLogout</button>
+
+                    <FormCardSection Title="@ProfileRes.DangerZone"
+                                     IsCollapsible="true"
+                                     InitiallyExpanded="false"
+                                     CssClass="card mb-3 mt-3">
+                        <ChildContent>
+                            <p>@ProfileRes.DeleteAccountDescription</p>
+                            @if (_deleteError is not null)
+                            {
+                                <div class="alert alert-danger">@_deleteError</div>
+                            }
+                            <button class="btn btn-danger" @onclick="RequestDeleteAccount" disabled="@_isDeleting">@ProfileRes.DeleteAccount</button>
+                        </ChildContent>
+                    </FormCardSection>
+
+                    <ConfirmModal IsVisible="_showDeleteConfirm"
+                                  Title="@ProfileRes.DeleteAccountConfirmTitle"
+                                  Message="@ProfileRes.DeleteAccountConfirmBody"
+                                  ConfirmLabel="@ProfileRes.DeleteAccount"
+                                  CancelLabel="@GlobalRes.Cancel"
+                                  IsBusy="_isDeleting"
+                                  OnConfirm="DeleteAccount"
+                                  OnCancel="CloseDeleteDialog" />
                 }
             }
         </Authorized>

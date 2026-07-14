@@ -30,6 +30,9 @@ public partial class Profile
     private string? avatarDataUrl;
     private string? _loadError;
     private bool _uploadingAvatar;
+    private bool _showDeleteConfirm;
+    private bool _isDeleting;
+    private string? _deleteError;
 
     private static readonly string[] AllowedAvatarTypes =
         { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
@@ -212,5 +215,38 @@ public partial class Profile
     {
         var url = await AuthService.LogoutAsync();
         Navigation.NavigateTo(url, forceLoad: true);
+    }
+
+    private void RequestDeleteAccount() => _showDeleteConfirm = true;
+
+    private void CloseDeleteDialog() => _showDeleteConfirm = false;
+
+    private async Task DeleteAccount()
+    {
+        _isDeleting = true;
+        _deleteError = null;
+        try
+        {
+            var success = await ProfileConsumer.DeleteAccountAsync();
+            if (success)
+            {
+                // The account (and its auth cookie's backing user) is gone — route through the
+                // normal logout flow so the client-side auth state and cookie are cleared too.
+                var url = await AuthService.LogoutAsync();
+                Navigation.NavigateTo(url, forceLoad: true);
+                return;
+            }
+
+            _deleteError = ProfileRes.ErrorDeletingAccount;
+        }
+        catch (Exception)
+        {
+            _deleteError = ProfileRes.ErrorDeletingAccount;
+        }
+        finally
+        {
+            _isDeleting = false;
+            _showDeleteConfirm = false;
+        }
     }
 }

@@ -60,4 +60,36 @@ public class ProfileIntegrationTests : IClassFixture<CustomWebAppFactory>
 
         last!.StatusCode.ShouldBe(HttpStatusCode.TooManyRequests);
     }
+
+    [Fact]
+    public async Task DeleteAccount_Anonymous_Returns401()
+    {
+        var client = _factory.CreateClient();
+
+        (await client.DeleteAsync("/api/profile")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task DeleteAccount_AuthenticatedStudent_RemovesUser()
+    {
+        // COMP-3: self-service erasure — the endpoint reuses AdminUserService.DeleteUserAsync,
+        // so this only needs to confirm the route/auth wiring, not the deletion logic itself
+        // (covered by AdminUserServiceTests).
+        var (client, _) = await _factory.CreateAuthenticatedClientWithIdAsync("Student");
+
+        var response = await client.DeleteAsync("/api/profile");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await client.GetAsync("/api/profile")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task DeleteAccount_Admin_Returns400()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+
+        var response = await client.DeleteAsync("/api/profile");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+    }
 }

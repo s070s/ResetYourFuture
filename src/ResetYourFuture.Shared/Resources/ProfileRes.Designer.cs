@@ -338,5 +338,59 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("RedirectingToLogin", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Danger zone.
+        /// </summary>
+        public static string DangerZone {
+            get {
+                return ResourceManager.GetString("DangerZone", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete my account.
+        /// </summary>
+        public static string DeleteAccount {
+            get {
+                return ResourceManager.GetString("DeleteAccount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Permanently delete your account and all associated data (enrollments, submissions, certificates, chat and call history, billing records). This cannot be undone..
+        /// </summary>
+        public static string DeleteAccountDescription {
+            get {
+                return ResourceManager.GetString("DeleteAccountDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Delete your account?.
+        /// </summary>
+        public static string DeleteAccountConfirmTitle {
+            get {
+                return ResourceManager.GetString("DeleteAccountConfirmTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to This permanently deletes your account and all associated data. This cannot be undone..
+        /// </summary>
+        public static string DeleteAccountConfirmBody {
+            get {
+                return ResourceManager.GetString("DeleteAccountConfirmBody", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Couldn&apos;t delete your account. Please try again or contact support..
+        /// </summary>
+        public static string ErrorDeletingAccount {
+            get {
+                return ResourceManager.GetString("ErrorDeletingAccount", resourceCulture);
+            }
+        }
     }
 }
