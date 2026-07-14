@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Entities;
@@ -55,8 +56,9 @@ public class ChatHubTests
         var um = IdentityMocks.MockUserManager();
         var notifications = Substitute.For<INotificationDispatcher>();
         var tracker = new NotificationConnectionTracker();
+        var commandService = new ChatCommandService(db, um);
 
-        var hub = new ChatHub(db, um, notifications, tracker, NullLogger<ChatHub>.Instance)
+        var hub = new ChatHub(um, commandService, notifications, tracker, NullLogger<ChatHub>.Instance)
         {
             Clients = clients,
             Context = context,

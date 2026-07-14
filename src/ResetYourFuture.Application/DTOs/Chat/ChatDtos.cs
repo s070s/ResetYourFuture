@@ -50,6 +50,12 @@ public record StartConversationRequest(
 );
 
 /// <summary>
+/// Result of persisting a chat message: the message itself plus the other participant's user ID,
+/// so the caller (the hub) knows who to broadcast/notify without a second conversation lookup.
+/// </summary>
+public record ChatMessageSendResult(ChatMessageDto Message, string RecipientId);
+
+/// <summary>
 /// Real-time notification pushed via SignalR.
 /// </summary>
 public record ChatNotificationDto(

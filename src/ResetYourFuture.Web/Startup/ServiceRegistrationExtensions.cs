@@ -80,6 +80,7 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddScoped<IAdminCategoryService, AdminCategoryService>();
         builder.Services.AddScoped<IAdminUserService, AdminUserService>();
         builder.Services.AddScoped<IChatQueryService, ChatQueryService>();
+        builder.Services.AddScoped<IChatCommandService, ChatCommandService>();
         builder.Services.AddScoped<ICallEventService, CallEventService>();
         builder.Services.AddScoped<ICallQueryService, CallQueryService>();
         builder.Services.AddSingleton<CallRegistry>();
