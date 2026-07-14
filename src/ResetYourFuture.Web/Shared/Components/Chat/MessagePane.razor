@@ -98,17 +98,17 @@
         <div class="chat-input">
             <div class="textarea-wrapper">
                 <div class="resize-handle-top" @ref="_resizeHandleRef"></div>
+                @* PERF-6: no per-keystroke binding — the value is read via JS interop only on send. *@
                 <textarea class="form-control" placeholder="@ChatRes.TypeMessage"
                           aria-label="@ChatRes.TypeMessage"
                           rows="1"
                           @ref="_textareaRef"
-                          @bind="_newMessage" @bind:event="oninput"
                           @onkeydown="HandleKeyDown"
                           disabled="@(!IsConnected)"></textarea>
             </div>
             <button class="btn btn-primary" @onclick="SendMessage"
                     aria-label="@ChatRes.Send"
-                    disabled="@(string.IsNullOrWhiteSpace( _newMessage ) || !IsConnected)">
+                    disabled="@(!IsConnected)">
                 <span class="bi bi-send" aria-hidden="true"></span>
             </button>
         </div>

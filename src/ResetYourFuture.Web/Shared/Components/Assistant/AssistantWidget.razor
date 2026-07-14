@@ -56,10 +56,11 @@
                     </div>
 
                     <div class="assistant-input-row">
-                        <input type="text" class="assistant-input" @bind="_input" @bind:event="oninput"
+                        @* PERF-6: no per-keystroke binding — value is read via JS interop on send. *@
+                        <input type="text" class="assistant-input" @ref="_inputRef"
                                @onkeydown="HandleKeyDown" placeholder="@AssistantRes.Placeholder" disabled="@_isStreaming" />
                         <button type="button" class="assistant-send" @onclick="Send"
-                                disabled="@(_isStreaming || string.IsNullOrWhiteSpace(_input))">@AssistantRes.Send</button>
+                                disabled="@_isStreaming">@AssistantRes.Send</button>
                     </div>
 
                     <div class="assistant-disclaimer">@AssistantRes.Disclaimer</div>

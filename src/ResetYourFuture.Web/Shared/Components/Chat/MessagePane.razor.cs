@@ -26,11 +26,11 @@ public partial class MessagePane : IDisposable
     [Parameter, EditorRequired] public EventCallback OnNextPage { get; set; }
     [Parameter] public EventCallback OnBackToList { get; set; }
 
-    private string _newMessage = string.Empty;
     private ElementReference _messageContainer;
     private ElementReference _textareaRef;
     private ElementReference _resizeHandleRef;
     private bool _resizeInitialized;
+    private bool _clearInputPending;
     private Guid? _previousConversationId;
 
     protected override void OnInitialized()
@@ -70,7 +70,7 @@ public partial class MessagePane : IDisposable
         if (Conversation?.Id != _previousConversationId)
         {
             _previousConversationId = Conversation?.Id;
-            _newMessage = string.Empty;
+            _clearInputPending = true;
             _resizeInitialized = false;
         }
     }
@@ -82,19 +82,27 @@ public partial class MessagePane : IDisposable
             await JS.InvokeVoidAsync("chatInterop.initTopResize", _resizeHandleRef, _textareaRef);
             _resizeInitialized = true;
         }
+
+        // The textarea is uncontrolled (PERF-6), so clear it here when switching conversations.
+        if (_clearInputPending)
+        {
+            _clearInputPending = false;
+            await JS.InvokeVoidAsync("inputInterop.clear", _textareaRef);
+        }
     }
 
     private async Task SendMessage()
     {
-        if (string.IsNullOrWhiteSpace(_newMessage)) return;
-        var msg = _newMessage;
-        _newMessage = string.Empty;
-        await OnSendMessage.InvokeAsync(msg);
+        // Read the current text from the DOM only at send time — keystrokes never round-trip.
+        var msg = await JS.InvokeAsync<string>("inputInterop.read", _textareaRef);
+        if (string.IsNullOrWhiteSpace(msg)) return;
+        await JS.InvokeVoidAsync("inputInterop.clear", _textareaRef);
+        await OnSendMessage.InvokeAsync(msg.Trim());
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace(_newMessage))
+        if (e.Key == "Enter" && !e.ShiftKey)
             await SendMessage();
     }
 

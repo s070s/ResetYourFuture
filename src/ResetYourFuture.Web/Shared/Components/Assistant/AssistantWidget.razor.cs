@@ -3,6 +3,7 @@ using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources;
 using ResetYourFuture.Web.Consumers;
@@ -16,6 +17,7 @@ public partial class AssistantWidget : IDisposable
 
     [Inject] private IAssistantConsumer Consumer { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     private bool _open;
     private AssistantStatusDto? _status;
@@ -24,7 +26,7 @@ public partial class AssistantWidget : IDisposable
     private readonly List<AssistantMessageDto> _messages = [];
     private bool _isStreaming;
     private List<AssistantSourceDto> _sources = [];
-    private string _input = "";
+    private ElementReference _inputRef;
     private CancellationTokenSource? _streamCts;
     private DateTime _lastRender = DateTime.MinValue;
 
@@ -79,15 +81,18 @@ public partial class AssistantWidget : IDisposable
 
     private async Task HandleKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter" && !e.ShiftKey && !string.IsNullOrWhiteSpace(_input) && !_isStreaming)
+        if (e.Key == "Enter" && !e.ShiftKey && !_isStreaming)
             await Send();
     }
 
-    private Task Send()
+    private async Task Send()
     {
-        var text = _input.Trim();
-        _input = "";
-        return SendAsync(text);
+        // Read the input value from the DOM only on send (PERF-6) — no per-keystroke binding.
+        var text = await JS.InvokeAsync<string>("inputInterop.read", _inputRef);
+        if (string.IsNullOrWhiteSpace(text) || _isStreaming)
+            return;
+        await JS.InvokeVoidAsync("inputInterop.clear", _inputRef);
+        await SendAsync(text.Trim());
     }
 
     private async Task SendAsync(string text)
