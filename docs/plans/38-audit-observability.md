@@ -17,28 +17,17 @@ Repo-wide searches for `AddHealthChecks`, `MapHealthChecks`, `OpenTelemetry`, `A
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 3 |
+| Medium | 0 |
 | Low | 3 |
-| Info | 1 |
+| Info | 0 |
 
-Overall: there is no instrumentation layer at all — no health endpoints, no metrics, no tracing, no correlation between the traceId given to users and anything on disk. That is unremarkable for a university certificate project and nothing here is broken *today*; the findings are graded as the debt you would pay down first if the app ever ran unattended. The good news is the codebase is unusually well-positioned for cheap adoption: logging already uses structured message templates throughout, dependencies are few and well-bounded (SQL Server, Ollama, SMTP), an Ollama liveness probe already exists in `AssistantService.GetStatusAsync`, and ASP.NET Core 10's built-in OTel/`Microsoft.Extensions.Diagnostics` support means the minimal path below is mostly configuration, not code.
+Overall: this is a university certificate project and nothing here is broken *today*; the findings are graded as the debt you would pay down first if the app ever ran unattended. The Medium findings are now resolved: **OBS-1** (health endpoints) was delivered under AVAIL-1 — `/health/live` and `/health/ready` with a database check and an Ollama check that degrades gracefully; **OBS-3** (correlation) is fixed — the production exception handler logs the exception with the same traceId ProblemDetails returns, and log lines carry the ambient trace id; and **OBS-2** (full OpenTelemetry adoption) is accepted as forward-looking debt — its value requires a metrics backend this single-instance, zero-new-infrastructure project deliberately does not run, and `dotnet-counters` (now documented in the README, OBS-7) plus the daily log error-digest (LOG-1) cover live diagnostics until then. The codebase remains well-positioned for cheap OTel adoption when a backend exists: logging already uses structured message templates throughout, dependencies are few and well-bounded, and ASP.NET Core 10's built-in OTel support means that path is mostly configuration, not code.
+
+> **Accepted since audit (out of scope — will not implement):** OBS-2 (no metrics/tracing / no OpenTelemetry). A useful OTel pipeline needs somewhere to send the telemetry — an OTLP collector + metrics/trace backend (the finding suggests a local `grafana/otel-lgtm` docker) — which is exactly the new infrastructure this single-instance, zero-new-infrastructure / fresh-clone project deliberately avoids, and there is no unattended operation for the metrics to serve. `dotnet-counters` (documented in the README, OBS-7) gives zero-setup live runtime metrics, and the daily log error-digest (LOG-1) surfaces errors, so the current diagnostics needs are met. Adopting OTel remains the documented next step (§2) if the app is ever run unattended, on the same basis as the accepted scalability/availability limitations. See [35-audit-scalability.md](35-audit-scalability.md) and [36-audit-availability.md](36-audit-availability.md).
 
 ## 3. Findings
 
-### OBS-1: No health-check endpoints  [Medium] [Effort: S]
-- **Evidence:** No `AddHealthChecks`/`MapHealthChecks` anywhere in `src/` (verified by search); `src/ResetYourFuture.Web/Program.cs` maps controllers, hubs, and infrastructure endpoints only. Dependencies that can fail independently: SQL Server (`Startup/AuthenticationSetupExtensions.cs:26-31`), Ollama sidecar (`Assistant:BaseUrl`), SMTP relay (`Infrastructure/ApiServices/SmtpEmailService.cs`).
-- **Impact:** Nothing — human or machine — can ask the app "are you OK?". Any future hosting (IIS app-init, systemd watchdog, container orchestrator, uptime monitor) has no probe target; downtime detection is entirely reactive (a user notices). Report 36 (AVAIL) owns that consequence; this finding owns the missing instrument.
-- **Recommendation:** `builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>()` plus a tiny `IHealthCheck` that reuses the existing Ollama ping logic from `AssistantService.GetStatusAsync` (registered only when `Assistant:Enabled`); map `/healthz` (liveness, no checks) and `/readyz` (all checks), `.AllowAnonymous()` with no body detail in non-Development.
-
-### OBS-2: No metrics or tracing (no OpenTelemetry)  [Medium] [Effort: M]
-- **Evidence:** `Directory.Packages.props` contains no `OpenTelemetry.*` or `Microsoft.Extensions.Diagnostics.*` packages; no `ActivitySource`/`Meter` usage in `src/`. Interesting quantities are currently unmeasurable: request duration/error rate, SignalR connection counts (chat + call hubs), assistant latency and retrieval quality, seeding duration, rate-limiter rejections (429s configured at `Startup/ServiceRegistrationExtensions.cs:145-167`).
-- **Impact:** Performance and reliability questions (reports 34/36) can only be answered by adding instrumentation *after* a problem appears — the worst time. No baseline exists to compare against when something regresses.
-- **Recommendation:** Minimal adoption path, in order: (1) add `OpenTelemetry.Extensions.Hosting` + `OpenTelemetry.Instrumentation.AspNetCore` + `OpenTelemetry.Exporter.OpenTelemetryProtocol`, wired with `builder.Services.AddOpenTelemetry().WithMetrics(...).WithTracing(...)` — ASP.NET Core 10 emits `http.server.request.duration`, Kestrel and SignalR meters natively; (2) point OTLP at a local docker `grafana/otel-lgtm` all-in-one during development; (3) only then add custom meters (assistant tokens/latency, call setup outcomes). Keep it out of test hosts the same way Ollama is (registration gated on config).
-
-### OBS-3: traceId is handed to users but cannot be found in any log  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Startup/ServiceRegistrationExtensions.cs:136-140` adds `traceId` (`HttpContext.TraceIdentifier`) to every ProblemDetails error response. The only persistent sink, the file logger, discards scopes (`Logging/FileLogger.cs:16`, `BeginScope => null`) and its line format (`FileLogger.cs:30-35`) has no field for it — so the identifier a user could report has no counterpart anywhere on the server.
-- **Impact:** The correlation loop is half-built: "give us the traceId from the error page" is the natural support flow the ProblemDetails setup implies, but the operator can do nothing with it. Exception details for 500s are additionally *not* logged with the response (the production handler in `Program.cs:42-59` writes a generic body; the exception itself is only logged by the framework's default providers, console-only).
-- **Recommendation:** Include the current `Activity.Current?.Id ?? TraceIdentifier` in the file-log entry format (pairs with LOG-8 scope support in report 37), and add one `logger.LogError(exception, "Unhandled exception {TraceId}", traceId)` in the production exception handler so response and log line share the key.
+> The three Medium findings are resolved: **OBS-1** (health endpoints) was delivered under AVAIL-1; **OBS-3** (traceId correlation) is fixed — see git (`Fix OBS-3`); and **OBS-2** (OpenTelemetry) is accepted as forward-looking debt (see the banner above and §2). The remaining open items are three Low.
 
 ### OBS-4: Logs are unstructured flat text — nothing can ingest them  [Low] [Effort: M]
 - **Evidence:** `src/ResetYourFuture.Web/Logging/FileLogger.cs:30-35` renders `[timestamp] [LEVEL] [category] message` plain text; message-template arguments are flattened away. Call sites are already structured (`{Email}`, `{UserId}`, `{Role}` templates everywhere, e.g. `AuthApiService.cs`, `AdminUserService.cs`).
@@ -55,22 +44,15 @@ Overall: there is no instrumentation layer at all — no health endpoints, no me
 - **Impact:** "Is 0.4 the right MinScore?" / "is 6 chunks enough?" are unanswerable; grounding quality regressions after reindexing are invisible.
 - **Recommendation:** One Information log per answered question with `{TopScore}`, `{ChunkCount}`, `{DurationMs}`, `{Grounded}` — cheap now, and the natural first custom meter after OBS-2.
 
-### OBS-7: Built-in runtime counters exist but are undocumented as the current fallback  [Info] [Effort: S]
-- **Evidence:** .NET 10 exposes EventCounters/System.Runtime metrics consumable via `dotnet-counters` with zero code; `.config/dotnet-tools.json` pins only `dotnet-ef` and README's tooling sections never mention it.
-- **Impact:** None today; it is simply the only live-diagnostics option the project currently has, and nobody would know.
-- **Recommendation:** One README line under Quality & Tests: `dotnet counters monitor -n ResetYourFuture.Web` as the stopgap until OBS-2.
-
 ## 4. Prioritized Action List
+
+All three Medium items are resolved (OBS-1 via AVAIL-1, OBS-3 fixed, OBS-2 accepted) and OBS-7 (document `dotnet-counters`) is done in the README. The remaining backlog:
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| OBS-1 | Medium | S | Add /healthz + /readyz with DbContext and Ollama checks |
-| OBS-3 | Medium | S | Log the traceId with errors so ProblemDetails responses are correlatable |
-| OBS-2 | Medium | M | Adopt minimal OTel (hosting + ASP.NET instrumentation + OTLP exporter) |
 | OBS-6 | Low | S | Log assistant retrieval quality per question |
 | OBS-4 | Low | M | Emit structured (JSON) log lines or swap sink to Serilog compact JSON |
 | OBS-5 | Low | M | Report call outcomes server-side (counter or structured event) |
-| OBS-7 | Info | S | Document dotnet-counters as the current live-diagnostics fallback |
 
 ## 5. Related Findings Elsewhere
 
