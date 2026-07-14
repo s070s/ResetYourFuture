@@ -443,6 +443,8 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 - Migrations run automatically at startup (`MigrateAsync`, with bounded retry-with-backoff if the database isn't reachable yet); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
 - `/health/live` (process up, no dependency checks) and `/health/ready` (database + AI assistant status) are available for a load balancer/orchestrator to poll
 
+**Operating it:** [docs/runbook.md](docs/runbook.md) covers backup & restore, the update/migration procedure, and first-response steps for the likely incident scenarios (app won't start, empty pages, login/email/assistant failures, admin lockout).
+
 ---
 
 ## Email
