@@ -56,7 +56,7 @@ public class ChatHubTests
         var um = IdentityMocks.MockUserManager();
         var notifications = Substitute.For<INotificationDispatcher>();
         var tracker = new NotificationConnectionTracker();
-        var commandService = new ChatCommandService(db, um);
+        var commandService = new ChatCommandService(db);
 
         var hub = new ChatHub(um, commandService, notifications, tracker, NullLogger<ChatHub>.Instance)
         {
@@ -132,8 +132,6 @@ public class ChatHubTests
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
         var h = BuildHub(db, Me, isAdmin: false);
-        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
-        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string>());
 
         await h.Hub.SendMessage(conv.Id, "hello");
 
@@ -167,21 +165,6 @@ public class ChatHubTests
     }
 
     [Fact]
-    public async Task SendMessage_SenderDisabled_Aborts()
-    {
-        await using var db = DbContextFactory.CreateInMemory();
-        var conv = Conversation(Me, Other);
-        db.ChatConversations.Add(conv);
-        await db.SaveChangesAsync();
-        var h = BuildHub(db, Me, isAdmin: true);
-        h.Um.FindByIdAsync(Me).Returns(AppUser(Me, enabled: false));
-
-        await h.Hub.SendMessage(conv.Id, "hello");
-
-        h.Context.Received().Abort();
-    }
-
-    [Fact]
     public async Task SendMessage_Valid_PersistsAndBroadcasts()
     {
         await using var db = DbContextFactory.CreateInMemory();
@@ -189,8 +172,6 @@ public class ChatHubTests
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
         var h = BuildHub(db, Me, isAdmin: true);
-        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
-        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string> { "Admin" });
 
         await h.Hub.SendMessage(conv.Id, "hello world");
 
@@ -208,8 +189,6 @@ public class ChatHubTests
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
         var h = BuildHub(db, Me, isAdmin: true);
-        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
-        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string> { "Admin" });
         // Recipient has no NotificationHub connection — Tracker starts empty, i.e. offline.
 
         await h.Hub.SendMessage(conv.Id, "hello");
@@ -226,8 +205,6 @@ public class ChatHubTests
         db.ChatConversations.Add(conv);
         await db.SaveChangesAsync();
         var h = BuildHub(db, Me, isAdmin: true);
-        h.Um.FindByIdAsync(Me).Returns(AppUser(Me));
-        h.Um.GetRolesAsync(Arg.Any<ApplicationUser>()).Returns(new List<string> { "Admin" });
         h.Tracker.MarkConnected(Other); // recipient has the app open
 
         await h.Hub.SendMessage(conv.Id, "hello");

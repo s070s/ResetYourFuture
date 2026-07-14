@@ -10,6 +10,11 @@ namespace ResetYourFuture.Application.ApiInterfaces;
 /// </summary>
 public interface IChatCommandService
 {
-    Task<ServiceResult<ChatMessageSendResult>> SendMessageAsync(string senderId, Guid conversationId, string content, CancellationToken ct = default);
+    /// <summary>
+    /// Persists a chat message. <paramref name="senderName"/> and <paramref name="senderRole"/>
+    /// are supplied by the caller from the authenticated principal's claims, so the send path
+    /// no longer re-queries the identity store for the sender's display name and role (PERF-7).
+    /// </summary>
+    Task<ServiceResult<ChatMessageSendResult>> SendMessageAsync(string senderId, string senderName, string senderRole, Guid conversationId, string content, CancellationToken ct = default);
     Task MarkAsReadAsync(string userId, Guid conversationId, CancellationToken ct = default);
 }

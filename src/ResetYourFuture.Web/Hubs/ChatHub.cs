@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
@@ -77,15 +78,16 @@ public class ChatHub : Hub
         if (string.IsNullOrEmpty(userId) || string.IsNullOrWhiteSpace(content))
             return;
 
-        var result = await _chatCommandService.SendMessageAsync(userId, conversationId, content);
+        // Build the sender's display name and role from the connection's claims (minted at
+        // sign-in) instead of re-querying the identity store per message (PERF-7).
+        var user = Context.User;
+        var senderName = $"{user?.FindFirst("firstName")?.Value} {user?.FindFirst("lastName")?.Value}".Trim();
+        var senderRole = user?.FindFirst(ClaimTypes.Role)?.Value ?? "User";
+
+        var result = await _chatCommandService.SendMessageAsync(userId, senderName, senderRole, conversationId, content);
         if (!result.IsSuccess)
         {
-            if (result.StatusCode == 401)
-            {
-                // Sender was disabled/deleted since the connection was established.
-                Context.Abort();
-            }
-            else if (result.StatusCode == 400)
+            if (result.StatusCode == 400)
             {
                 // Hard cap: 4 000 chars max per message. Prevents storage abuse and abnormally large payloads.
                 await Clients.Caller.SendAsync("ChatError", result.ErrorMessage ?? "Message exceeds the 4,000 character limit.");

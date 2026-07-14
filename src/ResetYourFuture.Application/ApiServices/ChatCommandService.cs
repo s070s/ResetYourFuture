@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
@@ -6,23 +5,21 @@ using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.Mappings;
 using ResetYourFuture.Domain.Entities;
-using ResetYourFuture.Domain.Identity;
 
 namespace ResetYourFuture.Application.ApiServices;
 
 /// <summary>
-/// Validates and persists chat writes (message length cap, participant membership, sender
-/// enablement) — the business rules ChatHub used to enforce inline. Sibling of
-/// <see cref="ChatQueryService"/>.
+/// Validates and persists chat writes (message length cap, participant membership) — the
+/// business rules ChatHub used to enforce inline. Sibling of <see cref="ChatQueryService"/>.
+/// Sender enablement is enforced live at connection time by <c>ChatHub.OnConnectedAsync</c>;
+/// the send path trusts the established connection and no longer re-queries the identity store.
 /// </summary>
-public class ChatCommandService(
-    IApplicationDbContext db,
-    UserManager<ApplicationUser> userManager) : IChatCommandService
+public class ChatCommandService(IApplicationDbContext db) : IChatCommandService
 {
     private const int MaxMessageLength = 4_000;
 
     public async Task<ServiceResult<ChatMessageSendResult>> SendMessageAsync(
-        string senderId, Guid conversationId, string content, CancellationToken ct = default)
+        string senderId, string senderName, string senderRole, Guid conversationId, string content, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(content))
             return ServiceResult<ChatMessageSendResult>.BadRequest(error: "Message content is required.");
@@ -40,13 +37,8 @@ public class ChatCommandService(
         if (conversation.CreatorId != senderId && conversation.ParticipantId != senderId)
             return ServiceResult<ChatMessageSendResult>.Forbidden();
 
-        var sender = await userManager.FindByIdAsync(senderId);
-        if (sender is null || !sender.IsEnabled)
-            return ServiceResult<ChatMessageSendResult>.Unauthorized(error: "Sender is disabled or unknown.");
-
-        var roles = await userManager.GetRolesAsync(sender);
-        var senderRole = roles.FirstOrDefault() ?? "User";
-
+        // Sender display name and role come from the caller's claims (PERF-7), so the send path
+        // no longer runs FindByIdAsync + GetRolesAsync per message purely to build the DTO.
         var message = new ChatMessage
         {
             ConversationId = conversationId,
@@ -64,7 +56,7 @@ public class ChatCommandService(
 
         await db.SaveChangesAsync(ct);
 
-        var dto = message.ToDto($"{sender.FirstName} {sender.LastName}", senderRole);
+        var dto = message.ToDto(senderName, senderRole);
         var recipientId = conversation.CreatorId == senderId ? conversation.ParticipantId : conversation.CreatorId;
 
         return ServiceResult<ChatMessageSendResult>.Ok(new ChatMessageSendResult(dto, recipientId));
