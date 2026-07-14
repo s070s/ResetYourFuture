@@ -413,7 +413,7 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 
 `appsettings.Development.json`: `SeedData:Enabled`, `SeedData:BulkStudentCount`, `SeedData:JsonPaths:*`, `Payment:MockEnabled`, dev connection string.
 
-**Production checklist:**
+**Production checklist:** (see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the full detail behind the SelfBaseUrl/loopback-TLS, DataProtection key-ring, and email-transport items)
 - `ASPNETCORE_ENVIRONMENT=Production`
 - Real `Jwt__Key` (≥ 32 bytes), `ConnectionStrings__DefaultConnection` (no `TrustServerCertificate=True`)
 - `AllowedHosts` set to the production domain
