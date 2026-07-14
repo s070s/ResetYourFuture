@@ -105,4 +105,24 @@ public class ProfileController(IProfileService profileService, IAdminUserService
         var result = await adminUserService.DeleteUserAsync(UserId, cancellationToken);
         return result.ToActionResult(this);
     }
+
+    /// <summary>
+    /// COMP-4: GDPR access/portability — downloads the current user's personal data (profile,
+    /// consent record, enrollments, assessment submissions, certificates, billing history, and
+    /// their own chat messages) as a single JSON file.
+    /// </summary>
+    [HttpGet("export")]
+    [EnableRateLimiting("sensitive")]
+    public async Task<IActionResult> ExportMyData(CancellationToken cancellationToken = default)
+    {
+        var export = await profileService.ExportMyDataAsync(UserId, cancellationToken);
+        if (export is null)
+            return NotFound();
+
+        var json = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(export, new System.Text.Json.JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+        return File(json, "application/json", $"resetyourfuture-my-data-{DateTime.UtcNow:yyyy-MM-dd}.json");
+    }
 }

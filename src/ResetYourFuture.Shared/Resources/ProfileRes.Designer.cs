@@ -392,5 +392,32 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ErrorDeletingAccount", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your data.
+        /// </summary>
+        public static string YourData {
+            get {
+                return ResourceManager.GetString("YourData", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download a copy of your personal data: profile, enrollments, assessment submissions, certificates, billing history, and your chat messages..
+        /// </summary>
+        public static string DownloadMyDataDescription {
+            get {
+                return ResourceManager.GetString("DownloadMyDataDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Download my data.
+        /// </summary>
+        public static string DownloadMyData {
+            get {
+                return ResourceManager.GetString("DownloadMyData", resourceCulture);
+            }
+        }
     }
 }

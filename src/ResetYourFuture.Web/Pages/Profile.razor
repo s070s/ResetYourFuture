@@ -81,6 +81,16 @@
                     </ChildContent>
                 </FormCardSection>
 
+                <FormCardSection Title="@ProfileRes.YourData"
+                                 IsCollapsible="true"
+                                 InitiallyExpanded="false"
+                                 CssClass="card mb-3">
+                    <ChildContent>
+                        <p>@ProfileRes.DownloadMyDataDescription</p>
+                        <a class="btn btn-outline-primary" href="api/profile/export">@ProfileRes.DownloadMyData</a>
+                    </ChildContent>
+                </FormCardSection>
+
                 @if (!string.IsNullOrEmpty(message))
                 {
                     <div class="alert alert-info">@message</div>

@@ -150,4 +150,13 @@
 	<data name="ErrorDeletingAccount" xml:space="preserve">
 		<value>Couldn't delete your account. Please try again or contact support.</value>
 	</data>
+	<data name="YourData" xml:space="preserve">
+		<value>Your data</value>
+	</data>
+	<data name="DownloadMyDataDescription" xml:space="preserve">
+		<value>Download a copy of your personal data: profile, enrollments, assessment submissions, certificates, billing history, and your chat messages.</value>
+	</data>
+	<data name="DownloadMyData" xml:space="preserve">
+		<value>Download my data</value>
+	</data>
 </root>

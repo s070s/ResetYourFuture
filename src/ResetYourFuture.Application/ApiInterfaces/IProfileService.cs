@@ -15,4 +15,7 @@ public interface IProfileService
     Task<ServiceResult<AvatarUploadResultDto>> UploadAvatarAsync(string userId, Stream fileStream, string fileName);
     Task<(Stream Stream, string ContentType)?> GetAvatarAsync(string userId);
     Task<ServiceResult<bool>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
+
+    /// <summary>COMP-4: aggregates the user's own personal data for a GDPR access/portability export.</summary>
+    Task<MyDataExportDto?> ExportMyDataAsync(string userId, CancellationToken cancellationToken = default);
 }

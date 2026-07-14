@@ -150,4 +150,13 @@
 	<data name="ErrorDeletingAccount" xml:space="preserve">
 		<value>Δεν ήταν δυνατή η διαγραφή του λογαριασμού σας. Δοκιμάστε ξανά ή επικοινωνήστε με την υποστήριξη.</value>
 	</data>
+	<data name="YourData" xml:space="preserve">
+		<value>Τα δεδομένα σου</value>
+	</data>
+	<data name="DownloadMyDataDescription" xml:space="preserve">
+		<value>Κατέβασε ένα αντίγραφο των προσωπικών σου δεδομένων: προφίλ, εγγραφές, απαντήσεις αξιολογήσεων, πιστοποιητικά, ιστορικό χρέωσης και τα μηνύματά σου στο chat.</value>
+	</data>
+	<data name="DownloadMyData" xml:space="preserve">
+		<value>Λήψη των δεδομένων μου</value>
+	</data>
 </root>
