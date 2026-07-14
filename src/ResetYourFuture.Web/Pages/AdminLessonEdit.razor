@@ -9,6 +9,8 @@
     <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToCourse</button>
 </div>
 
+<DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
 <div class="mb-3">
     <button class="btn btn-success" @onclick="ShowAddLesson">@AdminRes.AddLesson</button>
 </div>
@@ -133,6 +135,4 @@ else
               CancelLabel="@AdminRes.Cancel"
               OnConfirm="ExecuteDeleteLessonAsync"
               OnCancel="@(() => _pendingDeleteLessonId = null)" />
-
-<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 

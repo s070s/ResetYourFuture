@@ -24,6 +24,7 @@ public partial class AdminLessonEdit
     private Guid? parentCourseId;
     private bool isSaving;
     private string message = string.Empty;
+    private string messageType = "success";
     private Guid? _pendingDeleteLessonId;
 
     // Lesson modal fields
@@ -68,6 +69,7 @@ public partial class AdminLessonEdit
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -125,6 +127,7 @@ public partial class AdminLessonEdit
         if (string.IsNullOrWhiteSpace(lessonTitleEn))
         {
             message = AdminRes.LessonTitleRequired;
+            messageType = "danger";
             return;
         }
 
@@ -154,6 +157,7 @@ public partial class AdminLessonEdit
                 else
                 {
                     message = AdminRes.LessonCreateFailed;
+                    messageType = "danger";
                     return;
                 }
             }
@@ -164,6 +168,7 @@ public partial class AdminLessonEdit
                 if (updated is null)
                 {
                     message = AdminRes.LessonUpdateFailed;
+                    messageType = "danger";
                     return;
                 }
             }
@@ -183,11 +188,21 @@ public partial class AdminLessonEdit
 
             await LoadLessons();
             CloseLessonModal();
-            message = uploadErrors.Length > 0 ? uploadErrors.ToString().Trim() : "Lesson saved";
+            if (uploadErrors.Length > 0)
+            {
+                message = uploadErrors.ToString().Trim();
+                messageType = "danger";
+            }
+            else
+            {
+                message = AdminRes.LessonSaved;
+                messageType = "success";
+            }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
         finally
         {
@@ -222,15 +237,18 @@ public partial class AdminLessonEdit
             {
                 await LoadLessons();
                 message = AdminRes.LessonDeleted;
+                messageType = "success";
             }
             else
             {
                 message = AdminRes.LessonDeleteFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 

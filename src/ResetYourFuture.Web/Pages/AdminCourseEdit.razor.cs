@@ -30,6 +30,7 @@ public partial class AdminCourseEdit
     private HashSet<Guid> expandedModules = new();
     private bool isSaving;
     private string message = string.Empty;
+    private string messageType = "success";
 
     // Delete confirmation state
     private Guid? _pendingDeleteModuleId;
@@ -122,6 +123,7 @@ public partial class AdminCourseEdit
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -166,6 +168,7 @@ public partial class AdminCourseEdit
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -220,6 +223,7 @@ public partial class AdminCourseEdit
                     return;
                 }
                 message = AdminRes.CourseSaveFailed;
+                messageType = "danger";
             }
             else
             {
@@ -229,16 +233,19 @@ public partial class AdminCourseEdit
                     await LoadCourse();
                     await LoadCategories();
                     message = AdminRes.CourseSaved;
+                    messageType = "success";
                 }
                 else
                 {
                     message = AdminRes.CourseSaveFailed;
+                messageType = "danger";
                 }
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
         finally
         {
@@ -269,6 +276,7 @@ public partial class AdminCourseEdit
         _showModuleModal = false;
         await LoadModulesAndLessons();
         message = AdminRes.ModuleSaved;
+        messageType = "success";
     }
 
     // ── Lesson modal ──
@@ -295,6 +303,7 @@ public partial class AdminCourseEdit
         _showLessonModal = false;
         await LoadModulesAndLessons();
         message = AdminRes.LessonSaved;
+        messageType = "success";
     }
 
     // ── Delete ──
@@ -326,15 +335,18 @@ public partial class AdminCourseEdit
                     lessonsMap.Remove(moduleId);
                     await LoadModulesAndLessons();
                     message = AdminRes.ModuleDeleted;
+                    messageType = "success";
                 }
                 else
                 {
                     message = AdminRes.ModuleDeleteFailed;
+                    messageType = "danger";
                 }
             }
             catch (Exception ex)
             {
                 message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+                messageType = "danger";
             }
         }
         else if (_pendingDeleteLessonId is { } lessonId)
@@ -349,15 +361,18 @@ public partial class AdminCourseEdit
                 {
                     await LoadModulesAndLessons();
                     message = AdminRes.LessonDeleted;
+                    messageType = "success";
                 }
                 else
                 {
                     message = AdminRes.LessonDeleteFailed;
+                    messageType = "danger";
                 }
             }
             catch (Exception ex)
             {
                 message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+                messageType = "danger";
             }
         }
     }
@@ -380,11 +395,13 @@ public partial class AdminCourseEdit
             {
                 await LoadCourse();
                 message = AdminRes.CoursePublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -396,11 +413,13 @@ public partial class AdminCourseEdit
             {
                 await LoadCourse();
                 message = AdminRes.CourseUnpublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 

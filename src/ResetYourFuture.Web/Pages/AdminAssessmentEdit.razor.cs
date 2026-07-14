@@ -25,6 +25,7 @@ public partial class AdminAssessmentEdit
     private bool loading = true;
     private bool isSaving;
     private string message = string.Empty;
+    private string messageType = "danger";
 
     private string assessmentKey = string.Empty;
     private string assessmentTitleEn = string.Empty;

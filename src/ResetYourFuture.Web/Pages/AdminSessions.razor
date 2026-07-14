@@ -9,6 +9,8 @@
         <button class="btn btn-primary text-nowrap" @onclick="ShowAddModal">@SessionRes.NewSession</button>
     </div>
 
+    <DismissibleAlert Message="@message" AlertType="success" OnDismiss="@(() => message = string.Empty)" />
+
     @if (pagedResult == null)
     {
         <SkeletonBlock Rows="8" Height="2.75rem" />
@@ -68,8 +70,6 @@
                                 OnPreviousPage="PreviousPage"
                                 OnNextPage="NextPage" />
     }
-
-    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 </div>
 
 <FormModal IsVisible="_formModalVisible"

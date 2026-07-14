@@ -5,6 +5,8 @@
 
 <h1 class="h2">@AdminRes.AssessmentManagement</h1>
 
+<DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
 <div class="mb-3">
     <button class="btn btn-primary" @onclick="CreateAssessment">@AdminRes.CreateNewAssessment</button>
 </div>
@@ -92,7 +94,4 @@ else
               CancelLabel="@AdminRes.Cancel"
               OnConfirm="ExecuteDeleteAsync"
               OnCancel="@(() => _pendingDeleteId = null)" />
-
-<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
-
 

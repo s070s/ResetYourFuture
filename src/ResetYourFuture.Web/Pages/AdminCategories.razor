@@ -10,6 +10,8 @@
         <button class="btn btn-success" @onclick="ShowAddModal">@CategoryRes.AddCategory</button>
     </div>
 
+    <DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
     @if (pagedResult == null)
     {
         <LoadingSpinner Label="@CategoryRes.LoadingCategories" />
@@ -68,8 +70,6 @@
                                 OnPreviousPage="PreviousPage"
                                 OnNextPage="NextPage" />
     }
-
-    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 </div>
 
 <FormModal IsVisible="_formModalVisible"

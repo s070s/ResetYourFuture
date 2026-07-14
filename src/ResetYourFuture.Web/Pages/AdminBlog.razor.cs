@@ -17,6 +17,7 @@ public partial class AdminBlog : IAsyncDisposable
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string searchTerm = string.Empty;
     private string message = string.Empty;
+    private string messageType = "success";
     private Guid? confirmDeleteId;
     private CancellationTokenSource? _searchCts;
     private string _sortBy = "createdat";
@@ -109,17 +110,20 @@ public partial class AdminBlog : IAsyncDisposable
 
             if (success)
             {
-                message = article.IsPublished ? "Article unpublished" : "Article published";
+                message = article.IsPublished ? AdminRes.ArticleUnpublished : AdminRes.ArticlePublished;
+                messageType = "success";
                 await LoadArticles();
             }
             else
             {
                 message = AdminRes.PublishStatusUpdateFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -132,16 +136,19 @@ public partial class AdminBlog : IAsyncDisposable
             {
                 confirmDeleteId = null;
                 message = AdminRes.ArticleDeleted;
+                messageType = "success";
                 await LoadArticles();
             }
             else
             {
                 message = AdminRes.ArticleDeleteFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 

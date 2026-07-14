@@ -16,6 +16,7 @@ public partial class AdminCourses
     private int pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
+    private string messageType = "success";
     private Guid? _pendingDeleteId;
     private string _sortBy = "createdat";
     private string _sortDir = "desc";
@@ -47,6 +48,7 @@ public partial class AdminCourses
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -93,11 +95,13 @@ public partial class AdminCourses
             {
                 await LoadCourses();
                 message = AdminRes.CoursePublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -109,11 +113,13 @@ public partial class AdminCourses
             {
                 await LoadCourses();
                 message = AdminRes.CourseUnpublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -135,15 +141,18 @@ public partial class AdminCourses
             {
                 await LoadCourses();
                 message = AdminRes.CourseDeleted;
+                messageType = "success";
             }
             else
             {
                 message = AdminRes.CourseDeleteFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 }

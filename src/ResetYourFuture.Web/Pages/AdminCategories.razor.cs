@@ -15,6 +15,7 @@ public partial class AdminCategories
     private int pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string message = string.Empty;
+    private string messageType = "success";
 
     private bool _formModalVisible;
     private Guid? _editingId;
@@ -54,6 +55,7 @@ public partial class AdminCategories
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -118,6 +120,7 @@ public partial class AdminCategories
                 _formModalVisible = false;
                 await LoadCategories();
                 message = CategoryRes.CategorySaved;
+                messageType = "success";
             }
             else
             {
@@ -150,12 +153,14 @@ public partial class AdminCategories
         {
             var success = await CategoryConsumer.DeleteCategoryAsync(id);
             message = success ? CategoryRes.CategoryDeleted : CategoryRes.ErrorDeletingCategory;
+            messageType = success ? "success" : "danger";
             if (success)
                 await LoadCategories();
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 }

@@ -10,6 +10,8 @@
     <button class="btn btn-secondary" @onclick="GoBack">@AdminRes.BackToAssessments</button>
 </div>
 
+<DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
 @if (!IsNew && loading)
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
@@ -182,6 +184,4 @@ else
                     CancelLabel="@AdminRes.Cancel"
                     OnCancel="GoBack" />
 }
-
-<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 

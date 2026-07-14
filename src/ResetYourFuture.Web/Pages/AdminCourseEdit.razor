@@ -10,6 +10,8 @@
     <button class="btn btn-secondary" @onclick="Cancel">@AdminRes.BackToCourses</button>
 </div>
 
+<DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
 @if (!IsNew && course == null && string.IsNullOrEmpty(message))
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
@@ -256,6 +258,4 @@ else
               CancelLabel="@AdminRes.Cancel"
               OnConfirm="ExecuteDeleteAsync"
               OnCancel="CancelPendingDelete" />
-
-<DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 

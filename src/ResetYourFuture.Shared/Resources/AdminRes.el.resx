@@ -516,6 +516,9 @@
   <data name="ImpersonationExit" xml:space="preserve">
     <value>✕ Έξοδος από Impersonation</value>
   </data>
+  <data name="ImpersonationFailed" xml:space="preserve">
+    <value>Η προσομοίωση απέτυχε.</value>
+  </data>
   <data name="TestimonialsPageTitle" xml:space="preserve">
     <value>Ευχαριστημένοι Χρήστες</value>
   </data>
@@ -705,6 +708,12 @@
   <data name="CourseUnpublished" xml:space="preserve">
     <value>Η δημοσίευση του μαθήματος αναιρέθηκε.</value>
   </data>
+  <data name="ArticlePublished" xml:space="preserve">
+    <value>Το άρθρο δημοσιεύτηκε.</value>
+  </data>
+  <data name="ArticleUnpublished" xml:space="preserve">
+    <value>Η δημοσίευση του άρθρου αναιρέθηκε.</value>
+  </data>
   <data name="CourseDeleted" xml:space="preserve">
     <value>Το μάθημα διαγράφηκε.</value>
   </data>
@@ -779,6 +788,12 @@
   </data>
   <data name="TestimonialStatusUpdateFailed" xml:space="preserve">
     <value>Απέτυχε η ενημέρωση της κατάστασης της μαρτυρίας.</value>
+  </data>
+  <data name="TestimonialActivated" xml:space="preserve">
+    <value>Η μαρτυρία ενεργοποιήθηκε.</value>
+  </data>
+  <data name="TestimonialDeactivated" xml:space="preserve">
+    <value>Η μαρτυρία απενεργοποιήθηκε.</value>
   </data>
   <data name="TestimonialSaveFailed" xml:space="preserve">
     <value>Απέτυχε η αποθήκευση της μαρτυρίας. Δοκιμάστε ξανά.</value>

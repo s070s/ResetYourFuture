@@ -9,6 +9,8 @@
 
 <h1 class="h2">@(assessmentTitle != null ? string.Format(AdminRes.SubmissionsWithTitle, assessmentTitle) : AdminRes.ColSubmissions)</h1>
 
+<DismissibleAlert Message="@errorMessage" AlertType="danger" OnDismiss="@(() => errorMessage = string.Empty)" />
+
 @if (_pagedResult == null)
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
@@ -92,6 +94,4 @@ else
                             OnPreviousPage="() => GoToPage(_pagedResult.Page - 1)"
                             OnNextPage="() => GoToPage(_pagedResult.Page + 1)" />
 }
-
-<DismissibleAlert Message="@errorMessage" AlertType="danger" Dismissible="false" />
 

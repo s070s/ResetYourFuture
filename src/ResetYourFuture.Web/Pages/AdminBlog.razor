@@ -7,6 +7,8 @@
 <div class="admin-container">
     <h1 class="h2">@AdminRes.BlogArticlesPageTitle</h1>
 
+    <DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
+
     <div class="d-flex gap-2 mb-3">
         <input type="text" class="form-control" placeholder="@AdminRes.SearchByTitleSlugAuthor"
                aria-label="@AdminRes.SearchByTitleSlugAuthor"
@@ -98,8 +100,6 @@
                                         OnPreviousPage="PreviousPage"
                                         OnNextPage="NextPage" />
             }
-
-            <DismissibleAlert Message="@message" Dismissible="false" OnDismiss="@(() => message = string.Empty)" />
         </Authorized>
         <NotAuthorized>
             <div class="alert alert-danger">@AdminRes.AccessDenied</div>

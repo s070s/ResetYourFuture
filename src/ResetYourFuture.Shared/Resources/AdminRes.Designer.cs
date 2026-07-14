@@ -959,7 +959,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("ImpersonationExit", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Impersonation failed..
+        /// </summary>
+        public static string ImpersonationFailed {
+            get {
+                return ResourceManager.GetString("ImpersonationFailed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to logged in as.
         /// </summary>
@@ -1822,7 +1831,25 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("CourseUnpublished", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Article published..
+        /// </summary>
+        public static string ArticlePublished {
+            get {
+                return ResourceManager.GetString("ArticlePublished", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Article unpublished..
+        /// </summary>
+        public static string ArticleUnpublished {
+            get {
+                return ResourceManager.GetString("ArticleUnpublished", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Course deleted..
         /// </summary>
@@ -2047,7 +2074,25 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("TestimonialStatusUpdateFailed", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Testimonial activated..
+        /// </summary>
+        public static string TestimonialActivated {
+            get {
+                return ResourceManager.GetString("TestimonialActivated", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Testimonial deactivated..
+        /// </summary>
+        public static string TestimonialDeactivated {
+            get {
+                return ResourceManager.GetString("TestimonialDeactivated", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to save testimonial. Please try again..
         /// </summary>

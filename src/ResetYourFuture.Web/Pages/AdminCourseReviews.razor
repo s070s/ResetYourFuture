@@ -14,6 +14,8 @@
         </select>
     </div>
 
+    <DismissibleAlert Message="@message" AlertType="success" OnDismiss="@(() => message = string.Empty)" />
+
     @if (pagedResult == null)
     {
         <SkeletonBlock Rows="8" Height="2.75rem" />
@@ -80,6 +82,4 @@
                                 OnPreviousPage="PreviousPage"
                                 OnNextPage="NextPage" />
     }
-
-    <DismissibleAlert Message="@message" OnDismiss="@(() => message = string.Empty)" />
 </div>

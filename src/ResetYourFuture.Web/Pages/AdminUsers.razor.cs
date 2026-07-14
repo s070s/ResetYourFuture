@@ -20,6 +20,7 @@ public partial class AdminUsers : IAsyncDisposable
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string searchTerm = string.Empty;
     private string message = string.Empty;
+    private string messageType = "success";
     private string _sortBy = "email";
     private string _sortDir = "asc";
     private string? confirmDeleteId;
@@ -65,6 +66,7 @@ public partial class AdminUsers : IAsyncDisposable
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Forbidden)
         {
             message = ErrorMessagesRes.AccessDenied;
+            messageType = "danger";
         }
     }
 
@@ -128,7 +130,8 @@ public partial class AdminUsers : IAsyncDisposable
         }
         else
         {
-            message = result.Message ?? "Impersonation failed.";
+            message = result.Message ?? AdminRes.ImpersonationFailed;
+            messageType = "danger";
         }
     }
 
@@ -174,6 +177,7 @@ public partial class AdminUsers : IAsyncDisposable
             if (success)
             {
                 message = AdminRes.PasswordUpdated;
+                messageType = "success";
                 CloseResetPasswordModal();
             }
             else
@@ -205,15 +209,18 @@ public partial class AdminUsers : IAsyncDisposable
             {
                 await LoadUsers();
                 message = AdminRes.UserStatusToggled;
+                messageType = "success";
             }
             else
             {
                 message = AdminRes.UserToggleFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -227,15 +234,18 @@ public partial class AdminUsers : IAsyncDisposable
                 confirmDeleteId = null;
                 await LoadUsers();
                 message = AdminRes.UserDeleted;
+                messageType = "success";
             }
             else
             {
                 message = AdminRes.UserDeleteFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 

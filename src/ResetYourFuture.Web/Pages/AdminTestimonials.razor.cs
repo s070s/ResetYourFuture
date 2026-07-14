@@ -16,6 +16,7 @@ public partial class AdminTestimonials
     private int pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50];
     private string message = string.Empty;
+    private string messageType = "success";
     private Guid? confirmDeleteId;
     private string _sortBy = "displayorder";
     private string _sortDir = "asc";
@@ -83,17 +84,20 @@ public partial class AdminTestimonials
             var result = await TestimonialConsumer.ToggleActiveAsync(id);
             if (result is not null)
             {
-                message = result.IsActive ? "Testimonial activated." : "Testimonial deactivated.";
+                message = result.IsActive ? AdminRes.TestimonialActivated : AdminRes.TestimonialDeactivated;
+                messageType = "success";
                 await LoadTestimonials();
             }
             else
             {
                 message = AdminRes.TestimonialStatusUpdateFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -107,6 +111,7 @@ public partial class AdminTestimonials
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -120,6 +125,7 @@ public partial class AdminTestimonials
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -132,16 +138,19 @@ public partial class AdminTestimonials
             {
                 confirmDeleteId = null;
                 message = AdminRes.TestimonialDeleted;
+                messageType = "success";
                 await LoadTestimonials();
             }
             else
             {
                 message = AdminRes.TestimonialDeleteFailed;
+                messageType = "danger";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 }

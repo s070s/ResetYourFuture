@@ -16,6 +16,7 @@ public partial class AdminAssessments
     private int _pageSize = 10;
     private static readonly int[] PageSizeOptions = [10, 25, 50, 100];
     private string message = string.Empty;
+    private string messageType = "success";
     private Guid? _pendingDeleteId;
     private string _sortBy = "createdat";
     private string _sortDir = "desc";
@@ -47,6 +48,7 @@ public partial class AdminAssessments
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -81,11 +83,13 @@ public partial class AdminAssessments
             {
                 await LoadAssessments();
                 message = AdminRes.AssessmentPublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -97,11 +101,13 @@ public partial class AdminAssessments
             {
                 await LoadAssessments();
                 message = AdminRes.AssessmentUnpublished;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 
@@ -128,11 +134,13 @@ public partial class AdminAssessments
             {
                 await LoadAssessments();
                 message = AdminRes.AssessmentDeleted;
+                messageType = "success";
             }
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
+            messageType = "danger";
         }
     }
 }
