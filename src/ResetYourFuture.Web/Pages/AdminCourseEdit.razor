@@ -116,8 +116,10 @@ else
                         <div class="card mb-2" @key="module.Id">
                             <div class="card-header d-flex justify-content-between align-items-center collapsible-header"
                                  role="button"
+                                 tabindex="0"
                                  aria-expanded="@isExpanded.ToString().ToLowerInvariant()"
-                                 @onclick="() => ToggleModule(module.Id)">
+                                 @onclick="() => ToggleModule(module.Id)"
+                                 @onkeydown="@(e => { if (e.IsActivationKey()) ToggleModule(module.Id); })">
                                 <div>
                                     <span class="fw-semibold">@module.TitleEn</span>
                                     <span class="badge bg-secondary ms-2">@string.Format(AdminRes.LessonsCountFormat, module.LessonCount)</span>

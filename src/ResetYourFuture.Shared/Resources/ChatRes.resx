@@ -99,4 +99,10 @@
 	<data name="Reconnecting" xml:space="preserve">
 		<value>Connection lost. Reconnecting…</value>
 	</data>
+	<data name="Loading" xml:space="preserve">
+		<value>Loading conversations...</value>
+	</data>
+	<data name="LoadingMessages" xml:space="preserve">
+		<value>Loading messages...</value>
+	</data>
 </root>

@@ -113,6 +113,15 @@ th[role="columnheader"][tabindex="0"]:focus-visible {
     outline-offset: -2px;
 }
 
+/* Sortable column header state (SortableColumnHeader.razor) */
+th.sort-active {
+    background-color: var(--bg-table-header-active);
+}
+
+.sort-arrow--inactive {
+    color: var(--text-light-muted);
+}
+
 .chevron-icon {
     color: var(--text-strong-accent);
     transition: transform 0.2s ease;
@@ -657,6 +666,37 @@ input[type="date"].form-control:focus {
     background: var(--bg-neutral-subtle);
     color: var(--text-accent);
 }
+
+/* ================================================
+   Tier badge — plan-tier indicator on the Billing current-plan card and
+   course/assessment cards. Was duplicated (and already diverged) between
+   Billing.razor.css and Courses.razor.css; consolidated here since it's
+   cross-page, like .category-chip above.
+   ================================================ */
+.tier-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+    .tier-badge.tier-free {
+        background: var(--bg-neutral-subtle);
+        color: var(--text-light-normal);
+    }
+
+    .tier-badge.tier-plus {
+        background: var(--bg-info-subtle);
+        color: var(--text-accent);
+    }
+
+    .tier-badge.tier-pro {
+        background: var(--bg-warning-subtle);
+        color: var(--color-warning);
+    }
 
 /* ================================================
    Legal pages — Privacy Policy and Terms of Service.

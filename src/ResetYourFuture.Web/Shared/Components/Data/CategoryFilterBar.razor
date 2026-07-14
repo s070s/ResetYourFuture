@@ -5,6 +5,7 @@
     <div class="category-chips" role="group" aria-label="@CategoryRes.CategoryLabel">
         <button type="button"
                 class="category-chip-option @(SelectedCategoryId is null ? "selected" : "")"
+                aria-pressed="@(SelectedCategoryId is null ? "true" : "false")"
                 @onclick="() => SelectCategory(null)">
             @CategoryRes.AllCategories
         </button>
@@ -12,6 +13,7 @@
         {
             <button type="button"
                     class="category-chip-option @(SelectedCategoryId == category.Id ? "selected" : "")"
+                    aria-pressed="@(SelectedCategoryId == category.Id ? "true" : "false")"
                     @onclick="() => SelectCategory(category.Id)">
                 @category.Name (@category.Count)
             </button>
@@ -20,6 +22,7 @@
     <input type="search"
            class="form-control category-filter-search"
            placeholder="@SearchPlaceholder"
+           aria-label="@SearchPlaceholder"
            value="@SearchText"
            @oninput="OnSearchInput" />
 </div>

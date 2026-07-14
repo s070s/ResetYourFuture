@@ -1,4 +1,5 @@
 @* Renders a confirmation modal with confirm/cancel buttons and optional busy spinner. *@
+@inject IJSRuntime JS
 
 @if (IsVisible)
 {
@@ -63,7 +64,14 @@
         if (IsVisible && !_wasVisible)
         {
             _wasVisible = true;
-            try { await _dialogRef.FocusAsync(); } catch { /* element gone / circuit closed */ }
+            try
+            {
+                await _dialogRef.FocusAsync();
+                // UI-5: traps Tab within the dialog and restores focus to the trigger on
+                // close (WCAG 2.4.3) — the trigger is whatever element has focus right now.
+                await JS.InvokeVoidAsync("modalInterop.activate", _dialogRef);
+            }
+            catch { /* element gone / circuit closed */ }
         }
         else if (!IsVisible && _wasVisible)
         {

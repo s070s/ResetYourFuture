@@ -40,28 +40,6 @@
     font-weight: 700;
 }
 
-.tier-badge {
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-}
-
-    .tier-badge.tier-free {
-        background: var(--bg-neutral-subtle);
-        color: var(--text-light-normal);
-    }
-
-    .tier-badge.tier-plus {
-        background: var(--bg-info-subtle);
-        color: var(--text-accent);
-    }
-
-    .tier-badge.tier-pro {
-        background: var(--bg-warning-subtle);
-        color: var(--color-warning);
-    }
-
 .plan-dates p {
     margin: 0.25rem 0;
     font-size: 0.95rem;

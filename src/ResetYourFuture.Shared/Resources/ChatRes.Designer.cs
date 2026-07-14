@@ -239,5 +239,23 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Messages", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading conversations....
+        /// </summary>
+        public static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Loading messages....
+        /// </summary>
+        public static string LoadingMessages {
+            get {
+                return ResourceManager.GetString("LoadingMessages", resourceCulture);
+            }
+        }
     }
 }

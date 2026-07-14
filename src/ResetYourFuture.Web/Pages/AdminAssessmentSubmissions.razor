@@ -41,6 +41,7 @@ else
                 <td data-label="@AdminRes.ColSubmittedAt">@sub.SubmittedAt.LocalDateTime.ToString("g")</td>
                 <td data-label="@AdminRes.ColActions">
                     <button class="btn btn-sm btn-outline-primary"
+                            aria-expanded="@((expandedSubmissionId == sub.Id).ToString().ToLowerInvariant())"
                             @onclick="() => ToggleAnswers(sub.Id)">
                         @(expandedSubmissionId == sub.Id ? AdminRes.HideAnswers : AdminRes.ViewAnswers)
                     </button>
