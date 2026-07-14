@@ -73,7 +73,6 @@ else
 // instead of a bare 404 with no navigation (UX-3).
 app.UseStatusCodePagesWithReExecute("/__status-code-dispatch");
 
-app.UseRateLimiter();
 app.UseHttpsRedirection();
 
 if (!app.Environment.IsDevelopment())
@@ -94,6 +93,14 @@ app.UseRequestLocalization();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Must run after UseAuthentication/UseAuthorization: the "sensitive"/"assistant" policies
+// partition by httpContext.User's NameIdentifier claim, which is only populated once auth has
+// run. Registered earlier, every request — regardless of which user — fell back to a single
+// shared "anonymous" partition, silently making the per-user limiter a global one (one user's
+// burst could 429 everyone else, exactly what the per-user design was meant to prevent).
+app.UseRateLimiter();
+
 app.UseAntiforgery();
 
 app.MapInfrastructureEndpoints();
