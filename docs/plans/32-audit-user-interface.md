@@ -25,43 +25,13 @@ NOT examined: runtime rendering, real contrast measurements in a browser, JS int
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 6 |
+| Medium | 0 |
 | Low | 4 |
 | Info | 1 |
 
-The UI layer is in better shape than most student projects: a coherent dark-theme token set in `app.css`, a documented CSS consolidation rule that is mostly followed, a genuinely good mobile card-table transformation with 100% `data-label` coverage on all 12 data tables, a skip link, `aria-sort` on sortable headers, `aria-pressed` on the culture selector, visually-hidden text for icon-only cells, `role="log"`/`aria-live` on the chat pane, and a global `prefers-reduced-motion` kill-switch already in place. The remaining problems are at the edges: keyboard operability applied on one page but forgotten on its admin twin, modals without a focus trap, and a set of consistency drifts (duplicated `.tier-badge`, unstyled sort-indicator classes) that the repo's own conventions already prohibit.
+The UI layer is in better shape than most student projects: a coherent dark-theme token set in `app.css`, a documented CSS consolidation rule that is followed throughout, a genuinely good mobile card-table transformation with 100% `data-label` coverage on all 12 data tables, a skip link, `aria-sort` on sortable headers (now styled — see UI-8, fixed), `aria-pressed` on the culture selector and category chips, visually-hidden text for icon-only cells, `role="log"`/`aria-live` on the chat pane, focus-trapped/focus-restoring modals, and a global `prefers-reduced-motion` kill-switch already in place. All six Medium findings (keyboard operability of the admin collapsible header, modal focus trap/restore, `.tier-badge` duplication, unstyled sort-indicator classes, Chat's unlabeled spinner, and unlabeled search inputs/filter chips) are fixed. What remains is Low/Info polish: static inline styles, table captions, a locale-coupled CSS hook, stray Bootstrap palette leaks, and one dropdown's keyboard model.
 
 ## 3. Findings
-
-### UI-4: Keyboard operability of collapsible headers is inconsistent — admin module headers are mouse-only  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Pages/CourseDetail.razor:78-83` does it right: `role="button" tabindex="0" aria-expanded @onclick @onkeydown(IsActivationKey)`. Its admin twin `src/ResetYourFuture.Web/Pages/AdminCourseEdit.razor:117-120` has `role="button"` and `aria-expanded` but **no `tabindex` and no `@onkeydown`**. The expandable answers toggle in `AdminAssessmentSubmissions.razor:37-40` is a real `<button>` (good) but lacks `aria-expanded` for the row it controls.
-- **Impact:** Admin module/lesson management cannot be expanded from the keyboard at all; the announced "button" role is a lie for keyboard users. The `.collapsible-header:focus-visible` style in `shared-components.css:104-107` never fires because the element is unfocusable.
-- **Recommendation:** Copy the CourseDetail attributes verbatim onto the AdminCourseEdit header (the `IsActivationKey()` extension is already shared), and add `aria-expanded` to the ViewAnswers/HideAnswers button.
-
-### UI-5: Modals move focus in but have no focus trap and no focus restore  [Medium] [Effort: M]
-- **Evidence:** `src/ResetYourFuture.Web/Shared/Components/Data/ConfirmModal.razor:59-78` and `FormModal.razor:46-64` — on open they `FocusAsync()` the dialog and handle Escape (good), but nothing constrains Tab within the dialog, and on close focus is dropped (not returned to the triggering button).
-- **Impact:** Keyboard users can Tab out of an open modal into the inert, backdrop-covered page behind it (WCAG 2.4.3); after closing, focus resets to `<body>`, losing the user's place in long admin tables — every delete/rename/reset-password flow is affected because all 10+ modal usages go through these two components.
-- **Recommendation:** Because both components are the single chokepoint, fix once: keep a captured `ElementReference` of the trigger (or use a small JS interop with `focus()`/`focusin` sentinel elements before/after the dialog) to cycle Tab and restore focus on close.
-
-### UI-7: `.tier-badge` styles duplicated (and already diverged) across two scoped CSS files  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Pages/Billing.razor.css:43-63` and `src/ResetYourFuture.Web/Pages/Courses.razor.css:57-74` both define `.tier-badge` + tier variants; Billing has a `.tier-free` variant that Courses lacks. The repo's own convention (header comment of `wwwroot/css/shared-components.css:1-12`) says cross-cutting styles belong in shared-components.css, and `.category-chip` (`shared-components.css:638-652`) — explicitly "Modeled on .tier-badge" — was already consolidated there.
-- **Impact:** Same badge renders subtly differently per page and drifts further with every edit; a third consumer (e.g. Pricing) would need a third copy.
-- **Recommendation:** Move `.tier-badge` and its tier variants next to `.category-chip` in shared-components.css and delete both scoped copies.
-
-### UI-8: Sort-indicator classes referenced by SortableColumnHeader have no CSS anywhere  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Shared/Components/Data/SortableColumnHeader.razor:4,15,19` emits `sort-active`, `sort-arrow`, and `sort-arrow--inactive` classes; a repo-wide grep over all `.css` files (shared + scoped) finds zero rules for any of them.
-- **Impact:** The inactive `⇅` hint renders at the same weight/color as the active `▲/▼`, and the active column gets no header highlight — sortable vs. sorted state is conveyed only by which arrow glyph is present, which is easy to miss and clearly not the intended design (the classes exist to be styled). Since the sorting rollout, the component is consumed by every admin/student table, so the gap is now site-wide.
-- **Recommendation:** Add the three rules to `shared-components.css` (the component is cross-page): dim `--text-light-muted` for `.sort-arrow--inactive`, `--bg-table-header-active` background for `th.sort-active`.
-
-### UI-9: Page-level loading indicator inconsistency — Chat uses a raw Bootstrap spinner with no label  [Medium] [Effort: S]
-- **Evidence:** Every other page uses the themed `LoadingSpinner` component with a localized `Label` (e.g. `Courses.razor:10`, `Billing.razor:11`, `AdminUsers.razor:19`). `src/ResetYourFuture.Web/Pages/Chat.razor:7-12` renders `<div class="spinner-border" role="status">` with no accessible text and no compass theming; `MessagePane.razor:58-63` repeats this for message loads.
-- **Impact:** Visual inconsistency on a flagship feature page, plus `role="status"` with an empty accessible name announces nothing to screen readers.
-- **Recommendation:** Use `LoadingSpinner Label="@ChatRes…"` for the page-level state. (Small inline button spinners with adjacent text are fine and out of scope; the remaining skeleton swaps for table pages are part of the deferred polish — see the plan-13 note in 00-INDEX.md.)
-
-### UI-10: Search inputs and filter chips lack programmatic state/labels  [Medium] [Effort: S]
-- **Evidence:** Placeholder-only search fields: `AdminUsers.razor:10-13`, `AdminBlog.razor:10-14`, `Shared/Components/Data/CategoryFilterBar.razor:20-24` (no `aria-label`/`<label>`; placeholder disappears on input and is not a reliable accessible name). Category filter chips (`CategoryFilterBar.razor:6-18`) convey the selected filter only via the `selected` CSS class — no `aria-pressed`, even though the sibling `CultureSelector.razor:2-7` does this correctly.
-- **Impact:** Screen-reader users get unnamed textboxes on the three search surfaces and cannot tell which category filter is active.
-- **Recommendation:** Add `aria-label="@…SearchPlaceholder"` (or a visually-hidden label) to the three inputs and `aria-pressed="@(SelectedCategoryId == category.Id)"` to the chips, mirroring CultureSelector.
 
 ### UI-11: Static inline styles scattered through markup instead of scoped CSS  [Low] [Effort: S]
 - **Evidence:** ~34 `style="` occurrences in `.razor` files. Legitimately dynamic ones aside (progress width `CourseDetail.razor:40`, hero background `Home.razor:19`, parameterized `ScrollableTable.razor:6`), the static offenders include: `AdminTestimonialEditor.razor:66` (avatar preview with hardcoded `border:2px solid #444` — a hex not in the token set), `BlogArticle.razor:5,15` (container padding), `VerifyCertificate.razor:5` (max-width), `ConversationSidebar.razor:32` (max-height/overflow), `SortableColumnHeader.razor:11` (cursor/user-select/white-space), `MessagePane.razor:7` (font-size), `AdminCourseEdit.razor:162-167` (five column widths).
@@ -92,12 +62,6 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| UI-4 | Medium | S | Add `tabindex="0"` + activation-key handler to AdminCourseEdit collapsible headers; `aria-expanded` on ViewAnswers |
-| UI-7 | Medium | S | Consolidate `.tier-badge` into shared-components.css next to `.category-chip` |
-| UI-8 | Medium | S | Style `.sort-active` / `.sort-arrow--inactive` in shared-components.css |
-| UI-9 | Medium | S | Replace Chat's raw `spinner-border` with labeled `LoadingSpinner` |
-| UI-10 | Medium | S | `aria-label` on the 3 search inputs; `aria-pressed` on category chips |
-| UI-5 | Medium | M | Add focus trap + focus-restore to ConfirmModal/FormModal (single chokepoint) |
 | UI-11 | Low | S | Fold static inline styles into scoped CSS (with the deferred token sweep) |
 | UI-12 | Low | S | Add caption/aria-label parameter to ScrollableTable and pass at call sites |
 | UI-13 | Low | S | Replace `data-label="Actions"` CSS coupling with a locale-independent class |
@@ -107,7 +71,7 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 ## 5. Related Findings Elsewhere
 
 - **UX-1 (33)** — the hardcoded English strings that ship inside these components (DismissibleAlert/ConfirmModal/PaginationNav/StatusBadge defaults, `blazor-error-ui` text, `ItemLabel` values) are quantified there; the banner's colors (former UI-2) are fixed.
-- **UX-2 / UX-6 (33)** — silent failure and infinite-spinner *flows* behind the loading components discussed in UI-9.
+- **UX-2 / UX-6 (33)** — silent failure and infinite-spinner *flows* behind the loading components (now consistently `LoadingSpinner`, see former UI-9, fixed).
 - **UX-5 (33)** — where and how the `DismissibleAlert` messages appear (placement, severity styling, dismissibility) is flow-level and lives there.
 - **UX-12 (33)** — inconsistent date/time formats rendered inside the tables audited here.
 - **Former plans 10 and 13 (both implemented)** — table sorting is rolled out across every admin/student table (including Billing, whose bespoke table/toolbar was migrated to the shared components), and the visual-polish system (tokens, `:focus-visible`, skeletons, reduced-motion) shipped; only the cosmetic token sweep remains deferred (see the plan-13 note in [00-INDEX.md](00-INDEX.md)).

@@ -112,9 +112,9 @@ The flow fundamentals are strong where they were done deliberately: the localiza
 ## 5. Related Findings Elsewhere
 
 - **UI-2 (32)** — the `#blazor-error-ui` contrast defect; its hardcoded English text is counted under UX-1 here.
-- **UI-5 (32)** — modal focus trap/restore; the *flows* those modals guard include UX-10 here (Pricing's downgrade flow, former UX-4, now also uses this modal).
-- **UI-9 (32)** — Chat's unlabeled raw spinner (component-level face of the loading-state inconsistency in UX-6).
-- **UI-10 (32)** — unlabeled search inputs belonging to the search flows in UX-13.
+- **UI-5 (32, fixed)** — modal focus trap/restore; the *flows* those modals guard include UX-10 here (Pricing's downgrade flow, former UX-4, now also uses this modal).
+- **UI-9 (32, fixed)** — Chat's unlabeled raw spinner (component-level face of the loading-state inconsistency in UX-6).
+- **UI-10 (32, fixed)** — unlabeled search inputs belonging to the search flows in UX-13.
 - **Table sorting (former plan 10, implemented)** — sortable headers landed on every admin/student table (incl. AssessmentHistory and the migrated Billing table); deliberately not re-reported in UX-13.
 - **Deferred visual polish (former plan 13; see the plan-13 note in [00-INDEX.md](00-INDEX.md))** — the remaining skeleton-loader swaps will change the *look* of the loading states audited in UX-6; the missing error/retry branches remain this report's items either way.
 - **SEC (25)** — `(MarkupString)` rendering of course/assessment/blog descriptions and `ex.Message` exposure have security dimensions owned there; UX-1 covers only the language/feedback aspect.
