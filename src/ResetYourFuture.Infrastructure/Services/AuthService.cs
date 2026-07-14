@@ -46,6 +46,7 @@ public class AuthService : IAuthService
     private readonly double _jwtExpirationMinutes;
     private readonly ITimeLimitedDataProtector _protector;
     private readonly IDataProtector _adminCookieProtector;
+    private readonly ITimeLimitedDataProtector _lessonAssetProtector;
 
     /// <summary>Cookie name used to store the admin's user ID during impersonation.</summary>
     public const string AdminBackupCookieName = ".RYF.AdminUserId";
@@ -55,6 +56,11 @@ public class AuthService : IAuthService
 
     /// <summary>Data Protection purpose for the admin backup cookie value. Changing this invalidates all active impersonation sessions.</summary>
     public const string AdminBackupCookieProtectorPurpose = "ResetYourFuture.AdminBackupCookie.v1";
+
+    /// <summary>Data Protection purpose for lesson-asset tokens (SEC-2). Changing this invalidates all in-flight asset links.</summary>
+    public const string LessonAssetProtectorPurpose = "ResetYourFuture.LessonAsset.v1";
+
+    private static readonly TimeSpan LessonAssetTokenLifetime = TimeSpan.FromMinutes(10);
 
     private static readonly JwtSecurityTokenHandler TokenHandler = new() { SetDefaultTimesOnTokenCreation = false };
 
@@ -83,6 +89,9 @@ public class AuthService : IAuthService
             .ToTimeLimitedDataProtector();
         _adminCookieProtector = dataProtectionProvider
             .CreateProtector(AdminBackupCookieProtectorPurpose);
+        _lessonAssetProtector = dataProtectionProvider
+            .CreateProtector(LessonAssetProtectorPurpose)
+            .ToTimeLimitedDataProtector();
     }
 
     private HttpContext HttpContext => _httpContextAccessor.HttpContext
@@ -290,6 +299,17 @@ public class AuthService : IAuthService
             signingCredentials: creds);
 
         return Task.FromResult<string?>(TokenHandler.WriteToken(jwt));
+    }
+
+    /// <inheritdoc />
+    public Task<string> CreateLessonAssetTokenAsync(ClaimsPrincipal principal, Guid lessonId)
+    {
+        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new InvalidOperationException("User ID not found in claims.");
+
+        var ticket = new LessonAssetTicket(userId, lessonId);
+        var payload = JsonSerializer.Serialize(ticket);
+        return Task.FromResult(_lessonAssetProtector.Protect(payload, lifetime: LessonAssetTokenLifetime));
     }
 
     public async Task<AuthResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request)

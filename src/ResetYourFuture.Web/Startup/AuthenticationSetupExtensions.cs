@@ -142,15 +142,17 @@ public static class AuthenticationSetupExtensions
 
             options.Events = new JwtBearerEvents
             {
-                // Allow SignalR and media asset requests to receive JWT from query string.
+                // Allow SignalR (WebSocket) requests to receive JWT from query string — a
+                // framework constraint, since the browser's WebSocket API cannot set headers.
+                // Lesson assets used to be allowed here too (SEC-2); they now carry their own
+                // short-lived, single-lesson-scoped token instead (LessonAssetsController).
                 OnMessageReceived = context =>
                 {
                     var accessToken = context.Request.Query["access_token"];
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) &&
                          (path.StartsWithSegments("/hubs/chat") ||
-                           path.StartsWithSegments("/hubs/call") ||
-                           path.StartsWithSegments("/api/lessons")))
+                           path.StartsWithSegments("/hubs/call")))
                     {
                         context.Token = accessToken;
                     }

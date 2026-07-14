@@ -55,4 +55,12 @@ public interface IAuthService
     Task<bool> IsImpersonatingAsync();
     Task<AuthResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request);
     Task<AuthResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request);
+
+    /// <summary>
+    /// Mints a short-lived, single-lesson-scoped signed token (SEC-2) for browser-rendered
+    /// &lt;video&gt;/&lt;iframe&gt; requests to the lesson-asset endpoint, which cannot attach an
+    /// Authorization header. Unlike a general access JWT, this token authorizes nothing beyond
+    /// this one lesson for its short lifetime.
+    /// </summary>
+    Task<string> CreateLessonAssetTokenAsync(ClaimsPrincipal principal, Guid lessonId);
 }

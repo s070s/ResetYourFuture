@@ -293,4 +293,32 @@ public class AuthServiceTests
 
         (await h.Svc.IsImpersonatingAsync()).ShouldBeFalse();
     }
+
+    // ---- CreateLessonAssetTokenAsync (SEC-2) ----------------------------------
+
+    [Fact]
+    public async Task CreateLessonAssetToken_EncodesUserAndLesson()
+    {
+        var h = Build();
+        var lessonId = Guid.NewGuid();
+        var principal = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u1")], "test"));
+
+        var token = await h.Svc.CreateLessonAssetTokenAsync(principal, lessonId);
+
+        var payload = h.Dp.CreateProtector(AuthService.LessonAssetProtectorPurpose)
+            .ToTimeLimitedDataProtector().Unprotect(token);
+        var ticket = System.Text.Json.JsonSerializer.Deserialize<LessonAssetTicket>(payload);
+        ticket!.UserId.ShouldBe("u1");
+        ticket.LessonId.ShouldBe(lessonId);
+    }
+
+    [Fact]
+    public async Task CreateLessonAssetToken_UnauthenticatedPrincipal_Throws()
+    {
+        var h = Build();
+        var principal = new ClaimsPrincipal(new ClaimsIdentity());
+
+        await Should.ThrowAsync<InvalidOperationException>(
+            () => h.Svc.CreateLessonAssetTokenAsync(principal, Guid.NewGuid()));
+    }
 }

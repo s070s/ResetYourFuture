@@ -31,7 +31,7 @@ public partial class LessonViewer
     private string? _error;
     private string? _completionError;
     private bool _mediaError;
-    private string? _videoToken;
+    private string? _assetToken;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -48,7 +48,7 @@ public partial class LessonViewer
         try
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            _videoToken = await AuthService.GetTokenAsync(authState.User);
+            _assetToken = await AuthService.CreateLessonAssetTokenAsync(authState.User, LessonId);
             var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "el" ? "el" : "en";
             _lesson = await CourseService.GetLessonAsync(LessonId, lang);
             if (_lesson is null)
@@ -155,8 +155,8 @@ public partial class LessonViewer
         {
             var apiBase = Navigation.BaseUri.TrimEnd('/');
             var url = $"{apiBase}/api/lessons/{LessonId}/asset?type=video";
-            if (!string.IsNullOrEmpty(_videoToken))
-                url += $"&access_token={Uri.EscapeDataString(_videoToken)}";
+            if (!string.IsNullOrEmpty(_assetToken))
+                url += $"&assetToken={Uri.EscapeDataString(_assetToken)}";
             return url;
         }
     }
@@ -171,8 +171,8 @@ public partial class LessonViewer
         {
             var apiBase = Navigation.BaseUri.TrimEnd('/');
             var url = $"{apiBase}/api/lessons/{LessonId}/asset?type=pdf";
-            if (!string.IsNullOrEmpty(_videoToken))
-                url += $"&access_token={Uri.EscapeDataString(_videoToken)}";
+            if (!string.IsNullOrEmpty(_assetToken))
+                url += $"&assetToken={Uri.EscapeDataString(_assetToken)}";
             return url;
         }
     }

@@ -1,46 +1,80 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Infrastructure.Services;
 
 namespace ResetYourFuture.Web.Controllers;
 
 /// <summary>
 /// Endpoint for serving lesson assets (PDF, video) with authorization.
 /// Students must be enrolled in the course to access lesson assets.
+///
+/// [AllowAnonymous] because the browser-rendered &lt;video&gt;/&lt;iframe&gt; requests that hit
+/// this endpoint cannot attach an Authorization header (SEC-2): a signed-in caller (cookie or
+/// Bearer header — ASP.NET Core still populates User even under [AllowAnonymous]) is trusted as
+/// usual, and everyone else must present a short-lived, single-lesson-scoped assetToken minted
+/// by IAuthService.CreateLessonAssetTokenAsync instead of the general access JWT this used to
+/// accept via ?access_token=.
 /// </summary>
 [ApiController]
 [Route("api/lessons")]
-[Authorize]
+[AllowAnonymous]
 [Tags("Lesson Assets")]
 [ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class LessonAssetsController : ControllerBase
 {
     private readonly IApplicationDbContext _db;
     private readonly IFileStorage _fileStorage;
+    private readonly IDataProtectionProvider _dataProtectionProvider;
     private readonly ILogger<LessonAssetsController> _logger;
 
-    public LessonAssetsController(IApplicationDbContext db, IFileStorage fileStorage, ILogger<LessonAssetsController> logger)
+    public LessonAssetsController(
+        IApplicationDbContext db,
+        IFileStorage fileStorage,
+        IDataProtectionProvider dataProtectionProvider,
+        ILogger<LessonAssetsController> logger)
     {
         _db = db;
         _fileStorage = fileStorage;
+        _dataProtectionProvider = dataProtectionProvider;
         _logger = logger;
     }
-
-    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? throw new UnauthorizedAccessException("User ID not found");
 
     /// <summary>
     /// Get a lesson asset (PDF or video) if user is enrolled in the course.
     /// </summary>
     /// <param name="lessonId">Lesson ID</param>
     /// <param name="type">Asset type: "pdf" or "video"</param>
+    /// <param name="assetToken">
+    /// Required only when the caller has no Authorization header/cookie (the browser
+    /// &lt;video&gt;/&lt;iframe&gt; case) — a token from <c>CreateLessonAssetTokenAsync</c>.
+    /// </param>
     [HttpGet("{lessonId:guid}/asset")]
-    public async Task<IActionResult> GetAsset(Guid lessonId, [FromQuery] string type)
+    public async Task<IActionResult> GetAsset(Guid lessonId, [FromQuery] string type, [FromQuery] string? assetToken)
     {
+        string userId;
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? throw new UnauthorizedAccessException("User ID not found");
+        }
+        else if (!string.IsNullOrEmpty(assetToken) && TryResolveAssetToken(assetToken, lessonId, out var tokenUserId))
+        {
+            userId = tokenUserId;
+        }
+        else
+        {
+            return Problem(detail: "Authentication required.", statusCode: StatusCodes.Status401Unauthorized);
+        }
+
         // Get lesson with course information
         var lesson = await _db.Lessons
             .Include(l => l.Module)
@@ -54,7 +88,7 @@ public class LessonAssetsController : ControllerBase
 
         // Check if user is enrolled in the course
         var isEnrolled = await _db.Enrollments
-            .AnyAsync(e => e.UserId == UserId && e.CourseId == lesson.Module.Course.Id);
+            .AnyAsync(e => e.UserId == userId && e.CourseId == lesson.Module.Course.Id);
 
         if (!isEnrolled)
         {
@@ -93,6 +127,29 @@ public class LessonAssetsController : ControllerBase
         {
             _logger.LogError(ex, "Error streaming file: {FilePath}", filePath);
             return Problem(detail: "Error retrieving asset", statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private bool TryResolveAssetToken(string assetToken, Guid lessonId, out string userId)
+    {
+        userId = string.Empty;
+        try
+        {
+            var protector = _dataProtectionProvider
+                .CreateProtector(AuthService.LessonAssetProtectorPurpose)
+                .ToTimeLimitedDataProtector();
+            var payload = protector.Unprotect(assetToken);
+            var ticket = JsonSerializer.Deserialize<LessonAssetTicket>(payload);
+            if (ticket is null || ticket.LessonId != lessonId)
+                return false;
+
+            userId = ticket.UserId;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Lesson asset token invalid or expired for lesson {LessonId}.", lessonId);
+            return false;
         }
     }
 }
