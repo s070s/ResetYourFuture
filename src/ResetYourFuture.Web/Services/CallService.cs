@@ -207,6 +207,13 @@ public partial class CallService : ICallService
             if (ActiveCallId == callId) await EndLocalCallAsync();
         });
 
+        // AVAIL-5: the server is shutting down. Tear down any active call cleanly (stop local media,
+        // clear state) instead of letting the WebRTC mesh die on an abrupt socket drop.
+        _hub.On("ServerShuttingDown", async () =>
+        {
+            if (ActiveCallId is not null) await EndLocalCallAsync();
+        });
+
         _hub.On<string>("CallError", message => ErrorOccurred?.Invoke(message));
     }
 

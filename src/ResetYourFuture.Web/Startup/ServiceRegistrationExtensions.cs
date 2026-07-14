@@ -145,6 +145,23 @@ public static class ServiceRegistrationExtensions
             builder.Services.AddScoped<IAssistantRetrievalService, DisabledAssistantRetrievalService>();
         }
 
+        // --- Background-service fault isolation + graceful shutdown (AVAIL-6, AVAIL-5) ---
+        // The generic host also owns Kestrel, and the default BackgroundServiceExceptionBehavior
+        // (StopHost) means an unhandled exception from ANY hosted service (CallRingMonitor,
+        // AssistantIndexer, RefreshTokenPurgeService, the bulk seeder, Ollama bootstrap) would take
+        // the whole web server down with it. None of these are critical to serving HTTP, so a
+        // failing background job should log and stop — not end availability for everyone (AVAIL-6).
+        // ShutdownTimeout is set explicitly (AVAIL-5) rather than left at the default so in-flight
+        // requests and the ServerShuttingDown broadcast have a bounded, documented drain window.
+        builder.Services.Configure<HostOptions>(options =>
+        {
+            options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+            options.ShutdownTimeout = TimeSpan.FromSeconds(10);
+        });
+
+        // AVAIL-5: broadcasts a clean "server is stopping" notice to chat/call clients on shutdown.
+        builder.Services.AddHostedService<GracefulShutdownNotifier>();
+
         // --- Health checks (AVAIL-1) ---
         // "database" and "assistant" are tagged "ready" so /health/ready reflects both; the
         // assistant check reports Degraded (not Unhealthy) when Ollama is unreachable, since the

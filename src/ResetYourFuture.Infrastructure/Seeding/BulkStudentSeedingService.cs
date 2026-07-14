@@ -32,21 +32,34 @@ public sealed class BulkStudentSeedingService : BackgroundService
         if (!_env.IsDevelopment() || !_config.GetValue<bool>("SeedData:Enabled"))
             return;
 
-        // Brief delay so the app is fully started and accepting requests before
-        // the expensive seeding work begins.
-        await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
-
-        using var scope = _services.CreateScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        var bulkCount = _config.GetValue<int>("SeedData:BulkStudentCount", 10);
-        var studentPassword = _config["SeedData:StudentPassword"];
-        if (string.IsNullOrWhiteSpace(studentPassword))
+        try
         {
-            _logger.LogError("BulkStudentSeeder: SeedData:StudentPassword is not set. Skipping bulk seed.");
-            return;
-        }
+            // Brief delay so the app is fully started and accepting requests before
+            // the expensive seeding work begins.
+            await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
 
-        await BulkStudentSeeder.SeedAsync(userManager, bulkCount, studentPassword, _logger, stoppingToken);
+            using var scope = _services.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var bulkCount = _config.GetValue<int>("SeedData:BulkStudentCount", 10);
+            var studentPassword = _config["SeedData:StudentPassword"];
+            if (string.IsNullOrWhiteSpace(studentPassword))
+            {
+                _logger.LogError("BulkStudentSeeder: SeedData:StudentPassword is not set. Skipping bulk seed.");
+                return;
+            }
+
+            await BulkStudentSeeder.SeedAsync(userManager, bulkCount, studentPassword, _logger, stoppingToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // Normal shutdown mid-seed — nothing to report.
+        }
+        catch (Exception ex)
+        {
+            // AVAIL-6 / REL-6: a bug in this Development-only seeding path must not stop the whole
+            // generic host (which also owns Kestrel). Log and let the app keep serving.
+            _logger.LogError(ex, "BulkStudentSeeder: bulk student seeding failed.");
+        }
     }
 }
