@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Extensions;
@@ -129,6 +130,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     /// The token is delivered out-of-band via email — never returned to the caller.
     /// </summary>
     [HttpPost("users/{userId}/force-password-reset")]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<bool>> ForcePasswordReset(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.ForcePasswordResetAsync(userId, (email, token) =>
@@ -176,6 +178,7 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     /// Directly set a new password for any user (admin override, no token email required).
     /// </summary>
     [HttpPost("users/{userId}/set-password")]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<bool>> SetPassword(string userId, [FromBody] AdminSetPasswordDto dto, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.SetPasswordAsync(userId, dto.NewPassword, cancellationToken);

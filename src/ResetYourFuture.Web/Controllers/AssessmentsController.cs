@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Web.Extensions;
@@ -54,6 +55,7 @@ public class AssessmentsController(IAssessmentService assessmentService) : Contr
     /// Submit answers for an assessment.
     /// </summary>
     [HttpPost("{id:guid}/submit")]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<AssessmentSubmissionDto>> SubmitAssessment(Guid id, [FromBody] SubmitAssessmentRequest request, CancellationToken cancellationToken = default)
     {
         var result = await assessmentService.SubmitAssessmentAsync(UserId, id, request, cancellationToken);

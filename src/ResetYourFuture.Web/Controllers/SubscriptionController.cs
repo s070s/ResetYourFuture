@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
 using System.Security.Claims;
@@ -66,6 +67,7 @@ public class SubscriptionController : ControllerBase
     /// </summary>
     [HttpPost("checkout")]
     [Authorize]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<CheckoutSessionDto>> CreateCheckout(
         [FromBody] CreateCheckoutRequest request,
         CancellationToken cancellationToken)
@@ -94,7 +96,9 @@ public class SubscriptionController : ControllerBase
     /// <summary>
     /// Stripe webhook handler.
     /// Verifies the HMAC-SHA256 signature from the Stripe-Signature header before processing.
-    /// If Payment:WebhookSecret is not configured the signature check is skipped (dev/no-Stripe mode).
+    /// Fails closed (SEC-4) when Payment:WebhookSecret is not configured — this endpoint is
+    /// [AllowAnonymous], so skipping verification would let anyone POST a "verified" 200 ack;
+    /// harmless today only because event dispatch below is not yet implemented.
     /// </summary>
     [HttpPost("webhook")]
     [AllowAnonymous]
@@ -109,8 +113,10 @@ public class SubscriptionController : ControllerBase
         var webhookSecret = _configuration["Payment:WebhookSecret"];
         if (string.IsNullOrWhiteSpace(webhookSecret))
         {
-            _logger.LogWarning("Stripe webhook received but Payment:WebhookSecret is not configured — skipping signature check.");
-            return Ok(new StripeWebhookAckDto(true));
+            _logger.LogWarning("Stripe webhook received but Payment:WebhookSecret is not configured — rejecting.");
+            return Problem(
+                detail: "Webhook signing secret is not configured.",
+                statusCode: StatusCodes.Status503ServiceUnavailable);
         }
 
         var signatureHeader = Request.Headers["Stripe-Signature"].ToString();

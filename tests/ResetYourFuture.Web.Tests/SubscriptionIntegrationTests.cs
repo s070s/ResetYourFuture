@@ -68,4 +68,18 @@ public class SubscriptionIntegrationTests : IClassFixture<CustomWebAppFactory>
 
         (await client.GetAsync("/api/subscriptions/billing")).StatusCode.ShouldBe(HttpStatusCode.OK);
     }
+
+    [Fact]
+    public async Task Webhook_NoSigningSecretConfigured_FailsClosed()
+    {
+        // SEC-4: CustomWebAppFactory never sets Payment__WebhookSecret, so this exercises the
+        // "secret unconfigured" branch — it must reject, not silently ack with 200.
+        var client = _factory.CreateClient();
+
+        var response = await client.PostAsync(
+            "/api/subscriptions/webhook",
+            JsonContent.Create(new { type = "checkout.session.completed" }));
+
+        response.StatusCode.ShouldBe(HttpStatusCode.ServiceUnavailable);
+    }
 }

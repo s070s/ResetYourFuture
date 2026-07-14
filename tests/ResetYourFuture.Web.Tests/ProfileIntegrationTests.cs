@@ -45,4 +45,19 @@ public class ProfileIntegrationTests : IClassFixture<CustomWebAppFactory>
         dto!.FirstName.ShouldBe("UpdatedFirst");
         dto.DisplayName.ShouldBe("Nick");
     }
+
+    [Fact]
+    public async Task ChangePassword_ExceedsPerUserRateLimit_Returns429()
+    {
+        // SEC-3: change-password had no back-pressure at all. The limiter counts every request
+        // regardless of body validity, so a wrong CurrentPassword still exhausts the budget.
+        var client = await _factory.CreateAuthenticatedClientAsync("Student");
+        var body = new ChangePasswordRequest("wrong-current-password", "New-Pass-1!");
+
+        HttpResponseMessage? last = null;
+        for (var i = 0; i < 21; i++)
+            last = await client.PostAsJsonAsync("/api/profile/change-password", body);
+
+        last!.StatusCode.ShouldBe(HttpStatusCode.TooManyRequests);
+    }
 }

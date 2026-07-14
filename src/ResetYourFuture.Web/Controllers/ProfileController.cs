@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Shared.Resources.Messages;
@@ -47,6 +48,7 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     /// Upload user avatar.
     /// </summary>
     [HttpPost("avatar")]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<AvatarUploadResultDto>> UploadAvatar(IFormFile file)
     {
         if (file == null || file.Length == 0)
@@ -83,6 +85,7 @@ public class ProfileController(IProfileService profileService) : ControllerBase
     /// Change password.
     /// </summary>
     [HttpPost("change-password")]
+    [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<bool>> ChangePassword([FromBody] ChangePasswordRequest request)
     {
         var result = await profileService.ChangePasswordAsync(UserId, request);

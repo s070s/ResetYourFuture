@@ -203,6 +203,22 @@ public static class ServiceRegistrationExtensions
                         QueueLimit = 0
                     });
             });
+            // SEC-3: default per-user limiter for authenticated, state-changing endpoints that
+            // had no back-pressure at all (password change/reset, avatar upload, checkout,
+            // assessment submission). Per-user (like "assistant"), not global (like "auth") —
+            // these are individual account actions, so a shared bucket would let one user's
+            // burst lock out everyone else's legitimate change-password/checkout calls.
+            options.AddPolicy("sensitive", httpContext =>
+            {
+                var userId = httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                return System.Threading.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(userId, _ =>
+                    new System.Threading.RateLimiting.FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 20,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    });
+            });
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
 
