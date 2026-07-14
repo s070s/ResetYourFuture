@@ -32,8 +32,10 @@ public class AssessmentDefinitionConfiguration : IEntityTypeConfiguration<Assess
         builder.Property(a => a.DescriptionEl)
             .HasMaxLength(1000);
 
+        // DB-8: was unbounded nvarchar(max); capped generously for a hand-authored schema.
         builder.Property(a => a.SchemaJson)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(100_000);
 
         // RequiredTier stored as int
         builder.Property(a => a.RequiredTier)

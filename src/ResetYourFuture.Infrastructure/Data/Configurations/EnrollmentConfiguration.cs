@@ -17,8 +17,10 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
         builder.Property(e => e.Status)
             .HasConversion<int>();
 
-        // Progress stored as JSON (flexible schema)
-        builder.Property(e => e.ProgressJson);
+        // Progress stored as JSON (flexible schema). DB-8: was unbounded nvarchar(max); capped
+        // (currently unused/unwritten — bound is precautionary for when it is).
+        builder.Property(e => e.ProgressJson)
+            .HasMaxLength(20_000);
 
         // Relationship: Enrollment belongs to a User
         builder.HasOne(e => e.User)

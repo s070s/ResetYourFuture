@@ -40,6 +40,10 @@ public class BlogArticleConfiguration : IEntityTypeConfiguration<BlogArticle>
             .IsRequired()
             .HasMaxLength(100);
 
+        // DB-8: was unbounded nvarchar(max); a JSON-serialized string[] of short tags.
+        builder.Property(a => a.Tags)
+            .HasMaxLength(2_000);
+
         builder.Property(a => a.IsPublished)
             .HasDefaultValue(false);
 

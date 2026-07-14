@@ -20,11 +20,16 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.NameEl)
             .HasMaxLength(100);
 
-        // Not a unique DB index: uniqueness is enforced case-insensitively at the
-        // service layer (see AdminCategoryService), since a filtered unique index
-        // (excluding soft-deleted rows) would require provider-specific SQL that
-        // breaks the SQLite test provider.
-        builder.HasIndex(c => c.NameEn);
+        // DB-5: filtered unique index excluding soft-deleted rows, mirroring
+        // UserSubscriptionConfiguration's IsActive-filtered index — SQLite (the test provider)
+        // supports this same HasFilter syntax fine, so the earlier "breaks SQLite" rationale for
+        // relying on the service-layer check alone didn't hold. Case-insensitivity comes from
+        // SQL Server's default CI collation; AdminCategoryService's check stays for a friendly
+        // error message instead of a raw DbUpdateException.
+        builder.HasIndex(c => c.NameEn)
+            .HasFilter("[IsDeleted] = 0")
+            .IsUnique()
+            .HasDatabaseName("IX_Categories_NameEn_Unique");
 
         // Relationships configured in CourseConfiguration/AssessmentDefinitionConfiguration (dependent side)
     }

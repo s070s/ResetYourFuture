@@ -32,10 +32,11 @@ public class SubscriptionPlanConfiguration : IEntityTypeConfiguration<Subscripti
         builder.Property(sp => sp.Tier)
             .HasConversion<int>();
 
-        // Features stored as JSON (flexible schema for limits/flags)
-        // Leave provider-specific column type unspecified so EF maps to the
-        // appropriate database type (TEXT for SQLite, nvarchar(max) for SQL Server).
-        builder.Property(sp => sp.FeaturesJson);
+        // Features stored as JSON (flexible schema for limits/flags). DB-8: capped — only ever
+        // written by SubscriptionPlanSeeder from a fixed, small PlanFeaturesDto, so 2000 chars
+        // leaves generous headroom without being unbounded.
+        builder.Property(sp => sp.FeaturesJson)
+            .HasMaxLength(2_000);
 
         // Index for querying active plans
         builder.HasIndex(sp => sp.IsActive);

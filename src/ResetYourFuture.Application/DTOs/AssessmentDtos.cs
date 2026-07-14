@@ -34,7 +34,8 @@ public record SaveAssessmentDefinitionRequest(
     [MaxLength(200)] string? TitleEl,
     [MaxLength(1000)] string? DescriptionEn,
     [MaxLength(1000)] string? DescriptionEl,
-    [Required] string SchemaJson,
+    // DB-8: matches AssessmentDefinitionConfiguration's column MaxLength(100_000).
+    [Required, MaxLength(100_000)] string SchemaJson,
     Guid? CategoryId = null,
     [MaxLength(100)] string? NewCategoryName = null
 );

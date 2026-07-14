@@ -144,4 +144,56 @@ public class ApplicationDbContextTests
         (await db.Enrollments.CountAsync()).ShouldBe(0);
         (await db.Enrollments.IgnoreQueryFilters().CountAsync()).ShouldBe(1);
     }
+
+    [Fact]
+    public async Task CategoryNameEn_Duplicate_ThrowsOnSave()
+    {
+        // DB-5: the filtered unique index is a DB-level backstop to the racy
+        // check-then-insert in AdminCategoryService — verify it actually exists and fires,
+        // against SQLite (the same provider the earlier "breaks SQLite" rationale doubted).
+        await using var db = ResetYourFuture.TestSupport.DbContextFactory.CreateSqlite();
+        db.Categories.Add(new Category { Id = Guid.NewGuid(), NameEn = "Career" });
+        await db.SaveChangesAsync();
+
+        db.Categories.Add(new Category { Id = Guid.NewGuid(), NameEn = "Career" });
+        await Should.ThrowAsync<DbUpdateException>(() => db.SaveChangesAsync());
+    }
+
+    [Fact]
+    public async Task CategoryNameEn_DuplicateButOneSoftDeleted_Allowed()
+    {
+        // The filter is `[IsDeleted] = 0` — a soft-deleted category must not block reusing
+        // its name for a new, active one.
+        await using var db = ResetYourFuture.TestSupport.DbContextFactory.CreateSqlite();
+        db.Categories.Add(new Category { Id = Guid.NewGuid(), NameEn = "Career", IsDeleted = true });
+        await db.SaveChangesAsync();
+
+        db.Categories.Add(new Category { Id = Guid.NewGuid(), NameEn = "Career" });
+        await db.SaveChangesAsync();
+
+        (await db.Categories.IgnoreQueryFilters().CountAsync(c => c.NameEn == "Career")).ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task DateTimeProperty_MaterializesWithUtcKind()
+    {
+        // DB-6: was Kind=Unspecified on read (only *.UtcNow-by-convention, nothing pinned the
+        // Kind on materialization) — a fresh context instance re-reading a persisted row is the
+        // only way to prove the converter runs on read, not just echoes back the in-memory value.
+        var dbName = Guid.NewGuid().ToString("N");
+        Guid courseId;
+        await using (var db = CtxWithUser("u", dbName))
+        {
+            var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+            courseId = course.Id;
+            db.Courses.Add(course);
+            db.Enrollments.Add(new Enrollment { Id = Guid.NewGuid(), UserId = "u1", CourseId = course.Id });
+            await db.SaveChangesAsync();
+        }
+
+        await using var freshDb = CtxWithUser("u", dbName);
+        var enrollment = await freshDb.Enrollments.AsNoTracking().FirstAsync(e => e.CourseId == courseId);
+
+        enrollment.EnrolledAt.Kind.ShouldBe(DateTimeKind.Utc);
+    }
 }

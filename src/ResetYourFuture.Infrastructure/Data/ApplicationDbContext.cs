@@ -162,12 +162,42 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
             entity.Property(u => u.FirstName).HasMaxLength(100);
             entity.Property(u => u.LastName).HasMaxLength(100);
 
+            // DB-8: both were unbounded nvarchar(max). DisplayName matches
+            // UpdateProfileRequest's DTO MaxLength(100); AvatarPath is a server-generated
+            // relative file path, never user-supplied free text.
+            entity.Property(u => u.DisplayName).HasMaxLength(100);
+            entity.Property(u => u.AvatarPath).HasMaxLength(500);
+
             // Indexes for server-side sorting performance
             entity.HasIndex(u => u.Email).HasDatabaseName("IX_AspNetUsers_Email");
             entity.HasIndex(u => u.FirstName).HasDatabaseName("IX_AspNetUsers_FirstName");
             entity.HasIndex(u => u.LastName).HasDatabaseName("IX_AspNetUsers_LastName");
             entity.HasIndex(u => u.CreatedAt).HasDatabaseName("IX_AspNetUsers_CreatedAt");
         });
+
+        // DB-6: the DateTimeOffset group already round-trips Kind-safely by construction; this
+        // model-wide sweep does the same for the DateTime group (Enrollment, Certificate,
+        // BillingTransaction, UserSubscription, ChatMessage/ChatConversation, CallSession,
+        // CallParticipant, ApplicationUser timestamps). Column type is unchanged (still
+        // datetime2) — this only fixes materialization, which previously left Kind=Unspecified
+        // and broke ToLocalTime()/ToUniversalTime() and "Z"-suffixed JSON serialization.
+        var utcDateTimeConverter = new ValueConverter<DateTime, DateTime>(
+            v => v,
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        var utcNullableDateTimeConverter = new ValueConverter<DateTime?, DateTime?>(
+            v => v,
+            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime))
+                    property.SetValueConverter(utcDateTimeConverter);
+                else if (property.ClrType == typeof(DateTime?))
+                    property.SetValueConverter(utcNullableDateTimeConverter);
+            }
+        }
 
         // Global soft-delete filter for all AuditableEntity subtypes
         foreach (var entityType in builder.Model.GetEntityTypes())
