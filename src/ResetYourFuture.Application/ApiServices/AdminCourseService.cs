@@ -117,6 +117,8 @@ public class AdminCourseService(
     {
         var course = await db.Courses
             .Include(c => c.Enrollments)
+            .Include(c => c.Modules)
+            .ThenInclude(m => m.Lessons)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
         if (course is null)
@@ -125,14 +127,38 @@ public class AdminCourseService(
         // Soft-delete the course so students retain access to their earned certificates.
         // The global IsDeleted query filter will hide the course and its enrollments
         // from all normal queries while leaving certificate records intact.
+        var now = DateTimeOffset.UtcNow;
         course.IsDeleted = true;
-        course.DeletedAt = DateTimeOffset.UtcNow;
+        course.DeletedAt = now;
         course.UpdatedByUserId = userId;
+
+        // DB-4: soft-deleting a course previously left its Modules/Lessons with IsDeleted=false —
+        // still live rows, still readable/editable via the admin module/lesson endpoints directly
+        // by id, even though the parent course was gone from every course-scoped view. Cascade
+        // the same stamp to every module and lesson so "deleted" means the same thing everywhere.
+        var moduleCount = 0;
+        var lessonCount = 0;
+        foreach (var module in course.Modules)
+        {
+            module.IsDeleted = true;
+            module.DeletedAt = now;
+            module.UpdatedByUserId = userId;
+            moduleCount++;
+
+            foreach (var lesson in module.Lessons)
+            {
+                lesson.IsDeleted = true;
+                lesson.DeletedAt = now;
+                lesson.UpdatedByUserId = userId;
+                lessonCount++;
+            }
+        }
 
         await db.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Admin {UserId} soft-deleted course {CourseId} with {Enrollments} enrollment(s)",
-            userId, id, course.Enrollments.Count);
+        logger.LogInformation(
+            "Admin {UserId} soft-deleted course {CourseId} with {Enrollments} enrollment(s), {Modules} module(s), {Lessons} lesson(s)",
+            userId, id, course.Enrollments.Count, moduleCount, lessonCount);
 
         return true;
     }

@@ -152,6 +152,33 @@ public class AdminCourseServiceTests
     }
 
     [Fact]
+    public async Task DeleteCourse_CascadesSoftDeleteToModulesAndLessons()
+    {
+        // DB-4: a soft-deleted course's modules/lessons used to stay IsDeleted=false — still
+        // live, still directly readable/editable via the admin module/lesson endpoints even
+        // though the parent course was gone from every course-scoped view.
+        await using var db = DbContextFactory.CreateInMemory();
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+        var module = new Module { Id = Guid.NewGuid(), TitleEn = "M", CourseId = course.Id };
+        var lesson1 = new Lesson { Id = Guid.NewGuid(), TitleEn = "L1" };
+        var lesson2 = new Lesson { Id = Guid.NewGuid(), TitleEn = "L2" };
+        module.Lessons.Add(lesson1);
+        module.Lessons.Add(lesson2);
+        course.Modules.Add(module);
+        db.Courses.Add(course);
+        await db.SaveChangesAsync();
+
+        (await NewService(db).DeleteCourseAsync(course.Id, Admin)).ShouldBeTrue();
+
+        var reloadedModule = await db.Modules.IgnoreQueryFilters().SingleAsync(m => m.Id == module.Id);
+        reloadedModule.IsDeleted.ShouldBeTrue();
+        reloadedModule.DeletedAt.ShouldNotBeNull();
+        (await db.Lessons.IgnoreQueryFilters().Where(l => l.IsDeleted).CountAsync()).ShouldBe(2);
+        (await db.Modules.CountAsync()).ShouldBe(0); // hidden by the soft-delete filter now
+        (await db.Lessons.CountAsync()).ShouldBe(0);
+    }
+
+    [Fact]
     public async Task PublishCourse_SetsPublished()
     {
         await using var db = DbContextFactory.CreateInMemory();
