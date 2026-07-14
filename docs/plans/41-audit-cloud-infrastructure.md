@@ -17,23 +17,15 @@ Read: `src/ResetYourFuture.Web/Startup/ServiceRegistrationExtensions.cs` (DataPr
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 2 |
+| Medium | 0 |
 | Low | 4 |
 | Info | 1 |
 
-Overall: the project is a deliberate single-Windows-machine development artifact, and — to its credit — it *knows* it: the DataProtection registration carries an accurate in-code NOTE about multi-instance and ephemeral-host breakage, storage is behind an `IFileStorage` interface, email is behind `IEmailService` with a real SMTP implementation ready, and the AI dependency is a cleanly isolated localhost sidecar that is off by default. Nothing here is broken in the app's actual usage, so nothing rates above Medium. The two Medium findings are the ones that would sting *immediately* on any real host: every stateful surface (DB, uploads, keys, logs) lives in the application folder on one machine, and the app assumes it terminates TLS itself — put it behind any reverse proxy and scheme detection, HTTPS redirects, and Secure cookies misbehave because forwarded headers are never processed.
+Overall: the project is a deliberate single-Windows-machine development artifact, and — to its credit — it *knows* it: storage is behind an `IFileStorage` interface, email is behind `IEmailService` with a real SMTP implementation ready, and the AI dependency is a cleanly isolated localhost sidecar that is off by default. Both Medium findings are now resolved: the app processes `X-Forwarded-Proto`/`X-Forwarded-For` so it works behind a TLS-terminating reverse proxy (CLOUD-2), and the two remaining on-disk state locations — uploads and logs — are relocatable outside the deploy folder via config (CLOUD-1), joining the database and DataProtection key ring which already live in SQL Server (SCALE-4). A blob-storage `IFileStorage` implementation is still only needed when leaving a single VM (out of scope). What remains is four Low items and one Info.
 
 ## 3. Findings
 
-### CLOUD-1: Every stateful surface is machine-local, most of it inside the application folder  [Medium] [Effort: L]
-- **Evidence:** Database: LocalDB connection (`appsettings.Development.json:9`), production string blank-by-design (`appsettings.json:17-19`). Uploads: `LocalFileStorage` writes to `<ContentRoot>/App_Data/Uploads` (`Infrastructure/ApiServices/LocalFileStorage.cs:38`). DataProtection key ring: `<ContentRoot>/DataProtection-Keys` (`ServiceRegistrationExtensions.cs:178-181`, with its own NOTE at 171-177 admitting this breaks on multi-instance/ephemeral hosts). Logs: `Logs/` relative directory (`Program.cs:12`). All four paths are gitignored siblings of the binaries.
-- **Impact:** A minimal real deployment must relocate four kinds of state at once; forgetting any one produces a distinct failure (lost uploads on redeploy, all users signed out and impersonation/auth-completion tickets invalidated when the key ring vanishes, logs wiped). Because state lives *inside* the deploy folder, the natural "delete and re-copy" update procedure is destructive (procedure → OPS in report 42; scale-out variant → report 35).
-- **Recommendation:** Minimal single-VM path, in dependency order: (1) SQL Server (container or managed) via `ConnectionStrings__DefaultConnection`; (2) move `App_Data` and `Logs` to paths *outside* the deploy folder (both are already configurable-in-principle: `LocalFileStorage` base and `AddFileLogger` argument — make them config keys); (3) `PersistKeysToFileSystem` to a durable non-deploy path (or DB via `PersistKeysToDbContext`); (4) blob-storage `IFileStorage` implementation only when leaving a single VM.
-
-### CLOUD-2: No forwarded-headers handling — the app assumes it terminates TLS itself  [Medium] [Effort: S]
-- **Evidence:** Zero `UseForwardedHeaders`/`ForwardedHeadersOptions` in `src/` (verified search). Meanwhile the pipeline hard-depends on correct scheme detection: `app.UseHttpsRedirection()` (`Program.cs:68`), `UseHsts()` in non-Development (`Program.cs:70-74`), `CookieSecurePolicy.Always` in non-Development (`AuthenticationSetupExtensions.cs:98-100`).
-- **Impact:** Behind any TLS-terminating reverse proxy (nginx, Caddy, IIS ARR, a cloud load balancer) requests arrive as `http`; the app then issues redirect loops via HTTPS redirection and refuses to send the Secure auth cookie — total login breakage that looks like a mysterious cookie bug. This is the classic first-hour-of-deployment failure for this stack.
-- **Recommendation:** Either set `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` (zero code; enables the default X-Forwarded-For/Proto processing) and document it in the production checklist, or add explicit `UseForwardedHeaders` with `KnownProxies` configuration before `UseHttpsRedirection`. Pair with a documented sample nginx/Caddy block (OPS runbook territory).
+> The two Medium findings (CLOUD-1 machine-local state, CLOUD-2 forwarded headers) are resolved — see git (`Fix CLOUD-1 and CLOUD-2`). CLOUD-1's blob-storage variant stays out of scope (only needed off a single VM). The remaining open items are four Low and one Info.
 
 ### CLOUD-3: DataProtection at-rest encryption is Windows-only; Linux hosts get plaintext keys silently  [Low] [Effort: S]
 - **Evidence:** `ServiceRegistrationExtensions.cs:183-186` — `if (OperatingSystem.IsWindows()) dpBuilder.ProtectKeysWithDpapi();` with a comment telling future maintainers to use a certificate/KeyVault on Linux, but no enforcement: on Linux the condition simply skips protection and the key ring is stored unencrypted, with no warning logged.
@@ -62,10 +54,10 @@ Overall: the project is a deliberate single-Windows-machine development artifact
 
 ## 4. Prioritized Action List
 
+Both Medium items (CLOUD-1, CLOUD-2) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| CLOUD-2 | Medium | S | Enable forwarded-headers processing; document reverse-proxy assumption |
-| CLOUD-1 | Medium | L | Externalize state: SQL Server, out-of-deploy-folder App_Data/Logs/keys, then blob storage when >1 host |
 | CLOUD-3 | Low | S | Warn loudly when DataProtection keys persist unencrypted; cert-based protection from config |
 | CLOUD-6 | Low | S | Choose and document the TLS termination story |
 | CLOUD-4 | Low | M | Document the Ollama sidecar topology and loopback-only constraint |
