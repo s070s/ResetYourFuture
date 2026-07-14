@@ -27,6 +27,6 @@ public class SiteSettingsIntegrationTests : IClassFixture<CustomWebAppFactory>
             { new ByteArrayContent( new byte[] { 1, 2, 3 } ), "file", "bg.png" }
         };
 
-        (await client.PostAsync("/api/site/admin/background-image", content)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+        (await client.PostAsync("/api/admin/site/background-image", content)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 }

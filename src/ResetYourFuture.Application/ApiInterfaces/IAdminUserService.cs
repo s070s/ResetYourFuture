@@ -15,7 +15,6 @@ public interface IAdminUserService
     Task<ServiceResult<string>> RemoveRoleAsync(string userId, string roleName, CancellationToken cancellationToken = default);
     Task<List<string?>> GetRolesAsync(CancellationToken cancellationToken = default);
     Task<ServiceResult<string>> CreateRoleAsync(string roleName, CancellationToken cancellationToken = default);
-    Task<ServiceResult<UserEnabledStateDto>> ToggleEnableAsync(string userId, CancellationToken cancellationToken = default);
     Task<ServiceResult<string>> DeleteUserAsync(string userId, CancellationToken cancellationToken = default);
     Task<IEnumerable<AdminUserSearchResultDto>> SearchUsersAsync(string query, CancellationToken cancellationToken = default);
 

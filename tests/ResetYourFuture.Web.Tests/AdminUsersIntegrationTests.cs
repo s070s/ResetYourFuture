@@ -57,11 +57,11 @@ public class AdminUsersIntegrationTests : IClassFixture<CustomWebAppFactory>
     }
 
     [Fact]
-    public async Task ToggleEnable_Unknown_Returns404()
+    public async Task DisableUser_Unknown_Returns404()
     {
         var client = await _factory.CreateAuthenticatedClientAsync("Admin");
 
-        var response = await client.PostAsync("/api/admin/users/does-not-exist/toggle-enable", content: null);
+        var response = await client.PostAsync("/api/admin/users/does-not-exist/disable", content: null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
     }

@@ -92,23 +92,16 @@ public class AdminController(IAdminUserService adminUserService) : ControllerBas
     }
 
     /// <summary>
-    /// Toggle IsEnabled for a user.
-    /// </summary>
-    [HttpPost("users/{userId}/toggle-enable")]
-    public async Task<ActionResult<UserEnabledStateDto>> ToggleEnable(string userId, CancellationToken cancellationToken = default)
-    {
-        var result = await adminUserService.ToggleEnableAsync(userId, cancellationToken);
-        return result.ToActionResult(this);
-    }
-
-    /// <summary>
     /// Delete user (GDPR data deletion). Soft-delete recommended for production.
     /// </summary>
     [HttpDelete("users/{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult<string>> DeleteUser(string userId, CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.DeleteUserAsync(userId, cancellationToken);
-        return result.ToActionResult(this);
+        // API-8: every other DELETE in the codebase returns 204; this one used to return
+        // 200 + a bare "User deleted." string.
+        return result.IsSuccess ? NoContent() : result.ToActionResult(this);
     }
 
     /// <summary>

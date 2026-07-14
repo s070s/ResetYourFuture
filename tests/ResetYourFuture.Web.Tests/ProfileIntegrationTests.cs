@@ -84,7 +84,8 @@ public class ProfileIntegrationTests : IClassFixture<CustomWebAppFactory>
 
         var response = await client.DeleteAsync("/api/profile");
 
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        // API-8: DELETE returns 204, matching every other DELETE in the codebase.
+        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await client.GetAsync("/api/profile")).StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 

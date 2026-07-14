@@ -159,7 +159,7 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 |--------|-------|-------------|------|
 | `GET` | `api/profile` | Get current user's profile | Yes |
 | `PUT` | `api/profile` | Update profile | Yes |
-| `DELETE` | `api/profile` | Delete own account (GDPR erasure) | Yes |
+| `DELETE` | `api/profile` | Delete own account (GDPR erasure); returns `204 No Content` | Yes |
 | `GET` | `api/profile/export` | Download own data (GDPR access/portability) | Yes |
 | `POST` | `api/profile/avatar` | Upload avatar | Yes |
 | `GET` | `api/profile/avatar` | Get avatar | Yes |
@@ -254,7 +254,7 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
 | `GET` | `api/site/background-image` | Landing page background image | No |
-| `POST` | `api/site/admin/background-image` | Upload landing page background image | Admin |
+| `POST` | `api/admin/site/background-image` | Upload landing page background image (lives under `api/admin/*` like every other admin-only surface) | Admin |
 
 ### Media — `api/media`
 
@@ -273,10 +273,9 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 | `DELETE` | `api/admin/users/{userId}/roles/{roleName}` | Remove role | Admin |
 | `GET` | `api/admin/roles` | List all roles | Admin |
 | `POST` | `api/admin/roles/{roleName}` | Create role | Admin |
-| `POST` | `api/admin/users/{userId}/toggle-enable` | Toggle enabled/disabled | Admin |
 | `POST` | `api/admin/users/{userId}/disable` | Disable user | Admin |
 | `POST` | `api/admin/users/{userId}/enable` | Enable user | Admin |
-| `DELETE` | `api/admin/users/{userId}` | Delete user | Admin |
+| `DELETE` | `api/admin/users/{userId}` | Delete user; returns `204 No Content` | Admin |
 | `POST` | `api/admin/users/{userId}/force-password-reset` | Force password reset — emails reset link to user; returns `204 No Content` | Admin |
 | `POST` | `api/admin/users/{userId}/set-password` | Directly set password | Admin |
 | `POST` | `api/admin/users/{userId}/impersonate` | Generate temporary JWT as that user | Admin |

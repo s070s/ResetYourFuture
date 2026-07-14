@@ -63,7 +63,10 @@ public class SiteSettingsController : ControllerBase
     /// <summary>
     /// Upload landing page background image (admin only).
     /// </summary>
-    [HttpPost("admin/background-image")]
+    // API-8: lives under api/admin/* like every other admin-only surface, instead of
+    // api/site/admin/* (the one outlier the SEC "everything admin lives under /api/admin"
+    // review heuristic used to miss).
+    [HttpPost("~/api/admin/site/background-image")]
     public async Task<IActionResult> UploadBackgroundImage(IFormFile file)
     {
         if (file == null || file.Length == 0)

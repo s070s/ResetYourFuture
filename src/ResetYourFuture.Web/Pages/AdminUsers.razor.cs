@@ -191,12 +191,17 @@ public partial class AdminUsers : IAsyncDisposable
         }
     }
 
-    private async Task ToggleEnable(string userId)
+    private async Task SetUserEnabled(string userId, bool enable)
     {
         try
         {
-            var result = await UserConsumer.ToggleEnableAsync(userId);
-            if (result.HasValue)
+            // API-8: the row already knows the target state (that's how it chose which
+            // button to show), so this calls the idempotent enable/disable endpoint
+            // directly instead of a toggle that two concurrent admins could race.
+            var success = enable
+                ? await UserConsumer.EnableUserAsync(userId)
+                : await UserConsumer.DisableUserAsync(userId);
+            if (success)
             {
                 await LoadUsers();
                 message = AdminRes.UserStatusToggled;

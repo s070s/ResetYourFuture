@@ -162,24 +162,6 @@ public class AdminUserService(
         return ServiceResult<string>.Ok($"Role '{roleName}' created.");
     }
 
-    public async Task<ServiceResult<UserEnabledStateDto>> ToggleEnableAsync(string userId, CancellationToken cancellationToken = default)
-    {
-        var user = await userManager.FindByIdAsync(userId);
-        if (user == null)
-            return ServiceResult<UserEnabledStateDto>.NotFound(error: "User not found.");
-
-        if (await userManager.IsInRoleAsync(user, "Admin"))
-            return ServiceResult<UserEnabledStateDto>.BadRequest(error: "Admin accounts cannot be disabled.");
-
-        user.IsEnabled = !user.IsEnabled;
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded)
-            return ServiceResult<UserEnabledStateDto>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
-
-        logger.LogInformation("Admin toggled IsEnabled to {IsEnabled} for user {UserId}", user.IsEnabled, userId);
-        return ServiceResult<UserEnabledStateDto>.Ok(new UserEnabledStateDto(user.IsEnabled));
-    }
-
     public async Task<ServiceResult<string>> DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
         var user = await userManager.FindByIdAsync(userId);

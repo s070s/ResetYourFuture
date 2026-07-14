@@ -41,9 +41,6 @@ public record AdminUserSearchResultDto(
     bool EmailConfirmed,
     IReadOnlyList<string> Roles);
 
-/// <summary>Result of toggling a user's enabled state.</summary>
-public record UserEnabledStateDto(bool IsEnabled);
-
 /// <summary>Result of uploading a blog article cover image.</summary>
 public record BlogCoverUploadResultDto(string CoverImageUrl);
 

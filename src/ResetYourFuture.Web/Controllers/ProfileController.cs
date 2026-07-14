@@ -101,10 +101,12 @@ public class ProfileController(IProfileService profileService, IAdminUserService
     /// </summary>
     [HttpDelete]
     [EnableRateLimiting("sensitive")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult<string>> DeleteAccount(CancellationToken cancellationToken = default)
     {
         var result = await adminUserService.DeleteUserAsync(UserId, cancellationToken);
-        return result.ToActionResult(this);
+        // API-8: every other DELETE in the codebase returns 204.
+        return result.IsSuccess ? NoContent() : result.ToActionResult(this);
     }
 
     /// <summary>

@@ -22,17 +22,6 @@ public class AdminUserConsumer(HttpClient http, ResetYourFuture.Web.Services.Api
     public Task<AdminUserDto?> GetUserAsync(string userId)
         => GetAsync<AdminUserDto>($"api/admin/users/{userId}");
 
-    public async Task<bool?> ToggleEnableAsync(string userId)
-    {
-        await EnsureAuthorizationAsync();
-        var response = await Http.PostAsync($"api/admin/users/{userId}/toggle-enable", null);
-        if (!response.IsSuccessStatusCode)
-            return null;
-
-        var result = await response.Content.ReadFromJsonAsync<ToggleEnableResponse>();
-        return result?.IsEnabled;
-    }
-
     public Task<bool> DeleteUserAsync(string userId)
         => DeleteAsync($"api/admin/users/{userId}");
 
@@ -70,6 +59,5 @@ public class AdminUserConsumer(HttpClient http, ResetYourFuture.Web.Services.Api
     public async Task<List<string>> GetRolesAsync()
         => await GetAsync<List<string>>("api/admin/roles") ?? [];
 
-    private record ToggleEnableResponse(bool IsEnabled);
     private record ForcePasswordResetResponse(string UserId, string ResetToken);
 }
