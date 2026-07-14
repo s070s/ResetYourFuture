@@ -12,7 +12,9 @@
         <div class="alert alert-danger">@_error</div>
     }
 
-    <div class="row g-3" style="max-width: 700px;">
+    <UnsavedChangesGuard IsDirty="_isDirty" />
+
+    <div class="row g-3" style="max-width: 700px;" @oninput="MarkDirty" @onchange="MarkDirty">
 
         <div class="col-12">
             <label class="form-label" for="t-fullname">@AdminRes.FieldFullName <span class="text-danger" aria-hidden="true">*</span></label>

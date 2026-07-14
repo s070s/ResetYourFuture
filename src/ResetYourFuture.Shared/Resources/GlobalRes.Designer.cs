@@ -544,7 +544,43 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Cancel", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Unsaved Changes.
+        /// </summary>
+        public static string UnsavedChangesTitle {
+            get {
+                return ResourceManager.GetString("UnsavedChangesTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You have unsaved changes. Are you sure you want to leave this page?.
+        /// </summary>
+        public static string UnsavedChangesMessage {
+            get {
+                return ResourceManager.GetString("UnsavedChangesMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Discard Changes.
+        /// </summary>
+        public static string DiscardChanges {
+            get {
+                return ResourceManager.GetString("DiscardChanges", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Keep Editing.
+        /// </summary>
+        public static string KeepEditing {
+            get {
+                return ResourceManager.GetString("KeepEditing", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Previous.
         /// </summary>

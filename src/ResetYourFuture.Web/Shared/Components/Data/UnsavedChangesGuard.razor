@@ -1,0 +1,50 @@
+@* UX-9: warns before losing unsaved edits. ConfirmExternalNavigation covers full page
+   reload/close (native browser prompt); OnBeforeInternalNavigation covers in-app SPA
+   navigation, where we show the themed ConfirmModal instead of the browser's. *@
+
+<NavigationLock ConfirmExternalNavigation="IsDirty" OnBeforeInternalNavigation="OnBeforeInternalNavigation" />
+
+<ConfirmModal IsVisible="_showConfirm"
+              Title="@GlobalRes.UnsavedChangesTitle"
+              Message="@GlobalRes.UnsavedChangesMessage"
+              ConfirmLabel="@GlobalRes.DiscardChanges"
+              CancelLabel="@GlobalRes.KeepEditing"
+              ConfirmButtonClass="btn-danger"
+              OnConfirm="ConfirmNavigation"
+              OnCancel="CancelNavigation" />
+
+@code {
+    [Parameter, EditorRequired] public bool IsDirty { get; set; }
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private bool _showConfirm;
+    private string? _pendingTarget;
+    private bool _bypassNextCheck;
+
+    private void OnBeforeInternalNavigation(LocationChangingContext context)
+    {
+        if (_bypassNextCheck || !IsDirty)
+        {
+            _bypassNextCheck = false;
+            return;
+        }
+
+        _pendingTarget = context.TargetLocation;
+        _showConfirm = true;
+        context.PreventNavigation();
+    }
+
+    private void ConfirmNavigation()
+    {
+        _showConfirm = false;
+        _bypassNextCheck = true;
+        if (_pendingTarget is not null)
+            Nav.NavigateTo(_pendingTarget);
+    }
+
+    private void CancelNavigation()
+    {
+        _showConfirm = false;
+        _pendingTarget = null;
+    }
+}

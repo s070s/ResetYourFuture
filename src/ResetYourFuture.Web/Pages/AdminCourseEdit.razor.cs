@@ -31,6 +31,9 @@ public partial class AdminCourseEdit
     private bool isSaving;
     private string message = string.Empty;
     private string messageType = "success";
+    private bool _isDirty;
+
+    private void MarkDirty() => _isDirty = true;
 
     // Delete confirmation state
     private Guid? _pendingDeleteModuleId;
@@ -79,6 +82,7 @@ public partial class AdminCourseEdit
         lessonsMap = new();
         expandedModules = new();
         message = string.Empty;
+        _isDirty = false;
 
         await LoadCategories();
 
@@ -219,6 +223,7 @@ public partial class AdminCourseEdit
                 var created = await CourseConsumer.CreateCourseAsync(request);
                 if (created is not null)
                 {
+                    _isDirty = false;
                     Nav.NavigateTo($"/admin/courses/{created.Id}");
                     return;
                 }
@@ -234,6 +239,7 @@ public partial class AdminCourseEdit
                     await LoadCategories();
                     message = AdminRes.CourseSaved;
                     messageType = "success";
+                    _isDirty = false;
                 }
                 else
                 {

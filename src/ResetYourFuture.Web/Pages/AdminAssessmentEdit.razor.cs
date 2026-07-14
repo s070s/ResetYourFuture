@@ -26,6 +26,9 @@ public partial class AdminAssessmentEdit
     private bool isSaving;
     private string message = string.Empty;
     private string messageType = "danger";
+    private bool _isDirty;
+
+    private void MarkDirty() => _isDirty = true;
 
     private string assessmentKey = string.Empty;
     private string assessmentTitleEn = string.Empty;
@@ -52,6 +55,7 @@ public partial class AdminAssessmentEdit
             await LoadAssessment();
         }
         loading = false;
+        _isDirty = false;
     }
 
     private async Task LoadCategories()
@@ -210,6 +214,7 @@ public partial class AdminAssessmentEdit
         var q = new QuestionModel { Id = $"q{nextNum}" };
         questions.Add(q);
         _expandedQuestions.Add(q.TempId);
+        _isDirty = true;
     }
 
     private void RemoveQuestion(int index)
@@ -218,6 +223,7 @@ public partial class AdminAssessmentEdit
         {
             _expandedQuestions.Remove(questions[index].TempId);
             questions.RemoveAt(index);
+            _isDirty = true;
         }
     }
 
@@ -233,6 +239,7 @@ public partial class AdminAssessmentEdit
         if (newIndex < 0 || newIndex >= questions.Count)
             return;
         (questions[index], questions[newIndex]) = (questions[newIndex], questions[index]);
+        _isDirty = true;
     }
 
     private async Task SaveAssessment()
@@ -272,7 +279,10 @@ public partial class AdminAssessmentEdit
                 result = await AssessmentConsumer.UpdateAssessmentAsync(AssessmentId, request);
 
             if (result is not null)
+            {
+                _isDirty = false;
                 Nav.NavigateTo("/admin/assessments");
+            }
             else
                 message = AdminRes.AssessmentSaveFailed;
         }

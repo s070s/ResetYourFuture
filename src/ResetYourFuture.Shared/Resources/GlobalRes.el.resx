@@ -279,6 +279,18 @@
   <data name="Cancel" xml:space="preserve">
     <value>Άκυρο</value>
   </data>
+  <data name="UnsavedChangesTitle" xml:space="preserve">
+    <value>Μη αποθηκευμένες αλλαγές</value>
+  </data>
+  <data name="UnsavedChangesMessage" xml:space="preserve">
+    <value>Έχετε μη αποθηκευμένες αλλαγές. Είστε σίγουροι ότι θέλετε να φύγετε από αυτή τη σελίδα;</value>
+  </data>
+  <data name="DiscardChanges" xml:space="preserve">
+    <value>Απόρριψη Αλλαγών</value>
+  </data>
+  <data name="KeepEditing" xml:space="preserve">
+    <value>Συνέχιση Επεξεργασίας</value>
+  </data>
   <data name="Previous" xml:space="preserve">
     <value>Προηγούμενο</value>
   </data>

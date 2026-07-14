@@ -17,6 +17,9 @@ public partial class AdminTestimonialEditor
     private bool _isEditMode => Id.HasValue;
     private bool _isBusy;
     private string? _error;
+    private bool _isDirty;
+
+    private void MarkDirty() => _isDirty = true;
 
     // Form fields
     private string _fullName = string.Empty;
@@ -54,6 +57,8 @@ public partial class AdminTestimonialEditor
                 _avatarPreviewUrl = BuildPreviewUrl(item.AvatarPath);
             }
         }
+
+        _isDirty = false;
     }
 
     private async Task OnAvatarFileSelected(InputFileChangeEventArgs e)
@@ -144,6 +149,7 @@ public partial class AdminTestimonialEditor
                 return;
             }
 
+            _isDirty = false;
             Navigation.NavigateTo("/admin/testimonials");
         }
         catch (Exception ex)

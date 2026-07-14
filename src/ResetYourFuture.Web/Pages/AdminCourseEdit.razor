@@ -12,6 +12,8 @@
 
 <DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
 
+<UnsavedChangesGuard IsDirty="_isDirty" />
+
 @if (!IsNew && course == null && string.IsNullOrEmpty(message))
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
@@ -19,6 +21,7 @@
 else
 {
     @* ── Course Details ── *@
+    <div @oninput="MarkDirty" @onchange="MarkDirty">
     <FormCardSection Title="@AdminRes.CourseDetails">
         <ChildContent>
             <div class="row">
@@ -84,6 +87,7 @@ else
                            OnSave="SaveCourse" />
         </ChildContent>
     </FormCardSection>
+    </div>
 
     @if (IsNew)
     {

@@ -13,6 +13,9 @@
         <div class="alert alert-danger">@_error</div>
     }
 
+    <UnsavedChangesGuard IsDirty="_isDirty" />
+
+    <div @oninput="MarkDirty" @onchange="MarkDirty">
     <div class="row g-4">
         <!-- Left column: English content -->
         <div class="col-md-6">
@@ -109,6 +112,7 @@
                 <label class="form-check-label" for="isPublished">@AdminRes.StatusPublished</label>
             </div>
         </div>
+    </div>
     </div>
 
     <div class="d-flex gap-2 mt-4">

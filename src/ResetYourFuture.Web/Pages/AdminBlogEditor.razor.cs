@@ -20,6 +20,9 @@ public partial class AdminBlogEditor
     private bool _isBusy;
     private string? _error;
     private bool _slugManuallyEdited;
+    private bool _isDirty;
+
+    private void MarkDirty() => _isDirty = true;
 
     // Form fields — English (required)
     private string _titleEn = string.Empty;
@@ -66,6 +69,8 @@ public partial class AdminBlogEditor
                 _slugManuallyEdited = true;
             }
         }
+
+        _isDirty = false;
     }
 
     private void OnTitleEnInput(ChangeEventArgs e)
@@ -170,6 +175,7 @@ public partial class AdminBlogEditor
                 await BlogConsumer.UploadCoverImageAsync(result.Id, _pendingCoverFile);
             }
 
+            _isDirty = false;
             Navigation.NavigateTo("/admin/blog");
         }
         catch (Exception ex)

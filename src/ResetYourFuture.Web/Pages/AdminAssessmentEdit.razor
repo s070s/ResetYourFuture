@@ -12,12 +12,15 @@
 
 <DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
 
+<UnsavedChangesGuard IsDirty="_isDirty" />
+
 @if (!IsNew && loading)
 {
     <LoadingSpinner Label="@AdminRes.Loading" />
 }
 else
 {
+    <div @oninput="MarkDirty" @onchange="MarkDirty">
     <FormCardSection Title="@AdminRes.AssessmentDetails">
         <ChildContent>
             <div class="row">
@@ -177,6 +180,7 @@ else
             }
         </ChildContent>
     </FormCardSection>
+    </div>
     <SaveCancelBar SaveLabel="@AdminRes.SaveAssessment"
                     SavingLabel="@AdminRes.Saving"
                     IsSaving="isSaving"
