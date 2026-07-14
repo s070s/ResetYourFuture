@@ -26,13 +26,17 @@ public class AdminUserServiceTests
         var roleManager = Substitute.For<RoleManager<IdentityRole>>(
             Substitute.For<IRoleStore<IdentityRole>>(), null, null, null, null);
 
+        var currentUser = Substitute.For<ICurrentUserAccessor>();
+        currentUser.UserId.Returns("admin-actor");
+
         return new AdminUserService(
             userManager,
             roleManager,
             Substitute.For<ITokenService>(),
             NullLogger<AdminUserService>.Instance,
             db,
-            Substitute.For<IEmailService>());
+            Substitute.For<IEmailService>(),
+            currentUser);
     }
 
     /// <summary>

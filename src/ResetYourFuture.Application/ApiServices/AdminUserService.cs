@@ -19,8 +19,12 @@ public class AdminUserService(
     ITokenService tokenService,
     ILogger<AdminUserService> logger,
     IApplicationDbContext context,
-    IEmailService emailService) : IAdminUserService
+    IEmailService emailService,
+    ICurrentUserAccessor currentUser) : IAdminUserService
 {
+    // LOG-4: the acting admin's id for audit attribution ("who did it"), from the request principal.
+    private string ActingAdmin => currentUser.UserId ?? "unknown";
+
     public async Task<PagedResult<AdminUserDto>> GetUsersAsync(
         int page, int pageSize, string? search, string sortBy, string sortDir, CancellationToken cancellationToken = default)
     {
@@ -123,7 +127,7 @@ public class AdminUserService(
         if (!result.Succeeded)
             return ServiceResult<string>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        logger.LogInformation("Admin assigned role {Role} to user {UserId}", roleName, userId);
+        logger.LogInformation("Admin {AdminId} assigned role {Role} to user {UserId}", ActingAdmin, roleName, userId);
         return ServiceResult<string>.Ok($"Role '{roleName}' assigned.");
     }
 
@@ -140,7 +144,7 @@ public class AdminUserService(
         if (!result.Succeeded)
             return ServiceResult<string>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        logger.LogInformation("Admin removed role {Role} from user {UserId}", roleName, userId);
+        logger.LogInformation("Admin {AdminId} removed role {Role} from user {UserId}", ActingAdmin, roleName, userId);
         return ServiceResult<string>.Ok($"Role '{roleName}' removed.");
     }
 
@@ -158,7 +162,7 @@ public class AdminUserService(
         if (!result.Succeeded)
             return ServiceResult<string>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        logger.LogInformation("Admin created role {Role}", roleName);
+        logger.LogInformation("Admin {AdminId} created role {Role}", ActingAdmin, roleName);
         return ServiceResult<string>.Ok($"Role '{roleName}' created.");
     }
 
@@ -223,11 +227,11 @@ public class AdminUserService(
         }
         catch (DbUpdateException ex)
         {
-            logger.LogError(ex, "Deleting user {UserId} failed on a database constraint", userId);
+            logger.LogError(ex, "Admin {AdminId} deleting user {UserId} failed on a database constraint", ActingAdmin, userId);
             return ServiceResult<string>.Conflict(error: "User could not be deleted because other data still references the account.");
         }
 
-        logger.LogInformation("Admin deleted user {UserId} and associated chat/call history", userId);
+        logger.LogInformation("Admin {AdminId} deleted user {UserId} and associated chat/call history", ActingAdmin, userId);
         return ServiceResult<string>.Ok("User deleted.");
     }
 
@@ -278,7 +282,7 @@ public class AdminUserService(
         var resetUrl = buildResetUrl(user.Email, token);
 
         await emailService.SendPasswordResetAsync(user.Email, resetUrl);
-        logger.LogInformation("Admin triggered forced password reset for user {UserId}.", userId);
+        logger.LogInformation("Admin {AdminId} triggered forced password reset for user {UserId}.", ActingAdmin, userId);
 
         return ServiceResult<bool>.NoContent();
     }
@@ -293,7 +297,7 @@ public class AdminUserService(
         if (!result.Succeeded)
             return ServiceResult<bool>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        logger.LogInformation("Admin disabled user {UserId}", userId);
+        logger.LogInformation("Admin {AdminId} disabled user {UserId}", ActingAdmin, userId);
         return ServiceResult<bool>.NoContent();
     }
 
@@ -307,7 +311,7 @@ public class AdminUserService(
         if (!result.Succeeded)
             return ServiceResult<bool>.BadRequest(error: string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        logger.LogInformation("Admin enabled user {UserId}", userId);
+        logger.LogInformation("Admin {AdminId} enabled user {UserId}", ActingAdmin, userId);
         return ServiceResult<bool>.NoContent();
     }
 
@@ -359,7 +363,7 @@ public class AdminUserService(
             refreshToken.RevokedAt = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Admin set new password for user {UserId}", userId);
+        logger.LogInformation("Admin {AdminId} set new password for user {UserId}", ActingAdmin, userId);
         return ServiceResult<bool>.Ok(true);
     }
 }

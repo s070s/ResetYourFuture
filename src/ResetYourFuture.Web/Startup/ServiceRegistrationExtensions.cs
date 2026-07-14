@@ -252,6 +252,9 @@ public static class ServiceRegistrationExtensions
 
         builder.Services.AddHttpContextAccessor();
 
+        // LOG-4: lets services attribute admin-action audit logs to the acting user.
+        builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
+
         // NOTE (SCALE-4)
         // Keys are persisted to the shared SQL database (the same one every instance already
         // connects to) instead of the local filesystem — this fixes both single-instance problems
