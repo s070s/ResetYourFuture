@@ -9,6 +9,10 @@
          locked-mode restore instead of quietly breaking the build. -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
+    <!-- DEP-1: audit direct AND transitive packages against the NuGet advisory database so a known
+         vulnerability surfaces as a restore warning (NU190x), not just in a Dependabot alert. -->
+    <NuGetAuditMode>all</NuGetAuditMode>
+
     <!-- Build speed: skip recompiling downstream projects when only method bodies change -->
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <!-- Build speed: enable VS-specific incremental-build optimizations -->
