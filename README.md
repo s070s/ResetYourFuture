@@ -43,6 +43,8 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 
 > **Never commit `.env`** — it is already in `.gitignore`. Use `.env.template` to document which keys are needed.
 
+> **Known build issue (OpenApi pin):** package versions are pinned centrally in `Directory.Packages.props`, and committed `packages.lock.json` files with CI `--locked-mode` guard against drift. If a `restore`/`build` ever fails with a `Microsoft.OpenApi` version conflict (some restore paths silently rewrite that pin), recover with `git checkout Directory.Packages.props` (and any changed `.csproj`), then restore again.
+
 ---
 
 ## Tech Stack

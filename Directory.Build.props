@@ -4,6 +4,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
+    <!-- BUILD-1: write a committed packages.lock.json per project so restores are reproducible and a
+         silent version drift (notably the Microsoft.OpenApi auto-pin trap) fails loudly under CI's
+         locked-mode restore instead of quietly breaking the build. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
     <!-- Build speed: skip recompiling downstream projects when only method bodies change -->
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <!-- Build speed: enable VS-specific incremental-build optimizations -->

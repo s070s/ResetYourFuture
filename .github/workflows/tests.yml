@@ -24,8 +24,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      # BUILD-1: --locked-mode makes a silent package-version drift (e.g. the Microsoft.OpenApi
+      # auto-pin trap) fail the restore loudly instead of quietly rewriting the pin.
       - name: Restore
-        run: dotnet restore ResetYourFuture.sln
+        run: dotnet restore ResetYourFuture.sln --locked-mode
 
       - name: Build
         run: dotnet build ResetYourFuture.sln -c Release --no-restore
@@ -40,3 +42,45 @@ jobs:
           name: test-results
           path: TestResults/*.trx
           if-no-files-found: ignore
+
+  # BUILD-2: the test suite runs on EF InMemory/SQLite, so a migration valid there but broken on
+  # SQL Server (types, indexes, collation) would ship green and only fail at production startup.
+  # This job applies the whole migration chain against a real SQL Server container.
+  migrations:
+    runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "Ci-Migrations-Sa-1!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Ci-Migrations-Sa-1!' -C -Q 'SELECT 1'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          --health-start-period=30s
+
+    env:
+      # The design-time DbContext factory reads this env var, so `dotnet ef` targets the container.
+      ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=ResetYourFutureCiDb;User Id=sa;Password=Ci-Migrations-Sa-1!;TrustServerCertificate=True;Encrypt=False"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ResetYourFuture.sln --locked-mode
+
+      - name: Restore tools (dotnet-ef)
+        run: dotnet tool restore
+
+      - name: Apply migrations to SQL Server
+        run: dotnet ef database update --project src/ResetYourFuture.Infrastructure --startup-project src/ResetYourFuture.Web
