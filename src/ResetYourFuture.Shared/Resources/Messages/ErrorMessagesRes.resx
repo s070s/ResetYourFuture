@@ -255,4 +255,31 @@
   <data name="AccessDenied" xml:space="preserve">
     <value>Access denied.</value>
   </data>
+  <data name="Auth_EmailRequired" xml:space="preserve">
+    <value>Email is required.</value>
+  </data>
+  <data name="Auth_EmailInvalid" xml:space="preserve">
+    <value>Enter a valid email address.</value>
+  </data>
+  <data name="Auth_PasswordRequired" xml:space="preserve">
+    <value>Password is required.</value>
+  </data>
+  <data name="Auth_PasswordComplexity" xml:space="preserve">
+    <value>Password must be at least 8 characters and include an uppercase letter and a digit.</value>
+  </data>
+  <data name="Auth_ConfirmPasswordRequired" xml:space="preserve">
+    <value>Please confirm your password.</value>
+  </data>
+  <data name="Auth_PasswordMismatch" xml:space="preserve">
+    <value>Passwords do not match.</value>
+  </data>
+  <data name="Auth_FirstNameRequired" xml:space="preserve">
+    <value>First name is required.</value>
+  </data>
+  <data name="Auth_LastNameRequired" xml:space="preserve">
+    <value>Last name is required.</value>
+  </data>
+  <data name="Auth_GdprConsentRequired" xml:space="preserve">
+    <value>You must consent to data processing.</value>
+  </data>
 </root>

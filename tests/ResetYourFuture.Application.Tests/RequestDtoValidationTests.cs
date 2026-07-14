@@ -53,6 +53,24 @@ public class RequestDtoValidationTests
     }
 
     [Fact]
+    public void Register_PasswordWithoutUppercase_Fails()
+    {
+        // UX-11: MinLength(8) alone let "password1" through even though the real Identity
+        // policy (AuthenticationSetupExtensions) requires an uppercase letter too.
+        var dto = ValidRegister();
+        dto.Password = dto.ConfirmPassword = "password1";
+        IsValid(dto).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void Register_PasswordWithoutDigit_Fails()
+    {
+        var dto = ValidRegister();
+        dto.Password = dto.ConfirmPassword = "PasswordOnly";
+        IsValid(dto).ShouldBeFalse();
+    }
+
+    [Fact]
     public void Register_ConfirmPasswordMismatch_Fails()
     {
         var dto = ValidRegister();
@@ -116,5 +134,15 @@ public class RequestDtoValidationTests
             Token = "tok",
             NewPassword = "Ab1",
             ConfirmPassword = "Ab1"
+        }).ShouldBeFalse();
+
+    [Fact]
+    public void ResetPassword_WithoutUppercase_Fails() =>
+        IsValid(new ResetPasswordRequestDto
+        {
+            Email = "u@x.com",
+            Token = "tok",
+            NewPassword = "password1",
+            ConfirmPassword = "password1"
         }).ShouldBeFalse();
 }

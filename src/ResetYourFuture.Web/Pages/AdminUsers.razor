@@ -134,12 +134,13 @@
             <div class="alert alert-danger py-1">@_resetPwdError</div>
         }
         <div class="mb-3">
-            <label class="form-label">@AdminRes.NewPassword</label>
-            <input type="password" class="form-control" @bind="_resetPwdNew" />
+            <label class="form-label" for="reset-pwd-new">@AdminRes.NewPassword</label>
+            <input id="reset-pwd-new" type="password" class="form-control" aria-describedby="reset-pwd-help" @bind="_resetPwdNew" />
+            <div class="form-text" id="reset-pwd-help">@GlobalRes.PasswordRulesHint</div>
         </div>
         <div class="mb-3">
-            <label class="form-label">@AdminRes.ConfirmPasswordLabel</label>
-            <input type="password" class="form-control" @bind="_resetPwdConfirm" />
+            <label class="form-label" for="reset-pwd-confirm">@AdminRes.ConfirmPasswordLabel</label>
+            <input id="reset-pwd-confirm" type="password" class="form-control" @bind="_resetPwdConfirm" />
         </div>
     </Body>
     <Footer>

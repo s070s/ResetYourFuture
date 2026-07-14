@@ -255,4 +255,31 @@
   <data name="AccessDenied" xml:space="preserve">
     <value>Άρνηση πρόσβασης.</value>
   </data>
+  <data name="Auth_EmailRequired" xml:space="preserve">
+    <value>Το email είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Auth_EmailInvalid" xml:space="preserve">
+    <value>Εισαγάγετε μια έγκυρη διεύθυνση email.</value>
+  </data>
+  <data name="Auth_PasswordRequired" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης είναι υποχρεωτικός.</value>
+  </data>
+  <data name="Auth_PasswordComplexity" xml:space="preserve">
+    <value>Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον 8 χαρακτήρες και να περιλαμβάνει ένα κεφαλαίο γράμμα και έναν αριθμό.</value>
+  </data>
+  <data name="Auth_ConfirmPasswordRequired" xml:space="preserve">
+    <value>Παρακαλώ επιβεβαιώστε τον κωδικό πρόσβασής σας.</value>
+  </data>
+  <data name="Auth_PasswordMismatch" xml:space="preserve">
+    <value>Οι κωδικοί πρόσβασης δεν ταιριάζουν.</value>
+  </data>
+  <data name="Auth_FirstNameRequired" xml:space="preserve">
+    <value>Το όνομα είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Auth_LastNameRequired" xml:space="preserve">
+    <value>Το επώνυμο είναι υποχρεωτικό.</value>
+  </data>
+  <data name="Auth_GdprConsentRequired" xml:space="preserve">
+    <value>Πρέπει να συναινέσετε στην επεξεργασία δεδομένων.</value>
+  </data>
 </root>

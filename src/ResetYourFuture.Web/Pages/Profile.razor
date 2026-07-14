@@ -70,7 +70,9 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="profile-new-password">@ProfileRes.LabelNewPassword</label>
-                                <input id="profile-new-password" type="password" class="form-control" autocomplete="new-password" @bind="newPassword" />
+                                <input id="profile-new-password" type="password" class="form-control" autocomplete="new-password"
+                                       aria-describedby="profile-password-help" @bind="newPassword" />
+                                <div class="form-text" id="profile-password-help">@GlobalRes.PasswordRulesHint</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="profile-confirm-password">@ProfileRes.LabelConfirmNewPassword</label>

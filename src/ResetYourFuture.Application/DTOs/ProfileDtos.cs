@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.DTOs;
 /// <summary>
@@ -29,7 +30,9 @@ public record UpdateProfileRequest(
 /// </summary>
 public record ChangePasswordRequest(
     [Required] string CurrentPassword,
-    [Required, MinLength(8), MaxLength(128)] string NewPassword
+    [Required(ErrorMessageResourceType = typeof(ErrorMessagesRes), ErrorMessageResourceName = nameof(ErrorMessagesRes.Auth_PasswordRequired))]
+    [RegularExpression(@"^(?=.*[A-Z])(?=.*\d).{8,128}$", ErrorMessageResourceType = typeof(ErrorMessagesRes), ErrorMessageResourceName = nameof(ErrorMessagesRes.Auth_PasswordComplexity))]
+    string NewPassword
 );
 
 /// <summary>

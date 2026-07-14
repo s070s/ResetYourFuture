@@ -472,6 +472,87 @@ namespace ResetYourFuture.Shared.Resources.Messages {
                 return ResourceManager.GetString("AccessDenied", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Email is required..
+        /// </summary>
+        public static string Auth_EmailRequired {
+            get {
+                return ResourceManager.GetString("Auth_EmailRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Enter a valid email address..
+        /// </summary>
+        public static string Auth_EmailInvalid {
+            get {
+                return ResourceManager.GetString("Auth_EmailInvalid", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password is required..
+        /// </summary>
+        public static string Auth_PasswordRequired {
+            get {
+                return ResourceManager.GetString("Auth_PasswordRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Password must be at least 8 characters and include an uppercase letter and a digit..
+        /// </summary>
+        public static string Auth_PasswordComplexity {
+            get {
+                return ResourceManager.GetString("Auth_PasswordComplexity", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Please confirm your password..
+        /// </summary>
+        public static string Auth_ConfirmPasswordRequired {
+            get {
+                return ResourceManager.GetString("Auth_ConfirmPasswordRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Passwords do not match..
+        /// </summary>
+        public static string Auth_PasswordMismatch {
+            get {
+                return ResourceManager.GetString("Auth_PasswordMismatch", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to First name is required..
+        /// </summary>
+        public static string Auth_FirstNameRequired {
+            get {
+                return ResourceManager.GetString("Auth_FirstNameRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Last name is required..
+        /// </summary>
+        public static string Auth_LastNameRequired {
+            get {
+                return ResourceManager.GetString("Auth_LastNameRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to You must consent to data processing..
+        /// </summary>
+        public static string Auth_GdprConsentRequired {
+            get {
+                return ResourceManager.GetString("Auth_GdprConsentRequired", resourceCulture);
+            }
+        }
+
     }
 }

@@ -81,12 +81,12 @@
             <div class="alert alert-danger py-1">@_formError</div>
         }
         <div class="mb-3">
-            <label class="form-label">@CategoryRes.NameEnLabel</label>
-            <input class="form-control" @bind="_formNameEn" />
+            <label class="form-label" for="category-name-en">@CategoryRes.NameEnLabel</label>
+            <input id="category-name-en" class="form-control" @bind="_formNameEn" />
         </div>
         <div class="mb-3">
-            <label class="form-label">@CategoryRes.NameElLabel</label>
-            <input class="form-control" @bind="_formNameEl" />
+            <label class="form-label" for="category-name-el">@CategoryRes.NameElLabel</label>
+            <input id="category-name-el" class="form-control" @bind="_formNameEl" />
         </div>
     </Body>
     <Footer>
