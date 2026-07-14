@@ -358,12 +358,14 @@ public class CourseService(
             {
                 try
                 {
-                    await certificateService.GetOrGenerateAsync(userId, courseId, cancellationToken);
+                    // Issue the certificate row only — the PDF renders lazily on first download
+                    // (PERF-4), so the student's "complete lesson" click doesn't pay QuestPDF.
+                    await certificateService.GetOrCreateAsync(userId, courseId, cancellationToken);
                 }
                 catch (Exception ex)
                 {
                     logger.LogError(ex,
-                        "Certificate auto-generation failed for user {UserId} on course {CourseId}.",
+                        "Certificate issuance failed for user {UserId} on course {CourseId}.",
                         userId, courseId);
                     certificatePending = true;
                 }

@@ -63,7 +63,28 @@ public class CertificateServiceTests
     };
 
     [Fact]
-    public async Task GetOrGenerate_New_BuildsPersistsAndStoresPdf()
+    public async Task GetOrCreate_New_BuildsAndPersistsRowWithoutRenderingPdf()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var (course, userId) = await SeedCompletedAsync(db, durations: new[] { 30, 30 });
+
+        var storage = Substitute.For<IFileStorage>();
+
+        var cert = await NewService(db, storage).GetOrCreateAsync(userId, course.Id);
+
+        cert.RecipientName.ShouldBe("John Doe");
+        cert.CourseTitleEn.ShouldBe("C# Basics");
+        cert.TotalDurationMinutes.ShouldBe(60);
+        cert.Status.ShouldBe(CertificateStatus.Active);
+        // PERF-4: the PDF is deferred to first download — issuance must not render or store it.
+        cert.PdfPath.ShouldBeNull();
+        (await db.Certificates.CountAsync()).ShouldBe(1);
+        await storage.DidNotReceive().SaveFileAsync(
+            Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task EnsurePdf_FirstCall_RendersAndStoresPdf()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var (course, userId) = await SeedCompletedAsync(db, durations: new[] { 30, 30 });
@@ -78,21 +99,44 @@ public class CertificateServiceTests
                 pdf = ms.ToArray();
                 return "certificates/cert.pdf";
             });
+        var svc = NewService(db, storage);
+        var cert = await svc.GetOrCreateAsync(userId, course.Id);
 
-        var cert = await NewService(db, storage).GetOrGenerateAsync(userId, course.Id);
+        var withPdf = await svc.EnsurePdfAsync(cert.Id);
 
-        cert.RecipientName.ShouldBe("John Doe");
-        cert.CourseTitleEn.ShouldBe("C# Basics");
-        cert.TotalDurationMinutes.ShouldBe(60);
-        cert.PdfPath.ShouldBe("certificates/cert.pdf");
-        cert.Status.ShouldBe(CertificateStatus.Active);
-        (await db.Certificates.CountAsync()).ShouldBe(1);
+        withPdf.PdfPath.ShouldBe("certificates/cert.pdf");
         pdf.ShouldNotBeNull();
         Encoding.ASCII.GetString(pdf!, 0, 4).ShouldBe("%PDF");
     }
 
     [Fact]
-    public async Task GetOrGenerate_PrefersDisplayName()
+    public async Task EnsurePdf_ExistingFile_DoesNotRegenerate()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+        var cert = ExistingCert("u1", Guid.NewGuid(), "certificates/old.pdf");
+        db.Certificates.Add(cert);
+        await db.SaveChangesAsync();
+        var storage = Substitute.For<IFileStorage>();
+        storage.FileExists("certificates/old.pdf").Returns(true);
+
+        var result = await NewService(db, storage).EnsurePdfAsync(cert.Id);
+
+        result.PdfPath.ShouldBe("certificates/old.pdf");
+        await storage.DidNotReceive().SaveFileAsync(
+            Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<long?>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task EnsurePdf_Missing_Throws()
+    {
+        await using var db = DbContextFactory.CreateInMemory();
+
+        await Should.ThrowAsync<KeyNotFoundException>(
+            () => NewService(db, Substitute.For<IFileStorage>()).EnsurePdfAsync(Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task GetOrCreate_PrefersDisplayName()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var (course, userId) = await SeedCompletedAsync(db, displayName: "Johnny D");
@@ -100,13 +144,13 @@ public class CertificateServiceTests
         storage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
             .Returns("certificates/cert.pdf");
 
-        var cert = await NewService(db, storage).GetOrGenerateAsync(userId, course.Id);
+        var cert = await NewService(db, storage).GetOrCreateAsync(userId, course.Id);
 
         cert.RecipientName.ShouldBe("Johnny D");
     }
 
     [Fact]
-    public async Task GetOrGenerate_NoDuration_LeavesTotalNull()
+    public async Task GetOrCreate_NoDuration_LeavesTotalNull()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var (course, userId) = await SeedCompletedAsync(db, durations: []);
@@ -114,13 +158,13 @@ public class CertificateServiceTests
         storage.SaveFileAsync(Arg.Any<Stream>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<long?>(), Arg.Any<CancellationToken>())
             .Returns("certificates/cert.pdf");
 
-        var cert = await NewService(db, storage).GetOrGenerateAsync(userId, course.Id);
+        var cert = await NewService(db, storage).GetOrCreateAsync(userId, course.Id);
 
         cert.TotalDurationMinutes.ShouldBeNull();
     }
 
     [Fact]
-    public async Task GetOrGenerate_Existing_ReturnsItWithoutRegenerating()
+    public async Task GetOrCreate_Existing_ReturnsItWithoutRegenerating()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var courseId = Guid.NewGuid();
@@ -129,7 +173,7 @@ public class CertificateServiceTests
         await db.SaveChangesAsync();
         var storage = Substitute.For<IFileStorage>();
 
-        var cert = await NewService(db, storage).GetOrGenerateAsync("u1", courseId);
+        var cert = await NewService(db, storage).GetOrCreateAsync("u1", courseId);
 
         cert.Id.ShouldBe(existing.Id);
         await storage.DidNotReceive().SaveFileAsync(
@@ -151,13 +195,13 @@ public class CertificateServiceTests
     }
 
     [Fact]
-    public async Task GetOrGenerate_NoCompletedEnrollment_Throws()
+    public async Task GetOrCreate_NoCompletedEnrollment_Throws()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var storage = Substitute.For<IFileStorage>();
 
         await Should.ThrowAsync<InvalidOperationException>(
-            () => NewService(db, storage).GetOrGenerateAsync("u1", Guid.NewGuid()));
+            () => NewService(db, storage).GetOrCreateAsync("u1", Guid.NewGuid()));
     }
 
     [Fact]

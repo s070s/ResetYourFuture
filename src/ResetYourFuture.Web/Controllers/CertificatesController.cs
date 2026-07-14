@@ -84,7 +84,7 @@ public class CertificatesController : ControllerBase
 
         try
         {
-            var certificate = await _certificateService.GetOrGenerateAsync(userId, courseId);
+            var certificate = await _certificateService.GetOrCreateAsync(userId, courseId);
             return Ok(certificate.ToDto(isEl));
         }
         catch (InvalidOperationException ex)
@@ -112,6 +112,9 @@ public class CertificatesController : ControllerBase
 
         if (certificate.Status == CertificateStatus.Revoked)
             return Problem(detail: "This certificate has been revoked.", statusCode: StatusCodes.Status400BadRequest);
+
+        // Render the PDF now if it hasn't been generated yet (PERF-4: deferred from issuance).
+        certificate = await _certificateService.EnsurePdfAsync(certificateId);
 
         if (string.IsNullOrEmpty(certificate.PdfPath) || !_storage.FileExists(certificate.PdfPath))
             return Problem(detail: "Certificate PDF is not available.", statusCode: StatusCodes.Status404NotFound);

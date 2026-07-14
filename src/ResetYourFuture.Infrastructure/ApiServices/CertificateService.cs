@@ -39,7 +39,7 @@ public class CertificateService : ICertificateService
         _logger = logger;
     }
 
-    public async Task<Certificate> GetOrGenerateAsync(
+    public async Task<Certificate> GetOrCreateAsync(
         string userId,
         Guid courseId,
         CancellationToken cancellationToken = default)
@@ -89,9 +89,9 @@ public class CertificateService : ICertificateService
             TotalDurationMinutes = totalDuration > 0 ? totalDuration : null,
             IssuedAt = DateTime.UtcNow,
             Status = CertificateStatus.Active
+            // PdfPath left null — the PDF is rendered lazily on first download (PERF-4), keeping
+            // the CPU-bound QuestPDF render off the lesson-completion request path.
         };
-
-        certificate.PdfPath = await GeneratePdfAsync(certificate, cancellationToken);
 
         _db.Certificates.Add(certificate);
         try
@@ -101,15 +101,7 @@ public class CertificateService : ICertificateService
         catch (DbUpdateException)
         {
             // A concurrent request won the race and inserted first (unique index on UserId+CourseId).
-            // Clean up the PDF we just wrote and return the already-committed certificate.
-            try { await _storage.DeleteFileAsync(certificate.PdfPath, cancellationToken); }
-            catch (Exception cleanupEx)
-            {
-                _logger.LogWarning(cleanupEx,
-                    "Could not delete orphaned PDF {Path} after duplicate-certificate race.",
-                    certificate.PdfPath);
-            }
-
+            // No PDF was written yet, so just return the already-committed certificate.
             var winner = await _db.Certificates
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.CourseId == courseId, cancellationToken);
@@ -131,6 +123,27 @@ public class CertificateService : ICertificateService
             [course.TitleEn],
             "/my-certificates",
             cancellationToken);
+
+        return certificate;
+    }
+
+    public async Task<Certificate> EnsurePdfAsync(
+        Guid certificateId,
+        CancellationToken cancellationToken = default)
+    {
+        var certificate = await _db.Certificates
+            .FirstOrDefaultAsync(c => c.Id == certificateId, cancellationToken)
+            ?? throw new KeyNotFoundException($"Certificate {certificateId} not found.");
+
+        // Already rendered — nothing to do.
+        if (!string.IsNullOrEmpty(certificate.PdfPath) && _storage.FileExists(certificate.PdfPath))
+            return certificate;
+
+        certificate.PdfPath = await GeneratePdfAsync(certificate, cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation(
+            "Certificate {CertificateId} PDF rendered on first download.", certificate.Id);
 
         return certificate;
     }

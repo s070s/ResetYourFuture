@@ -416,7 +416,7 @@ public class CourseServiceTests
     }
 
     [Fact]
-    public async Task CompleteLesson_FinalLesson_CompletesCourseAndGeneratesCertificate()
+    public async Task CompleteLesson_FinalLesson_CompletesCourseAndIssuesCertificate()
     {
         await using var db = DbContextFactory.CreateInMemory();
         var course = CourseWithLessons("C", 1);
@@ -431,7 +431,7 @@ public class CourseServiceTests
         result.Value!.CourseCompleted.ShouldBeTrue();
         result.Value.CertificatePending.ShouldBeFalse();
         (await db.Enrollments.SingleAsync()).Status.ShouldBe(EnrollmentStatus.Completed);
-        await certs.Received(1).GetOrGenerateAsync(UserId, course.Id, Arg.Any<CancellationToken>());
+        await certs.Received(1).GetOrCreateAsync(UserId, course.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -446,7 +446,7 @@ public class CourseServiceTests
         await db.SaveChangesAsync();
         var lessonId = course.Modules.First().Lessons.First().Id;
         var (svc, _, certs) = NewService(db, Status(certificateAccess: true));
-        certs.GetOrGenerateAsync(Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
+        certs.GetOrCreateAsync(Arg.Any<string>(), Arg.Any<Guid>(), Arg.Any<CancellationToken>())
             .Returns(_ => Task.FromException<Certificate>(new InvalidOperationException("boom")));
 
         var result = await svc.CompleteLessonAsync(UserId, lessonId);
