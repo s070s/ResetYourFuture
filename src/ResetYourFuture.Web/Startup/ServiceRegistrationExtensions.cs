@@ -168,6 +168,11 @@ public static class ServiceRegistrationExtensions
                 .AddSupportedUICultures(supportedCultures);
         });
 
+        // SCALE-7: this IMemoryCache is process-local. The short-TTL entries backed by it
+        // (subscription status, assistant status, sitemap) are invalidated explicitly on change
+        // within this process — correct for a single instance, but the invalidation would NOT
+        // propagate to a second node. Keep TTLs short and move to a shared cache (Redis) before
+        // scaling out; see the accepted-limitations note in docs/plans/35-audit-scalability.md.
         builder.Services.AddMemoryCache();
         builder.Services.AddSignalR(o => o.MaximumReceiveMessageSize = 32_000);
         builder.Services.AddControllers();
@@ -183,6 +188,11 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddResetYourFutureOpenApi();
         builder.Services.AddHostedService<BulkStudentSeedingService>();
 
+        // SCALE-7: these are the in-process ASP.NET Core rate limiters, so their windows are
+        // per-instance. On a single node the limits below are authoritative; behind a load
+        // balancer with N nodes each partition's effective limit multiplies by N, weakening the
+        // brute-force protection SEC relies on. Move the counters to a shared store (or the
+        // fronting proxy) before running more than one instance.
         builder.Services.AddRateLimiter(options =>
         {
             options.AddFixedWindowLimiter("auth", limiterOptions =>
@@ -248,7 +258,18 @@ public static class ServiceRegistrationExtensions
         // cookie is present, because the interactive circuit cannot access HttpContext.
         builder.Services.AddCascadingAuthenticationState();
         builder.Services.AddRazorComponents()
-            .AddInteractiveServerComponents();
+            .AddInteractiveServerComponents(options =>
+            {
+                // SCALE-8: make circuit retention explicit and sized for this single-instance,
+                // cohort-scale deployment instead of relying on the framework defaults (100
+                // retained circuits / 3 min). Every disconnected circuit keeps its full
+                // server-side UI state in RAM until reclaimed, so a tighter window bounds the
+                // memory held for abandoned tabs while still allowing a real reconnect (dropped
+                // Wi-Fi, laptop sleep). PERF-5 already removed the largest per-circuit payload
+                // (base64 avatar data URLs).
+                options.DisconnectedCircuitMaxRetained = 50;
+                options.DisconnectedCircuitRetentionPeriod = TimeSpan.FromMinutes(2);
+            });
 
         // Suppress noisy info-level authorization logs
         builder.Logging.AddFilter("Microsoft.AspNetCore.Authorization", LogLevel.Warning);
