@@ -33,14 +33,38 @@ public class BlogArticleService : IBlogArticleService
     {
         var isEl = Localized.IsEl(lang);
 
-        var articles = await _db.BlogArticles
+        // Project only the summary columns in SQL — never the unbounded ContentEn/ContentEl
+        // rich-text bodies, which this list discards (PERF-3). Localized.Pick/DeserializeTags
+        // can't translate to SQL, so map the trimmed rows in memory.
+        var rows = await _db.BlogArticles
             .AsNoTracking()
             .Where(a => a.IsPublished)
             .OrderByDescending(a => a.PublishedAt)
             .Take(count)
+            .Select(a => new
+            {
+                a.Id,
+                a.TitleEn,
+                a.TitleEl,
+                a.Slug,
+                a.SummaryEn,
+                a.SummaryEl,
+                a.CoverImageUrl,
+                a.AuthorName,
+                a.Tags,
+                a.PublishedAt
+            })
             .ToListAsync(cancellationToken);
 
-        return articles.Select(a => ToSummaryDto(a, isEl)).ToList();
+        return rows.Select(a => new BlogArticleSummaryDto(
+            a.Id,
+            Localized.Pick(isEl, a.TitleEn, a.TitleEl),
+            a.Slug,
+            Localized.Pick(isEl, a.SummaryEn, a.SummaryEl),
+            a.CoverImageUrl,
+            a.AuthorName,
+            DeserializeTags(a.Tags),
+            a.PublishedAt)).ToList();
     }
 
     public async Task<BlogArticleDto?> GetPublishedBySlugAsync(
@@ -246,16 +270,6 @@ public class BlogArticleService : IBlogArticleService
         => tags is { Length: > 0 }
             ? JsonSerializer.Serialize(tags)
             : null;
-
-    private static BlogArticleSummaryDto ToSummaryDto(BlogArticle a, bool isEl) =>
-        new(a.Id,
-             Localized.Pick(isEl, a.TitleEn, a.TitleEl),
-             a.Slug,
-             Localized.Pick(isEl, a.SummaryEn, a.SummaryEl),
-             a.CoverImageUrl,
-             a.AuthorName,
-             DeserializeTags(a.Tags),
-             a.PublishedAt);
 
     private static BlogArticleDto ToDto(BlogArticle a, bool isEl) =>
         new(a.Id,
