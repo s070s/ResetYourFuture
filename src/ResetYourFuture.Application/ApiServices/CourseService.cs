@@ -350,6 +350,7 @@ public class CourseService(
 
         await db.SaveChangesAsync(cancellationToken);
 
+        var certificatePending = false;
         if (courseCompleted)
         {
             var subStatus = await subscriptionService.GetUserStatusAsync(userId, cancellationToken);
@@ -364,6 +365,7 @@ public class CourseService(
                     logger.LogError(ex,
                         "Certificate auto-generation failed for user {UserId} on course {CourseId}.",
                         userId, courseId);
+                    certificatePending = true;
                 }
             }
         }
@@ -374,7 +376,8 @@ public class CourseService(
             completedCount,
             totalLessons,
             progressPercent,
-            courseCompleted
+            courseCompleted,
+            certificatePending
         ));
     }
 

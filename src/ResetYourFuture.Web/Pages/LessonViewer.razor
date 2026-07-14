@@ -107,6 +107,10 @@ else
                     {
                         <span class="course-completed">@LessonRes.CourseCompleted</span>
                     }
+                    @if (_completionResult.CertificatePending)
+                    {
+                        <p class="text-light-muted mt-1 mb-0">@LessonRes.CertificatePending</p>
+                    }
                 </div>
             }
         </div>

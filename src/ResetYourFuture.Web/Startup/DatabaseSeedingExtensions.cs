@@ -135,6 +135,14 @@ public static class DatabaseSeedingExtensions
                 await userManager.AddToRoleAsync(admin, "Admin");
                 startupLogger.LogInformation("Seeded admin user '{Email}'.", adminEmail);
             }
+            else
+            {
+                // REL-4: fail-fast, consistent with the AdminUser:Password-missing throw above —
+                // starting with no admin account and no signal is worse than not starting at all.
+                var errors = string.Join("; ", result.Errors.Select(e => $"{e.Code}: {e.Description}"));
+                startupLogger.LogCritical("Failed to seed admin user '{Email}': {Errors}", adminEmail, errors);
+                throw new InvalidOperationException($"Failed to seed admin user '{adminEmail}': {errors}");
+            }
         }
 
         // Development-only seed data (OPS-1: blog demo content must never touch a real deployment —

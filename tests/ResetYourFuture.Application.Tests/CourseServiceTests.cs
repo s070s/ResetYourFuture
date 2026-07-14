@@ -429,13 +429,16 @@ public class CourseServiceTests
         var result = await svc.CompleteLessonAsync(UserId, lessonId);
 
         result.Value!.CourseCompleted.ShouldBeTrue();
+        result.Value.CertificatePending.ShouldBeFalse();
         (await db.Enrollments.SingleAsync()).Status.ShouldBe(EnrollmentStatus.Completed);
         await certs.Received(1).GetOrGenerateAsync(UserId, course.Id, Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task CompleteLesson_CertificateFailure_IsSwallowed()
+    public async Task CompleteLesson_CertificateFailure_IsSwallowedButFlaggedPending()
     {
+        // REL-5: completion must still succeed (the failure is swallowed), but the caller now
+        // learns generation failed via CertificatePending instead of silence.
         await using var db = DbContextFactory.CreateInMemory();
         var course = CourseWithLessons("C", 1);
         db.Courses.Add(course);
@@ -450,5 +453,6 @@ public class CourseServiceTests
 
         result.IsSuccess.ShouldBeTrue();
         result.Value!.CourseCompleted.ShouldBeTrue();
+        result.Value.CertificatePending.ShouldBeTrue();
     }
 }

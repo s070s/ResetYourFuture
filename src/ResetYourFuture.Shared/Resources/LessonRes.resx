@@ -149,4 +149,7 @@
 	<data name="MediaUnavailable" xml:space="preserve">
 		<value>This lesson's media is currently unavailable.</value>
 	</data>
+	<data name="CertificatePending" xml:space="preserve">
+		<value>Your certificate is being prepared — check My Certificates in a few minutes.</value>
+	</data>
 </root>

@@ -82,8 +82,20 @@ public class AuthApiService(
         // the JSON API action below (/api/auth/confirm-email), not a user-facing Blazor page,
         // and in Development StubEmailService only writes it to the log. For production, add a
         // /confirm-email page and deliver this link through a real email provider.
+        //
+        // REL-2: the account/role/Free-plan are already committed above — a transient SMTP
+        // failure here must not turn into a 500 after the account exists (the user would be
+        // stuck: can't re-register with a duplicate email, and never got the confirmation link).
+        // Log and swallow instead; registration still reports success.
         logger.LogInformation("User {Email} registered. Confirmation email queued.", request.Email);
-        await emailService.SendEmailConfirmationAsync(user.Email!, confirmUrl!);
+        try
+        {
+            await emailService.SendEmailConfirmationAsync(user.Email!, confirmUrl!);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to send confirmation email to {Email} after registration.", request.Email);
+        }
 
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto
         {

@@ -17,7 +17,7 @@ namespace ResetYourFuture.Application.Tests;
 
 public class AuthApiServiceTests
 {
-    private sealed record Harness(AuthApiService Svc, UserManager<ApplicationUser> Um, ApplicationDbContext Db, ITokenService Tok);
+    private sealed record Harness(AuthApiService Svc, UserManager<ApplicationUser> Um, ApplicationDbContext Db, ITokenService Tok, IEmailService Email);
 
     private static Harness Build()
     {
@@ -32,7 +32,7 @@ public class AuthApiServiceTests
         var db = DbContextFactory.CreateInMemory();
 
         var svc = new AuthApiService(um, sm, tok, subs, NullLogger<AuthApiService>.Instance, db, email);
-        return new Harness(svc, um, db, tok);
+        return new Harness(svc, um, db, tok, email);
     }
 
     private static ApplicationUser User(string id = "u1", bool enabled = true, string stamp = "stamp-1") =>
@@ -72,6 +72,46 @@ public class AuthApiServiceTests
         };
         db.RefreshTokens.Add(token);
         return token;
+    }
+
+    // ---- RegisterAsync: REL-2 ---------------------------------------------------
+
+    private static RegisterRequestDto RegisterRequest() => new()
+    {
+        Email = "u@x.com",
+        Password = "Password1!",
+        ConfirmPassword = "Password1!",
+        FirstName = "F",
+        LastName = "L",
+        GdprConsent = true
+    };
+
+    [Fact]
+    public async Task Register_EmailSendThrows_StillReturnsSuccess()
+    {
+        var h = Build();
+        h.Um.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+        h.Email.SendEmailConfirmationAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromException(new InvalidOperationException("SMTP unreachable")));
+
+        var result = await h.Svc.RegisterAsync(RegisterRequest(), (userId, token) => $"https://x/confirm?userId={userId}&token={token}");
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value!.Success.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Register_EmailSendSucceeds_ReturnsSuccess()
+    {
+        var h = Build();
+        h.Um.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+
+        var result = await h.Svc.RegisterAsync(RegisterRequest(), (userId, token) => $"https://x/confirm?userId={userId}&token={token}");
+
+        result.IsSuccess.ShouldBeTrue();
+        await h.Email.Received(1).SendEmailConfirmationAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
     }
 
     // ---- RefreshAsync: baseline behaviour -------------------------------------

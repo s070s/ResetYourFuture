@@ -149,4 +149,7 @@
 	<data name="MediaUnavailable" xml:space="preserve">
 		<value>Το περιεχόμενο αυτού του μαθήματος δεν είναι διαθέσιμο αυτή τη στιγμή.</value>
 	</data>
+	<data name="CertificatePending" xml:space="preserve">
+		<value>Το πιστοποιητικό σας ετοιμάζεται — ελέγξτε στα Πιστοποιητικά μου σε λίγα λεπτά.</value>
+	</data>
 </root>

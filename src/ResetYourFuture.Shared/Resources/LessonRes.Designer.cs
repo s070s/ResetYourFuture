@@ -122,7 +122,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("MediaUnavailable", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Your certificate is being prepared — check My Certificates in a few minutes..
+        /// </summary>
+        public static string CertificatePending {
+            get {
+                return ResourceManager.GetString("CertificatePending", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Lesson.
         /// </summary>
