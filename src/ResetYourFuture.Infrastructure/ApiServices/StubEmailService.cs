@@ -7,6 +7,12 @@ namespace ResetYourFuture.Infrastructure.ApiServices;
 /// Logs emails instead of sending them — no message is ever delivered. This is the only
 /// IEmailService registered, and only in Development; production registration fails fast in
 /// Program.cs until a real provider (SendGrid/SMTP) is implemented and wired in.
+///
+/// LOG-2: the logged confirmation/reset links embed live Identity tokens and the recipient's
+/// email — i.e. usable credentials sitting in plaintext in <c>Logs/</c> until they expire or are
+/// consumed. This is a deliberate Development-only convenience (the README documents "search STUB
+/// EMAIL" to grab the link); never register this service outside Development, and treat dev log
+/// files as sensitive.
 /// </summary>
 public class StubEmailService : IEmailService
 {

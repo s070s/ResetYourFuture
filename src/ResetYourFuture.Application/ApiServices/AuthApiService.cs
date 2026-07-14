@@ -50,7 +50,7 @@ public class AuthApiService(
         if (user.Age.HasValue && user.Age < 18)
         {
             // TODO: Implement parental consent flow. For now, allow registration but log.
-            logger.LogInformation("Under-18 user registered: {Email}. Parental consent not yet implemented.", request.Email);
+            logger.LogInformation("Under-18 user registered: {UserId}. Parental consent not yet implemented.", user.Id);
         }
 
         var result = await userManager.CreateAsync(user, request.Password);
@@ -87,14 +87,14 @@ public class AuthApiService(
         // failure here must not turn into a 500 after the account exists (the user would be
         // stuck: can't re-register with a duplicate email, and never got the confirmation link).
         // Log and swallow instead; registration still reports success.
-        logger.LogInformation("User {Email} registered. Confirmation email queued.", request.Email);
+        logger.LogInformation("User {UserId} registered. Confirmation email queued.", user.Id);
         try
         {
             await emailService.SendEmailConfirmationAsync(user.Email!, confirmUrl!);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to send confirmation email to {Email} after registration.", request.Email);
+            logger.LogError(ex, "Failed to send confirmation email for user {UserId} after registration.", user.Id);
         }
 
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto
@@ -120,7 +120,7 @@ public class AuthApiService(
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Errors = result.Errors.Select(e => e.Description) });
         }
 
-        logger.LogInformation("Email confirmed for user {Email}", user.Email);
+        logger.LogInformation("Email confirmed for user {UserId}", user.Id);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = SuccessMessagesRes.EmailConfirmedSuccessfully });
     }
 
@@ -135,13 +135,13 @@ public class AuthApiService(
 
         if (!await userManager.IsEmailConfirmedAsync(user))
         {
-            logger.LogWarning("Login blocked for unconfirmed email: {Email}", request.Email);
+            logger.LogWarning("Login blocked for unconfirmed email: user {UserId}", user.Id);
             return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials });
         }
 
         if (!user.IsEnabled)
         {
-            logger.LogWarning("Login blocked for disabled user: {Email}", request.Email);
+            logger.LogWarning("Login blocked for disabled user: {UserId}", user.Id);
             return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountDisabledContactSupport });
         }
 
@@ -150,10 +150,10 @@ public class AuthApiService(
         {
             if (result.IsLockedOut)
             {
-                logger.LogWarning("User {Email} is locked out.", request.Email);
+                logger.LogWarning("User {UserId} is locked out.", user.Id);
                 return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.AccountLocked });
             }
-            logger.LogWarning("Invalid password for {Email}", request.Email);
+            logger.LogWarning("Invalid password for user {UserId}", user.Id);
             return ServiceResult<AuthResponseDto>.Unauthorized(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidCredentials });
         }
 
@@ -177,7 +177,7 @@ public class AuthApiService(
         context.RefreshTokens.Add(refreshTokenEntity);
         await context.SaveChangesAsync();
 
-        logger.LogInformation("User {Email} logged in.", request.Email);
+        logger.LogInformation("User {UserId} logged in.", user.Id);
 
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto
         {
@@ -303,7 +303,7 @@ public class AuthApiService(
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
         var resetUrl = buildResetUrl(user.Email!, token);
 
-        logger.LogInformation("Password reset requested for {Email}. Reset email queued.", request.Email);
+        logger.LogInformation("Password reset requested for user {UserId}. Reset email queued.", user.Id);
         await emailService.SendPasswordResetAsync(user.Email!, resetUrl);
 
         return new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetLinkSent };
@@ -321,7 +321,7 @@ public class AuthApiService(
         var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
         if (!result.Succeeded)
         {
-            logger.LogWarning("Password reset failed for {Email}: {Errors}", request.Email, string.Join(", ", result.Errors.Select(e => e.Description)));
+            logger.LogWarning("Password reset failed for user {UserId}: {Errors}", user.Id, string.Join(", ", result.Errors.Select(e => e.Description)));
             // Return generic message — specific errors would confirm account existence or reveal policy hints.
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = ErrorMessagesRes.InvalidRequest });
         }
@@ -338,7 +338,7 @@ public class AuthApiService(
             token.RevokedAt = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
 
-        logger.LogInformation("Password reset for {Email}", request.Email);
+        logger.LogInformation("Password reset for user {UserId}", user.Id);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = SuccessMessagesRes.PasswordResetSuccessful });
     }
 
@@ -371,11 +371,11 @@ public class AuthApiService(
         if (!updateResult.Succeeded)
         {
             var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
-            logger.LogWarning("DevConfirmEmail: UpdateAsync failed for {Email}: {Errors}", email, errors);
+            logger.LogWarning("DevConfirmEmail: UpdateAsync failed for user {UserId}: {Errors}", user.Id, errors);
             return ServiceResult<AuthResponseDto>.BadRequest(new AuthResponseDto { Success = false, Message = $"Confirm failed: {errors}" });
         }
 
-        logger.LogInformation("Email confirmed for {Email} (dev mode)", email);
+        logger.LogInformation("Email confirmed for user {UserId} (dev mode)", user.Id);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = "Email confirmed (dev mode)" });
     }
 
@@ -398,7 +398,7 @@ public class AuthApiService(
             token.RevokedAt = DateTimeOffset.UtcNow;
         await context.SaveChangesAsync();
 
-        logger.LogInformation("Password reset for {Email} (dev mode)", request.Email);
+        logger.LogInformation("Password reset for user {UserId} (dev mode)", user.Id);
         return ServiceResult<AuthResponseDto>.Ok(new AuthResponseDto { Success = true, Message = "Password reset (dev mode)" });
     }
 
