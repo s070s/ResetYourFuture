@@ -216,11 +216,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
                 entry.Entity.CreatedAt = now;
                 entry.Entity.CreatedByUserId ??= currentUserId;
             }
-
-            if (entry.State is EntityState.Added or EntityState.Modified)
+            else if (entry.State == EntityState.Modified)
             {
+                // DB-3: was `??=`, a permanent no-op once CreatedByUserId's sibling stamp on
+                // Added made UpdatedByUserId non-null from insertion onward — every later edit
+                // kept recording the *creator*, not the actual last editor. Assign unconditionally
+                // (falling back to the entity's existing value only if no user is in context, e.g.
+                // a background job). UpdatedAt/UpdatedByUserId are also no longer stamped on Added,
+                // so they stay null until the row is genuinely modified for the first time.
                 entry.Entity.UpdatedAt = now;
-                entry.Entity.UpdatedByUserId ??= currentUserId;
+                entry.Entity.UpdatedByUserId = currentUserId ?? entry.Entity.UpdatedByUserId;
             }
         }
     }

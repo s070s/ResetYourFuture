@@ -11,7 +11,7 @@ namespace ResetYourFuture.Infrastructure.Tests;
 
 public class ApplicationDbContextTests
 {
-    private static ApplicationDbContext CtxWithUser(string? userId)
+    private static ApplicationDbContext CtxWithUser(string? userId, string? dbName = null)
     {
         var accessor = Substitute.For<IHttpContextAccessor>();
         if (userId is not null)
@@ -24,7 +24,7 @@ public class ApplicationDbContextTests
         }
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+            .UseInMemoryDatabase(dbName ?? Guid.NewGuid().ToString("N"))
             .Options;
 
         return new ApplicationDbContext(options, accessor);
@@ -40,8 +40,10 @@ public class ApplicationDbContextTests
         await db.SaveChangesAsync();
 
         course.CreatedByUserId.ShouldBe("auditor-1");
-        course.UpdatedByUserId.ShouldBe("auditor-1");
-        course.UpdatedAt.ShouldNotBeNull();
+        // DB-3: UpdatedAt/UpdatedByUserId are no longer stamped on Added — a freshly created
+        // row hasn't been "updated" yet, so both stay null until a real Modified save.
+        course.UpdatedByUserId.ShouldBeNull();
+        course.UpdatedAt.ShouldBeNull();
     }
 
     [Fact]
@@ -54,7 +56,7 @@ public class ApplicationDbContextTests
         await db.SaveChangesAsync();
 
         course.CreatedByUserId.ShouldBeNull();
-        course.UpdatedAt.ShouldNotBeNull();
+        course.UpdatedAt.ShouldBeNull();
     }
 
     [Fact]
@@ -69,6 +71,47 @@ public class ApplicationDbContextTests
         await db.SaveChangesAsync();
 
         course.CreatedByUserId.ShouldBe("creator");
+    }
+
+    [Fact]
+    public async Task SaveChanges_Modify_StampsUpdatedAtAndUpdatedByUserId()
+    {
+        await using var db = CtxWithUser("creator");
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+        db.Courses.Add(course);
+        await db.SaveChangesAsync();
+
+        course.TitleEn = "Updated";
+        await db.SaveChangesAsync();
+
+        course.UpdatedByUserId.ShouldBe("creator");
+        course.UpdatedAt.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task SaveChanges_ModifyByDifferentUser_UpdatesUpdatedByUserId()
+    {
+        // DB-3: this is the bug — `??=` meant UpdatedByUserId was stuck on the first writer
+        // forever, once it had been non-null since insertion. A later edit by someone else
+        // (a separate DbContext instance, matching a separate HTTP request) must now correctly
+        // overwrite it, not keep showing the creator.
+        var dbName = Guid.NewGuid().ToString("N");
+        Guid courseId;
+        await using (var db = CtxWithUser("creator", dbName))
+        {
+            var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+            courseId = course.Id;
+            db.Courses.Add(course);
+            await db.SaveChangesAsync();
+        }
+
+        await using var editorDb = CtxWithUser("editor-2", dbName);
+        var tracked = await editorDb.Courses.FirstAsync(c => c.Id == courseId);
+        tracked.TitleEn = "Updated again";
+        await editorDb.SaveChangesAsync();
+
+        tracked.UpdatedByUserId.ShouldBe("editor-2");
+        tracked.CreatedByUserId.ShouldBe("creator");
     }
 
     [Fact]
