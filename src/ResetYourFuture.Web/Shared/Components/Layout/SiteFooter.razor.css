@@ -1,0 +1,96 @@
+/* ================================================
+   Site Footer (UX-7)
+   Moved from Home.razor.css so the footer renders on every page via MainLayout.
+   ================================================ */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.landing-footer {
+    padding: 3rem 0;
+    border-top: 1px solid var(--border-subtle);
+    background: rgba(var(--bg-surface-rgb), 0.2);
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+}
+
+.footer-logo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-accent);
+}
+
+.footer-name {
+    font-weight: 600;
+    color: var(--text-accent);
+    margin: 0;
+}
+
+.footer-role {
+    font-size: 0.875rem;
+    color: var(--text-light-normal);
+    margin: 0.25rem 0 0;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-link {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-surface);
+    border-radius: 0.5rem;
+    color: var(--text-light-normal);
+    transition: all 0.3s ease;
+}
+
+.social-link:hover {
+    color: var(--text-accent);
+    background: rgba(var(--bg-surface-rgb), 0.8);
+}
+
+.footer-bottom {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: var(--text-light-normal);
+    font-size: 0.875rem;
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    color: var(--text-accent);
+    text-decoration: underline;
+}
+
+.footer-bottom p {
+    color: var(--text-light-normal);
+    font-size: 0.875rem;
+    margin: 0;
+}

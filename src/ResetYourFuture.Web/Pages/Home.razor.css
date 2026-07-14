@@ -563,94 +563,7 @@
     line-height: 1.6;
 }
 
-/* ================================================
-   Footer
-   ================================================ */
-.landing-footer {
-    padding: 3rem 0;
-    border-top: 1px solid var(--border-subtle);
-    background: rgba(var(--bg-surface-rgb), 0.2);
-}
-
-.footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-    text-align: center;
-}
-
-.footer-logo {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-accent);
-}
-
-.footer-name {
-    font-weight: 600;
-    color: var(--text-accent);
-    margin: 0;
-}
-
-.footer-role {
-    font-size: 0.875rem;
-    color: var(--text-light-normal);
-    margin: 0.25rem 0 0;
-}
-
-.footer-social {
-    display: flex;
-    gap: 1rem;
-}
-
-.social-link {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-surface);
-    border-radius: 0.5rem;
-    color: var(--text-light-normal);
-    transition: all 0.3s ease;
-}
-
-.social-link:hover {
-    color: var(--text-accent);
-    background: rgba(var(--bg-surface-rgb), 0.8);
-}
-
-.footer-bottom {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-subtle);
-    text-align: center;
-}
-
-.footer-links {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.footer-links a {
-    color: var(--text-light-normal);
-    font-size: 0.875rem;
-    text-decoration: none;
-}
-
-.footer-links a:hover {
-    color: var(--text-accent);
-    text-decoration: underline;
-}
-
-.footer-bottom p {
-    color: var(--text-light-normal);
-    font-size: 0.875rem;
-    margin: 0;
-}
+/* Footer styles moved to SiteFooter.razor.css (UX-7) — rendered globally via MainLayout. */
 
 /* ================================================
    Animations
@@ -699,13 +612,9 @@
    Authenticated Home
    ================================================ */
 .authenticated-home {
-    max-width: 800px;
-    margin: 4rem auto;
-    padding: 3rem;
-    text-align: center;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 1rem;
+    max-width: 1200px;
+    margin: 2.5rem auto 0;
+    padding: 0 1rem;
 }
 
 .authenticated-home h1 {
@@ -727,6 +636,77 @@
 
 .authenticated-home a:hover {
     color: var(--text-accent);
+}
+
+/* Dashboard shortcuts (UX-7) */
+.dashboard-section {
+    margin-top: 2.5rem;
+}
+
+.dashboard-section h2 {
+    color: var(--text-accent);
+    margin-bottom: 1.25rem;
+}
+
+.dashboard-course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.dashboard-course-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+    .dashboard-course-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(var(--text-strong-accent-rgb), 0.12);
+    }
+}
+
+.dashboard-course-title {
+    font-weight: 700;
+    color: var(--text-accent);
+}
+
+.dashboard-course-meta {
+    font-size: 0.8125rem;
+    color: var(--text-light-muted);
+}
+
+.dashboard-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.dashboard-tile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.5rem;
+    color: var(--text-light-normal);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.dashboard-tile:hover {
+    color: var(--text-accent);
+    border-color: var(--text-strong-accent);
+    text-decoration: none;
 }
 
 /* ================================================

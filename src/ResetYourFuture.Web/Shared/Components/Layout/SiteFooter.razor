@@ -1,0 +1,43 @@
+@* UX-7: shared site footer, rendered globally from MainLayout so authenticated
+   users (and every app page) get the footer, not only the anonymous landing page. *@
+
+<footer class="landing-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">@HomeRes.FooterBrand</span>
+            </div>
+            <div class="footer-author">
+                <p class="footer-name">@HomeRes.FooterAuthorName</p>
+                <p class="footer-role">@HomeRes.FooterAuthorRole</p>
+            </div>
+            <div class="footer-social">
+                <a href="@YoutubeUrl" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
+                        <path d="m10 15 5-3-5-3z"></path>
+                    </svg>
+                </a>
+                <a href="@InstagramUrl" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-links">
+                <a href="/privacy">@LegalRes.PrivacyTitle</a>
+                <a href="/terms">@LegalRes.TermsTitle</a>
+            </div>
+            <p>@HomeRes.FooterCopyright</p>
+        </div>
+    </div>
+</footer>
+
+@code {
+    private string InstagramUrl => Configuration["Social:Instagram"] ?? "https://instagram.com/yourprofile";
+    private string YoutubeUrl => Configuration["Social:Youtube"] ?? "https://youtube.com";
+}

@@ -10,7 +10,59 @@
 {
     <div class="authenticated-home">
         <h1>@string.Format(HomeRes.WelcomeUser, _authenticatedUserName)</h1>
-        <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
+
+        <AuthorizeView Roles="Student">
+            @* Continue learning — the student's enrolled courses *@
+            <section class="dashboard-section">
+                <h2 class="h4">@HomeRes.DashboardContinueLearning</h2>
+                @if (_coursesLoading)
+                {
+                    <SkeletonBlock Rows="2" Height="5rem" Gap="1rem" />
+                }
+                else if (_enrolledCourses is { Count: > 0 })
+                {
+                    <div class="dashboard-course-grid">
+                        @foreach (var course in _enrolledCourses)
+                        {
+                            <a class="dashboard-course-card" href="/courses/@course.Id" @key="course.Id">
+                                <span class="dashboard-course-title">@course.Title</span>
+                                <span class="dashboard-course-meta">@string.Format(CourseRes.LessonsCountFormat, course.TotalLessons)</span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-light-muted">@HomeRes.DashboardNoEnrollments</p>
+                    <a href="/courses" class="btn-cta">@HomeRes.DashboardBrowseCourses</a>
+                }
+            </section>
+
+            @* Explore — shortcuts to the main student areas *@
+            <section class="dashboard-section">
+                <h2 class="h4">@HomeRes.DashboardExplore</h2>
+                <div class="dashboard-tiles">
+                    <a class="dashboard-tile" href="/courses"><span class="bi bi-book" aria-hidden="true"></span> @NavMenuRes.Courses</a>
+                    <a class="dashboard-tile" href="/assessments"><span class="bi bi-list-check" aria-hidden="true"></span> @NavMenuRes.Assessments</a>
+                    <a class="dashboard-tile" href="/my-certificates"><span class="bi bi-award" aria-hidden="true"></span> @NavMenuRes.Certificates</a>
+                    <a class="dashboard-tile" href="/blog"><span class="bi bi-newspaper" aria-hidden="true"></span> @NavMenuRes.Blog</a>
+                    <a class="dashboard-tile" href="/pricing"><span class="bi bi-credit-card" aria-hidden="true"></span> @NavMenuRes.Pricing</a>
+                </div>
+            </section>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin">
+            <p>@((MarkupString)HomeRes.AuthenticatedMessage)</p>
+            <section class="dashboard-section">
+                <h2 class="h4">@HomeRes.DashboardExplore</h2>
+                <div class="dashboard-tiles">
+                    <a class="dashboard-tile" href="/admin/users"><span class="bi bi-people" aria-hidden="true"></span> @NavMenuRes.Users</a>
+                    <a class="dashboard-tile" href="/admin/courses"><span class="bi bi-book" aria-hidden="true"></span> @NavMenuRes.Courses</a>
+                    <a class="dashboard-tile" href="/admin/analytics"><span class="bi bi-bar-chart" aria-hidden="true"></span> @NavMenuRes.Analytics</a>
+                    <a class="dashboard-tile" href="/admin/blog"><span class="bi bi-newspaper" aria-hidden="true"></span> @NavMenuRes.Blog</a>
+                </div>
+            </section>
+        </AuthorizeView>
     </div>
 }
 else
@@ -393,42 +445,5 @@ else
                 </div>
             </div>
         </section>
-
-        <!-- Footer -->
-        <footer class="landing-footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <span class="footer-logo">@HomeRes.FooterBrand</span>
-                    </div>
-                    <div class="footer-author">
-                        <p class="footer-name">@HomeRes.FooterAuthorName</p>
-                        <p class="footer-role">@HomeRes.FooterAuthorRole</p>
-                    </div>
-                    <div class="footer-social">
-                        <a href="@YoutubeUrl" class="social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"></path>
-                                <path d="m10 15 5-3-5-3z"></path>
-                            </svg>
-                        </a>
-                        <a href="@InstagramUrl" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <div class="footer-links">
-                        <a href="/privacy">@LegalRes.PrivacyTitle</a>
-                        <a href="/terms">@LegalRes.TermsTitle</a>
-                    </div>
-                    <p>@HomeRes.FooterCopyright</p>
-                </div>
-            </div>
-        </footer>
 }
 

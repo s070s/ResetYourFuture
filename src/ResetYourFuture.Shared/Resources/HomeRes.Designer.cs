@@ -558,6 +558,42 @@ namespace ResetYourFuture.Shared.Resources {
             }
         }
 
+        public static string BlogIndexTitle {
+            get {
+                return ResourceManager.GetString("BlogIndexTitle", resourceCulture);
+            }
+        }
+
+        public static string BlogIndexEmpty {
+            get {
+                return ResourceManager.GetString("BlogIndexEmpty", resourceCulture);
+            }
+        }
+
+        public static string DashboardContinueLearning {
+            get {
+                return ResourceManager.GetString("DashboardContinueLearning", resourceCulture);
+            }
+        }
+
+        public static string DashboardExplore {
+            get {
+                return ResourceManager.GetString("DashboardExplore", resourceCulture);
+            }
+        }
+
+        public static string DashboardNoEnrollments {
+            get {
+                return ResourceManager.GetString("DashboardNoEnrollments", resourceCulture);
+            }
+        }
+
+        public static string DashboardBrowseCourses {
+            get {
+                return ResourceManager.GetString("DashboardBrowseCourses", resourceCulture);
+            }
+        }
+
         public static string BlogNotFoundTitle {
             get {
                 return ResourceManager.GetString("BlogNotFoundTitle", resourceCulture);

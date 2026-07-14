@@ -288,6 +288,24 @@
   <data name="BlogReadMore" xml:space="preserve">
     <value>Διαβάστε περισσότερα</value>
   </data>
+  <data name="BlogIndexTitle" xml:space="preserve">
+    <value>Ιστολόγιο</value>
+  </data>
+  <data name="BlogIndexEmpty" xml:space="preserve">
+    <value>Δεν έχουν δημοσιευτεί ακόμη άρθρα.</value>
+  </data>
+  <data name="DashboardContinueLearning" xml:space="preserve">
+    <value>Συνέχισε τη Μάθηση</value>
+  </data>
+  <data name="DashboardExplore" xml:space="preserve">
+    <value>Εξερεύνηση</value>
+  </data>
+  <data name="DashboardNoEnrollments" xml:space="preserve">
+    <value>Δεν έχεις εγγραφεί ακόμη σε κανένα μάθημα.</value>
+  </data>
+  <data name="DashboardBrowseCourses" xml:space="preserve">
+    <value>Περιήγηση Μαθημάτων</value>
+  </data>
   <data name="BlogNotFoundTitle" xml:space="preserve">
     <value>Το άρθρο δεν βρέθηκε</value>
   </data>

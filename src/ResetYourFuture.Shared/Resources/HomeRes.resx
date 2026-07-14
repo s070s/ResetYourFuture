@@ -288,6 +288,24 @@
   <data name="BlogReadMore" xml:space="preserve">
     <value>Read More</value>
   </data>
+  <data name="BlogIndexTitle" xml:space="preserve">
+    <value>Blog</value>
+  </data>
+  <data name="BlogIndexEmpty" xml:space="preserve">
+    <value>No articles have been published yet.</value>
+  </data>
+  <data name="DashboardContinueLearning" xml:space="preserve">
+    <value>Continue Learning</value>
+  </data>
+  <data name="DashboardExplore" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="DashboardNoEnrollments" xml:space="preserve">
+    <value>You're not enrolled in any courses yet.</value>
+  </data>
+  <data name="DashboardBrowseCourses" xml:space="preserve">
+    <value>Browse Courses</value>
+  </data>
   <data name="BlogNotFoundTitle" xml:space="preserve">
     <value>Article not found</value>
   </data>

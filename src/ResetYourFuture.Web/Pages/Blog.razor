@@ -1,0 +1,67 @@
+@page "/blog"
+
+@* UX-7: public blog index. Previously blog articles were reachable only through the
+   anonymous home's preview cards; this page lists them for everyone and is linked from nav. *@
+
+<PageTitle>@HomeRes.BlogIndexTitle</PageTitle>
+<SeoHead Title="@HomeRes.BlogIndexTitle"
+         Description="@HomeRes.HeroSubtitle"
+         CanonicalUrl="https://reset-your-future.com/blog" />
+
+<section class="section section-blog">
+    <div class="container">
+        <h1 class="section-title">@HomeRes.BlogTitle <span class="text-gradient">@HomeRes.BlogTitleHighlight</span></h1>
+
+        @if (_loading)
+        {
+            <div class="blog-grid">
+                <div class="blog-card blog-card-skeleton"></div>
+                <div class="blog-card blog-card-skeleton"></div>
+                <div class="blog-card blog-card-skeleton"></div>
+            </div>
+        }
+        else if (_articles is { Count: > 0 })
+        {
+            <div class="blog-grid">
+                @foreach (var article in _articles)
+                {
+                    <div class="blog-card" @key="article.Id">
+                        @if (!string.IsNullOrWhiteSpace(article.CoverImageUrl))
+                        {
+                            <div class="blog-card-cover">
+                                <img src="@article.CoverImageUrl" alt="@article.Title" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="blog-card-cover blog-card-cover-placeholder"></div>
+                        }
+                        @if (article.Tags.Length > 0)
+                        {
+                            <div class="blog-card-tags">
+                                @foreach (var tag in article.Tags)
+                                {
+                                    <span class="blog-tag">@tag</span>
+                                }
+                            </div>
+                        }
+                        <h3 class="blog-card-title">@article.Title</h3>
+                        <p class="blog-card-summary">@article.Summary</p>
+                        <div class="blog-card-meta">
+                            <span>@article.AuthorName</span>
+                            @if (article.PublishedAt.HasValue)
+                            {
+                                <span>@article.PublishedAt.Value.ToLocalTime().ToString("d")</span>
+                            }
+                        </div>
+                        <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">@HomeRes.BlogReadMore</a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-light-muted">@HomeRes.BlogIndexEmpty</p>
+        }
+    </div>
+</section>
