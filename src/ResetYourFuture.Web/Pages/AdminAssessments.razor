@@ -7,8 +7,11 @@
 
 <DismissibleAlert Message="@message" AlertType="@messageType" OnDismiss="@(() => message = string.Empty)" />
 
-<div class="mb-3">
-    <button class="btn btn-primary" @onclick="CreateAssessment">@AdminRes.CreateNewAssessment</button>
+<div class="d-flex gap-2 mb-3">
+    <input type="text" class="form-control" placeholder="@AdminRes.SearchAssessments"
+           aria-label="@AdminRes.SearchAssessments"
+           value="@_searchTerm" @oninput="OnSearchInput" />
+    <button class="btn btn-primary text-nowrap" @onclick="CreateAssessment">@AdminRes.CreateNewAssessment</button>
 </div>
 
 @if (_pagedResult == null)

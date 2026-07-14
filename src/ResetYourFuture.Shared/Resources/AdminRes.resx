@@ -536,6 +536,12 @@
 	<data name="SearchByTitleSlugAuthor" xml:space="preserve">
 		<value>Search by title, slug or author...</value>
 	</data>
+	<data name="SearchCourses" xml:space="preserve">
+		<value>Search by title...</value>
+	</data>
+	<data name="SearchAssessments" xml:space="preserve">
+		<value>Search by title or key...</value>
+	</data>
 	<data name="NewArticle" xml:space="preserve">
 		<value>New Article</value>
 	</data>

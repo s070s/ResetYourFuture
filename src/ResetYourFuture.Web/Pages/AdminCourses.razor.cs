@@ -6,7 +6,7 @@ using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Pages;
 
-public partial class AdminCourses
+public partial class AdminCourses : IAsyncDisposable
 {
     [Inject] private IAdminCourseConsumer CourseConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -20,6 +20,8 @@ public partial class AdminCourses
     private Guid? _pendingDeleteId;
     private string _sortBy = "createdat";
     private string _sortDir = "desc";
+    private string searchTerm = string.Empty;
+    private CancellationTokenSource? _searchCts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,13 +45,40 @@ public partial class AdminCourses
     {
         try
         {
-            pagedResult = await CourseConsumer.GetCoursesAsync(currentPage, pageSize, _sortBy, _sortDir);
+            pagedResult = await CourseConsumer.GetCoursesAsync(
+                currentPage, pageSize, _sortBy, _sortDir,
+                string.IsNullOrEmpty(searchTerm) ? null : searchTerm);
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
             messageType = "danger";
         }
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        currentPage = 1;
+
+        var previous = _searchCts;
+        _searchCts = new CancellationTokenSource();
+        previous?.Cancel();
+        previous?.Dispose();
+
+        try
+        {
+            await Task.Delay(300, _searchCts.Token);
+            await LoadCourses();
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        return ValueTask.CompletedTask;
     }
 
     private async Task OnPageSizeChanged(int size)

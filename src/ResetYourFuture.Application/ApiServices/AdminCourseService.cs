@@ -30,11 +30,24 @@ public class AdminCourseService(
     }
 
     public async Task<PagedResult<AdminCourseDto>> GetCoursesAsync(
-        int page, int pageSize, string sortBy, string sortDir, CancellationToken cancellationToken = default)
+        int page, int pageSize, string sortBy, string sortDir, string? search = null, CancellationToken cancellationToken = default)
     {
-        var totalCount = await db.Courses.CountAsync(cancellationToken);
+        var query = db.Courses.AsQueryable();
 
-        var items = await db.Courses
+        // UX-13: same EF.Functions.Like approach as BlogArticleService — SQL Server's
+        // default case-insensitive collation makes it a case-insensitive match without
+        // defeating an index the way .ToLower() would.
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+            query = query.Where(c =>
+                EF.Functions.Like(c.TitleEn, term) ||
+                (c.TitleEl != null && EF.Functions.Like(c.TitleEl, term)));
+        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await query
             .AsNoTracking()
             .Include(c => c.Modules)
             .ThenInclude(m => m.Lessons)

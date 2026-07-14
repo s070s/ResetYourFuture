@@ -51,11 +51,22 @@ public class AdminAssessmentsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,
         [FromQuery] string sortBy = "createdat",
-        [FromQuery] string sortDir = "desc")
+        [FromQuery] string sortDir = "desc",
+        [FromQuery] string? search = null)
     {
         (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
         var query = _db.AssessmentDefinitions.AsNoTracking();
+
+        // UX-13: same EF.Functions.Like approach as BlogArticleService/AdminCourseService.
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = $"%{search.Trim()}%";
+            query = query.Where(a =>
+                EF.Functions.Like(a.TitleEn, term) ||
+                (a.TitleEl != null && EF.Functions.Like(a.TitleEl, term)) ||
+                EF.Functions.Like(a.Key, term));
+        }
 
         var totalCount = await query.CountAsync();
 

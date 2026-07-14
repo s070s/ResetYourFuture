@@ -71,6 +71,21 @@ public class AdminCourseServiceTests
     }
 
     [Fact]
+    public async Task GetCourses_SearchFiltersByTitle_OnSqlite()
+    {
+        // UX-13: EF.Functions.Like is unsupported on the InMemory provider — use the relational SQLite fixture.
+        await using var db = DbContextFactory.CreateSqlite();
+        db.Courses.Add(new Course { Id = Guid.NewGuid(), TitleEn = "Alpha Course" });
+        db.Courses.Add(new Course { Id = Guid.NewGuid(), TitleEn = "Beta Course" });
+        await db.SaveChangesAsync();
+
+        var page = await NewService(db).GetCoursesAsync(1, 10, "createdat", "desc", search: "alpha");
+
+        page.Items.Select(i => i.TitleEn).ShouldBe(new[] { "Alpha Course" });
+        page.TotalCount.ShouldBe(1);
+    }
+
+    [Fact]
     public async Task CreateCourse_PersistsUnpublishedWithZeroCounts()
     {
         await using var db = DbContextFactory.CreateInMemory();

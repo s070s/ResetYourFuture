@@ -1508,7 +1508,25 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("SearchByTitleSlugAuthor", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search by title....
+        /// </summary>
+        public static string SearchCourses {
+            get {
+                return ResourceManager.GetString("SearchCourses", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Search by title or key....
+        /// </summary>
+        public static string SearchAssessments {
+            get {
+                return ResourceManager.GetString("SearchAssessments", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Set Password.
         /// </summary>

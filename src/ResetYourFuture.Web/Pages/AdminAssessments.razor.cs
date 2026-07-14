@@ -6,7 +6,7 @@ using ResetYourFuture.Application.DTOs;
 
 namespace ResetYourFuture.Web.Pages;
 
-public partial class AdminAssessments
+public partial class AdminAssessments : IAsyncDisposable
 {
     [Inject] private IAdminAssessmentConsumer AssessmentConsumer { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -20,6 +20,8 @@ public partial class AdminAssessments
     private Guid? _pendingDeleteId;
     private string _sortBy = "createdat";
     private string _sortDir = "desc";
+    private string _searchTerm = string.Empty;
+    private CancellationTokenSource? _searchCts;
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,13 +45,40 @@ public partial class AdminAssessments
     {
         try
         {
-            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync(_page, _pageSize, _sortBy, _sortDir);
+            _pagedResult = await AssessmentConsumer.GetAssessmentsAsync(
+                _page, _pageSize, _sortBy, _sortDir,
+                string.IsNullOrEmpty(_searchTerm) ? null : _searchTerm);
         }
         catch (Exception ex)
         {
             message = ErrorMessagesRes.UnexpectedErrorTryAgain;
             messageType = "danger";
         }
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        _searchTerm = e.Value?.ToString() ?? string.Empty;
+        _page = 1;
+
+        var previous = _searchCts;
+        _searchCts = new CancellationTokenSource();
+        previous?.Cancel();
+        previous?.Dispose();
+
+        try
+        {
+            await Task.Delay(300, _searchCts.Token);
+            await LoadAssessments();
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        return ValueTask.CompletedTask;
     }
 
     private async Task OnPageSizeChanged(int size)

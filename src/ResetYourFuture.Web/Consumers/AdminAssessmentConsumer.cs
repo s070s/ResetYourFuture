@@ -7,8 +7,13 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public class AdminAssessmentConsumer(HttpClient http, ResetYourFuture.Web.Services.ApiTokenProvider tokenProvider) : ApiClientBase(http, tokenProvider), IAdminAssessmentConsumer
 {
-    public Task<PagedResult<AssessmentDefinitionListItemDto>?> GetAssessmentsAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc")
-        => GetAsync<PagedResult<AssessmentDefinitionListItemDto>>($"api/admin/assessments?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}");
+    public Task<PagedResult<AssessmentDefinitionListItemDto>?> GetAssessmentsAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc", string? search = null)
+    {
+        var url = $"api/admin/assessments?page={page}&pageSize={pageSize}&sortBy={sortBy}&sortDir={sortDir}";
+        if (!string.IsNullOrWhiteSpace(search))
+            url += $"&search={Uri.EscapeDataString(search)}";
+        return GetAsync<PagedResult<AssessmentDefinitionListItemDto>>(url);
+    }
 
     public Task<AdminAssessmentDefinitionDto?> GetAssessmentAsync(Guid id)
         => GetAsync<AdminAssessmentDefinitionDto>($"api/admin/assessments/{id}");

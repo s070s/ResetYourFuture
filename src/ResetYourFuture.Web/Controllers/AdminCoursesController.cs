@@ -41,11 +41,12 @@ public class AdminCoursesController(IAdminCourseService adminCourseService) : Co
         [FromQuery] int pageSize = 10,
         [FromQuery] string sortBy = "createdat",
         [FromQuery] string sortDir = "desc",
+        [FromQuery] string? search = null,
         CancellationToken cancellationToken = default)
     {
         (page, pageSize) = PagingParams.Normalize(page, pageSize);
 
-        var result = await adminCourseService.GetCoursesAsync(page, pageSize, sortBy, sortDir, cancellationToken);
+        var result = await adminCourseService.GetCoursesAsync(page, pageSize, sortBy, sortDir, search, cancellationToken);
         return Ok(result);
     }
 

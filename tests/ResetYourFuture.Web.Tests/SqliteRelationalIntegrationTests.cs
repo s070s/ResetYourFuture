@@ -124,4 +124,40 @@ public class SqliteRelationalIntegrationTests
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         (await response.Content.ReadAsStringAsync()).ShouldContain(title);
     }
+
+    [Fact]
+    public async Task AdminAssessments_Search_AgainstRelationalProvider_FiltersByTitle()
+    {
+        // UX-13: AdminAssessmentsController.GetAssessments' search filter uses EF.Functions.Like,
+        // which the InMemory provider (the default integration host) does not support — needs SQLite.
+        var client = await _factory.CreateAuthenticatedClientAsync("Admin");
+        var matching = $"Alpha-{Guid.NewGuid():N}";
+        var other = $"Beta-{Guid.NewGuid():N}";
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            db.AssessmentDefinitions.Add(new AssessmentDefinition
+            {
+                Id = Guid.NewGuid(),
+                Key = $"key-{Guid.NewGuid():N}",
+                TitleEn = matching,
+                SchemaJson = "{\"questions\":[]}"
+            });
+            db.AssessmentDefinitions.Add(new AssessmentDefinition
+            {
+                Id = Guid.NewGuid(),
+                Key = $"key-{Guid.NewGuid():N}",
+                TitleEn = other,
+                SchemaJson = "{\"questions\":[]}"
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var response = await client.GetAsync($"/api/admin/assessments?search={Uri.EscapeDataString(matching)}");
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var body = await response.Content.ReadAsStringAsync();
+        body.ShouldContain(matching);
+        body.ShouldNotContain(other);
+    }
 }

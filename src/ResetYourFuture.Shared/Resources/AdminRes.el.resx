@@ -555,6 +555,12 @@
   <data name="SearchByTitleSlugAuthor" xml:space="preserve">
     <value>Αναζήτηση με τίτλο, slug ή συγγραφέα...</value>
   </data>
+  <data name="SearchCourses" xml:space="preserve">
+    <value>Αναζήτηση με τίτλο...</value>
+  </data>
+  <data name="SearchAssessments" xml:space="preserve">
+    <value>Αναζήτηση με τίτλο ή κλειδί...</value>
+  </data>
   <data name="NewArticle" xml:space="preserve">
     <value>Νέο Άρθρο</value>
   </data>

@@ -7,7 +7,7 @@ namespace ResetYourFuture.Web.Consumers;
 /// </summary>
 public interface IAdminAssessmentConsumer
 {
-    Task<PagedResult<AssessmentDefinitionListItemDto>?> GetAssessmentsAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc");
+    Task<PagedResult<AssessmentDefinitionListItemDto>?> GetAssessmentsAsync(int page = 1, int pageSize = 10, string sortBy = "createdat", string sortDir = "desc", string? search = null);
     Task<AdminAssessmentDefinitionDto?> GetAssessmentAsync(Guid id);
     Task<AdminAssessmentDefinitionDto?> CreateAssessmentAsync(SaveAssessmentDefinitionRequest request);
     Task<AdminAssessmentDefinitionDto?> UpdateAssessmentAsync(Guid id, SaveAssessmentDefinitionRequest request);
