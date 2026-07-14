@@ -15,7 +15,7 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
     public async Task<IReadOnlyList<LearningPathListItemDto>> GetPublishedAsync(
         string? userId, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var rows = await db.LearningPaths
             .AsNoTracking()
@@ -41,10 +41,10 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
 
         return rows.Select(p => new LearningPathListItemDto(
             p.Id,
-            isEl ? (p.TitleEl ?? p.TitleEn) : p.TitleEn,
-            isEl ? (p.DescriptionEl ?? p.DescriptionEn) : p.DescriptionEn,
+            Localized.Pick(isEl, p.TitleEn, p.TitleEl),
+            Localized.Pick(isEl, p.DescriptionEn, p.DescriptionEl),
             p.CategoryId,
-            isEl ? (p.CategoryNameEl ?? p.CategoryNameEn) : p.CategoryNameEn,
+            Localized.Pick(isEl, p.CategoryNameEn, p.CategoryNameEl),
             p.StepCount,
             p.CompletedSteps)).ToList();
     }
@@ -52,7 +52,7 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
     public async Task<LearningPathDetailDto?> GetByIdAsync(
         Guid id, string? userId, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var path = await db.LearningPaths
             .AsNoTracking()
@@ -117,7 +117,7 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
 
             stepDtos.Add(new LearningPathStepDto(
                 s.CourseId,
-                isEl ? (s.CourseTitleEl ?? s.CourseTitleEn) : s.CourseTitleEn,
+                Localized.Pick(isEl, s.CourseTitleEn, s.CourseTitleEl),
                 s.StepOrder,
                 isCompleted,
                 isLocked,
@@ -128,10 +128,10 @@ public class LearningPathService(IApplicationDbContext db, ILogger<LearningPathS
 
         return new LearningPathDetailDto(
             path.Id,
-            isEl ? (path.TitleEl ?? path.TitleEn) : path.TitleEn,
-            isEl ? (path.DescriptionEl ?? path.DescriptionEn) : path.DescriptionEn,
+            Localized.Pick(isEl, path.TitleEn, path.TitleEl),
+            Localized.Pick(isEl, path.DescriptionEn, path.DescriptionEl),
             path.CategoryId,
-            isEl ? (path.CategoryNameEl ?? path.CategoryNameEn) : path.CategoryNameEn,
+            Localized.Pick(isEl, path.CategoryNameEn, path.CategoryNameEl),
             stepDtos);
     }
 

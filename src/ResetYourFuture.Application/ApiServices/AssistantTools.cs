@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.AI;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Enums;
 
@@ -26,7 +27,7 @@ public class AssistantTools(IApplicationDbContext db) : IAssistantTools
         if (string.IsNullOrWhiteSpace(userId))
             return [];
 
-        var isEl = string.Equals(language, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(language);
 
         return
         [

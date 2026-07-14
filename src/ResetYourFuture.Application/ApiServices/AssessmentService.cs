@@ -29,7 +29,7 @@ public class AssessmentService(
         if (userStatus.Features?.AssessmentAccess != true)
             return ServiceResult<PagedResult<AssessmentDefinitionDto>>.Forbidden(error: ErrorMessagesRes.AssessmentAccessRequiresPlus);
 
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var query = db.AssessmentDefinitions
             .AsNoTracking()
@@ -75,7 +75,7 @@ public class AssessmentService(
         if (userStatus.Features?.AssessmentAccess != true)
             return ServiceResult<AssessmentDefinitionDto>.Forbidden(error: ErrorMessagesRes.AssessmentAccessRequiresPlus);
 
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var assessment = await db.AssessmentDefinitions
             .AsNoTracking()

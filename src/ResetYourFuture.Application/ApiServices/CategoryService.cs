@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
 
@@ -12,7 +13,7 @@ public class CategoryService(IApplicationDbContext db) : ICategoryService
 {
     public async Task<List<CategoryDto>> GetCategoriesAsync(string scope, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
         var isAssessments = string.Equals(scope, "assessments", StringComparison.OrdinalIgnoreCase);
 
         var counts = isAssessments
@@ -44,7 +45,7 @@ public class CategoryService(IApplicationDbContext db) : ICategoryService
         return categories
             .Select(c => new CategoryDto(
                 c.Id,
-                isEl ? (c.NameEl ?? c.NameEn) : c.NameEn,
+                Localized.Pick(isEl, c.NameEn, c.NameEl),
                 countById[c.Id]))
             .OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();

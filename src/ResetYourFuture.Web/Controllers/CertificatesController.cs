@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Application.ApiInterfaces;
@@ -52,7 +53,7 @@ public class CertificatesController : ControllerBase
         [FromQuery] string lang = "en")
     {
         var userId = UserId;
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var certificates = await _db.Certificates
             .AsNoTracking()
@@ -73,7 +74,7 @@ public class CertificatesController : ControllerBase
         [FromQuery] string lang = "en")
     {
         var userId = UserId;
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var subStatus = await _subscriptionService.GetUserStatusAsync(userId);
         if (subStatus.Features?.CertificateAccess != true)
@@ -136,7 +137,7 @@ public class CertificatesController : ControllerBase
         Guid verificationId,
         [FromQuery] string lang = "en")
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var certificate = await _db.Certificates
             .AsNoTracking()

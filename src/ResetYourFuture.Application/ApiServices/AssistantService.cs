@@ -146,7 +146,7 @@ public class AssistantService(
 
     private async Task<List<string>> GetEnrolledCourseTitlesAsync(string userId, string language, CancellationToken cancellationToken)
     {
-        var isEl = string.Equals(language, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(language);
 
         var courses = await db.Enrollments
             .AsNoTracking()
@@ -154,7 +154,7 @@ public class AssistantService(
             .Select(e => e.Course)
             .ToListAsync(cancellationToken);
 
-        return courses.Select(c => isEl ? (c.TitleEl ?? c.TitleEn) : c.TitleEn).ToList();
+        return courses.Select(c => Localized.Pick(isEl, c.TitleEn, c.TitleEl)).ToList();
     }
 
     private static string BuildSystemPrompt(

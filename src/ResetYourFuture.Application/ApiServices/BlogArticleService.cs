@@ -1,5 +1,6 @@
 using Ganss.Xss;
 using Microsoft.EntityFrameworkCore;
+using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Domain.Entities;
 using ResetYourFuture.Domain.Extensions;
@@ -30,7 +31,7 @@ public class BlogArticleService : IBlogArticleService
     public async Task<IReadOnlyList<BlogArticleSummaryDto>> GetPublishedSummariesAsync(
         int count, string lang = "en", CancellationToken cancellationToken = default)
     {
-        var isEl = IsEl(lang);
+        var isEl = Localized.IsEl(lang);
 
         var articles = await _db.BlogArticles
             .AsNoTracking()
@@ -45,7 +46,7 @@ public class BlogArticleService : IBlogArticleService
     public async Task<BlogArticleDto?> GetPublishedBySlugAsync(
         string slug, string lang = "en", CancellationToken cancellationToken = default)
     {
-        var isEl = IsEl(lang);
+        var isEl = Localized.IsEl(lang);
 
         var article = await _db.BlogArticles
             .AsNoTracking()
@@ -237,9 +238,6 @@ public class BlogArticleService : IBlogArticleService
 
     // --- Helpers ---
 
-    private static bool IsEl(string lang) =>
-        string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
-
     private static string[] DeserializeTags(string? json)
         => string.IsNullOrWhiteSpace(json)
             ? []
@@ -252,9 +250,9 @@ public class BlogArticleService : IBlogArticleService
 
     private static BlogArticleSummaryDto ToSummaryDto(BlogArticle a, bool isEl) =>
         new(a.Id,
-             isEl ? (a.TitleEl ?? a.TitleEn) : a.TitleEn,
+             Localized.Pick(isEl, a.TitleEn, a.TitleEl),
              a.Slug,
-             isEl ? (a.SummaryEl ?? a.SummaryEn) : a.SummaryEn,
+             Localized.Pick(isEl, a.SummaryEn, a.SummaryEl),
              a.CoverImageUrl,
              a.AuthorName,
              DeserializeTags(a.Tags),
@@ -262,14 +260,14 @@ public class BlogArticleService : IBlogArticleService
 
     private static BlogArticleDto ToDto(BlogArticle a, bool isEl) =>
         new(a.Id,
-             isEl ? (a.TitleEl ?? a.TitleEn) : a.TitleEn,
+             Localized.Pick(isEl, a.TitleEn, a.TitleEl),
              a.Slug,
-             isEl ? (a.SummaryEl ?? a.SummaryEn) : a.SummaryEn,
+             Localized.Pick(isEl, a.SummaryEn, a.SummaryEl),
              a.CoverImageUrl,
              a.AuthorName,
              DeserializeTags(a.Tags),
              a.PublishedAt,
-             isEl ? (a.ContentEl ?? a.ContentEn) : a.ContentEn);
+             Localized.Pick(isEl, a.ContentEn, a.ContentEl));
 
     private static AdminBlogArticleDto ToAdminDto(BlogArticle a) =>
         new(a.Id,

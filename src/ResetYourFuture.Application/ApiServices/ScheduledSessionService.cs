@@ -16,12 +16,14 @@ public class ScheduledSessionService(IApplicationDbContext db, ILogger<Scheduled
     public async Task<IReadOnlyList<ScheduledSessionListItemDto>> GetUpcomingAsync(
         string? userId, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var rows = await db.ScheduledSessions
             .AsNoTracking()
             .Where(s => s.Status == ScheduledSessionStatus.Scheduled || s.Status == ScheduledSessionStatus.Live)
             .OrderBy(s => s.StartsAtUtc).ThenBy(s => s.Id)
+            // Inline ternary, not Localized.Pick: this Select is translated to SQL, and EF
+            // Core cannot translate an arbitrary method call.
             .Select(s => new
             {
                 s.Id,
@@ -50,7 +52,7 @@ public class ScheduledSessionService(IApplicationDbContext db, ILogger<Scheduled
 
             return new ScheduledSessionListItemDto(
                 s.Id,
-                isEl ? (s.TitleEl ?? s.TitleEn) : s.TitleEn,
+                Localized.Pick(isEl, s.TitleEn, s.TitleEl),
                 s.HostNameEn,
                 s.CourseTitle,
                 s.StartsAtUtc,

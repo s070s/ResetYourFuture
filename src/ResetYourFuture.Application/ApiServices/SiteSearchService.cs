@@ -47,7 +47,7 @@ public class SiteSearchService(
     private async Task<List<SiteSearchHitDto>> TitleSearchAsync(
         string query, string language, int limit, CancellationToken cancellationToken)
     {
-        var isEl = string.Equals(language, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(language);
         var perType = Math.Max(1, limit / 3 + 1); // spread the cap roughly evenly across the three sources
 
         // Plain .Contains (not EF.Functions.Like): translates to a sargable LIKE '%term%' on SQL

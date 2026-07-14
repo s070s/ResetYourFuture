@@ -23,7 +23,7 @@ public class CourseService(
         string userId, int page, int pageSize, string lang, Guid? categoryId = null, string? search = null,
         CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var query = db.Courses
             .AsNoTracking()
@@ -92,13 +92,13 @@ public class CourseService(
             var rating = ratingsById.GetValueOrDefault(c.Id);
             return new CourseListItemDto(
                 c.Id,
-                isEl ? (c.TitleEl ?? c.TitleEn) : c.TitleEn,
-                isEl ? (c.DescriptionEl ?? c.DescriptionEn) : c.DescriptionEn,
+                Localized.Pick(isEl, c.TitleEn, c.TitleEl),
+                Localized.Pick(isEl, c.DescriptionEn, c.DescriptionEl),
                 enrolledCourseIds.Contains(c.Id),
                 lessonCountById.GetValueOrDefault(c.Id, 0),
                 c.RequiredTier,
                 c.CategoryId,
-                c.CategoryId is null ? null : (isEl ? (c.CategoryNameEl ?? c.CategoryNameEn) : c.CategoryNameEn),
+                c.CategoryId is null ? null : Localized.Pick(isEl, c.CategoryNameEn, c.CategoryNameEl),
                 rating?.AverageRating,
                 rating?.ReviewCount ?? 0
             );
@@ -109,7 +109,7 @@ public class CourseService(
 
     public async Task<CourseDetailDto?> GetCourseDetailAsync(string userId, Guid courseId, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var course = await db.Courses
             .AsNoTracking()
@@ -135,8 +135,8 @@ public class CourseService(
 
         return new CourseDetailDto(
             course.Id,
-            isEl ? (course.TitleEl ?? course.TitleEn) : course.TitleEn,
-            isEl ? (course.DescriptionEl ?? course.DescriptionEn) : course.DescriptionEn,
+            Localized.Pick(isEl, course.TitleEn, course.TitleEl),
+            Localized.Pick(isEl, course.DescriptionEn, course.DescriptionEl),
             enrollment is not null,
             enrollment?.Status == EnrollmentStatus.Completed,
             completedLessons,
@@ -144,12 +144,12 @@ public class CourseService(
             progressPercent,
             course.Modules.Select(m => new ModuleDto(
                 m.Id,
-                isEl ? (m.TitleEl ?? m.TitleEn) : m.TitleEn,
-                isEl ? (m.DescriptionEl ?? m.DescriptionEn) : m.DescriptionEn,
+                Localized.Pick(isEl, m.TitleEn, m.TitleEl),
+                Localized.Pick(isEl, m.DescriptionEn, m.DescriptionEl),
                 m.SortOrder,
                 m.Lessons.Select(l => new LessonSummaryDto(
                     l.Id,
-                    isEl ? (l.TitleEl ?? l.TitleEn) : l.TitleEn,
+                    Localized.Pick(isEl, l.TitleEn, l.TitleEl),
                     (int)GetContentType(l),
                     l.DurationMinutes,
                     l.SortOrder,
@@ -232,7 +232,7 @@ public class CourseService(
 
     public async Task<ServiceResult<LessonDetailDto>> GetLessonDetailAsync(string userId, Guid lessonId, string lang, CancellationToken cancellationToken = default)
     {
-        var isEl = string.Equals(lang, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(lang);
 
         var lesson = await db.Lessons
             .AsNoTracking()
@@ -271,20 +271,20 @@ public class CourseService(
         var contentType = GetContentType(lesson);
         var displayContent = contentType == ContentType.Video
             ? lesson.VideoPath
-            : (isEl ? (lesson.ContentEl ?? lesson.ContentEn) : lesson.ContentEn);
+            : Localized.Pick(isEl, lesson.ContentEn, lesson.ContentEl);
 
         var dto = new LessonDetailDto(
             lesson.Id,
-            isEl ? (lesson.TitleEl ?? lesson.TitleEn) : lesson.TitleEn,
+            Localized.Pick(isEl, lesson.TitleEn, lesson.TitleEl),
             (int)contentType,
             displayContent,
             lesson.PdfPath,
             lesson.DurationMinutes,
             isCompleted,
             lesson.ModuleId,
-            isEl ? (lesson.Module.TitleEl ?? lesson.Module.TitleEn) : lesson.Module.TitleEn,
+            Localized.Pick(isEl, lesson.Module.TitleEn, lesson.Module.TitleEl),
             course.Id,
-            isEl ? (course.TitleEl ?? course.TitleEn) : course.TitleEn,
+            Localized.Pick(isEl, course.TitleEn, course.TitleEl),
             previousLessonId,
             nextLessonId
         );

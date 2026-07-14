@@ -93,7 +93,7 @@ public class AssistantRetrievalService(
     private async Task<List<(CachedAssistantChunk Chunk, string Title, string Url)>> ResolveSourcesAsync(
         List<CachedAssistantChunk> chunks, string language, CancellationToken cancellationToken)
     {
-        var isEl = string.Equals(language, "el", StringComparison.OrdinalIgnoreCase);
+        var isEl = Localized.IsEl(language);
 
         var courseIds = chunks.Where(c => c.SourceType == AssistantSourceType.Course).Select(c => c.SourceId).ToHashSet();
         var lessonIds = chunks.Where(c => c.SourceType == AssistantSourceType.Lesson).Select(c => c.SourceId).ToHashSet();
@@ -119,16 +119,16 @@ public class AssistantRetrievalService(
             (string Title, string Url)? resolved = chunk.SourceType switch
             {
                 AssistantSourceType.Course => courses.Find(c => c.Id == chunk.SourceId) is { } course
-                    ? (isEl ? (course.TitleEl ?? course.TitleEn) : course.TitleEn, $"courses/{course.Id}")
+                    ? (Localized.Pick(isEl, course.TitleEn, course.TitleEl), $"courses/{course.Id}")
                     : null,
                 AssistantSourceType.Lesson => lessons.Find(l => l.Id == chunk.SourceId) is { } lesson
-                    ? (isEl ? (lesson.TitleEl ?? lesson.TitleEn) : lesson.TitleEn, $"courses/{lesson.Module.CourseId}")
+                    ? (Localized.Pick(isEl, lesson.TitleEn, lesson.TitleEl), $"courses/{lesson.Module.CourseId}")
                     : null,
                 AssistantSourceType.Assessment => assessments.Find(a => a.Id == chunk.SourceId) is { } assessment
-                    ? (isEl ? (assessment.TitleEl ?? assessment.TitleEn) : assessment.TitleEn, $"assessments/{assessment.Id}")
+                    ? (Localized.Pick(isEl, assessment.TitleEn, assessment.TitleEl), $"assessments/{assessment.Id}")
                     : null,
                 AssistantSourceType.BlogArticle => blogArticles.Find(b => b.Id == chunk.SourceId) is { } article
-                    ? (isEl ? (article.TitleEl ?? article.TitleEn) : article.TitleEn, $"blog/{article.Slug}")
+                    ? (Localized.Pick(isEl, article.TitleEn, article.TitleEl), $"blog/{article.Slug}")
                     : null,
                 _ => null
             };
