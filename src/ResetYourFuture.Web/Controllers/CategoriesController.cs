@@ -6,7 +6,7 @@ using ResetYourFuture.Application.DTOs;
 namespace ResetYourFuture.Web.Controllers;
 
 /// <summary>
-/// Public category discovery for browse/filter chips.
+/// Category discovery for browse/filter chips (requires authentication).
 /// </summary>
 [ApiController]
 [Route("api/categories")]

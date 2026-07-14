@@ -86,7 +86,12 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
                 "not a parsed object. Each SSE `data:` line is a JSON-encoded `AssistantStreamEvent` whose `Kind` " +
                 "is `token` (one piece of the reply), `sources` (grounding citations, sent once after the last " +
                 "token), `done` (stream complete), or `error`. The endpoint is entirely local (an Ollama sidecar, " +
-                "no cloud calls) and runs against every authenticated user regardless of subscription tier.",
+                "no cloud calls) and runs against every authenticated user regardless of subscription tier.\n\n" +
+                "## Other realtime hubs (SignalR, not in this document)\n\n" +
+                "Two more hubs exist alongside `/hubs/chat`, for the same reason not described as REST " +
+                "operations here: `/hubs/call` (WebRTC offer/answer/ICE-candidate signaling for voice/video " +
+                "calls, handled by `CallHub`) and `/hubs/notifications` (cross-feature push notifications, " +
+                "`NotificationHub`). Both use the same query-string JWT auth as the chat hub.",
             Contact = new OpenApiContact
             {
                 Name = "ResetYourFuture Support",

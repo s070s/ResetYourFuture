@@ -99,6 +99,7 @@ public class CertificatesController : ControllerBase
     /// Streams the PDF for a certificate owned by the authenticated student.
     /// </summary>
     [HttpGet("{certificateId:guid}/download")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "application/pdf")]
     public async Task<IActionResult> DownloadCertificate(Guid certificateId)
     {
         var userId = UserId;

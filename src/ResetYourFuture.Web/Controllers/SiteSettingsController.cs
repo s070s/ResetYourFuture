@@ -39,6 +39,7 @@ public class SiteSettingsController : ControllerBase
     /// </summary>
     [HttpGet("background-image")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "image/jpeg", "image/png", "image/webp")]
     public async Task<IActionResult> GetBackgroundImage()
     {
         var setting = await _db.SiteSettings

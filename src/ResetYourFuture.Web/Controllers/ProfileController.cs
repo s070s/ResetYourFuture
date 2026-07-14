@@ -68,9 +68,10 @@ public class ProfileController(IProfileService profileService, IAdminUserService
     }
 
     /// <summary>
-    /// Get avatar image for current or specified user.
+    /// Get the current user's avatar image.
     /// </summary>
     [HttpGet("avatar")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "image/jpeg", "image/png", "image/webp", "image/gif")]
     public async Task<IActionResult> GetAvatar()
     {
         var avatar = await profileService.GetAvatarAsync(UserId);

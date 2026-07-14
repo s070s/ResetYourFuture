@@ -65,7 +65,6 @@ public class AuthController : ControllerBase
     /// The submitted refresh token is revoked; a fresh pair is returned.
     /// </summary>
     [HttpPost("refresh")]
-    [AllowAnonymous]
     [EnableRateLimiting("auth")]
     public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenRequestDto request)
     {

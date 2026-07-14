@@ -26,7 +26,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/lessons")]
 [AllowAnonymous]
 [Tags("Lesson Assets")]
-[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "application/pdf", "video/mp4", "video/webm", "video/ogg")]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class LessonAssetsController : ControllerBase

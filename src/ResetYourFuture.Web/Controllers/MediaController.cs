@@ -11,7 +11,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/media")]
 [Tags("Media")]
-[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, "image/jpeg", "image/png", "image/gif", "image/webp", "image/avif", "image/svg+xml")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class MediaController : ControllerBase

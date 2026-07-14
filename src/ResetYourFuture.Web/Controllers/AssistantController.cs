@@ -28,6 +28,7 @@ public class AssistantController(IAssistantService assistantService) : Controlle
     /// </summary>
     [HttpPost("chat")]
     [EnableRateLimiting("assistant")]
+    [ProducesResponseType<AssistantStreamEvent>(StatusCodes.Status200OK, "text/event-stream")]
     public IResult Chat([FromBody] AssistantChatRequest request, [FromQuery] string lang = "en")
     {
         // SSE tokens must reach the client as they're produced, not once the response buffer fills.

@@ -101,7 +101,7 @@ public class AdminAssessmentsController : ControllerBase
     /// </summary>
     [HttpPost]
     [ProducesResponseType<AdminAssessmentDefinitionDto>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<AssessmentDefinitionDto>> CreateAssessment([FromBody] SaveAssessmentDefinitionRequest request)
+    public async Task<ActionResult<AdminAssessmentDefinitionDto>> CreateAssessment([FromBody] SaveAssessmentDefinitionRequest request)
     {
         // Ensure the requested key is unique to avoid duplicates
         if (await _db.AssessmentDefinitions.AnyAsync(a => a.Key == request.Key))
@@ -152,7 +152,7 @@ public class AdminAssessmentsController : ControllerBase
     /// Update an existing assessment definition.
     /// </summary>
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<AssessmentDefinitionDto>> UpdateAssessment(Guid id, [FromBody] SaveAssessmentDefinitionRequest request)
+    public async Task<ActionResult<AdminAssessmentDefinitionDto>> UpdateAssessment(Guid id, [FromBody] SaveAssessmentDefinitionRequest request)
     {
         // Try to find the assessment by id and return 404 if not found
         var assessment = await _db.AssessmentDefinitions.FindAsync(id);
