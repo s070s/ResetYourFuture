@@ -19,23 +19,13 @@ NOT examined: the suite was not executed and coverage was not measured (no cover
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 2 |
+| Medium | 0 |
 | Low | 4 |
 | Info | 1 |
 
-For a solo certificate project, the automated test estate is genuinely strong: ~700 test cases across four layers, real-pipeline integration tests through `WebApplicationFactory<Program>` that exercise the same loopback API the app itself uses, a purpose-built pure state machine (`CallRegistry`) that makes the hardest feature unit-testable, a hand-rolled SignalR hub harness, consumer tests against a stubbed handler, an auth-matrix suite, and CI running everything on every push. Relational behavior is no longer entirely simulated — a SQLite-backed factory variant now exists for constraint-sensitive suites and the migration chain is verified against LocalDB (TEST-1, fixed) — though most integration classes still run on InMemory by default. The browser side is no longer a total blind spot: a Playwright smoke suite covers login, data rendering, the culture switch, and a real two-user call (TEST-2, fixed), though component-level tests (TEST-4) remain absent.
+For a solo certificate project, the automated test estate is genuinely strong: ~700 test cases across four layers, real-pipeline integration tests through `WebApplicationFactory<Program>` that exercise the same loopback API the app itself uses, a purpose-built pure state machine (`CallRegistry`) that makes the hardest feature unit-testable, a hand-rolled SignalR hub harness, consumer tests against a stubbed handler, an auth-matrix suite, and CI running everything on every push. Relational behavior is no longer entirely simulated — a SQLite-backed factory variant now exists for constraint-sensitive suites and the migration chain is verified against LocalDB (TEST-1, fixed) — though most integration classes still run on InMemory by default. The browser side is no longer a total blind spot: a Playwright smoke suite covers login, data rendering, the culture switch, and a real two-user call (TEST-2, fixed). Both Medium findings are now fixed: the 26-class "web" collection was split into isolated per-class fixtures (TEST-3), and bUnit now covers `LessonViewer`'s completion flow and `Chat`'s SignalR event handling (TEST-4) — the two components the finding's own recommendation prioritized. Three more logic-heavy components (`AdminCourseEdit`, `AdminAssessmentEdit`, `Home.razor.cs`'s hydration logic) remain untested at the component level; the bUnit plumbing now exists, so covering them is a smaller lift than before.
 
 ## 3. Findings
-
-### TEST-3: All 18 integration classes share one serialized collection and one long-lived InMemory database  [Medium] [Effort: M]
-- **Evidence:** `tests/ResetYourFuture.Web.Tests/CustomWebAppFactory.cs:187-188` (`[CollectionDefinition("web")]` + `ICollectionFixture<CustomWebAppFactory>`); 18 test classes carry `[Collection("web")]` (grep-verified). xUnit runs a collection's classes sequentially, and every class shares the same `_dbName` store for the factory's lifetime — state accumulates across the whole run (mitigated, but only by convention, via GUID-unique emails and fresh entities per test).
-- **Impact:** No parallelism across the largest test project (wall-clock grows linearly forever), and any test that mutates broadly-scoped data (site settings, seeded plans, admin user) can poison later classes in ways that appear as order-dependent flakes. `SiteSettingsIntegrationTests` mutating a singleton-ish table in a shared DB is the canonical hazard.
-- **Recommendation:** Split into a few smaller collections (auth/admin/content/realtime) each with its own factory, or move to per-class `IClassFixture<CustomWebAppFactory>` — the factory already generates a unique DB name per instance, so isolation is one attribute change per class; pay the extra boot cost only if runtime allows.
-
-### TEST-4: No component-level tests for 70 Razor components and ~4,900 lines of code-behind  [Medium] [Effort: M]
-- **Evidence:** No bUnit reference anywhere in the solution. High-logic code-behinds are entirely untested: `src/ResetYourFuture.Web/Pages/AdminCourseEdit.razor.cs` (405 lines), `AdminAssessmentEdit.razor.cs` (357), `Chat.razor.cs` (316), `LessonViewer.razor.cs` (315), plus `Home.razor.cs`'s persist/restore hydration logic (`SetParametersAsync` state juggling, lines 43-60). The consistent code-behind pattern means the logic is *already* in plain C# classes — well-positioned for bUnit.
-- **Impact:** Render-state machines (loading/empty/error branches), pagination handlers, and the prerender-persistence logic are verified only by eyeball. The e2e smoke suite (TEST-2, fixed) now covers a handful of happy paths, but component-level branches (error states, edge inputs) remain untested.
-- **Recommendation:** Introduce bUnit for the top-5 logic-heavy components; components inject consumer *interfaces* (per the architecture's own rule), so NSubstitute doubles drop in with no production change. Prioritize `LessonViewer` (completion flow) and `Chat` (hub event handling).
 
 ### TEST-6: Auth-plumbing and infrastructure utilities have no direct tests  [Low] [Effort: S]
 - **Evidence:** No test file references `SsrApiHandler` (the JWT-minting DelegatingHandler every SSR API call passes through — `src/ResetYourFuture.Web/Services/SsrApiHandler.cs`), `FileLogger`/`FileLoggerProvider` (`src/ResetYourFuture.Web/Logging/`), or `EnvFileLoader` (`src/ResetYourFuture.Web/Startup/EnvFileLoader.cs` — pure parsing logic, trivially unit-testable). `ApiTokenProvider` appears in tests only as a hand-built stub (`ConsumerTests.cs:27-33`). By contrast the `/auth/complete` endpoint *is* covered (`MinimalEndpointsTests.cs:41-91`: happy path, garbage ticket, signout, culture) — credit where due.
@@ -67,16 +57,15 @@ For a solo certificate project, the automated test estate is genuinely strong: ~
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
 | TEST-6 | Low→quick win | S | Unit tests for SsrApiHandler, EnvFileLoader, FileLoggerProvider |
-| TEST-3 | Medium | M | Break the single "web" collection into isolated fixtures/collections |
-| TEST-4 | Medium | M | bUnit for the top-5 logic-heavy components |
 | TEST-7 | Low | S | Deduplicate CustomWebAppFactory provisioning helpers |
 | TEST-8 | Low | S | Replace static-ctor env vars with per-host configuration |
 | TEST-9 | Low | S | Add coverage collection to CI |
 | TEST-10 | Info | S | Architecture/DI fitness tests |
+| — | (opportunistic) | S | bUnit for the remaining 3 logic-heavy components (AdminCourseEdit, AdminAssessmentEdit, Home.razor.cs hydration) — the harness now exists (LessonViewerTests.cs, ChatComponentTests.cs) |
 
 ## 5. Related Findings Elsewhere
 
-- **ARCH (21)** owns the structural decisions this suite tests around: the loopback self-API (whose silent-`default` consumers make failures invisible to e2e-less testing), the convention-only pages→consumers boundary (TEST-10 supplies the enforcement), and hub-inline chat writes that keep chat business logic out of unit-testable Application services.
+- **ARCH (21)** owns the structural decisions this suite tests around: the loopback self-API (whose silent-`default` consumers make failures invisible to e2e-less testing), the convention-only pages→consumers boundary (TEST-10 supplies the enforcement) — chat's hub-inline writes were fixed by ARCH-4, unblocking Application-level unit tests for that logic.
 - **MAINT (23)** owns the comment-enforced DI lifetime invariants (MAINT-10) that TEST-10 would pin, and the change-ripple that makes forgotten test updates likely.
 - **CQ (22)** owns production-code duplication; test-side duplication (TEST-7) is homed here.
 - **DB (30)** owned the schema consequences of the DateTimeOffset string storage (TEST-5, now fixed alongside DB-2 — the converter is SQLite-only and SQL Server uses native `datetimeoffset`); migrations previously ran under no test (TEST-1, now fixed — the chain is verified against LocalDB by `MigrationChainTests`).
