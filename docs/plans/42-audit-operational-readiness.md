@@ -17,33 +17,15 @@ Read in full: `src/ResetYourFuture.Web/Startup/DatabaseSeedingExtensions.cs`, `s
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 0 |
 | Low | 2 |
 | Info | 1 |
 
-Overall: for a project that has never been operated, the operational *design instincts* are good — startup fails fast on missing admin password and email transport instead of limping, all content seeding (including blog, now) is double-gated (environment AND config flag), the bulk seeder runs as a background service so it can't block boot, and the README production checklist is a real (if incomplete) operator document, which is more than most student projects have. What's missing is everything that only matters after day one: no backup or restore story for the two data stores, an auto-migration habit with no rollback procedure, and no runbook telling a future operator (including the author in six months) how to update, recover, or even notice a problem.
+Overall: for a project that has never been operated, the operational *design instincts* are good — startup fails fast on missing config instead of limping, all content seeding is double-gated (environment AND config flag), and the bulk seeder runs as a background service so it can't block boot. The four Medium findings — all documentation gaps — are now resolved: a new [operations runbook](../runbook.md) covers backup & restore of the two state stores taken together (OPS-2), the backup-first update/migration procedure with the idempotent-script escape hatch and restore-based rollback (OPS-3), and first-response steps for the likely incident scenarios (OPS-4); and the README production checklist now names the payment keys, `SelfBaseUrl`, and the forwarded-headers/reverse-proxy setup (OPS-5, completed alongside the CFG-5/CLOUD-2 fixes). What remains is two Low items and one Info.
 
 ## 3. Findings
 
-### OPS-2: No backup or restore procedure for either data store  [Medium] [Effort: S]
-- **Evidence:** The system has exactly two stores of irreplaceable state: the SQL database (users, enrollments, certificates, chat history) and uploaded files under `src/ResetYourFuture.Web/App_Data/Uploads` (`LocalFileStorage.cs:38` — avatars, lesson videos, certificate PDFs). Both are gitignored (`.gitignore`: `App_Data/`, `*.db`); LocalDB's MDF lives in the user profile. No backup script, schedule, or restore test exists anywhere in the repo or README.
-- **Impact:** Any disk failure, accidental `sqllocaldb delete`, or careless redeploy (uploads sit inside the deploy folder — CLOUD-1 in report 41) is unrecoverable data loss. Restore has never been rehearsed, so even an existing ad-hoc copy is of unknown value.
-- **Recommendation:** Smallest real fix: a documented two-liner — `sqlcmd ... BACKUP DATABASE` (or `sqlpackage /a:Export`) plus a robocopy of `App_Data` — with a note that both must be taken together for consistency, and one rehearsed restore. Wire it to a Windows scheduled task if the demo machine matters.
-
-### OPS-3: Migrations auto-run at startup with no rollback or update procedure  [Medium] [Effort: M]
-- **Evidence:** `Startup/DatabaseSeedingExtensions.cs:46-47` — `MigrateAsync()` on every boot of a relational host. README:406 mentions only that the DB user needs schema rights on first deploy. There is no documented update procedure at all (stop → backup → deploy → boot/migrate → verify), no rollback guidance, and migrations are never tested against real SQL Server before they run for real (BUILD-2 in report 40).
-- **Impact:** The first failed migration bricks startup (app down until someone hand-fixes the schema), and because there is no backup-before-migrate habit (OPS-2), a *partially applied* or data-mangling migration has no undo. Auto-migrate is a fine choice for this project's scale — the missing procedure around it is the finding.
-- **Recommendation:** Document the update runbook with "backup first" as step 1 (OPS-2's script); note the escape hatch (`dotnet ef migrations script --idempotent` via the pinned `dotnet-ef` tool in `.config/dotnet-tools.json`) for generating a reviewable SQL script when a migration looks risky.
-
-### OPS-4: No runbook or incident procedure — operational knowledge lives only in code comments and one person's memory  [Medium] [Effort: M]
-- **Evidence:** The only operator-facing documentation is README's Quickstart, Configuration table, and production checklist (lines 401-406). Nothing answers: where are the logs and what do errors look like (report 37), how do I restart the app/Ollama/LocalDB, what do I check when pages render empty (the known `SelfBaseUrl` failure, CFG-1), how do I disable a misbehaving feature, who is affected if I restart (Blazor Server: every active circuit drops).
-- **Impact:** Any incident — including during a graded demo — is debugged from scratch. The bus factor is exactly 1, and even that 1 will lose context between now and the defense.
-- **Recommendation:** One `docs/runbook.md` with the five most likely scenarios and their first three diagnostic steps each: app won't start (config fail-fasts and their messages), pages empty (SelfBaseUrl/loopback TLS), logins failing (key ring/cookies), assistant down (Ollama service + status ping), email not arriving (stub vs SMTP selection logic at `ServiceRegistrationExtensions.cs:40-53`). Half of it can be lifted from existing code comments, which are unusually good.
-
-### OPS-5: README production checklist omits the payment keys and the known deployment traps  [Medium] [Effort: S]
-- **Evidence:** README production checklist (lines 401-406) covers environment, JWT key, connection string, AllowedHosts, email, migration rights — but not `Payment:MockEnabled` (must be off; `appsettings.Development.json:11-13`) or `Payment__WebhookSecret` (without it webhook signature checks are skipped — `SubscriptionController.cs:110-113`), not `SelfBaseUrl` (CFG-1, the fail-silent one), and not forwarded-headers/reverse-proxy setup (CLOUD-2).
-- **Impact:** The checklist is the closest thing to a deployment gate; the four omissions are precisely the items whose failure modes are silent (empty pages, unverified webhooks, mock payments) rather than fail-fast, i.e. the ones a checklist exists for.
-- **Recommendation:** Add the four lines to the checklist. Longer-term,每 fail-fast added under CFG-1/CFG-5 removes a checklist line — prefer code enforcement over prose.
+> The four Medium findings — all documentation gaps — are resolved: OPS-2 (backup/restore), OPS-3 (update/migration procedure) and OPS-4 (incident scenarios) are covered by the new [operations runbook](../runbook.md); OPS-5 (checklist keys) was completed via the CFG-5/CLOUD-2 README additions. See git (`Fix OPS-2, OPS-3, OPS-4`). The remaining open items are two Low and one Info.
 
 ### OPS-6: Admin bootstrap has no rotation or recovery story  [Low] [Effort: S]
 - **Evidence:** First admin is seeded from `AdminUser:Email`/`AdminUser:Password` (`DatabaseSeedingExtensions.cs:65-93`); startup throws if the password is unset (good fail-fast). But: the password lives permanently in `.env`; the seeder only *creates* (`FindByEmailAsync` guard at line 72), so changing the env value never updates the account and stale credentials linger in the file; and if the sole admin account is disabled/deleted (both possible via `AdminUserService`) or its password lost, recovery is manual DB surgery — no CLI/break-glass path.
@@ -62,12 +44,10 @@ Overall: for a project that has never been operated, the operational *design ins
 
 ## 4. Prioritized Action List
 
+All four Medium items (OPS-2 through OPS-5) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| OPS-2 | Medium | S | Document + schedule DB and App_Data backup; rehearse one restore |
-| OPS-5 | Medium | S | Add MockEnabled, WebhookSecret, SelfBaseUrl, forwarded-headers to the production checklist |
-| OPS-3 | Medium | M | Write the update/migration runbook (backup-first, idempotent-script escape hatch) |
-| OPS-4 | Medium | M | Write docs/runbook.md covering the five likely incident scenarios |
 | OPS-6 | Low | S | Document admin password rotation reality and the break-glass re-seed path |
 | OPS-7 | Low | M | Optional Maintenance:Enabled middleware |
 | OPS-8 | Info | — | Keep the existing seeding-gate pattern (now uniform across all content seeders) |
