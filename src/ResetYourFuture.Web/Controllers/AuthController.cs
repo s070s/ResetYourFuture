@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Web.Extensions;
 using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Controllers;
@@ -37,7 +38,7 @@ public class AuthController : ControllerBase
 
         var result = await _authApiService.RegisterAsync(request, (userId, token) =>
             Url.Action("ConfirmEmail", "Auth", new { userId, token }, Request.Scheme));
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -48,7 +49,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponseDto>> ConfirmEmail([FromQuery] string userId, [FromQuery] string token)
     {
         var result = await _authApiService.ConfirmEmailAsync(userId, token);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -62,7 +63,7 @@ public class AuthController : ControllerBase
             return BadRequest(new AuthResponseDto { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
         var result = await _authApiService.LoginAsync(request);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -78,7 +79,7 @@ public class AuthController : ControllerBase
             return BadRequest(new AuthResponseDto { Success = false, Message = "Refresh token is required." });
 
         var result = await _authApiService.RefreshAsync(request);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ public class AuthController : ControllerBase
             return BadRequest(new AuthResponseDto { Success = false, Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
         var result = await _authApiService.ResetPasswordAsync(request);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -142,7 +143,7 @@ public class AuthController : ControllerBase
             return NotFound();
 
         var result = await _authApiService.DevConfirmEmailAsync(email);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -155,7 +156,7 @@ public class AuthController : ControllerBase
             return NotFound();
 
         var result = await _authApiService.DevResetPasswordAsync(request);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 #endif
 }

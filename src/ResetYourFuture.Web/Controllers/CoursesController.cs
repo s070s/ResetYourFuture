@@ -66,7 +66,7 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
             return StatusCode(403, new EnrollmentResultDto(false, "Administrators cannot enroll in courses", null));
 
         var result = await courseService.EnrollAsync(UserId, courseId, cancellationToken);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public class CoursesController(ICourseService courseService, ICourseReviewServic
     public async Task<ActionResult<LessonCompletionResultDto>> CompleteLesson(Guid lessonId, CancellationToken cancellationToken = default)
     {
         var result = await courseService.CompleteLessonAsync(UserId, lessonId, cancellationToken);
-        return StatusCode(result.StatusCode, result.Value);
+        return result.ToEmbeddedActionResult();
     }
 
     /// <summary>
