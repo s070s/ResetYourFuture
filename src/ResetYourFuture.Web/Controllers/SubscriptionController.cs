@@ -16,6 +16,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/subscriptions")]
+[Authorize]
 [Tags("Subscriptions")]
 [Produces("application/json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -54,7 +55,6 @@ public class SubscriptionController : ControllerBase
     /// Get current user's subscription status.
     /// </summary>
     [HttpGet("status")]
-    [Authorize]
     public async Task<ActionResult<UserSubscriptionStatusDto>> GetStatus(CancellationToken cancellationToken)
     {
         var status = await _subscriptionService.GetUserStatusAsync(UserId, cancellationToken);
@@ -66,7 +66,6 @@ public class SubscriptionController : ControllerBase
     /// In production, this would redirect to Stripe Checkout.
     /// </summary>
     [HttpPost("checkout")]
-    [Authorize]
     [EnableRateLimiting("sensitive")]
     public async Task<ActionResult<CheckoutSessionDto>> CreateCheckout(
         [FromBody] CreateCheckoutRequest request,
@@ -188,7 +187,6 @@ public class SubscriptionController : ControllerBase
     /// Cancel the current paid subscription and revert to the Free plan.
     /// </summary>
     [HttpPost("cancel")]
-    [Authorize]
     public async Task<ActionResult<CancelSubscriptionResultDto>> CancelSubscription(CancellationToken cancellationToken)
     {
         var result = await _subscriptionService.CancelSubscriptionAsync(UserId, cancellationToken);
@@ -206,7 +204,6 @@ public class SubscriptionController : ControllerBase
     /// Get billing overview: current plan + paged transaction history.
     /// </summary>
     [HttpGet("billing")]
-    [Authorize]
     public async Task<ActionResult<BillingOverviewDto>> GetBillingOverview(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10,

@@ -14,6 +14,7 @@ namespace ResetYourFuture.Web.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/site")]
+[Authorize(Policy = "AdminOnly")]
 [Tags("Site Settings")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,7 +63,6 @@ public class SiteSettingsController : ControllerBase
     /// Upload landing page background image (admin only).
     /// </summary>
     [HttpPost("admin/background-image")]
-    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> UploadBackgroundImage(IFormFile file)
     {
         if (file == null || file.Length == 0)

@@ -83,9 +83,11 @@ public class AdminModulesController : ControllerBase
         _db.Modules.Add(module);
         await _db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetModulesByCourse), new
+        // API-4: point Location at the by-id GET for the module just created, not the
+        // course-scoped list of all its siblings.
+        return CreatedAtAction(nameof(GetModuleById), new
         {
-            courseId = module.CourseId
+            id = module.Id
         }, module.ToAdminDto());
     }
 

@@ -57,6 +57,22 @@ public class AdminLessonsController : ControllerBase
         return Ok(lessons);
     }
 
+    /// <summary>Get a single lesson by id. API-4: added so lesson create/update can point their Location/reload at a real resource instead of the module-scoped list.</summary>
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<AdminLessonDto>> GetLessonById(Guid id)
+    {
+        var lesson = await _db.Lessons
+            .AsNoTracking()
+            .Where(l => l.Id == id)
+            .Select(CourseContentMappings.LessonAdminProjection)
+            .FirstOrDefaultAsync();
+
+        if (lesson is null)
+            return NotFound();
+
+        return Ok(lesson);
+    }
+
     /// <summary>Create a new lesson under a module.</summary>
     [HttpPost]
     [ProducesResponseType<AdminLessonDto>(StatusCodes.Status201Created)]
@@ -82,10 +98,11 @@ public class AdminLessonsController : ControllerBase
         _db.Lessons.Add(lesson);
         await _db.SaveChangesAsync();
 
-        // Return 201 Created with a location pointing to the module's lessons.
-        return CreatedAtAction(nameof(GetLessonsByModule), new
+        // API-4: point Location at the new by-id GET for this lesson, not the module-scoped
+        // list of all its siblings.
+        return CreatedAtAction(nameof(GetLessonById), new
         {
-            moduleId = lesson.ModuleId
+            id = lesson.Id
         }, lesson.ToAdminDto());
     }
 
