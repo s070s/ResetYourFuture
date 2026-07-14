@@ -231,6 +231,9 @@
   <data name="NotAuthorizedMessage" xml:space="preserve">
     <value>You are not authorized to view this page.</value>
   </data>
+  <data name="NotAuthorizedRoleMessage" xml:space="preserve">
+    <value>You don't have access to this area.</value>
+  </data>
   <data name="TryAgain" xml:space="preserve">
     <value>Try again</value>
   </data>

@@ -360,7 +360,7 @@ else
                                     <span>@article.AuthorName</span>
                                     @if (article.PublishedAt.HasValue)
                                     {
-                                        <span>@article.PublishedAt.Value.ToString("dd MMM yyyy")</span>
+                                        <span>@article.PublishedAt.Value.ToLocalTime().ToString("d")</span>
                                     }
                                 </div>
                                 <a href="/blog/@article.Slug" class="btn-cta blog-card-cta">@HomeRes.BlogReadMore</a>

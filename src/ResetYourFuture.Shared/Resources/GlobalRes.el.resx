@@ -231,6 +231,9 @@
   <data name="NotAuthorizedMessage" xml:space="preserve">
     <value>Δεν έχετε άδεια για προβολή αυτής της σελίδας.</value>
   </data>
+  <data name="NotAuthorizedRoleMessage" xml:space="preserve">
+    <value>Δεν έχετε πρόσβαση σε αυτή την περιοχή.</value>
+  </data>
   <data name="TryAgain" xml:space="preserve">
     <value>Δοκιμάστε ξανά</value>
   </data>

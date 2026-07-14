@@ -322,6 +322,15 @@ namespace ResetYourFuture.Shared.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to You don't have access to this area..
+        /// </summary>
+        public static string NotAuthorizedRoleMessage {
+            get {
+                return ResourceManager.GetString("NotAuthorizedRoleMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Try again.
         /// </summary>
         public static string TryAgain {

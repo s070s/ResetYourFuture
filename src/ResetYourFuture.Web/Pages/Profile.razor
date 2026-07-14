@@ -52,7 +52,7 @@
 
                         <p><strong>@ProfileRes.LabelEmail</strong> @profile.Email</p>
                         <p><strong>@ProfileRes.LabelName</strong> @profile.FirstName @profile.LastName</p>
-                        <p><strong>@ProfileRes.LabelDateOfBirth</strong> @(profile.DateOfBirth?.ToString("dd/MM/yyyy") ?? ProfileRes.NotSpecified)</p>
+                        <p><strong>@ProfileRes.LabelDateOfBirth</strong> @(profile.DateOfBirth?.ToString("d") ?? ProfileRes.NotSpecified)</p>
 
                         <button class="btn btn-primary" @onclick="UpdateProfile" disabled="@isSaving">@ProfileRes.BtnSaveProfile</button>
                     </ChildContent>

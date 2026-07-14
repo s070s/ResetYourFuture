@@ -17,10 +17,10 @@
 
             <div class="plan-details">
                 <p><strong>@SubscriptionSuccessRes.LabelPlan</strong> @_status.PlanName</p>
-                <p><strong>@SubscriptionSuccessRes.LabelStarted</strong> @_status.StartedAt.ToString("dd MMM yyyy")</p>
+                <p><strong>@SubscriptionSuccessRes.LabelStarted</strong> @_status.StartedAt.ToLocalTime().ToString("d")</p>
                 @if (_status.ExpiresAt.HasValue)
                 {
-                    <p><strong>@SubscriptionSuccessRes.LabelRenews</strong> @_status.ExpiresAt.Value.ToString("dd MMM yyyy")</p>
+                    <p><strong>@SubscriptionSuccessRes.LabelRenews</strong> @_status.ExpiresAt.Value.ToLocalTime().ToString("d")</p>
                 }
             </div>
 

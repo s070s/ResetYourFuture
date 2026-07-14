@@ -41,7 +41,7 @@ else
                 <span>@_article.AuthorName</span>
                 @if (_article.PublishedAt.HasValue)
                 {
-                    <span>@_article.PublishedAt.Value.ToString("dd MMM yyyy")</span>
+                    <span>@_article.PublishedAt.Value.ToLocalTime().ToString("d")</span>
                 }
             </div>
             @if (_article.Tags.Length > 0)

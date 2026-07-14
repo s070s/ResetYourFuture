@@ -30,10 +30,10 @@
                     </div>
 
                     <div class="plan-dates">
-                        <p><strong>@BillingRes.ActiveSince</strong> @_overview.CurrentSubscription?.StartedAt.ToLocalTime().ToString("dd MMM yyyy")</p>
+                        <p><strong>@BillingRes.ActiveSince</strong> @_overview.CurrentSubscription?.StartedAt.ToLocalTime().ToString("d")</p>
                         @if (_overview.CurrentSubscription?.ExpiresAt is not null)
                         {
-                            <p><strong>@BillingRes.NextRenewal</strong> @_overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy")</p>
+                            <p><strong>@BillingRes.NextRenewal</strong> @_overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("d")</p>
                         }
                         else
                         {
@@ -94,7 +94,7 @@
                         <p>@string.Format(BillingRes.CancelConfirmBody, _overview.CurrentSubscription?.PlanName)</p>
                         @if (_overview.CurrentSubscription?.ExpiresAt is not null)
                         {
-                            <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy"))</p>
+                            <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _overview.CurrentSubscription.ExpiresAt.Value.ToLocalTime().ToString("d"))</p>
                         }
                     </BodyContent>
                 </ConfirmModal>
@@ -130,7 +130,7 @@
                     </HeaderRow>
                     <RowTemplate Context="tx">
                         <tr @key="tx.Id">
-                            <td data-label="@BillingRes.ColDate">@tx.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                            <td data-label="@BillingRes.ColDate">@tx.CreatedAt.ToLocalTime().ToString("g")</td>
                             <td data-label="@BillingRes.ColDescription">
                                 <span class="tx-type tx-type-@tx.Type.ToLowerInvariant()">@tx.Type</span>
                                 <span>@tx.Description</span>

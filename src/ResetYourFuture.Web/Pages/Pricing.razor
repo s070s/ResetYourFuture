@@ -135,7 +135,7 @@
                 <p>@string.Format(BillingRes.CancelConfirmBody, _currentStatus?.PlanName)</p>
                 @if (_currentStatus?.ExpiresAt is not null)
                 {
-                    <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _currentStatus.ExpiresAt.Value.ToLocalTime().ToString("dd MMM yyyy"))</p>
+                    <p class="mb-0">@string.Format(BillingRes.CancelConfirmAccessUntil, _currentStatus.ExpiresAt.Value.ToLocalTime().ToString("d"))</p>
                 }
             </BodyContent>
         </ConfirmModal>

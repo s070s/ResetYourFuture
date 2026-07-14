@@ -3,8 +3,26 @@
 <Router AppAssembly="@typeof(Routes).Assembly" NotFoundPage="typeof(NotFound)">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-            <NotAuthorized>
-                <p role="alert">@GlobalRes.NotAuthorizedMessage <a href="/login">@GlobalRes.Label_Login</a></p>
+            <NotAuthorized Context="authState">
+                @* UX-8: an authenticated user lacking the role gets a different message than an
+                   anonymous visitor — telling the former to "log in" loops them through a login
+                   they already completed. *@
+                <div class="container mt-5">
+                    <div class="row justify-content-center">
+                        <div class="col-md-6 text-center">
+                            @if (authState.User.Identity?.IsAuthenticated == true)
+                            {
+                                <h1 class="h2 text-danger mb-4">@GlobalRes.NotAuthorizedRoleMessage</h1>
+                                <a href="/" class="btn btn-primary mt-3">@GlobalRes.BackToHome</a>
+                            }
+                            else
+                            {
+                                <h1 class="h2 text-danger mb-4">@GlobalRes.NotAuthorizedMessage</h1>
+                                <a href="/login" class="btn btn-primary mt-3">@GlobalRes.Label_Login</a>
+                            }
+                        </div>
+                    </div>
+                </div>
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />

@@ -145,7 +145,7 @@ public partial class NotificationBell : IAsyncDisposable
         if (span < TimeSpan.FromHours(1)) return string.Format(NotificationRes.TimeMinutesFormat, (int)span.TotalMinutes);
         if (span < TimeSpan.FromDays(1)) return string.Format(NotificationRes.TimeHoursFormat, (int)span.TotalHours);
         if (span < TimeSpan.FromDays(7)) return string.Format(NotificationRes.TimeDaysFormat, (int)span.TotalDays);
-        return createdAt.ToLocalTime().ToString("MMM d");
+        return createdAt.ToLocalTime().ToString("M");
     }
 
     public async ValueTask DisposeAsync()

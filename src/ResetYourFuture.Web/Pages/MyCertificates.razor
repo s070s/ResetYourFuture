@@ -27,7 +27,7 @@ else
                     <div class="card-body">
                         <h5 class="card-title">@cert.CourseTitle</h5>
                         <p class="card-text text-light-muted small mb-1">
-                            @CertificateRes.Issued @cert.IssuedAt.ToString("MMMM dd, yyyy")
+                            @CertificateRes.Issued @cert.IssuedAt.ToLocalTime().ToString("d")
                         </p>
                         <p class="card-text">
                             <small class="text-light-muted">@CertificateRes.Id @cert.VerificationId</small>

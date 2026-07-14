@@ -30,7 +30,7 @@
                 <dd class="col-7">@_result.CourseTitle</dd>
 
                 <dt class="col-5">@CertificateRes.FieldIssuedOn</dt>
-                <dd class="col-7">@_result.IssuedAt?.ToString("MMMM dd, yyyy")</dd>
+                <dd class="col-7">@_result.IssuedAt?.ToLocalTime().ToString("d")</dd>
             </dl>
         </div>
     }

@@ -24,7 +24,7 @@ else
             </div>
             <div class="card-body">
                 <h6 class="card-title">@latestSubmission.AssessmentTitle</h6>
-                <p class="text-light-muted">@AssessmentRes.SubmittedLabel @latestSubmission.SubmittedAt.ToLocalTime().ToString( "MMM dd, yyyy h:mm tt" )</p>
+                <p class="text-light-muted">@AssessmentRes.SubmittedLabel @latestSubmission.SubmittedAt.ToLocalTime().ToString("g")</p>
                 <button class="btn btn-primary" @onclick="() => ViewSubmission(latestSubmission.Id)">@AssessmentRes.ViewDetails</button>
             </div>
         </div>
@@ -50,7 +50,7 @@ else
             <tr @key="submission.Id">
                 <td data-label="@AssessmentRes.AssessmentHeader">@submission.AssessmentTitle</td>
                 <td data-label="@AssessmentRes.CategoryHeader">@(submission.CategoryName ?? "—")</td>
-                <td data-label="@AssessmentRes.SubmittedHeader">@submission.SubmittedAt.ToLocalTime().ToString("MMM dd, yyyy h:mm tt")</td>
+                <td data-label="@AssessmentRes.SubmittedHeader">@submission.SubmittedAt.ToLocalTime().ToString("g")</td>
                 <td data-label="@AssessmentRes.Actions">
                     <button class="btn btn-sm btn-outline-primary" @onclick="() => ViewSubmission(submission.Id)">@AssessmentRes.ViewButton</button>
                 </td>
@@ -78,7 +78,7 @@ else
     <Body>
         @if (selectedSubmission != null)
         {
-            <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToString("MMM dd, yyyy h:mm tt")</p>
+            <p><strong>@AssessmentRes.SubmittedLabel</strong> @selectedSubmission.SubmittedAt.ToLocalTime().ToString("g")</p>
             <h6>@AssessmentRes.YourAnswers</h6>
             var parsed = ParseAnswers(selectedSubmission.AnswersJson);
             @if (parsed.Count > 0)

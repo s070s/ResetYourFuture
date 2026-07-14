@@ -53,7 +53,7 @@
                                      ActiveText="@ReviewRes.StatusApproved"
                                      InactiveText="@(review.Status == "Rejected" ? ReviewRes.StatusRejected : ReviewRes.StatusPending)" />
                     </td>
-                    <td data-label="@ReviewRes.ColCreated">@review.CreatedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td data-label="@ReviewRes.ColCreated">@review.CreatedAt.ToLocalTime().ToString("d")</td>
                     <td data-label="@ReviewRes.ColActions">
                         @if (review.Status != "Approved")
                         {

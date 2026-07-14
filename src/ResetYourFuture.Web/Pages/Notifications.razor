@@ -47,7 +47,7 @@
                             @NotificationMessageFormatter.Format(notification)
                         }
                     </td>
-                    <td data-label="@NotificationRes.ColCreated">@notification.CreatedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</td>
+                    <td data-label="@NotificationRes.ColCreated">@notification.CreatedAt.ToLocalTime().ToString("g")</td>
                     <td data-label="@NotificationRes.ColStatus">
                         <StatusBadge IsActive="notification.IsRead"
                                      ActiveText="@NotificationRes.StatusRead"
