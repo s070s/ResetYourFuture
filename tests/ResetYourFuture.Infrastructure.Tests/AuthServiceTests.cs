@@ -129,13 +129,14 @@ public class AuthServiceTests
         result.Success.ShouldBeTrue();
         result.Token.ShouldNotBeNull();
         var payload = h.Dp.CreateProtector(AuthService.ProtectorPurpose).ToTimeLimitedDataProtector().Unprotect(result.Token!);
-        payload.ShouldStartWith("u1|");
+        var ticket = System.Text.Json.JsonSerializer.Deserialize<AuthCompletionTicket>(payload);
+        ticket!.UserId.ShouldBe("u1");
     }
 
     [Theory]
-    [InlineData(false, "0")]
-    [InlineData(true, "1")]
-    public async Task Login_Success_EncodesRememberMeInToken(bool rememberMe, string expectedFlag)
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Login_Success_EncodesRememberMeInToken(bool rememberMe)
     {
         var h = Build();
         var user = User();
@@ -150,7 +151,8 @@ public class AuthServiceTests
         var result = await h.Svc.LoginAsync(request);
 
         var payload = h.Dp.CreateProtector(AuthService.ProtectorPurpose).ToTimeLimitedDataProtector().Unprotect(result.Token!);
-        payload.ShouldEndWith($"|{expectedFlag}");
+        var ticket = System.Text.Json.JsonSerializer.Deserialize<AuthCompletionTicket>(payload);
+        ticket!.RememberMe.ShouldBe(rememberMe);
     }
 
     // ---- RegisterAsync -------------------------------------------------------

@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
+using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Infrastructure.Services;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace ResetYourFuture.Web.Startup;
 
@@ -83,19 +86,27 @@ public static class InfrastructureEndpointsExtensions
                 return Results.LocalRedirect("/login?error=session_expired");
             }
 
-            // Format: "{userId}|{adminBackupId or empty}|{0 or 1 for deleteAdminBackup}|{securityStamp}|{0 or 1 for rememberMe}"
-            var parts = payload.Split('|');
-            if (parts.Length != 5)
+            AuthCompletionTicket? decoded;
+            try
+            {
+                decoded = JsonSerializer.Deserialize<AuthCompletionTicket>(payload);
+            }
+            catch (JsonException ex)
+            {
+                logger.LogWarning(ex, "Auth completion: token had unexpected format.");
+                return Results.LocalRedirect("/login?error=session_expired");
+            }
+            if (decoded is null)
             {
                 logger.LogWarning("Auth completion: token had unexpected format.");
                 return Results.LocalRedirect("/login?error=session_expired");
             }
 
-            var userId = parts[0];
-            var adminBackupId = string.IsNullOrEmpty(parts[1]) ? null : parts[1];
-            var deleteAdminBackup = parts[2] == "1";
-            var tokenStamp = parts[3];
-            var rememberMe = parts[4] == "1";
+            var userId = decoded.UserId;
+            var adminBackupId = string.IsNullOrEmpty(decoded.AdminBackupId) ? null : decoded.AdminBackupId;
+            var deleteAdminBackup = decoded.DeleteAdminBackup;
+            var tokenStamp = decoded.SecurityStamp;
+            var rememberMe = decoded.RememberMe;
 
             // --- Rebuild principal from DB -----------------------------------------------
             var user = await userManager.FindByIdAsync(userId);
@@ -124,19 +135,7 @@ public static class InfrastructureEndpointsExtensions
                 tier = SubscriptionTier.Free;
             }
 
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.NameIdentifier, user.Id),
-                new(ClaimTypes.Email, user.Email!),
-                new("firstName", user.FirstName),
-                new("lastName", user.LastName),
-                new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
-                new("subscriptionTier", ((int)tier).ToString()),
-                new("securityStamp", user.SecurityStamp!)
-            };
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-            if (!string.IsNullOrEmpty(adminBackupId))
-                claims.Add(new Claim("impersonatedBy", adminBackupId));
+            var claims = UserClaimsBuilder.Build(user, roles, tier, adminBackupId);
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);

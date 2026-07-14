@@ -12,6 +12,7 @@ using ResetYourFuture.Shared.Resources.Messages;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace ResetYourFuture.Infrastructure.Services;
 
@@ -356,10 +357,10 @@ public class AuthService : IAuthService
     /// If true, /auth/complete issues a persistent auth cookie (7-day expiry). If false, it issues
     /// a session cookie that the browser discards on close, regardless of the "Remember Me" checkbox.
     /// </param>
-    // Format: "{userId}|{adminBackupId or empty}|{0 or 1}|{securityStamp}|{0 or 1 for rememberMe}"
     private string CreateSignInToken(string userId, string? adminBackupId, bool deleteAdminBackup, string securityStamp, bool rememberMe)
     {
-        var payload = $"{userId}|{adminBackupId ?? ""}|{(deleteAdminBackup ? "1" : "0")}|{securityStamp}|{(rememberMe ? "1" : "0")}";
+        var ticket = new AuthCompletionTicket(userId, adminBackupId, deleteAdminBackup, securityStamp, rememberMe);
+        var payload = JsonSerializer.Serialize(ticket);
         return _protector.Protect(payload, lifetime: TimeSpan.FromMinutes(5));
     }
 }

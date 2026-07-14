@@ -1,11 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Application.ApiInterfaces;
+using ResetYourFuture.Application.Common;
 
 namespace ResetYourFuture.Infrastructure.ApiServices;
 
@@ -48,21 +48,8 @@ public class TokenService : ITokenService
         var roles = await _userManager.GetRolesAsync(user);
         var tier = await _subscriptionService.GetUserTierAsync(user.Id);
 
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("firstName", user.FirstName),
-            new("lastName", user.LastName),
-            new("status", ((int)user.Status).ToString()),
-            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
-            new("subscriptionTier", ((int)tier).ToString()),
-            new("securityStamp", user.SecurityStamp ?? string.Empty)
-        };
-
-        // Add role claims
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        var claims = UserClaimsBuilder.Build(user, roles, tier);
+        claims.Add(new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
         var token = new JwtSecurityToken(
             issuer: _jwtIssuer,
@@ -94,21 +81,8 @@ public class TokenService : ITokenService
         var roles = await _userManager.GetRolesAsync(user);
         var tier = await _subscriptionService.GetUserTierAsync(user.Id);
 
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id),
-            new(JwtRegisteredClaimNames.Email, user.Email!),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new("firstName", user.FirstName),
-            new("lastName", user.LastName),
-            new("status", ((int)user.Status).ToString()),
-            new("isEnabled", user.IsEnabled.ToString().ToLowerInvariant()),
-            new("subscriptionTier", ((int)tier).ToString()),
-            new("securityStamp", user.SecurityStamp ?? string.Empty),
-            new("impersonatedBy", adminId)
-        };
-
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        var claims = UserClaimsBuilder.Build(user, roles, tier, adminBackupId: adminId);
+        claims.Add(new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
         var token = new JwtSecurityToken(
             issuer: _jwtIssuer,
