@@ -11,8 +11,7 @@ using Xunit;
 
 namespace ResetYourFuture.Web.Tests;
 
-[Collection("web")]
-public class AdminCourseReviewsControllerTests
+public class AdminCourseReviewsControllerTests : IClassFixture<CustomWebAppFactory>
 {
     private readonly CustomWebAppFactory _factory;
 

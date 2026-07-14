@@ -4,8 +4,7 @@ using Xunit;
 
 namespace ResetYourFuture.Web.Tests;
 
-[Collection("web")]
-public class CoursesIntegrationTests
+public class CoursesIntegrationTests : IClassFixture<CustomWebAppFactory>
 {
     private readonly CustomWebAppFactory _factory;
 

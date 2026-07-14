@@ -15,8 +15,7 @@ namespace ResetYourFuture.Web.Tests;
 /// Public learning-path catalog: anonymous access (like <see cref="SearchControllerTests"/>),
 /// published-only visibility, and per-user progress projection.
 /// </summary>
-[Collection("web")]
-public class PathsControllerTests
+public class PathsControllerTests : IClassFixture<CustomWebAppFactory>
 {
     private readonly CustomWebAppFactory _factory;
 

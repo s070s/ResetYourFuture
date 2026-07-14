@@ -9,8 +9,7 @@ namespace ResetYourFuture.Web.Tests;
 /// (modules / lessons / assessments). Read endpoints return 200 for admins (empty data)
 /// and 403 for students.
 /// </summary>
-[Collection("web")]
-public class AdminCrudAuthMatrixTests
+public class AdminCrudAuthMatrixTests : IClassFixture<CustomWebAppFactory>
 {
     private readonly CustomWebAppFactory _factory;
 

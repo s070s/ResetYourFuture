@@ -13,8 +13,7 @@ namespace ResetYourFuture.Web.Tests;
 /// so IAssistantService resolves to DisabledAssistantService. These tests verify the SSE plumbing
 /// and the graceful-unavailable contract end-to-end without needing a real model.
 /// </summary>
-[Collection("web")]
-public class AssistantControllerTests
+public class AssistantControllerTests : IClassFixture<CustomWebAppFactory>
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly CustomWebAppFactory _factory;

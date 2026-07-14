@@ -16,8 +16,7 @@ namespace ResetYourFuture.Web.Tests;
 /// published-only, query validation), not the semantic-vs-fallback decision (covered by
 /// SiteSearchServiceTests).
 /// </summary>
-[Collection("web")]
-public class SearchControllerTests
+public class SearchControllerTests : IClassFixture<CustomWebAppFactory>
 {
     private readonly CustomWebAppFactory _factory;
 
