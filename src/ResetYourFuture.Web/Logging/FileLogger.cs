@@ -6,11 +6,13 @@ public sealed class FileLogger : ILogger
 {
     private readonly string _categoryName;
     private readonly ChannelWriter<string> _writer;
+    private readonly Action _onDropped;
 
-    public FileLogger(string categoryName, ChannelWriter<string> writer)
+    public FileLogger(string categoryName, ChannelWriter<string> writer, Action onDropped)
     {
         _categoryName = categoryName;
         _writer = writer;
+        _onDropped = onDropped;
     }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
@@ -34,6 +36,9 @@ public sealed class FileLogger : ILogger
         if (exception != null)
             entry += Environment.NewLine + exception;
 
-        _writer.TryWrite(entry);
+        // LOG-3: the channel is bounded; when it is full the write is dropped. Record the drop so
+        // the writer can emit a "[WARN] N entries dropped" marker instead of losing entries silently.
+        if (!_writer.TryWrite(entry))
+            _onDropped();
     }
 }

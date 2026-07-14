@@ -10,14 +10,18 @@ public sealed class FileLoggerProvider : ILoggerProvider
     private readonly Channel<string> _channel;
     private readonly ConcurrentDictionary<string, FileLogger> _loggers = new();
     private readonly Task _writerTask;
+    private int _droppedSinceLastReport;
 
     public FileLoggerProvider(string logDirectory)
     {
         _logDirectory = logDirectory;
         Directory.CreateDirectory(logDirectory);
+        // LOG-3: DropWrite (not DropOldest) so a full buffer makes TryWrite return false — that lets
+        // FileLogger count the drop, and the writer emits a "[WARN] N entries dropped" marker rather
+        // than losing entries with no trace.
         _channel = Channel.CreateBounded<string>(new BoundedChannelOptions(4096)
         {
-            FullMode = BoundedChannelFullMode.DropOldest,
+            FullMode = BoundedChannelFullMode.DropWrite,
             SingleReader = true,
             SingleWriter = false
         });
@@ -49,6 +53,16 @@ public sealed class FileLoggerProvider : ILoggerProvider
                 while (reader.TryRead(out var entry))
                     await writer!.WriteLineAsync(entry);
 
+                // LOG-3: if entries were dropped while the buffer was full, leave a marker so the
+                // record is visibly incomplete rather than silently short.
+                var dropped = Interlocked.Exchange(ref _droppedSinceLastReport, 0);
+                if (dropped > 0)
+                {
+                    var ts = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                    await writer!.WriteLineAsync(
+                        $"[{ts}] [WARN] [FileLogger] {dropped} log entr{(dropped == 1 ? "y" : "ies")} dropped (write buffer full).");
+                }
+
                 await writer!.FlushAsync();
             }
         }
@@ -63,11 +77,16 @@ public sealed class FileLoggerProvider : ILoggerProvider
     }
 
     public ILogger CreateLogger(string categoryName)
-        => _loggers.GetOrAdd(categoryName, name => new FileLogger(name, _channel.Writer));
+        => _loggers.GetOrAdd(categoryName,
+            name => new FileLogger(name, _channel.Writer, () => Interlocked.Increment(ref _droppedSinceLastReport)));
 
     public void Dispose()
     {
         _channel.Writer.TryComplete();
+        // LOG-3: wait (bounded) for the writer to flush entries still queued at shutdown — including
+        // the exception that may have just crashed the app — instead of dropping the tail.
+        try { _writerTask.Wait(TimeSpan.FromSeconds(2)); }
+        catch { /* best-effort drain; never throw from Dispose */ }
         _loggers.Clear();
     }
 }
