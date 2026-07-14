@@ -19,33 +19,18 @@ NOT examined: compiler-warning output — the solution was deliberately not buil
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 3 |
+| Medium | 0 |
 | Low | 5 |
 | Info | 2 |
 
-Micro-level quality is high and — more unusually — *improving on record*: a root `.editorconfig` (added 2026-07) now pins standard .NET formatting, the once-dominant spaced-paren call style has been swept away to a 4-line residue, namespaces are file-scoped and correct per project, nullable reference types are enabled solution-wide with no suppression sprawl (zero `#pragma warning disable` in hand-written code, exactly one TODO in `src/`), and XML doc comments consistently explain *why* rather than *what* — several (SsrApiHandler, AuthService, CustomWebAppFactory) read like miniature ADRs. What remains is a modest set of duplications (the bilingual-fallback ternary ×30, one hand-rolled pagination toolbar, twin token-mint methods, triple returnUrl sanitization) and two conventions that never got unified: DTO file/namespace organization and the ServiceResult→ActionResult mapping, which exists in two competing dialects.
+Micro-level quality is high and — more unusually — *improving on record*: a root `.editorconfig` (added 2026-07) now pins standard .NET formatting, the once-dominant spaced-paren call style has been swept away to a 4-line residue, namespaces are file-scoped and correct per project, nullable reference types are enabled solution-wide with no suppression sprawl (zero `#pragma warning disable` in hand-written code, exactly one TODO in `src/`), and XML doc comments consistently explain *why* rather than *what* — several (SsrApiHandler, AuthService, CustomWebAppFactory) read like miniature ADRs. All three Medium findings — the bilingual-fallback ternary, Billing's pagination toolbar, and the two unnamed ServiceResult conventions — are fixed. What remains is minor: a residual sliver of duplication in TokenService, DTO file/namespace organization, and small formatting/placement stragglers.
 
 ## 3. Findings
 
-### CQ-1: The bilingual fallback ternary `isEl ? (El ?? En) : En` is hand-repeated ~30 times across 7 files  [Medium] [Effort: S]
-- **Evidence:** 30 grep hits in `src/ResetYourFuture.Application/ApiServices/CourseService.cs` (e.g. lines 89-90, 129-130, 138-143, 265-278), `AssessmentService.cs`, `CategoryService.cs`, `BlogArticleService.cs`, `AssistantService.cs`, `AssistantRetrievalService.cs`, and `src/ResetYourFuture.Web/Controllers/CertificatesController.cs`.
-- **Impact:** The En/El selection rule (Greek preferred, English fallback) is business-significant and exists only as repeated inline expressions. A policy change (e.g. "fall back to empty, not English" or a third culture) is a ~30-site edit; a single-site typo (swapping El/En) is invisible in review. Each service also re-derives `isEl` from the `lang` string independently (`CourseService.cs:25`, `:103`, `:226`).
-- **Recommendation:** Add one static helper in `ResetYourFuture.Application.Common` — e.g. `Localized.Pick(bool isEl, string en, string? el)` (plus a `bool IsEl(string lang)`) — and mechanically replace the 30 sites. Pure find-and-replace refactor, no behavior change.
-
-### CQ-2: Billing.razor hand-rolls the pagination toolbar that AdminPaginationToolbar already encapsulates  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Pages/Billing.razor:161-181` reproduces the exact markup (same `pagination-toolbar-admin` class, same `GlobalRes.PaginationShowingFormat` / `PaginationRows` / `PaginationPrev` strings, same select+buttons structure) that `src/ResetYourFuture.Web/Shared/Components/Data/AdminPaginationToolbar.razor` provides as a parameterized component — and which seven other pages (`AdminAssessments`, `AdminAssessmentSubmissions`, `AdminBlog`, `AdminCategories`, `AdminCourses`, `AdminTestimonials`, `AdminUsers`) already use.
-- **Impact:** Any toolbar change (a11y fix, styling, new page-size option) now has two homes and Billing will silently miss it. Grep confirms Billing is the *only* hand-rolled copy — this is one component-swap away from full consistency.
-- **Recommendation:** Replace `Billing.razor:161-181` with `<AdminPaginationToolbar CurrentPage=... />` wired to the existing `GoToPage`/`OnPageSizeChanged` handlers, mirroring `AdminUsers.razor`.
-
-### CQ-3: Two competing ServiceResult→response conventions, mixed within single controllers  [Medium] [Effort: M]
-- **Evidence:** `src/ResetYourFuture.Web/Extensions/ServiceResultExtensions.cs:8-13` — the helper's own doc comment concedes the schism: "Only apply this where the service genuinely puts the failure detail in ErrorMessage — some services (e.g. enrollment) embed the outcome in Value on both success and failure instead, which this helper is not a drop-in replacement for." `src/ResetYourFuture.Web/Controllers/CoursesController.cs` uses both dialects in one class: `result.ToActionResult()` at line 77 vs manual `StatusCode(result.StatusCode, result.Value)` at lines 67 and 87.
-- **Impact:** Error payload shape differs by endpoint (bare error string via `ObjectResult(ErrorMessage)` vs a full DTO with `Success=false` inside `Value`), so consumers and the OpenAPI document cannot rely on a single failure contract (API 31 owns the wire-format consequence). For contributors, "how do I return a failure?" has two answers, and picking the wrong one changes behavior silently.
-- **Recommendation:** Pick one convention — the `ErrorMessage`-carrying variant plus `ToActionResult()` is the majority — and migrate the Value-embedding services (enrollment/lesson-completion results in `CourseService`) to it, or formalize the second pattern as a distinct result type so the type system distinguishes them.
-
-### CQ-4: TokenService's two mint methods are ~95% identical  [Low] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Infrastructure/ApiServices/TokenService.cs:43-75` (`GenerateAccessTokenAsync`) vs `:89-121` (`GenerateImpersonationTokenAsync`) — identical signing, expiration, role/tier lookups, and nine-claim list; the only delta is one extra `impersonatedBy` claim.
-- **Impact:** Claim-list edits must be made twice; the file is one forgotten edit away from impersonation tokens lacking a claim regular tokens carry (the cross-*site* version of this problem is ARCH-2 in report 21; this is the within-file instance).
-- **Recommendation:** `GenerateImpersonationTokenAsync(user, adminId)` → build claims via a shared private method taking `IEnumerable<Claim> extraClaims`, or fold into one method with an optional `adminId` parameter.
+### CQ-4: TokenService's two mint methods still duplicate the signing/token-construction boilerplate  [Low] [Effort: S]
+- **Evidence:** `src/ResetYourFuture.Infrastructure/ApiServices/TokenService.cs:43-62` (`GenerateAccessTokenAsync`) vs `:76-95` (`GenerateImpersonationTokenAsync`) — the nine-claim list itself is no longer duplicated (both now call the shared `UserClaimsBuilder.Build`, ARCH-2's fix), but the surrounding signing-credentials/expiration/`JwtSecurityToken` construction (~8 lines) is still repeated verbatim in both methods.
+- **Impact:** Low now that the claim-drift risk is gone — a change to signing algorithm or token construction still needs two edits, but that's boilerplate, not business-significant data.
+- **Recommendation:** Fold into one method with an optional `adminId` parameter, or extract a private `BuildToken(IEnumerable<Claim>)` helper. Opportunistic.
 
 ### CQ-5: returnUrl sanitization copy-pasted three times in one file  [Low] [Effort: S]
 - **Evidence:** `src/ResetYourFuture.Web/Startup/InfrastructureEndpointsExtensions.cs:34-41` (`/culture/set`), `:179-186` (`/auth/complete`), `:201-208` (`/auth/signout`) — identical absolute-URL→PathAndQuery / leading-slash logic.
@@ -81,10 +66,7 @@ Micro-level quality is high and — more unusually — *improving on record*: a 
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| CQ-1 | Medium | S | Extract `Localized.Pick(isEl, en, el)` helper; replace ~30 inline ternaries |
-| CQ-2 | Medium | S | Swap Billing.razor's hand-rolled toolbar for `AdminPaginationToolbar` |
-| CQ-3 | Medium | M | Unify on one ServiceResult failure convention; migrate the Value-embedding services |
-| CQ-4 | Low | S | Merge TokenService's twin mint methods via a shared claims builder |
+| CQ-4 | Low | S | Merge TokenService's twin mint methods' remaining signing/construction boilerplate |
 | CQ-5 | Low | S | Extract `ToLocalRedirect()` for the 3 duplicated returnUrl blocks |
 | CQ-6 | Low | S | Standardize DTO file grouping (and optionally folder-matching namespaces) |
 | CQ-7 | Low | S | Remove the `SortBy="email"` default from generic `PagedResult<T>` |
@@ -94,9 +76,9 @@ Micro-level quality is high and — more unusually — *improving on record*: a 
 
 ## 5. Related Findings Elsewhere
 
-- **ARCH (21)** owns the cross-file JWT-mint duplication (four sites, drifted claims) of which CQ-4 is the within-file instance, and the two-dialect ServiceResult issue's structural root (services disagreeing on where failure lives).
+- **ARCH (21)** owns the cross-file JWT-mint duplication that CQ-4 was the within-file instance of — both fixed via the shared `UserClaimsBuilder` (ARCH-2).
 - **MAINT (23)** owns the macro duplication engine: 18 hand-written consumer+interface pairs mirroring controllers, and 18 hand-maintained resx `Designer.cs` files — file-level repetition that is architectural, not micro.
 - **TEST (24)** owns test-code duplication (CustomWebAppFactory's triplicated user-provisioning block) and test-side style.
-- **API (31)** owns the wire-format inconsistency that CQ-3 produces (error body shape varying per endpoint).
+- **API (31)** owns the wire-format consistency of the now-named `ToActionResult`/`ToEmbeddedActionResult` conventions (CQ-3, fixed).
 - **SEC (25)** owns the open-redirect analysis of the returnUrl logic deduplicated in CQ-5.
-- **UI (32)** owns visual/a11y correctness of the pagination toolbar component that CQ-2 consolidates.
+- **UI (32)** owns visual/a11y correctness of the pagination toolbar component (CQ-2, fixed).
