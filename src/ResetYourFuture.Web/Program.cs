@@ -10,6 +10,8 @@ EnvFileLoader.LoadIfPresent(Directory.GetCurrentDirectory());
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.ValidateRequiredConfig();
+
 // --- Logging ---
 builder.Logging.AddFileLogger("Logs");
 
