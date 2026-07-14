@@ -18,7 +18,24 @@ public static class EnvFileLoader
         if (envFilePath is null)
             return;
 
-        foreach (var line in File.ReadAllLines(envFilePath))
+        string[] lines;
+        try
+        {
+            lines = File.ReadAllLines(envFilePath);
+        }
+        catch (Exception ex)
+        {
+            // This runs before the host (and logging) exist — write to the console so an
+            // unreadable/locked .env is a clear message, not a raw unhandled exception (CFG-3).
+            Console.WriteLine($"[EnvFileLoader] Could not read '{envFilePath}': {ex.Message}");
+            return;
+        }
+
+        // Logging isn't up yet; surface which file won so a stray .env in a parent directory
+        // isn't a silent mystery (CFG-3).
+        Console.WriteLine($"[EnvFileLoader] Loading environment variables from '{envFilePath}'.");
+
+        foreach (var line in lines)
         {
             var trimmed = line.Trim();
             if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith('#'))
@@ -26,10 +43,24 @@ public static class EnvFileLoader
             var eq = trimmed.IndexOf('=');
             if (eq < 1)
                 continue;
-            Environment.SetEnvironmentVariable(
-                trimmed[..eq].Trim(),
-                trimmed[(eq + 1)..].Trim());
+
+            var key = trimmed[..eq].Trim();
+            var value = StripSurroundingQuotes(trimmed[(eq + 1)..].Trim());
+
+            // Conventional dotenv precedence: a real environment variable set by the host/operator
+            // wins over the .env file, so a forgotten .env can't silently override deployed config
+            // (CFG-3 — the previous behaviour overwrote it unconditionally).
+            if (Environment.GetEnvironmentVariable(key) is null)
+                Environment.SetEnvironmentVariable(key, value);
         }
+    }
+
+    private static string StripSurroundingQuotes(string value)
+    {
+        if (value.Length >= 2 &&
+            ((value[0] == '"' && value[^1] == '"') || (value[0] == '\'' && value[^1] == '\'')))
+            return value[1..^1];
+        return value;
     }
 
     private static string? FindEnvFile(string start)
