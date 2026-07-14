@@ -108,7 +108,7 @@ Severity is judged in context: this is a university certificate project, not a p
 | API (31) | 0 | 0 | 0 | 5 | 3 | 8 |
 | UI (32) | 0 | 0 | 0 | 4 | 1 | 5 |
 | UX (33) | 0 | 0 | 0 | 2 | 1 | 3 |
-| PERF (34) | 0 | 0 | 5 | 5 | 1 | 11 |
+| PERF (34) | 0 | 0 | 0 | 5 | 1 | 6 |
 | SCALE (35) | 0 | 0 | 6 | 2 | 1 | 9 |
 | AVAIL (36) | 0 | 0 | 4 | 2 | 1 | 7 |
 | LOG (37) | 0 | 0 | 4 | 5 | 0 | 9 |
@@ -120,6 +120,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 3 | 4 | 2 | 9 |
 | DOC (44) | 0 | 0 | 3 | 4 | 2 | 9 |
 | GOV (45) | 0 | 0 | 2 | 3 | 3 | 8 |
-| **Total** | **0** | **0** | **45** | **94** | **31** | **170** |
+| **Total** | **0** | **0** | **40** | **94** | **31** | **165** |
 
 Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, and downgraded findings (still open, less severe) sit in their new severity row. Of the original 255 findings, all 31 Critical/High are resolved: fixed, downgraded after a partial fix, or consciously accepted (the Redis/architecture cluster — see the "Accepted since audit" banners in reports 21/34/35/36). The record of every fix lives in git history.

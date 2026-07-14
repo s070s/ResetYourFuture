@@ -19,40 +19,19 @@ NOT examined: actual profiling/benchmarks (static analysis only, app not launche
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 5 |
+| Medium | 0 |
 | Low | 5 |
 | Info | 1 |
 
 > **Accepted since audit (out of scope — will not implement):** PERF-1 (every data fetch pays the full loopback HTTP pipeline — JWT mint, middleware, per-request DB auth lookup, double JSON). This is the per-interaction cost of the loopback self-API architecture (ARCH-1), which is itself consciously accepted as a documented tradeoff — the only real fix is ARCH-1's in-process redesign, which the project does not need. The short-term mitigations this finding listed (cache the per-circuit JWT and signing credentials, drop the per-request auth DB lookup) are individually small but touch the auth hot path with no user-visible benefit at single-instance demo scale, so PERF-1 is accepted rather than fixed. See ARCH-1's matching note in [21-audit-architecture.md](21-audit-architecture.md).
 
-The query layer is unusually disciplined for a project at this stage: list endpoints are paged, correlated subqueries have been deliberately replaced with batched `GROUP BY`/join queries (`ChatQueryService`, `AdminUserService`, `CourseService`), chat lists use `Virtualize` with `@key`, searches are debounced, and there are well-placed 30-second caches (subscription status, assistant status, sitemap). The dominant cost is architectural: because every page's data arrives via a real HTTP request to the app's own API, each interaction pays JWT minting, full middleware traversal, a per-request user lookup, and double JSON serialization — multiplied by global InteractiveServer, which also routes every keystroke of `oninput`-bound inputs and every binary payload (avatars, certificate PDFs) through the SignalR circuit.
+The query layer is unusually disciplined for a project at this stage: list endpoints are paged, correlated subqueries have been deliberately replaced with batched `GROUP BY`/join queries (`ChatQueryService`, `AdminUserService`, `CourseService`), chat lists use `Virtualize` with `@key`, searches are debounced, and there are well-placed 30-second caches (subscription status, assistant status, sitemap). The dominant cost is architectural: because every page's data arrives via a real HTTP request to the app's own API, each interaction pays JWT minting, full middleware traversal, a per-request user lookup, and double JSON serialization (PERF-1, accepted above).
+
+All five Medium findings have been resolved: blog summaries now project in SQL instead of loading full article bodies (PERF-3); certificate PDF rendering is deferred off the lesson-completion request to first download (PERF-4); avatars and certificate PDFs are served straight to the browser over same-origin cookie-authenticated HTTP rather than base64/bytes through the circuit (PERF-5); the chat and assistant inputs no longer two-way bind every keystroke through the circuit (PERF-6); and the chat send path builds the sender's name/role from claims instead of two identity queries per message (PERF-7). What remains is five Low items and one Info observation.
 
 ## 3. Findings
 
-### PERF-3: Blog summary queries load full article bodies to build summaries  [Medium] [Effort: S]
-- **Evidence:** `Application/ApiServices/BlogArticleService.cs:34-41` — `GetPublishedSummariesAsync` does `ToListAsync()` on whole `BlogArticle` entities (including `ContentEn`/`ContentEl` rich-HTML bodies) and then maps to `BlogArticleSummaryDto`. Callers: the Home page (6 articles per render, `Pages/Home.razor.cs:99`) and the sitemap (up to 200 articles, `Startup/InfrastructureEndpointsExtensions.cs:228`).
-- **Impact:** Full article HTML (`ContentEn`/`ContentEl` are intentionally unbounded `nvarchar(max)` — rich-text body content, not one of DB-8's capped columns) is transferred from SQL, materialized, and immediately discarded — on the most-visited page of the site. The sitemap pass pulls up to 200 full bodies (mitigated by its 30-min cache).
-- **Recommendation:** Project in SQL with `.Select(a => new { ... })` to only the summary fields, mirroring the projection pattern already used in `CourseService.GetPublishedCoursesAsync` (`CourseService.cs:70-85`).
-
-### PERF-4: QuestPDF certificate generation runs synchronously inside the lesson-completion request  [Medium] [Effort: M]
-- **Evidence:** `Application/ApiServices/CourseService.cs:344-360` — completing the final lesson calls `certificateService.GetOrGenerateAsync` inline; `Infrastructure/ApiServices/CertificateService.cs:158-170` renders the PDF on the request thread (`BuildDocument(...).GeneratePdf()`, `:183-273`) and writes it to disk before the completion response returns. The request itself is a loopback HTTP call from the student's circuit.
-- **Impact:** The unlucky student who finishes a course pays CPU-bound PDF layout/rendering plus file I/O in their "mark lesson complete" click, holding a threadpool thread and a circuit interaction for the duration. Under concurrency (several completions at once), PDF rendering competes with all request processing.
-- **Recommendation:** Defer generation: issue the `Certificate` row on completion and render the PDF lazily on first download (the idempotent `GetOrGenerateAsync` already supports get-or-create semantics), or queue generation to a background channel/hosted service — the repo already has the `BackgroundService` + scoped-service pattern (`CallRingMonitor`).
-
-### PERF-5: Megabyte-scale binaries are shuttled through the SignalR circuit (avatars as base64 data URLs, PDFs via JS interop)  [Medium] [Effort: M]
-- **Evidence:** `Layout/AvatarDropdown.razor.cs:77-98` — every circuit fetches the profile *and* the raw avatar bytes over loopback HTTP, then builds `data:{type};base64,{...}` (avatars may be up to 5 MB, `LocalFileStorage.cs:16`) which lives in circuit memory and is re-sent in render batches. `Pages/MyCertificates.razor.cs:47-51` — certificate download pulls the whole PDF into a `byte[]` via loopback (`ApiClientBase.GetBytesAsync`) and pushes it through `JSRuntime.InvokeVoidAsync("downloadFile", ...)` over the circuit (PDF cap is 20 MB, `LocalFileStorage.cs:17`).
-- **Impact:** Base64 inflates payloads ~33%; the bytes traverse loopback HTTP → server memory → SignalR WebSocket → browser instead of a plain HTTP download. Large avatars/PDFs stall the circuit (all UI interactivity shares that connection) and bloat per-circuit memory.
-- **Recommendation:** Serve both via direct HTTP endpoints and plain `<img src>`/anchor downloads — the repo already has exactly this pattern with auth (`Controllers/LessonAssetsController.cs`, JWT-in-query support at `AuthenticationSetupExtensions.cs:146-158`) and caching (`Controllers/MediaController.cs:71`).
-
-### PERF-6: `@bind:event="oninput"` sends every keystroke through the circuit  [Medium] [Effort: S]
-- **Evidence:** `Shared/Components/Chat/MessagePane.razor:105` (chat message textarea), `Shared/Components/Assistant/AssistantWidget.razor:51` (assistant input), `Shared/Components/Chat/UserPickerModal.razor:9` and `Shared/Components/Call/CallUserPickerModal.razor:7` (search boxes). Global InteractiveServer (`Program.cs:95-96`) means each input event is a SignalR round-trip plus a server-side render/diff.
-- **Impact:** Typing a chat message generates one server round-trip and render per keystroke, per user — the single chattiest interaction in the app, multiplied across all typing users. (The search boxes at least debounce their *API* calls, but still round-trip every keystroke for binding.)
-- **Recommendation:** For the chat textarea and assistant input, bind on `onchange` and read the value on send, or move send-button enablement client-side (small JS helper). The only server-side need per keystroke — the send button's disabled state — can be tolerated at `onchange` granularity or handled in JS.
-
-### PERF-7: ChatHub.SendMessage does two avoidable identity queries per message  [Medium] [Effort: S]
-- **Evidence:** `Web/Hubs/ChatHub.cs:91-99` — per message: `userManager.FindByIdAsync(userId)` and `userManager.GetRolesAsync(sender)` (two DB queries) purely to build the sender's display name and role for the DTO. The principal already carries `firstName`, `lastName`, and role claims minted at sign-in (`Startup/InfrastructureEndpointsExtensions.cs:125-135`) and available as `Context.User` in the hub.
-- **Impact:** The chat send hot path costs 4 DB operations (conversation fetch, two identity lookups, save) where 2 suffice. At sustained chat volume this doubles identity-table read traffic for zero information gain.
-- **Recommendation:** Read name/role from `Context.User` claims (keep the `IsEnabled` re-check if desired — or fold it into the connection-level check that `OnConnectedAsync` already performs, `ChatHub.cs:34-52`).
+> The five Medium findings (PERF-3, PERF-4, PERF-5, PERF-6, PERF-7) are resolved and have been removed from this list; see §2 for the summary and the git history (`Fix PERF-3` … `Fix PERF-7`) for the changes. The remaining open items are five Low and one Info.
 
 ### PERF-8: Opening a conversation loads messages twice (page 1, then the real last page)  [Low] [Effort: S]
 - **Evidence:** `Pages/Chat.razor.cs:51-72` — `SelectConversation` calls `LoadMessagesAsync()` (page 1), inspects `TotalPages`, then calls it again for the last page. `OnMessagePageSizeChanged` repeats the same double-load (`:107-119`). Each load is a loopback REST call that runs a `COUNT` plus a page query (`ChatQueryService.cs:107-118`).
@@ -86,13 +65,10 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 
 ## 4. Prioritized Action List
 
+All five Medium items (PERF-3 through PERF-7) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| PERF-3 | Medium | S | Project blog summaries in SQL instead of loading full bodies |
-| PERF-6 | Medium | S | Drop per-keystroke `oninput` binding on chat/assistant inputs |
-| PERF-7 | Medium | S | Build chat sender name/role from claims, not two DB queries per message |
-| PERF-4 | Medium | M | Move QuestPDF rendering off the lesson-completion request path |
-| PERF-5 | Medium | M | Serve avatars/certificates via direct HTTP endpoints, not the circuit |
 | PERF-8 | Low | S | Single-fetch the newest chat page on conversation open |
 | PERF-9 | Low | S | Collapse the duplicate paged query in `GetPublishedCoursesAsync` |
 | PERF-10 | Low | S | Diff assistant index on projected hashes, not full rows |
