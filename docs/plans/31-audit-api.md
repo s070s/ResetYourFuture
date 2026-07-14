@@ -130,7 +130,7 @@ For ~90 endpoints built incrementally, the API surface is in good shape where it
 
 ## 5. Related Findings Elsewhere
 
-- **30 (DB):** DB-1 — the user-delete 500 whose API symptom API-1 would turn into a 409; DB-7 — concurrency tokens whose `DbUpdateConcurrencyException` needs the 409 mapping from API-3; DB-8 — unbounded request payloads (AnswersJson/SchemaJson) reaching the API without size validation.
+- **30 (DB):** DB-1 — the user-delete 500 whose API symptom API-1 would turn into a 409; DB-7 — concurrency tokens now exist on every admin-edited aggregate, with `AdminLessonsController` demonstrating the `DbUpdateConcurrencyException` → 409 mapping API-3 owns generally (the other six controllers still need the same three-line wiring); DB-8 — AnswersJson/SchemaJson now have matching DTO/column caps, closing the unbounded-payload gap.
 - **25 (SEC):** endpoint-level authorization *vulnerabilities* (anonymous Stripe webhook signature-skip when no secret is configured, JWT accepted via query string for `/api/lessons` and hubs, media/asset access rules, impersonation endpoint hardening) and the globally shared fixed-window "auth" rate limiter (one bucket for all clients).
 - **26 (REL):** behavior of the self-calling SSR HttpClient consumers when API responses are non-success (`ApiClientBase` swallowing failures), and rate-limiter availability effects.
 - **27 (BIZ):** correctness of enrollment/checkout/certificate business outcomes those endpoints return (e.g. mock-payment plan assignment).

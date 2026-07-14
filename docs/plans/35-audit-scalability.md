@@ -65,9 +65,9 @@ This is a deliberately single-instance application, and — to its credit — it
 - **Recommendation:** No action now. When content scales past ~10-50k chunks, move ranking to a vector index (SQL Server vector support or a dedicated store) behind `IAssistantRetrievalService`, which already isolates the strategy.
 
 ### SCALE-11: Chat/message and call-history tables grow without bound, and every conversation open re-counts them  [Low] [Effort: S]
-- **Evidence:** `ChatMessages` has no retention/archival path anywhere in the repo; `GetMessagesAsync` runs `COUNT(*)` over a conversation's full history per page view (`ChatQueryService.cs:112`), and `GetUnreadCountAsync` joins messages×conversations per badge refresh (`:264-273`). `CallSessions`/`CallParticipants` likewise accumulate forever. (DB-11 flags the same pattern for RefreshTokens.)
+- **Evidence:** `ChatMessages` has no retention/archival path anywhere in the repo; `GetMessagesAsync` runs `COUNT(*)` over a conversation's full history per page view (`ChatQueryService.cs:112`), and `GetUnreadCountAsync` joins messages×conversations per badge refresh (`:264-273`). `CallSessions`/`CallParticipants` likewise accumulate forever. (Former DB-11 flagged the same pattern for RefreshTokens — fixed via `RefreshTokenPurgeService`, a `BackgroundService` sweep built for COMP-5's retention finding, which this could follow the same pattern for.)
 - **Impact:** Purely a growth slope, not a cliff: counts and unread scans degrade gradually as history accumulates. Indexes on `(ConversationId)` exist via FKs, so this stays cheap until conversations reach tens of thousands of messages.
-- **Recommendation:** Accept for now; when needed, maintain unread counters on the conversation row (the `LastMessageContent` cache shows the pattern) and add an archival policy alongside DB-11's purge job.
+- **Recommendation:** Accept for now; when needed, maintain unread counters on the conversation row (the `LastMessageContent` cache shows the pattern) and add an archival policy following `RefreshTokenPurgeService`'s sweep pattern.
 
 ### SCALE-12: WebRTC media is peer-to-peer mesh — the server scales with calls' signaling only  [Info]
 - **Evidence:** `CallHub.Signaling.cs` relays SDP/ICE without inspecting payloads; media never transits the server (hub comment, `CallHub.cs:16-18`). Mesh size is capped at 6 participants (`WebRtc:MaxParticipants`, `appsettings.json:53-61`); ICE is STUN-only (no TURN server configured).
@@ -92,6 +92,6 @@ This is a deliberately single-instance application, and — to its credit — it
 - **ARCH (21):** ARCH-1 owns the loopback design behind SCALE-3; ARCH-10 describes the calls-state design SCALE-1 re-backs; ARCH-7 owns the render-mode decision behind SCALE-8; ARCH-8 documents the hub-owning service lifetimes SCALE-3 counts connections for.
 - **PERF (34):** PERF-5 (data-URL avatars) is the largest single per-circuit memory item in SCALE-8; PERF-1 quantifies the per-call cost of the loopback topology.
 - **AVAIL (36):** Single-instance pinning (SCALE-1/2/4) is why zero-downtime deploys are impossible — AVAIL owns the restart/drain consequences.
-- **DB (30):** DB-11 (RefreshToken growth) is the same unbounded-growth pattern as SCALE-11; DB-14 endorses the current chunk-storage design SCALE-10 puts a ceiling on.
+- **DB (30):** former DB-11 (RefreshToken growth, fixed) was the same unbounded-growth pattern as SCALE-11; DB-14 endorses the current chunk-storage design SCALE-10 puts a ceiling on.
 - **SEC (25):** SEC-3 added a per-user rate limiter on several previously-unprotected endpoints; SCALE-7's per-instance limiter multiplication applies to it (and every other ASP.NET Core rate limiter here) the same way.
 - **CLOUD (41):** Owns the concrete provisioning (Redis, blob storage, TURN, load balancer) that the High findings here would consume.

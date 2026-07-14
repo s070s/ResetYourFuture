@@ -31,7 +31,7 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 
 ### PERF-3: Blog summary queries load full article bodies to build summaries  [Medium] [Effort: S]
 - **Evidence:** `Application/ApiServices/BlogArticleService.cs:34-41` — `GetPublishedSummariesAsync` does `ToListAsync()` on whole `BlogArticle` entities (including `ContentEn`/`ContentEl` rich-HTML bodies) and then maps to `BlogArticleSummaryDto`. Callers: the Home page (6 articles per render, `Pages/Home.razor.cs:99`) and the sitemap (up to 200 articles, `Startup/InfrastructureEndpointsExtensions.cs:228`).
-- **Impact:** Full article HTML (unbounded columns per DB-8) is transferred from SQL, materialized, and immediately discarded — on the most-visited page of the site. The sitemap pass pulls up to 200 full bodies (mitigated by its 30-min cache).
+- **Impact:** Full article HTML (`ContentEn`/`ContentEl` are intentionally unbounded `nvarchar(max)` — rich-text body content, not one of DB-8's capped columns) is transferred from SQL, materialized, and immediately discarded — on the most-visited page of the site. The sitemap pass pulls up to 200 full bodies (mitigated by its 30-min cache).
 - **Recommendation:** Project in SQL with `.Select(a => new { ... })` to only the summary fields, mirroring the projection pattern already used in `CourseService.GetPublishedCoursesAsync` (`CourseService.cs:70-85`).
 
 ### PERF-4: QuestPDF certificate generation runs synchronously inside the lesson-completion request  [Medium] [Effort: M]
@@ -103,7 +103,7 @@ The query layer is unusually disciplined for a project at this stage: list endpo
 
 - **ARCH (21):** ARCH-1 owns the loopback-HTTP-to-self design that PERF-1 costs out; ARCH-7 owns the global InteractiveServer decision behind PERF-6's per-keystroke traffic.
 - **REL (26):** REL-7 owns the per-request `FindByIdAsync` in both auth hooks — the single biggest per-call item inside PERF-1's pipeline; REL-3 owns the consumer error-swallowing on those same calls.
-- **DB (30):** DB-2 owned the nvarchar(48) schema fix underlying PERF-2 (both now fixed — columns are native `datetimeoffset`); DB-8 (unbounded blobs) amplifies PERF-3's over-fetch.
+- **DB (30):** DB-2 owned the nvarchar(48) schema fix underlying PERF-2 (both now fixed — columns are native `datetimeoffset`); PERF-3's over-fetch is on `ContentEn`/`ContentEl` (intentionally unbounded rich-text, not one of DB-8's capped columns — DB-8 itself is fixed).
 - **SCALE (35):** Owns the multi-instance/user-growth consequences of the same hot paths (presence fan-out, circuit memory, chunk-cache growth).
 - **AVAIL (36):** Owns timeout/resilience of the loopback HttpClients whose per-call cost PERF-1 describes.
 - **UX (33):** Perceived-latency consequences (loading states during multi-call page loads) are UX territory.
