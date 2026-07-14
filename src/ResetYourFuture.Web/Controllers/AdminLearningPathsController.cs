@@ -13,7 +13,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/paths")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Learning Paths")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminLearningPathsController(ILearningPathService paths) : ControllerBase

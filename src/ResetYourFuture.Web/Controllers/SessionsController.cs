@@ -15,7 +15,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/sessions")]
 [Authorize]
 [Tags("Scheduled Sessions")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 public class SessionsController(IScheduledSessionService sessions) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)

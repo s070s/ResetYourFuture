@@ -11,7 +11,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/sessions")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Scheduled Sessions")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminSessionsController(IScheduledSessionService sessions) : ControllerBase

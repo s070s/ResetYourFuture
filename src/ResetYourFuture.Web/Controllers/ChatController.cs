@@ -17,7 +17,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/chat")]
 [Authorize]
 [Tags("Chat")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class ChatController(IChatQueryService chatService) : ControllerBase
 {

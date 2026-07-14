@@ -12,7 +12,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/search")]
 [Tags("Search")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 public class SearchController(ISiteSearchService search) : ControllerBase
 {
     private const int MaxLimit = 20;

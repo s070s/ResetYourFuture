@@ -18,7 +18,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/subscriptions")]
 [Authorize]
 [Tags("Subscriptions")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 public class SubscriptionController : ControllerBase
 {

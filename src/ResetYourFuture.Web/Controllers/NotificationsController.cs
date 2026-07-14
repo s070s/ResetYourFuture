@@ -16,7 +16,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/notifications")]
 [Authorize]
 [Tags("Notifications")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 public class NotificationsController(INotificationService notifications) : ControllerBase
 {
     private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;

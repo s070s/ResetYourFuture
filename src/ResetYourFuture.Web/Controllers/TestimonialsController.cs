@@ -11,7 +11,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/testimonials")]
 [Tags("Testimonials")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 public class TestimonialsController : ControllerBase
 {
     private readonly ITestimonialService _testimonials;

@@ -11,7 +11,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/auth")]
 [Tags("Authentication")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 public class AuthController : ControllerBase

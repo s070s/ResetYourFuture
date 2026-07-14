@@ -14,7 +14,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/categories")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Categories")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminCategoriesController(IAdminCategoryService adminCategoryService) : ControllerBase

@@ -16,7 +16,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/assessments")]
 [Authorize]
 [Tags("Assessments")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AssessmentsController(IAssessmentService assessmentService) : ControllerBase
 {

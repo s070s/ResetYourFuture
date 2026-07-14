@@ -12,7 +12,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/paths")]
 [Tags("Learning Paths")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class PathsController(ILearningPathService paths) : ControllerBase
 {

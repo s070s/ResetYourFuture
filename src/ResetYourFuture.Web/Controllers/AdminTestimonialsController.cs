@@ -12,7 +12,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/testimonials")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Testimonials")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminTestimonialsController : ControllerBase

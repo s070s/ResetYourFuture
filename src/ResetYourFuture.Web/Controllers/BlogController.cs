@@ -10,7 +10,7 @@ namespace ResetYourFuture.Web.Controllers;
 [ApiController]
 [Route("api/blog")]
 [Tags("Blog")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class BlogController : ControllerBase
 {

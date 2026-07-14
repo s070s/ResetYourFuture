@@ -14,7 +14,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/course-reviews")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Course Reviews")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminCourseReviewsController(ICourseReviewService reviews) : ControllerBase
 {

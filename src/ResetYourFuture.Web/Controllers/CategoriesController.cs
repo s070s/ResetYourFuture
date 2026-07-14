@@ -12,7 +12,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/categories")]
 [Authorize]
 [Tags("Categories")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 public class CategoriesController(ICategoryService categoryService) : ControllerBase
 {
     /// <summary>

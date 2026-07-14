@@ -22,7 +22,7 @@ namespace ResetYourFuture.Web.Controllers;
 [Route("api/admin/assessments")]
 [Authorize(Policy = "AdminOnly")]
 [Tags("Admin · Assessments")]
-[Produces("application/json")]
+[Produces("application/json", "application/problem+json")]
 [ProducesResponseType(StatusCodes.Status400BadRequest)]
 [ProducesResponseType(StatusCodes.Status404NotFound)]
 public class AdminAssessmentsController : ControllerBase
