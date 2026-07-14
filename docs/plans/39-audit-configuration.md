@@ -17,33 +17,15 @@ Read in full: `src/ResetYourFuture.Web/appsettings.json`, `appsettings.Developme
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 0 |
 | Low | 3 |
 | Info | 1 |
 
-Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design (blank-by-design keys in `appsettings.json`, gitignored `.env` seeded from `.env.template`, README Configuration table documenting each key), the custom `EnvFileLoader` runs *before* `CreateBuilder` so the standard environment-variable provider picks values up in the normal precedence chain, and the most dangerous keys fail fast at startup with clear messages (JWT key length, admin password, `SelfBaseUrl`, missing email transport in Production). The remaining weaknesses are at the edges: the `.env.template` doesn't cover everything Production requires; options binding is entirely unvalidated; and a number of behavioral constants are compiled in.
+Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design, the custom `EnvFileLoader` runs *before* `CreateBuilder`, and the most dangerous keys fail fast at startup with clear messages. All four Medium findings are now resolved: `.env.template` covers the production-required keys (CFG-2); `EnvFileLoader` respects real env-var precedence, strips quotes, logs its source, and handles read errors (CFG-3); Assistant/WebRtc/Email options are validated at startup and `Sitemap:BaseUrl` moved to the aggregated startup check (CFG-4); and the payment keys are bound through a discoverable `PaymentOptions` class (CFG-5, its security half already closed under SEC-4). What remains is two Low items and one Info.
 
 ## 3. Findings
 
-### CFG-2: `.env.template` is incomplete against what Production actually requires  [Medium] [Effort: S]
-- **Evidence:** `.env.template` covers `ConnectionStrings__DefaultConnection`, `Jwt__Key`, `AdminUser__Password`, `SeedData__StudentPassword`, `Payment__WebhookSecret` (commented), `AllowedHosts` (commented). Missing entirely: `Email__Smtp__Host`/`Port`/`Username`/`Password` — yet startup *throws* in non-Development without an SMTP host (`ServiceRegistrationExtensions.cs:49-53`); `SelfBaseUrl` (CFG-1); `Assistant__Enabled`/`Assistant__BaseUrl` (README's assistant setup section relies on editing appsettings instead).
-- **Impact:** The template is the de-facto deployment contract ("copy the template and fill in your own values" — README Quickstart step 3), but following it to the letter in Production yields a startup crash (missing SMTP) and an empty site (missing SelfBaseUrl). The two failure messages arrive one at a time, not as one checklist.
-- **Recommendation:** Add the missing keys as commented Production-section entries with one-line comments, mirroring the existing `Payment__WebhookSecret` style. Keep dev-required vs prod-required keys visually separated.
-
-### CFG-3: `EnvFileLoader` inverts env-var precedence and parses permissively with no diagnostics  [Medium] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Web/Startup/EnvFileLoader.cs`: (a) lines 29-31 — `Environment.SetEnvironmentVariable` unconditionally, so a `.env` value **overwrites** a real environment variable set by the host/operator, the opposite of conventional dotenv precedence; (b) lines 35-49 — the walk-up searches as many as 5 parent directories, so a stray `.env` in e.g. `C:\Users\GS\Desktop` would be silently loaded when running from the repo; (c) quotes are not stripped (`KEY="value"` keeps the quotes in the value) and malformed lines are skipped silently; (d) `File.ReadAllLines` (line 21) has no error handling and runs before logging exists (Program.cs:7 precedes builder creation), so an unreadable/locked `.env` crashes the process with a raw exception.
-- **Impact:** (a) is the sharp edge: on any host where ops sets environment variables (systemd unit, IIS config, container env), a forgotten `.env` file up the directory tree silently wins, and nothing logs which file was loaded or which keys it set. (c) produces classic "my password has quotes in it" mysteries.
-- **Recommendation:** Only set a variable if `Environment.GetEnvironmentVariable(key) is null`; strip surrounding single/double quotes; `Console.WriteLine` (logging isn't up yet) the resolved `.env` path when one is found; wrap the read in try/catch with a clear message. ~15 lines total in `EnvFileLoader.cs`.
-
-### CFG-4: No options validation — most sections bind unchecked, some fail at first request instead of startup  [Medium] [Effort: M]
-- **Evidence:** Zero hits for `ValidateDataAnnotations`/`ValidateOnStart`/`IValidateOptions` in `src/`. Ad-hoc startup guards exist only for `Jwt:Key` (`AuthenticationSetupExtensions.cs:48-50`), `AdminUser:Password` (`DatabaseSeedingExtensions.cs:68-70`), email transport presence (`ServiceRegistrationExtensions.cs:49-53`), and `SeedData:StudentPassword` (`DatabaseSeedingExtensions.cs:108-110`). Unvalidated: `WebRtcOptions` (negative timeouts/participants bind fine), `AssistantOptions` (malformed `BaseUrl` throws deep in registration at `ServiceRegistrationExtensions.cs:98-101`), `EmailOptions` beyond Host presence (a typo'd port fails at first send), and `Sitemap:BaseUrl`, which throws at *request time* (`Startup/InfrastructureEndpointsExtensions.cs:221-222`) — the first crawler hit 500s instead of the operator learning at boot.
-- **Impact:** Config errors surface late, one at a time, at the worst moments (first email, first crawler visit) instead of as a startup failure list.
-- **Recommendation:** Use the pattern already half-present: `builder.Services.AddOptions<EmailOptions>().Bind(...).ValidateDataAnnotations().ValidateOnStart()` for Email/Assistant/WebRtc, with `[Range]`/`[Url]`/`[Required]` annotations on the options classes (`Application/Common/AssistantOptions.cs`, `Infrastructure/Configuration/EmailOptions.cs`). Move the `Sitemap:BaseUrl` null-check to startup.
-
-### CFG-5: Payment configuration is split, optional, and dangerous to get wrong  [Medium] [Effort: S]
-- **Evidence:** `Payment:MockEnabled` exists only in `appsettings.Development.json:11-13` (defaults to `false` elsewhere — safe); `SubscriptionService.cs:31` reads it via raw `configuration.GetValue` (no options class, no section in `appsettings.json` to document it); `Payment:WebhookSecret` is optional and when absent the Stripe webhook endpoint **skips signature verification with only a Warning log** (`Controllers/SubscriptionController.cs:110-113`). The README Configuration table documents both keys, but the production checklist (README lines 401-406) mentions neither.
-- **Impact:** Two inverse traps: a public host accidentally run with `ASPNETCORE_ENVIRONMENT=Development` gets mock payments (free subscriptions) *plus* seed data and Swagger; a Production host without the webhook secret accepts unauthenticated webhook posts (exploit mechanics → report 25, SEC). And with `MockEnabled` correctly off, checkout dead-ends in `pending_payment` (`SubscriptionService.cs:142-144`) — there is no real payment path at all (business consequence → report 27, BIZ).
-- **Recommendation:** Add a `Payment` section (with `MockEnabled: false`) to `appsettings.json` so the key is discoverable; bind a `PaymentOptions` class; in non-Development, fail fast (or refuse the webhook route) when `WebhookSecret` is unset rather than warning-and-continuing; add both keys to the README production checklist (see also OPS-5 in report 42).
+> The four Medium findings (CFG-2 `.env.template`, CFG-3 `EnvFileLoader`, CFG-4 options validation, CFG-5 payment config) are fixed — see git (`Fix CFG-2` … `Fix CFG-4 and CFG-5`). CFG-5's security half (unverified webhook) was already closed under SEC-4. The remaining open items are two Low and one Info.
 
 ### CFG-6: Behavioral constants hardcoded in code that belong in configuration  [Low] [Effort: M]
 - **Evidence:** `AssistantRetrievalService.cs:18` — retrieval `MinScore = 0.4f` (the one assistant knob *not* in the otherwise complete `Assistant` section); auth rate limit 10/min (`ServiceRegistrationExtensions.cs:147-153`); SignalR `MaximumReceiveMessageSize = 32_000` (line 131); cookie lifetimes 24 h sliding / 7-day persistent (`AuthenticationSetupExtensions.cs:94`, `InfrastructureEndpointsExtensions.cs:168`); upload size caps (`Infrastructure/ApiServices/LocalFileStorage.cs:15-18`); sitemap cache 30 min (`InfrastructureEndpointsExtensions.cs:227`).
@@ -62,12 +44,10 @@ Overall: the configuration design is thoughtful for a project of this scale — 
 
 ## 4. Prioritized Action List
 
+All four Medium items (CFG-2 through CFG-5) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| CFG-2 | Medium | S | Complete .env.template (SMTP, SelfBaseUrl, Assistant keys) |
-| CFG-3 | Medium | S | Fix .env precedence (env wins), strip quotes, log resolved path, handle read errors |
-| CFG-5 | Medium | S | PaymentOptions + fail-fast on missing WebhookSecret in non-Development |
-| CFG-4 | Medium | M | ValidateDataAnnotations + ValidateOnStart for Email/Assistant/WebRtc; startup-check Sitemap:BaseUrl |
 | CFG-7 | Low | S | Merge Sitemap:BaseUrl into App:BaseUrl; document key roles |
 | CFG-6 | Low | M | Promote MinScore (and selectively other constants) into configuration |
 | CFG-8 | Info | S | Optional Production-like launch profile |
