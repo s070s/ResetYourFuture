@@ -1,5 +1,7 @@
+using System.Net;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.AI;
 using OllamaSharp;
@@ -184,6 +186,19 @@ public static class ServiceRegistrationExtensions
         builder.Services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"])
             .AddCheck<AssistantHealthCheck>("assistant", tags: ["ready"]);
+
+        // CLOUD-2: process X-Forwarded-Proto/For so scheme detection, HTTPS redirection, HSTS, and
+        // Secure cookies work behind a TLS-terminating reverse proxy (requests otherwise arrive as
+        // http, causing redirect loops and a refused auth cookie — the classic first-deploy failure).
+        // Loopback (a same-host proxy) is trusted by default; a non-loopback load balancer's IPs go in
+        // ForwardedHeaders:KnownProxies.
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            foreach (var proxy in config.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>() ?? [])
+                if (IPAddress.TryParse(proxy, out var ip))
+                    options.KnownProxies.Add(ip);
+        });
 
         // --- SSR API Handler (attaches JWT from cookie claims for loopback HttpClient calls) ---
         builder.Services.AddTransient<SsrApiHandler>();

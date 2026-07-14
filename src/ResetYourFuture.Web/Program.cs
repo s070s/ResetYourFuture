@@ -15,7 +15,11 @@ builder.ValidateRequiredConfig();
 // --- Logging ---
 // LOG-6: anchor the log directory to the content root, not the (launch-dependent) working
 // directory, so logs always land in the same place and the daily digest (LOG-1) can find them.
-var logsDirectory = Path.Combine(builder.Environment.ContentRootPath, "Logs");
+// CLOUD-1: allow relocating logs outside the deploy folder via Logging:File:Directory.
+var configuredLogDir = builder.Configuration["Logging:File:Directory"];
+var logsDirectory = string.IsNullOrWhiteSpace(configuredLogDir)
+    ? Path.Combine(builder.Environment.ContentRootPath, "Logs")
+    : configuredLogDir;
 builder.Logging.AddFileLogger(logsDirectory);
 
 builder.AddResetYourFutureAuthentication();
@@ -81,6 +85,10 @@ else
 // the routing layer 404s on *before* the Router ever runs (the <NotFound> render fragment was
 // removed in .NET 10 in favor of Router.NotFoundPage) — so a mistyped/dead URL gets the app shell
 // instead of a bare 404 with no navigation (UX-3).
+// CLOUD-2: apply X-Forwarded-* before anything reads the scheme (HTTPS redirect, HSTS, Secure
+// cookies) so the app works behind a TLS-terminating reverse proxy. No-op when no proxy sends them.
+app.UseForwardedHeaders();
+
 app.UseStatusCodePagesWithReExecute("/__status-code-dispatch");
 
 app.UseHttpsRedirection();

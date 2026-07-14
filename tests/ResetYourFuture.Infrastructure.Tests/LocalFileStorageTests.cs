@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ResetYourFuture.Infrastructure.ApiServices;
@@ -18,7 +19,8 @@ public sealed class LocalFileStorageTests : IDisposable
         Directory.CreateDirectory(_root);
         var env = Substitute.For<IWebHostEnvironment>();
         env.ContentRootPath.Returns(_root);
-        _storage = new LocalFileStorage(env, NullLogger<LocalFileStorage>.Instance);
+        var config = new ConfigurationBuilder().Build();
+        _storage = new LocalFileStorage(env, config, NullLogger<LocalFileStorage>.Instance);
     }
 
     private static MemoryStream Stream(int bytes = 16) => new(new byte[bytes]);

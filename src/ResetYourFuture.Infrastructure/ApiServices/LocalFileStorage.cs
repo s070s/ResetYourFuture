@@ -1,10 +1,11 @@
+using Microsoft.Extensions.Configuration;
 using ResetYourFuture.Application.ApiInterfaces;
 
 namespace ResetYourFuture.Infrastructure.ApiServices;
 
 /// <summary>
 /// Local file system implementation of IFileStorage.
-/// Stores files in ./App_Data/Uploads/{folder}/{fileName}.
+/// Stores files under the configured uploads directory (default ./App_Data/Uploads/{folder}/{fileName}).
 /// </summary>
 public class LocalFileStorage : IFileStorage
 {
@@ -33,9 +34,15 @@ public class LocalFileStorage : IFileStorage
         "video/mp4", "video/webm", "video/ogg"
     };
 
-    public LocalFileStorage(IWebHostEnvironment environment, ILogger<LocalFileStorage> logger)
+    public LocalFileStorage(IWebHostEnvironment environment, IConfiguration configuration, ILogger<LocalFileStorage> logger)
     {
-        _basePath = Path.Combine(environment.ContentRootPath, "App_Data", "Uploads");
+        // CLOUD-1: allow the uploads directory to live outside the deploy folder (so a "delete and
+        // re-copy" update isn't destructive) by setting Storage:UploadsPath; default stays inside
+        // the content root for zero-config local development.
+        var configuredPath = configuration["Storage:UploadsPath"];
+        _basePath = string.IsNullOrWhiteSpace(configuredPath)
+            ? Path.Combine(environment.ContentRootPath, "App_Data", "Uploads")
+            : configuredPath;
         _logger = logger;
 
         // Ensure base directory exists

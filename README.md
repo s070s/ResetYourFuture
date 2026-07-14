@@ -438,6 +438,8 @@ All secrets are loaded from `.env` at startup (see `.env.template`). The `.env` 
 - `SelfBaseUrl` set to the app's real bound address (startup throws otherwise)
 - `Email:Smtp:Host` (+ credentials) configured so `SmtpEmailService` sends real email (startup throws in Production when no SMTP host is set)
 - `Payment__WebhookSecret` set if Stripe webhooks are used — the webhook endpoint returns **503** without it and never skips signature verification. (`Payment:MockEnabled` is ignored outside Development, so mock checkout can't grant free upgrades in production.)
+- **Behind a reverse proxy** (nginx/Caddy/IIS ARR/cloud LB terminating TLS): the app processes `X-Forwarded-Proto`/`X-Forwarded-For` automatically and trusts a loopback (same-host) proxy. For a proxy on a different host, list its IP(s) in `ForwardedHeaders:KnownProxies` — otherwise HTTPS redirects loop and the Secure auth cookie is refused.
+- **Persistent state outside the deploy folder** so a redeploy isn't destructive: point `Storage:UploadsPath` (uploaded avatars/PDFs/videos) and `Logging:File:Directory` (log files) at durable paths; the database and DataProtection keys already live in SQL Server, not on disk.
 - Migrations run automatically at startup (`MigrateAsync`, with bounded retry-with-backoff if the database isn't reachable yet); ensure the DB user has `dbcreator` or schema-alter rights on first deploy
 - `/health/live` (process up, no dependency checks) and `/health/ready` (database + AI assistant status) are available for a load balancer/orchestrator to poll
 

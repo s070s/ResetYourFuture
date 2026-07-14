@@ -16,10 +16,14 @@ public sealed class LogErrorDigestService : BackgroundService
     private readonly string _logDirectory;
     private readonly ILogger<LogErrorDigestService> _logger;
 
-    public LogErrorDigestService(IWebHostEnvironment env, ILogger<LogErrorDigestService> logger)
+    public LogErrorDigestService(IWebHostEnvironment env, IConfiguration configuration, ILogger<LogErrorDigestService> logger)
     {
-        // Same directory the file logger writes to (anchored to the content root — LOG-6).
-        _logDirectory = Path.Combine(env.ContentRootPath, "Logs");
+        // Same directory the file logger writes to: the configured Logging:File:Directory (CLOUD-1)
+        // or the content-root default (LOG-6). Kept in sync with Program.cs's resolution.
+        var configuredLogDir = configuration["Logging:File:Directory"];
+        _logDirectory = string.IsNullOrWhiteSpace(configuredLogDir)
+            ? Path.Combine(env.ContentRootPath, "Logs")
+            : configuredLogDir;
         _logger = logger;
     }
 
