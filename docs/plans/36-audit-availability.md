@@ -19,25 +19,17 @@ NOT examined: process-supervisor/container restart-policy configuration (no Dock
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 0 |
 | Low | 2 |
 | Info | 1 |
 
 > **Accepted since audit (out of scope — will not implement):** AVAIL-4 (single-instance pinning means any crash or restart is a full outage — there is no failover). This is purely the availability consequence of the accepted scalability limitations (SCALE-1/2/3): with no shared call/presence store and no SignalR backplane, a second instance cannot run correctly, so there is no node to fail over to. Since running more than one instance is consciously out of scope for this single-instance university project, AVAIL-4 has no separate fix and is accepted along with the SCALE findings it depends on. Blast-radius mitigations that don't need a second instance remain covered by AVAIL-1 (health checks, fixed), AVAIL-2 (startup retry, fixed) and infrastructure-level restart supervision (CLOUD 41). See the matching note in [35-audit-scalability.md](35-audit-scalability.md) (SCALE-1/2/3).
 
-The background-service layer shows real availability awareness in places — `CallRingMonitor` sweeps dangling `CallSession` rows left by a crashed prior process (`CallRingMonitor.cs:133-154`), every hub connection (`ChatService`, `CallService`) auto-reconnects and rejoins in-flight calls (`CallService.cs:89-96`), and EF's `EnableRetryOnFailure` absorbs transient SQL blips once the app is running. Startup migration/seeding now retries with backoff instead of taking the process down on the first failure, `/health/live`/`/health/ready` give an orchestrator something to poll, and the loopback HTTP layer now times out and degrades gracefully instead of crashing the circuit (AVAIL-3, fixed). Because SCALE-1/2/4 pin the app to one instance, every remaining gap is also a full-outage risk rather than a degraded one — there is no second node to fail over to (AVAIL-4).
+The background-service layer shows real availability awareness in places — `CallRingMonitor` sweeps dangling `CallSession` rows left by a crashed prior process (`CallRingMonitor.cs:133-154`), every hub connection (`ChatService`, `CallService`) auto-reconnects and rejoins in-flight calls (`CallService.cs:89-96`), and EF's `EnableRetryOnFailure` absorbs transient SQL blips once the app is running. Startup migration/seeding now retries with backoff instead of taking the process down on the first failure, `/health/live`/`/health/ready` give an orchestrator something to poll, and the loopback HTTP layer now times out and degrades gracefully instead of crashing the circuit (AVAIL-3, fixed). Shutdown is now graceful — a `ServerShuttingDown` broadcast lets clients tear down active calls cleanly within a bounded drain window (AVAIL-5, fixed) — and a failing background job can no longer take the whole host down with it (AVAIL-6, fixed: the bulk seeder is guarded and `BackgroundServiceExceptionBehavior` is `Ignore`). Because SCALE-1/2/4 pin the app to one instance, every remaining gap is also a full-outage risk rather than a degraded one — there is no second node to fail over to (AVAIL-4, accepted).
 
 ## 3. Findings
 
-### AVAIL-5: No graceful shutdown — active calls, chat connections, and in-flight circuits are hard-dropped, not drained  [Medium] [Effort: M]
-- **Evidence:** No use of `IHostApplicationLifetime`/`ApplicationStopping` anywhere in `src/` (confirmed by search); no `CircuitOptions` tuning; `Program.cs` relies entirely on ASP.NET Core defaults for shutdown. `CallHub`'s only disconnect-aware cleanup is `OnDisconnectedAsync`, which fires per-connection when SignalR notices the socket drop (`CallHub.cs:75-105`) — there is no explicit "server is stopping, tell every active call to end and every circuit to save state" step.
-- **Impact:** A deploy or restart drops every open SignalR connection (chat and call) simultaneously; clients discover this only via their own reconnect/timeout logic (`ChatService`'s `WithAutomaticReconnect()`, `CallService.cs:81,89-96`) rather than a clean server-initiated notice. Active video calls end abruptly for both participants with no "call ended: server restarting" message — the client-side reconnect will re-establish the hub connection but the call state itself (mesh peer connections) is not designed to survive a server bounce. `CallRingMonitor.SweepDanglingSessionsAsync` (`CallRingMonitor.cs:133-154`) is a good compensating control on the *next* boot (marks orphaned `CallSession` rows `Cancelled`), but nothing runs on the way down.
-- **Recommendation:** Register an `IHostApplicationLifetime.ApplicationStopping` callback that broadcasts a `ServerShuttingDown` hub event (both hubs) so connected clients can show a clear message instead of a silent drop, and gives in-flight requests/circuits a short grace window before the process exits (`WebApplication` already supports `Host.CreateDefaultBuilder`'s default shutdown timeout — tune it explicitly rather than relying on the default).
-
-### AVAIL-6: Unhandled `BackgroundService` exceptions stop the entire host, not just the failing feature  [Medium] [Effort: S]
-- **Evidence:** REL-6 (`26-audit-reliability.md`) identifies that `BulkStudentSeedingService.ExecuteAsync` (`Infrastructure/Seeding/BulkStudentSeedingService.cs:30-51`) has no try/catch around `BulkStudentSeeder.SeedAsync`, unlike `AssistantIndexer` and `CallRingMonitor`'s poll loop, which guard each iteration. The availability angle REL-6 doesn't spell out: .NET's `HostOptions.BackgroundServiceExceptionBehavior` defaults to `StopHost` — an unhandled exception from *any* registered `BackgroundService` (there are three: `CallRingMonitor`, `BulkStudentSeedingService`, `AssistantIndexer`) stops the entire generic host, which also owns the Kestrel web server. It is not feature-isolated.
-- **Impact:** A single seeding bug in a Development-only, opt-in bulk-seed path (`SeedData:Enabled`) has the same blast radius as a web-server crash: the whole app stops serving HTTP traffic, not just "seeding failed." Because this only runs when `SeedData:Enabled=true` in Development, production is unaffected today, but the pattern — three unrelated background jobs sharing fate with the web server — is a latent trap for any future hosted service added without the same discipline `AssistantIndexer`/`CallRingMonitor`'s loops show.
-- **Recommendation:** Fix REL-6's specific gap (wrap `BulkStudentSeeder.SeedAsync` in try/catch-log). As a systemic guard, consider setting `HostOptions.BackgroundServiceExceptionBehavior = Ignore` for genuinely non-critical hosted services (or keep `StopHost` but ensure every `ExecuteAsync` is fully self-guarded, as two of the three already are) so a future hosted-service bug can't silently take the whole app down.
+> The two Medium findings (AVAIL-5 graceful shutdown, AVAIL-6 background-service fault isolation) are fixed — see git (`Fix AVAIL-5 and AVAIL-6`) — and AVAIL-4 (single-instance = no failover) is accepted (§2). The remaining open items are two Low and one Info.
 
 ### AVAIL-7: `CallRingMonitor`'s startup dangling-session sweep is the one unguarded step in an otherwise well-guarded service  [Low] [Effort: S]
 - **Evidence:** `CallRingMonitor.ExecuteAsync` (`CallRingMonitor.cs:48-72`) calls `await SweepDanglingSessionsAsync(stoppingToken)` at line 50 with no try/catch, then enters the poll loop where every iteration *is* guarded (`:54-61`). `SweepDanglingSessionsAsync` (`:133-154`) issues a DB query and a `SaveChangesAsync`.
@@ -56,12 +48,12 @@ The background-service layer shows real availability awareness in places — `Ca
 
 ## 4. Prioritized Action List
 
+Both Medium items (AVAIL-5, AVAIL-6) are fixed. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| AVAIL-6 | Medium | S | Guard `BulkStudentSeedingService`'s body (closes REL-6); reconsider `BackgroundServiceExceptionBehavior` |
 | AVAIL-7 | Low | S | Guard `CallRingMonitor`'s startup dangling-session sweep |
 | AVAIL-8 | Low | S | Fail-fast on empty/LocalDB connection string outside Development |
-| AVAIL-5 | Medium | M | Broadcast a shutdown notice + drain window before process exit |
 
 ## 5. Related Findings Elsewhere
 
