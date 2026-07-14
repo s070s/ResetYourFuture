@@ -50,6 +50,13 @@ else
     {
         exceptionHandlerApp.Run(async context =>
         {
+            // OBS-3: log the unhandled exception with the same traceId ProblemDetails returns to the
+            // client, so a user-reported traceId can be located in the logs — and so the exception
+            // reaches the file sink, not only the framework's console provider.
+            var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+            var exLogger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            exLogger.LogError(error, "Unhandled exception. TraceId: {TraceId}", context.TraceIdentifier);
+
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             var problemDetailsService = context.RequestServices.GetRequiredService<IProblemDetailsService>();
             await problemDetailsService.WriteAsync(new()
