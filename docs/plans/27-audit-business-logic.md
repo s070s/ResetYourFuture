@@ -19,28 +19,19 @@ NOT examined: real Stripe API semantics (no live integration exists) and pricing
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 3 |
+| Medium | 1 |
 | Low | 4 |
 | Info | 0 |
 
-Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. The remaining lifecycle gaps: cancellation immediately forfeits paid time (BIZ-2 — a natural follow-up now that the expiry sweep exists to drive a "keep access until period end" policy, but not tackled in this pass), and the real payment path is inert (checkout 503s in production and the webhook does not activate anything).
+Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. Cancellation now keeps paid access until `ExpiresAt` instead of forfeiting it immediately (BIZ-2, fixed), and mock checkout can no longer grant a plan outside Development (BIZ-4, fixed). The remaining gap: the real payment path is inert (checkout 503s in production and the webhook does not activate anything) — assessed but not implemented, since it needs a live Stripe account this environment doesn't have (BIZ-3).
 
 ## 3. Findings
-
-### BIZ-2: Cancellation immediately revokes paid access, contradicting the documented "active until ExpiresAt" intent  [Medium] [Effort: S]
-- **Evidence:** `Application/ApiServices/SubscriptionService.cs:283-345` (`CancelSubscriptionAsync`) sets the current sub `IsActive=false`, stamps `CancelledAt`, and immediately creates a new **Free** active subscription. The `UserSubscription.CancelledAt` XML doc states "Subscription remains active until ExpiresAt after cancellation" — the code does the opposite.
-- **Impact:** A user who paid for a month and cancels on day 2 loses Plus/Pro access instantly and forfeits the remaining paid period. This is both a domain-rule inconsistency and a likely user-trust/refund issue on a real deployment.
-- **Recommendation:** Decide the intended policy. If "cancel = keep access until period end," set `CancelledAt` but leave `IsActive`/tier intact until `SubscriptionExpirySweeper` (added for BIZ-1) flips it at `ExpiresAt`. If "cancel = immediate," update the entity documentation to match.
 
 ### BIZ-3: Real payment path is inert — production checkout 503s and the webhook activates nothing  [Medium] [Effort: L]
 - **Evidence:** `Web/Controllers/SubscriptionController.cs:79-93` returns 503 (`pending_payment`) when `Payment:MockEnabled` is off (the production default). `SubscriptionController.cs:147-154` verifies the Stripe signature but then logs "Event processing not yet implemented" and returns 200 without dispatching to `AssignPlanAsync`.
 - **Impact:** There is no working way to purchase a plan in a non-mock (production) configuration: checkout cannot complete, and even a correctly signed `checkout.session.completed` event does not grant a tier. Monetisation is non-functional outside Development.
-- **Recommendation:** Implement the documented event dispatch (`checkout.session.completed → AssignPlanAsync`, `customer.subscription.updated → tier update`, `customer.subscription.deleted → revert to Free`) inside a transaction, and wire a real checkout-session creation. The webhook already fails closed without a configured signing secret (SEC-4, fixed) — the safety precondition for wiring dispatch is in place.
-
-### BIZ-4: Mock checkout grants any plan with zero payment  [Medium] [Effort: S]
-- **Evidence:** `Application/ApiServices/SubscriptionService.cs:145-202` — when `Payment:MockEnabled` is true, `CreateCheckoutSessionAsync` calls `AssignPlanAsync` and records a paid-looking `BillingTransaction` **without any charge**. `MockEnabled=true` is set in `appsettings.Development.json`.
-- **Impact:** In Development any authenticated student can POST `/api/subscriptions/checkout` and instantly receive Pro. This is intended for demos and is off by default in production, so it is not exploitable there — but it is a domain rule worth flagging because the "purchase" produces a real `BillingTransaction` row indistinguishable from a paid one, and any environment that accidentally enables the flag grants free upgrades.
-- **Recommendation:** Keep the mock, but guard it so it can only ever run under `IsDevelopment()` (not merely a config flag), and mark mock transactions distinctly (e.g. a `Description`/type marker) so they are never mistaken for real payments in reporting.
+- **Assessed (2026-07-14):** Not implemented. Confirmed there is no Stripe secret key anywhere in configuration (only `Payment:WebhookSecret`, used solely for signature verification) and no Stripe SDK package reference in the solution — this app has never held a live/test Stripe credential. Both halves of the recommendation are coupled and both need one: a real checkout-session call requires the Stripe API (secret key + a product/price catalog configured in an actual Stripe dashboard), and the webhook dispatch needs a real checkout session's `client_reference_id`/`metadata` to correlate an incoming event back to a local `userId`/`planId` — there is nothing to correlate against without the first half. Writing the dispatch logic against a guessed payload shape, with no live account to send a real event and verify it, would produce exactly the class of unverified, likely-wrong code this audit series warns against elsewhere (see MAINT-2). Deferred until a live Stripe account (test-mode secret key at minimum) is available to develop and verify against.
+- **Recommendation:** Unchanged: implement the documented event dispatch (`checkout.session.completed → AssignPlanAsync`, `customer.subscription.updated → tier update`, `customer.subscription.deleted → revert to Free`) inside a transaction, and wire a real checkout-session creation, once a Stripe test account is available. The webhook already fails closed without a configured signing secret (SEC-4, fixed) — the safety precondition for wiring dispatch is in place.
 
 ### BIZ-5: Assessment list surfaces items above the user's `RequiredTier`  [Low] [Effort: S]
 - **Evidence:** `Application/ApiServices/AssessmentService.cs:22-79` (`GetPublishedAssessmentsAsync`) gates only on `Features.AssessmentAccess`, not per-assessment `RequiredTier`. `SubmitAssessmentAsync:117-132` correctly enforces both `AssessmentAccess` and `Tier >= RequiredTier`.
@@ -66,9 +57,7 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| BIZ-2 | Medium | S | Align cancellation behaviour with intended policy (keep-until-expiry vs immediate) |
-| BIZ-3 | Medium | L | Implement webhook event dispatch + real checkout session for production |
-| BIZ-4 | Medium | S | Gate mock checkout to `IsDevelopment()` and mark mock transactions distinctly |
+| BIZ-3 | Medium | L | Implement webhook event dispatch + real checkout session for production — blocked on a live Stripe test account |
 | BIZ-5 | Low | S | Filter/lock assessments by `RequiredTier` in the list view |
 | BIZ-6 | Low | M | (Optional) enforce enrollment cap under stricter isolation |
 | BIZ-7 | Low | M | (Optional) re-evaluate completion/certificates on curriculum change |
