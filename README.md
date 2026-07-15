@@ -98,7 +98,7 @@ The test projects mirror the application layers under `tests/`: `Domain.Tests`, 
 
 Web integration tests boot the real ASP.NET Core pipeline through `WebApplicationFactory<Program>`. The test host supplies dummy JWT/admin settings, runs in Development, swaps SQL Server for InMemory, and uses SQLite only for provider behaviors InMemory cannot execute, such as `EF.Functions.Like` or `ExecuteUpdateAsync`.
 
-GitHub Actions runs restore, Release build, and `dotnet test` on every push and pull request, then uploads TRX results from `TestResults/*.trx`. There is no coverage gate or coverage artifact yet; the definition of done is a green `dotnet test` locally and in CI.
+GitHub Actions runs on every push and pull request: a locked-mode restore, a Release build, a **code-style gate** (`dotnet format style --verify-no-changes` — a file that drifts from `.editorconfig` fails the build), and `dotnet test`, then uploads TRX results from `TestResults/*.trx`. A separate job applies the full migration chain against a real SQL Server container to catch migrations that pass on InMemory/SQLite but break on SQL Server. There is no coverage gate or coverage artifact yet; the definition of done is a green `dotnet test` locally and in CI. Style and the recommended analyzers also run in every local build (`EnforceCodeStyleInBuild`), surfacing as warnings rather than blocking day-to-day work.
 
 ### End-to-end tests (local)
 
