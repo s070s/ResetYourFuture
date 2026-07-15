@@ -37,6 +37,8 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 
 > **Database is created and migrated automatically on first run.** If you drop the database (e.g. from SSMS), just restart the app — it will recreate and reseed it.
 
+> **Database connection string — do you need to change it on a new PC?** The default targets SQL Server **LocalDB** (`Server=(localdb)\MSSQLLocalDB`), whose instance name is the same on every machine, so **cloning onto a new PC needs no change** — just have LocalDB installed (it ships with Visual Studio and SQL Server Express). Only set `ConnectionStrings__DefaultConnection` in `.env` if you point the app at a **different** SQL Server — a named instance, SQL Express, a remote server, or SQL authentication — because that server name is specific to the machine it runs on. Since `.env` is gitignored it never travels with a clone: on a new PC you recreate it from `.env.template` (LocalDB default) and adjust the connection string only if you are *not* using LocalDB. The app reads `.env` first and falls back to the dev default in `appsettings.Development.json`.
+
 **Admin:** `admin@resetyourfuture.local` / *(password you set in `.env`)*
 
 > Seed data (students, courses, assessments) runs automatically in Development when `SeedData:Enabled = true` in `appsettings.Development.json`. The bulk student seeder runs in the background after startup. Set `SeedData:BulkStudentCount` in `.env` to control the count (default: 10).
