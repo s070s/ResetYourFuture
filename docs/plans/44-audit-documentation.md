@@ -19,28 +19,15 @@ NOT examined: rendered Swagger UI output (would require running the app); XML do
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 3 |
+| Medium | 0 |
 | Low | 4 |
 | Info | 2 |
 
-Documentation is a relative strength of this project. The README is a genuine operator's manual — quickstart, full endpoint tables with an explicit "Swagger UI is the authoritative source" disclaimer, config reference, production checklist, per-feature sections, and a troubleshooting table — and it has demonstrably been updated per feature (commits `c7e8b27`, `3d33110`). XML doc coverage is high (Domain 34/34 files with summaries, Application 74/83, Infrastructure 32/44) and load-bearing, feeding the OpenAPI document via `GenerateDocumentationFile` on the Web and Application projects. The findings are therefore about drift, not absence: the email section contradicts the code it describes, the sole surviving `docs/` plan documents features that were never built, deleted plan docs are still referenced from code comments, and a public GitHub repo ships with no LICENSE. Each is cheap to fix; together they erode trust in otherwise excellent docs.
+Documentation is a relative strength of this project. The README is a genuine operator's manual — quickstart, full endpoint tables with an explicit "Swagger UI is the authoritative source" disclaimer, config reference, production checklist, per-feature sections, and a troubleshooting table — and it has demonstrably been updated per feature (commits `c7e8b27`, `3d33110`). XML doc coverage is high (Domain 34/34 files with summaries, Application 74/83, Infrastructure 32/44) and load-bearing, feeding the OpenAPI document via `GenerateDocumentationFile` on the Web and Application projects. All three Medium findings — drift, not absence — are now resolved: the Email section and Configuration table were rewritten to match `SmtpEmailService` and document the `Email__Smtp__*` keys (DOC-1); the stale email-flows plan/spec now carry accurate dated status headers (DOC-2); and the repo ships an MIT `LICENSE` (© 2026 s070s) with a README License section (DOC-3). What remains is four Low items (dangling `_PLAN.md` references, minor README drift, `.env.template` gaps, no architecture doc) and two Info.
 
 ## 3. Findings
 
-### DOC-1: README email documentation contradicts the code — SmtpEmailService exists but is undocumented  [Medium] [Effort: S]
-- **Evidence:** `README.md:63` (Tech Stack: "Email | `StubEmailService` (dev only) … a real provider must be registered for production"), `README.md:405` (production checklist: "`IEmailService` real implementation registered (startup throws if absent in Production)"), and the Email section (`README.md:410-424`) all present StubEmailService as the only implementation. In code, `src/ResetYourFuture.Infrastructure/ApiServices/SmtpEmailService.cs` (MailKit) exists and `ServiceRegistrationExtensions.cs:36-53` auto-registers it whenever `Email:Smtp:Host` is configured — in *any* environment — falling back to the stub only in Development, and failing fast otherwise. Neither the README Configuration table (`README.md:385-399`) nor `.env.template` mentions any `Email__Smtp__*` key, though `appsettings.json` defines the full `Email:Smtp` section (Host/Port/UseStartTls/Username/Password/From*).
-- **Impact:** The single most deployment-critical subsystem is documented as missing when it is present. An operator following the README would conclude they must write an email service; a grader assessing feature completeness would under-credit it. The real switch (`Email__Smtp__Host`) is discoverable only by reading DI registration code.
-- **Recommendation:** Rewrite the Email section: SMTP via MailKit when `Email__Smtp__Host` is set (Papercut/Mailhog in dev, real relay in prod), stub fallback in Development, fail-fast otherwise. Add the `Email__Smtp__*` rows to the Configuration table and commented entries to `.env.template` (see DOC-6).
-
-### DOC-2: The only content in docs/ is a plan whose promised features were never built, with no outcome recorded  [Medium] [Effort: S]
-- **Evidence:** `docs/superpowers/plans/2026-06-25-email-service-auth-flows.md` and `docs/superpowers/specs/2026-06-25-email-service-auth-flows-design.md` (spec status: "Approved") promise, among delivered items, a `/reset-password` page, a `/confirm-email` page, and a rate-limited `resend-confirmation` endpoint on `AuthController`. None exist: no `@page "/reset-password"` or `@page "/confirm-email"` anywhere in `src/`, no `resend-confirmation` route in `Controllers/AuthController.cs` (routes verified: register, confirm-email GET, login, refresh, forgot-password, reset-password, me, two dev endpoints). Meanwhile `Pages/Login.razor.cs:98`, `Pages/Register.razor.cs:127`, and `Pages/ForgotPassword.razor.cs:66` still call the `api/auth/dev/*` endpoints that are compiled out of Release builds. The plan's checkboxes were never updated to record what landed (SmtpEmailService, EmailOptions, tests) versus what did not.
-- **Impact:** The repo's design-record convention elsewhere is *delete the plan when done* (commits `dff8e94`, `1730c4d`, `c5aa3de`). This one survives half-true: a reader (or a future agent executing "finish the plan") cannot tell whether the missing pages were descoped, forgotten, or superseded. The user-facing consequence — password reset has no UI in Release — is owned by GAP (20)/UX (33); this finding owns the misleading record.
-- **Recommendation:** Add a short "Outcome" header to the plan (delivered: Tasks 1–2 …; not delivered: pages/resend — descoped or pending), or delete both files per the established convention once the gap is triaged.
-
-### DOC-3: Public repository has no LICENSE file  [Medium] [Effort: S]
-- **Evidence:** No `LICENSE`, `LICENSE.*`, `COPYING`, or `NOTICE` at the repo root (verified); the README (`README.md:11`) instructs cloning from the public `https://github.com/s070s/ResetYourFuture.git` and contains no licensing statement of any kind.
-- **Impact:** Under default copyright, a public repo with no license grants viewers no rights to use, copy, or modify the code. For a university certificate project this creates avoidable ambiguity for exactly its audiences — graders, portfolio reviewers, and anyone the README invites to clone and run it. (Third-party license posture, incl. the conditional QuestPDF Community license, is DEP-6 in DEP 43; the vendored Bootstrap files do retain their MIT headers.)
-- **Recommendation:** Add a LICENSE file (MIT is the natural fit for a portfolio project) and a one-line License section at the bottom of the README.
+> The three Medium findings are resolved: **DOC-1** — the README Email section, Tech Stack line, production checklist, and Configuration table were rewritten to match `SmtpEmailService` (MailKit, auto-registered when `Email__Smtp__Host` is set; stub only in Development; fail-fast otherwise), with the `Email__Smtp__*` keys documented in both the table and `.env.template`. **DOC-2** — `docs/superpowers/plans/2026-06-25-email-service-auth-flows.md` and its design spec now carry accurate dated status headers recording what landed (SmtpEmailService, EmailOptions, tests) versus what did not (the reset/confirm pages, owned by GAP 20/UX 33). **DOC-3** — the repo now ships an MIT `LICENSE` (© 2026 s070s) and a README License section that also flags the conditional QuestPDF Community tier (see git: `Fix DOC-3`). The remaining open items are four Low and two Info.
 
 ### DOC-4: Code comments reference plan documents that were deleted from the repo  [Low] [Effort: S]
 - **Evidence:** `src/ResetYourFuture.Web/Controllers/AssistantController.cs:14` ("See AI_ASSISTANT_PLAN.md for the overall design") and `src/ResetYourFuture.Application/DTOs/Assistant/AssistantDtos.cs:6` ("no server-side conversation persistence — see AI_ASSISTANT_PLAN.md D7") reference a file deleted in commit `dff8e94`; `src/ResetYourFuture.Web/wwwroot/js/webrtc-interop.js:1` references `VIDEO_CALL_PLAN.md`, deleted in `1730c4d`.
@@ -74,11 +61,10 @@ Documentation is a relative strength of this project. The README is a genuine op
 
 ## 4. Prioritized Action List
 
+All three Medium items (DOC-1, DOC-2, DOC-3) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| DOC-1 | Medium | S | Rewrite README Email section to match SmtpEmailService reality; document `Email__Smtp__*` |
-| DOC-2 | Medium | S | Record outcome in (or delete) the stale email-flows plan/spec |
-| DOC-3 | Medium | S | Add LICENSE + README license note |
 | DOC-4 | Low | S | Fix three dangling references to deleted plan docs; inline the D7 rationale |
 | DOC-5 | Low | S | Correct seed-count claim; document presence tracking |
 | DOC-6 | Low | S | Extend .env.template (Assistant__Enabled, Email__Smtp__*, App__BaseUrl) |
