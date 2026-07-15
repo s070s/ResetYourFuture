@@ -20,10 +20,10 @@ NOT examined: index selection/coverage and column types for performance → DB (
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 3 |
+| Low | 2 |
 | Info | 1 |
 
-Overall data integrity is well tended: unique constraints back every natural key that matters (one certificate per user-course, one enrollment per user-course, ordered-pair chat uniqueness, one active subscription via filtered index, one call-participant per session), a global soft-delete query filter plus matching dependent filters prevent the classic "principal filtered out" surprise, `AuditableEntity` stamps created/updated automatically, and both certificate and enrollment insert paths handle the duplicate-key race. All three Medium findings are now fixed: assessment answers are validated against the referenced schema on submit (DQ-2), a sweep for the same DTO/column length-mismatch pattern found and fixed it in three places, not just testimonials (DQ-3), and both the assessment-schema write path and the plan-features/schema-resolution error logs now carry enough context to catch and diagnose corrupt JSON (DQ-4).
+Overall data integrity is well tended: unique constraints back every natural key that matters (one certificate per user-course, one enrollment per user-course, ordered-pair chat uniqueness, one active subscription via filtered index, one call-participant per session), a global soft-delete query filter plus matching dependent filters prevent the classic "principal filtered out" surprise, `AuditableEntity` stamps created/updated automatically, and both certificate and enrollment insert paths handle the duplicate-key race. All three Medium findings are now fixed: assessment answers are validated against the referenced schema on submit (DQ-2), a sweep for the same DTO/column length-mismatch pattern found and fixed it in three places, not just testimonials (DQ-3), and both the assessment-schema write path and the plan-features/schema-resolution error logs now carry enough context to catch and diagnose corrupt JSON (DQ-4). DQ-7 is now fixed too: the Certificate/CourseReview→Course relationship was actually required (INNER JOIN, silently dropping rows on soft-delete) despite documentation claiming otherwise — it's now genuinely optional.
 
 ## 3. Findings
 
@@ -37,10 +37,10 @@ Overall data integrity is well tended: unique constraints back every natural key
 - **Impact:** The "at most one active subscription per user" invariant is enforced by the DB in production but only by application logic (`AssignPlanAsync` deactivation loop) under test. Tests cannot catch a regression that would create two active subscriptions; behaviour diverges between environments.
 - **Recommendation:** Add an application-level guard/assertion that holds in both providers, or a test that asserts the single-active invariant explicitly against the relational provider.
 
-### DQ-7: `Certificate.Course` is optional while `CourseId` is required — deliberate but fragile  [Low] [Effort: S]
-- **Evidence:** `CertificateConfiguration.cs:64-72` makes the `Course` navigation optional (LEFT JOIN, survives soft-delete) with `CourseId` `IsRequired` + `NoAction`.
-- **Impact:** Correct for preserving certificates when a course is soft-deleted, but consuming code must always null-check `Course`; `CertificatesController.Verify`/`GetMyCertificates` rely on the denormalised `CourseTitleEn`/`El` snapshot instead (good). The risk is future code dereferencing `certificate.Course` after a soft-delete.
-- **Recommendation:** Keep the snapshot-first pattern; add a code comment/analyzer note so future queries don't assume `Course` is loaded.
+### DQ-7: `Certificate.Course` was configured optional but the FK stayed `IsRequired` — the intent never actually took effect  [Fixed]
+- **Evidence:** `CertificateConfiguration.cs:64-72` set `CourseId` `IsRequired()`, which made the relationship required despite the comment claiming a LEFT JOIN. EF Core's own model-validation warning (10622, "Course... is the required end of a relationship... may lead to unexpected results when the required entity is filtered out") flagged exactly this. A new test proved the real behavior: `Include(c => c.Course)` used an INNER JOIN, so soft-deleting a course silently dropped the certificate row out of query results entirely — not the "survives soft-delete" behavior the comment described. `CourseReview.CourseId` had the same problem (required by convention, no explicit override).
+- **Fixed (2026-07-15):** `Certificate.CourseId` and `CourseReview.CourseId` are now `Guid?`, with `IsRequired(false)` on both relationships (migration `DB_CertificateCourseReview_OptionalCourse`). EF now generates a real LEFT JOIN with the soft-delete filter applied in the `ON` clause, so both rows survive and `Course` comes back `null` when the course is gone — matching the snapshot-first pattern (`CourseTitleEn`/`El` on Certificate) that already assumed this. Covered by `ApplicationDbContextTests.Certificate_SurvivesCourseSoftDelete_WithNullCourseNavigation` and `.CourseReview_SurvivesCourseSoftDelete_WithNullCourseNavigation`.
+- **Recommendation:** None remaining. Consuming code must still null-check `Course` after this change — `CertificatesController.Verify`/`GetMyCertificates` already do via the snapshot fields; `CourseReviewService.GetPagedAsync`/`ApproveAsync` already use `r.Course?`/`r.Course!` appropriately.
 
 ### DQ-8: Chat/call `Restrict` FKs mean deleting a conversation leaves call sessions dangling by design  [Info] [Effort: S]
 - **Evidence:** `CallSessionConfiguration.cs:24-28` nulls `ConversationId` on conversation delete (`SetNull`); `ChatMessage.CallSessionId` is `SetNull` (`ChatMessageConfiguration.cs:31-35`). Call history intentionally survives conversation/message deletion.
@@ -53,7 +53,6 @@ Overall data integrity is well tended: unique constraints back every natural key
 |----|----------|--------|--------|
 | DQ-5 | Low | S | Deterministic-ID upsert seeding for subscription plans |
 | DQ-6 | Low | S | Guard/test the single-active-subscription invariant across both providers |
-| DQ-7 | Low | S | Document the snapshot-first certificate pattern |
 | DQ-8 | Info | S | Record the call-history retention intent |
 
 ## 5. Related Findings Elsewhere

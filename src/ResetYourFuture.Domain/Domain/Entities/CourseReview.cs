@@ -12,7 +12,11 @@ public class CourseReview
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid CourseId { get; set; }
+    /// <summary>
+    /// Foreign key to Course. Nullable so the relationship is optional at the EF model level —
+    /// a soft-deleted course must not silently drop this review out of Include queries.
+    /// </summary>
+    public Guid? CourseId { get; set; }
 
     public Course? Course { get; set; }
 

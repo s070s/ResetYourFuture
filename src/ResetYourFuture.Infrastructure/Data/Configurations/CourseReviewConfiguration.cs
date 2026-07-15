@@ -26,9 +26,12 @@ public class CourseReviewConfiguration : IEntityTypeConfiguration<CourseReview>
         builder.HasIndex(r => new { r.CourseId, r.Status })
             .HasDatabaseName("IX_CourseReviews_CourseId_Status");
 
+        // Optional (nullable CourseId) so EF uses LEFT JOIN when Course is soft-deleted (query
+        // filter), preserving the review row instead of inner-joining it away.
         builder.HasOne(r => r.Course)
             .WithMany()
             .HasForeignKey(r => r.CourseId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(r => r.User)

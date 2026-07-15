@@ -78,8 +78,12 @@ public class Certificate
     /// <summary>Navigation: the completed enrollment that triggered this certificate.</summary>
     public Enrollment Enrollment { get; set; } = null!;
 
-    /// <summary>Foreign key to Course.</summary>
-    public Guid CourseId { get; set; }
+    /// <summary>
+    /// Foreign key to Course. Nullable so the relationship can be optional at the EF model
+    /// level — a soft-deleted course must not silently drop this certificate out of Include
+    /// queries (see CertificateConfiguration).
+    /// </summary>
+    public Guid? CourseId { get; set; }
 
     /// <summary>Navigation: the course this certificate was issued for. May be null when the course has been soft-deleted.</summary>
     public Course? Course { get; set; }

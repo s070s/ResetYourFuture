@@ -45,8 +45,8 @@ public class CourseReviewService(IApplicationDbContext db, INotificationDispatch
 
         var rows = await db.CourseReviews
             .AsNoTracking()
-            .Where(r => ids.Contains(r.CourseId) && r.Status == ReviewStatus.Approved)
-            .GroupBy(r => r.CourseId)
+            .Where(r => r.CourseId != null && ids.Contains(r.CourseId.Value) && r.Status == ReviewStatus.Approved)
+            .GroupBy(r => r.CourseId!.Value)
             .Select(g => new { CourseId = g.Key, Average = g.Average(r => r.Rating), Count = g.Count() })
             .ToListAsync(cancellationToken);
 
@@ -113,7 +113,7 @@ public class CourseReviewService(IApplicationDbContext db, INotificationDispatch
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(r => new AdminCourseReviewDto(
-                r.Id, r.CourseId, r.Course!.TitleEn,
+                r.Id, r.CourseId!.Value, r.Course!.TitleEn,
                 !string.IsNullOrWhiteSpace(r.User!.DisplayName) ? r.User.DisplayName! : (r.User.FirstName + " " + r.User.LastName).Trim(),
                 r.Rating, r.Body, r.Status.ToString(), r.CreatedAt))
             .ToListAsync(cancellationToken);

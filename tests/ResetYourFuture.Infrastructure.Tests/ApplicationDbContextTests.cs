@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using NSubstitute;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
+using ResetYourFuture.Domain.Identity;
 using Shouldly;
 using Xunit;
 
@@ -143,6 +145,78 @@ public class ApplicationDbContextTests
 
         (await db.Enrollments.CountAsync()).ShouldBe(0);
         (await db.Enrollments.IgnoreQueryFilters().CountAsync()).ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Certificate_SurvivesCourseSoftDelete_WithNullCourseNavigation()
+    {
+        // Course is a required navigation the way Certificate was configured before this fix, so
+        // once the course is soft-deleted, Include(c => c.Course) inner-joins it away and the
+        // whole certificate row vanishes — even though the certificate itself is still valid and
+        // should keep being visible (e.g. on the student's certificates page) after the course is
+        // gone. The LEFT JOIN this test relies on only shows up against a real relational
+        // provider (SQLite here) — EF Core's InMemory provider doesn't apply query filters the
+        // same way through Include, so it would pass regardless of whether the fix is present.
+        await using var db = ResetYourFuture.TestSupport.DbContextFactory.CreateSqlite();
+        var user = new ApplicationUser { Id = "u1", UserName = "u@x.com", Email = "u@x.com", FirstName = "A", LastName = "B" };
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+        var enrollment = new Enrollment { Id = Guid.NewGuid(), UserId = user.Id, CourseId = course.Id };
+        var certificate = new Certificate
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            CourseId = course.Id,
+            EnrollmentId = enrollment.Id,
+            RecipientName = "A B",
+            CourseTitleEn = "C",
+            Status = CertificateStatus.Active
+        };
+        db.Users.Add(user);
+        db.Courses.Add(course);
+        db.Enrollments.Add(enrollment);
+        db.Certificates.Add(certificate);
+        await db.SaveChangesAsync();
+
+        course.IsDeleted = true;
+        await db.SaveChangesAsync();
+
+        // Clear the tracker so the reload below can't navigation-fixup Course from the
+        // already-tracked `course` instance — a real request gets a fresh DbContext with nothing
+        // tracked, so only the query filter (not in-memory fixup) should decide whether Course
+        // comes back.
+        db.ChangeTracker.Clear();
+        var reloaded = await db.Certificates.Include(c => c.Course).FirstOrDefaultAsync(c => c.Id == certificate.Id);
+
+        reloaded.ShouldNotBeNull();
+        reloaded.Course.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task CourseReview_SurvivesCourseSoftDelete_WithNullCourseNavigation()
+    {
+        // Same required-navigation problem as Certificate: a review should stay visible to
+        // moderation/history views even after its course is soft-deleted, not disappear from
+        // Include(r => r.Course) queries. Uses SQLite for the same reason as the test above —
+        // InMemory doesn't exercise the LEFT JOIN/filter interaction this fix depends on.
+        await using var db = ResetYourFuture.TestSupport.DbContextFactory.CreateSqlite();
+        var user = new ApplicationUser { Id = "u1", UserName = "u@x.com", Email = "u@x.com", FirstName = "A", LastName = "B" };
+        var course = new Course { Id = Guid.NewGuid(), TitleEn = "C" };
+        var review = new CourseReview { Id = Guid.NewGuid(), CourseId = course.Id, UserId = user.Id, Rating = 5, Body = "Great course" };
+        db.Users.Add(user);
+        db.Courses.Add(course);
+        db.CourseReviews.Add(review);
+        await db.SaveChangesAsync();
+
+        course.IsDeleted = true;
+        await db.SaveChangesAsync();
+
+        // See the comment on the Certificate test above — clearing the tracker forces the reload
+        // to rely on the query filter instead of in-memory navigation fixup.
+        db.ChangeTracker.Clear();
+        var reloaded = await db.CourseReviews.Include(r => r.Course).FirstOrDefaultAsync(r => r.Id == review.Id);
+
+        reloaded.ShouldNotBeNull();
+        reloaded.Course.ShouldBeNull();
     }
 
     [Fact]

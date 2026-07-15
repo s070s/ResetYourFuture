@@ -57,14 +57,14 @@ public class CertificateConfiguration : IEntityTypeConfiguration<Certificate>
             .HasForeignKey(c => c.EnrollmentId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        // Relationship: Certificate references the Course
-        // Navigation is optional so EF uses LEFT JOIN when Course is soft-deleted (query filter),
-        // preserving the certificate row. IsRequired keeps CourseId NOT NULL in the database.
+        // Relationship: Certificate references the Course.
+        // Optional (nullable CourseId) so EF uses LEFT JOIN when Course is soft-deleted (query
+        // filter), preserving the certificate row instead of inner-joining it away.
         // NoAction avoids a multiple-cascade-path conflict on SQL Server.
         builder.HasOne(c => c.Course)
             .WithMany()
             .HasForeignKey(c => c.CourseId)
-            .IsRequired()
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }
