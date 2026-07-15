@@ -613,16 +613,23 @@ An in-app notification inbox with a **bell badge** and live push over SignalR (`
 
 A grounded, bilingual (EN/EL) AI helper available to every authenticated user, regardless of subscription tier. It answers site questions from a background index of published courses, lessons, assessments, and blog articles, and — as a **tool-calling agent** — can look up the signed-in user's own enrollments, lesson progress, assessment results and subscription, plus search and recommend courses. Everything runs **locally** via [Ollama](https://ollama.com) — no cloud API, no per-token cost, no data leaves the machine.
 
-**Setup — two steps, everything else is automatic:**
+**Setup:** the assistant needs [Ollama](https://ollama.com) running locally; everything after that is automatic (the app pulls the models itself). If the widget shows *"Assistant unavailable — is Ollama installed and running?"*, work through these three steps.
 
-```powershell
-# 1. Install Ollama (winget, or https://ollama.com/download)
-winget install Ollama.Ollama
-# 2. Run the app
-dotnet run --project src/ResetYourFuture.Web
-```
+1. **Install Ollama** — download from <https://ollama.com/download>, or on Windows:
+   ```powershell
+   winget install Ollama.Ollama
+   ```
+   The installer starts Ollama and keeps it running in the background (look for its icon in the system tray).
 
-On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.7b` chat ≈ 1.4 GB + `bge-m3` embeddings ≈ 1.2 GB — ~2.6 GB total, one-time). The widget shows live download progress and becomes interactive the moment everything is ready. Installing or starting Ollama **after** the app is already running also works — the bootstrap supervisor keeps probing and recovers without a restart.
+2. **Confirm it's actually running** — this is exactly what the "*is Ollama installed and running?*" message checks. Open <http://localhost:11434> in a browser (it should say *"Ollama is running"*), or run `ollama list` in a terminal. If nothing responds, start it: launch **Ollama** from the Start menu, or run `ollama serve`.
+
+3. **Run the app:**
+   ```powershell
+   dotnet run --project src/ResetYourFuture.Web
+   ```
+   On first start the app **auto-pulls the two models it needs** — `qwen3:1.7b` (chat, ≈ 1.4 GB) and `bge-m3` (embeddings, ≈ 1.2 GB); ~2.6 GB total, one-time. The assistant widget shows live download progress and goes live the moment everything is ready.
+
+You can install or start Ollama **after** the app is already running — it keeps probing and recovers on its own, no restart needed. To pull the models yourself instead (e.g. on a metered connection): `ollama pull qwen3:1.7b && ollama pull bge-m3`. If Ollama runs on a different machine or port, point the app at it with `Assistant__BaseUrl` (see the table below).
 
 **How it works:** a background service chunks and embeds published content into an `AssistantContentChunks` table (incrementally — only re-embedding what changed). Each question embeds the query, retrieves the top matching chunks by cosine similarity, and injects them plus the user's tier and enrolled course titles into a scoped system prompt (RAG grounding). For questions about the user's *own* data, the model calls server-side tools (`get_my_enrollments`, `get_my_progress`, `get_my_assessment_results`, `get_subscription_status`, `search_courses`, `recommend_courses`); the authenticated identity is captured server-side — no tool accepts a user id, so prompt injection can never read another user's data, and raw assessment answers never reach the model. Replies stream to a floating chat widget over Server-Sent Events. The widget appears bottom-right on every page for signed-in users; when Ollama is unreachable or a model is downloading, it shows a live state instead, and the rest of the app is unaffected.
 
@@ -659,7 +666,7 @@ On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.
 | Video call has no camera/mic | Grant the browser camera/microphone permission for the site, and use HTTPS (WebRTC requires a secure context). When testing with two browsers on one PC, only one can hold the physical webcam — the other joins audio-only (expected). |
 | `401` after login | Match `Jwt:Key/Issuer/Audience`. Disabled accounts return `X-User-Disabled: true`. |
 | HTTPS not trusted | `dotnet dev-certs https --trust` |
-| Assistant shows "is Ollama installed and running?" | Install/start Ollama (`winget install Ollama.Ollama`); the app re-probes automatically and recovers without a restart. Confirm with `ollama list`. |
+| Assistant shows "is Ollama installed and running?" | Ollama isn't reachable at `http://localhost:11434`. Install it (`winget install Ollama.Ollama`) and make sure it's running — open <http://localhost:11434> (should say "Ollama is running") or run `ollama list`; if not, start it via the Ollama app or `ollama serve`. The app re-probes automatically and recovers without a restart. See the [AI Assistant](#ai-assistant) setup steps. |
 | Assistant stuck "downloading its model" | Normal on first run (~2.6 GB total). Progress shows in the widget and in `Logs/`. On a metered/blocked network set `Assistant__AutoPullModels=false` and pull manually: `ollama pull qwen3:1.7b && ollama pull bge-m3`. |
 | Assistant's first answer is slow | Expected — Ollama cold-loads the model into memory on first request after startup/idle. Subsequent answers are faster. |
 
