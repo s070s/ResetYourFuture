@@ -19,23 +19,15 @@ NOT examined: GitHub server-side settings — branch protection rules, required 
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 2 |
+| Medium | 0 |
 | Low | 3 |
 | Info | 3 |
 
-Governance here is better than the checklist suggests. The headline absences — no PRs, no tags, no templates, no CODEOWNERS — are the *expected* shape of a solo certificate project and are graded accordingly. What stands out instead is an unusually disciplined working method: features are executed from written work-package plans with per-WP commits ("Add CallHub, CallRegistry, and ring-monitor background service (WP3)"), review findings are recorded and fixed as dedicated commits ("Emit CallAccepted event on call acceptance (WP3 review fix)"), plan docs are deleted on completion, CI runs the full test suite on every push, and local tooling config was deliberately untracked. The two Medium findings are the gaps that cost something even solo: nothing marks which commit is "the submission" (no tags or versions anywhere), and the freshly added `.editorconfig` is advisory-only because nothing enforces style or analyzers in the build — the exact condition under which the previous style drift happened.
+Governance here is better than the checklist suggests. The headline absences — no PRs, no tags, no templates, no CODEOWNERS — are the *expected* shape of a solo certificate project and are graded accordingly. What stands out instead is an unusually disciplined working method: features are executed from written work-package plans with per-WP commits ("Add CallHub, CallRegistry, and ring-monitor background service (WP3)"), review findings are recorded and fixed as dedicated commits ("Emit CallAccepted event on call acceptance (WP3 review fix)"), plan docs are deleted on completion, CI runs the full test suite on every push, and local tooling config was deliberately untracked. Both Medium findings are now resolved: the build stamps a `VersionPrefix` (0.9.0) so the artifact is identifiable, to be tagged per milestone (GOV-1); and the `.editorconfig` is no longer advisory — `EnforceCodeStyleInBuild` plus a CI `dotnet format style --verify-no-changes` gate now fail the build on style drift, the exact condition under which the previous drift happened (GOV-2). What remains is three Low items and three Info.
 
 ## 3. Findings
 
-### GOV-1: No versioning of any kind — the submitted artifact is unidentifiable  [Medium] [Effort: S]
-- **Evidence:** `git tag` returns nothing; no release branches (`git branch -a`: only `master` + `origin/master`); no `<Version>`/`<VersionPrefix>` in any csproj or props file (searched); no CHANGELOG (DOC-8). Milestones exist only as prose in commit subjects ("Make video calls fully working…", "feature complete").
-- **Impact:** For a certificate project the release *is* the deliverable: there is no way to state "the graded/demoed version is X" or to return to the exact demo state after further commits. Six months from now, reconstructing what was submitted means reading 253 commit messages. This is the cheapest-to-fix Medium in the audit suite.
-- **Recommendation:** Tag immediately (`git tag -a v0.9 -m "pre-audit snapshot" b2dd9bd && git push --tags`), then tag each milestone and a `v1.0` at submission. Optionally add `<Version>` in `Directory.Build.props` bumped alongside tags. CHANGELOG can follow later (DOC-8).
-
-### GOV-2: Style and analyzer rules are advisory-only — nothing enforces them in build or CI  [Medium] [Effort: S]
-- **Evidence:** A root `.editorconfig` exists (added 2026-07) with real content: formatting rules, `csharp_style_namespace_declarations = file_scoped:warning`, explicit no-space-in-parens settings whose own comment ("Standard .NET formatting conventions — no spaces inside parentheses/brackets", `.editorconfig:19`) exists precisely because the codebase previously drifted into a nonstandard spaced-paren style. But no project sets `EnforceCodeStyleInBuild`, `AnalysisLevel`/`AnalysisMode`, or `TreatWarningsAsErrors` (verified across all csproj/props), and CI (`.github/workflows/tests.yml`) runs only restore/build/test — no `dotnet format --verify-no-changes`, no analyzer gate. So the rules bind only inside IDEs that honor `.editorconfig`, and only as suggestions/warnings.
-- **Impact:** The enforcement gap is exactly how the original drift happened, and this repo's changes come from multiple tools (IDE, Claude, the historical Copilot agent) with different default styles. Warnings — including the IDE0161 file-scoped-namespace warning the config requests — accumulate invisibly in a CI log that only fails on errors.
-- **Recommendation:** In the root `Directory.Build.props` add `<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>` and `<AnalysisLevel>latest-recommended</AnalysisLevel>`; once warning-clean, add `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` (or `-warnaserror` in the CI build step only, keeping local builds friction-free). A `dotnet format --verify-no-changes` CI step is the stricter alternative; either one gate is enough.
+> The two Medium findings are resolved (see git: `Fix GOV-1 and GOV-2`). **GOV-1** — `Directory.Build.props` now sets `<VersionPrefix>0.9.0</VersionPrefix>`, so every built assembly carries an identity; the accompanying comment establishes the convention (bump alongside a matching git tag per milestone, cut `v1.0.0` at submission). The submission tag itself is a release action left to the author (pushing tags is out of an automated pass's scope); the CHANGELOG stays deferred to DOC-8. **GOV-2** — the `.editorconfig` is now enforced, not advisory: `EnforceCodeStyleInBuild` + `AnalysisLevel=latest-recommended` run style (IDExxxx) and the recommended analyzers in every build, the lone block-scoped namespace was converted to file-scoped, scaffolded EF migrations are marked `generated_code` so their style/analyzer noise is skipped, test method names are exempted from CA1707 (underscores are the deliberate xUnit convention, ~1500 false positives removed), and a CI **Verify code style** step (`dotnet format style --verify-no-changes --severity warn`) now fails the build on style drift. The gate is scoped to the currently-clean warning-level style rules; escalating the remaining analyzer warnings to errors and the whitespace/paren reformatting are consciously deferred (the finding's own staged "once warning-clean" step). The remaining open items are three Low and three Info.
 
 ### GOV-3: Commit-message conventions are inconsistent, though recent history is strong  [Low] [Effort: S]
 - **Evidence:** 253 commits; 9 use conventional-commit prefixes (`feat:`, `fix(tests):` — e.g. `e78bd1b`, `c53909b`), the rest freeform. Early history includes non-descriptive subjects ("updated styles", "change on palette", "-url in a button" and its revert `8513eb5`, revert/reapply pairs `93c7ed8`/`1c82f42`). Recent history (video-call and assistant eras) is consistently imperative, scoped, and WP-tagged ("Add assistant chat/status/reindex API endpoints (WP5)"). No convention is documented anywhere.
@@ -69,10 +61,10 @@ Governance here is better than the checklist suggests. The headline absences —
 
 ## 4. Prioritized Action List
 
+Both Medium items (GOV-1, GOV-2) are resolved. The remaining backlog:
+
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| GOV-1 | Medium | S | Tag current state and every milestone; `v1.0` at submission |
-| GOV-2 | Medium | S | EnforceCodeStyleInBuild + AnalysisLevel in Directory.Build.props; warnings-as-errors in CI |
 | GOV-3 | Low | S | Write down the (already practiced) commit convention |
 | GOV-4 | Low | S | Enable branch protection requiring the tests check (or merge via PRs) |
 | GOV-5 | Low | S | Fix git identity config; add .mailmap for existing aliases |
