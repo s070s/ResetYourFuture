@@ -10,9 +10,11 @@
     <VersionPrefix>0.9.0</VersionPrefix>
 
     <!-- GOV-2: run the .editorconfig style rules (IDExxxx) and the recommended analyzers during
-         every build, not just inside an IDE, so drift surfaces as a build warning. CI escalates
-         these to errors via -warnaserror (see .github/workflows/tests.yml); local builds stay
-         warning-only so day-to-day work isn't blocked. -->
+         every build, not just inside an IDE, so drift surfaces as a warning here and in every
+         build. CI hard-gates only the warning-level STYLE rules, via a `dotnet format style
+         --verify-no-changes` step (see .github/workflows/tests.yml) — so a style drift fails the
+         build. The recommended analyzers stay advisory (their remaining warning backlog is not yet
+         clean); escalating them to errors is deferred until that backlog is worked down. -->
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
 
