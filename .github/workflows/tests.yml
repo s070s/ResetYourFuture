@@ -17,7 +17,7 @@ jobs:
       AdminUser__Password: "Ci-Test-Admin-1!"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -77,7 +77,7 @@ jobs:
       ConnectionStrings__DefaultConnection: "Server=localhost,1433;Database=ResetYourFutureCiDb;User Id=sa;Password=Ci-Migrations-Sa-1!;TrustServerCertificate=True;Encrypt=False"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
