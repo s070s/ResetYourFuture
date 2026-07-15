@@ -19,15 +19,17 @@ NOT examined: real Stripe API semantics (no live integration exists) and pricing
 |----------|-------|
 | Critical | 0 |
 | High | 0 |
-| Medium | 1 |
+| Medium | 0 |
 | Low | 4 |
 | Info | 0 |
 
-Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. Cancellation now keeps paid access until `ExpiresAt` instead of forfeiting it immediately (BIZ-2, fixed), and mock checkout can no longer grant a plan outside Development (BIZ-4, fixed). The remaining gap: the real payment path is inert (checkout 503s in production and the webhook does not activate anything) — assessed but not implemented, since it needs a live Stripe account this environment doesn't have (BIZ-3).
+> **Accepted / deferred (blocked — will not implement in this pass):** BIZ-3 (the real, non-mock payment path is inert — production checkout 503s and the signed webhook activates nothing). This is Effort L and **externally blocked**: there is no Stripe secret key or SDK anywhere in the solution and never has been, so a real checkout-session call and a webhook-to-`AssignPlanAsync` dispatch cannot be built or verified here — both halves need a live Stripe test account (secret key + a dashboard product/price catalog to correlate events against). Writing the dispatch against a guessed payload with no account to send a real event and confirm it would produce exactly the unverified, likely-wrong code this audit series warns against. The safety precondition is already in place (the webhook fails closed without a signing secret — SEC-4, fixed). Consciously deferred until a Stripe test account exists; retained in full below with its assessment note. See the sibling accepted large-effort findings in [23-audit-maintainability.md](23-audit-maintainability.md) (MAINT-2/3).
+
+Overall the domain rules are coherent and defensively coded in the parts that exist: tier gating is consistently enforced on enrollment, assessment submission, and certificate issuance; the one-active-subscription invariant is backed by a filtered unique index; enrollment and certificate issuance both handle the duplicate-insert race correctly; and billing transactions are recorded for every plan change with a sensible transaction-type taxonomy. Cancellation now keeps paid access until `ExpiresAt` instead of forfeiting it immediately (BIZ-2, fixed), and mock checkout can no longer grant a plan outside Development (BIZ-4, fixed). The remaining gap is the inert real payment path (BIZ-3), consciously accepted above as blocked on a live Stripe account this environment doesn't have.
 
 ## 3. Findings
 
-### BIZ-3: Real payment path is inert — production checkout 503s and the webhook activates nothing  [Medium] [Effort: L]
+### BIZ-3: Real payment path is inert — production checkout 503s and the webhook activates nothing  [Medium — Accepted/deferred] [Effort: L]
 - **Evidence:** `Web/Controllers/SubscriptionController.cs:79-93` returns 503 (`pending_payment`) when `Payment:MockEnabled` is off (the production default). `SubscriptionController.cs:147-154` verifies the Stripe signature but then logs "Event processing not yet implemented" and returns 200 without dispatching to `AssignPlanAsync`.
 - **Impact:** There is no working way to purchase a plan in a non-mock (production) configuration: checkout cannot complete, and even a correctly signed `checkout.session.completed` event does not grant a tier. Monetisation is non-functional outside Development.
 - **Assessed (2026-07-14):** Not implemented. Confirmed there is no Stripe secret key anywhere in configuration (only `Payment:WebhookSecret`, used solely for signature verification) and no Stripe SDK package reference in the solution — this app has never held a live/test Stripe credential. Both halves of the recommendation are coupled and both need one: a real checkout-session call requires the Stripe API (secret key + a product/price catalog configured in an actual Stripe dashboard), and the webhook dispatch needs a real checkout session's `client_reference_id`/`metadata` to correlate an incoming event back to a local `userId`/`planId` — there is nothing to correlate against without the first half. Writing the dispatch logic against a guessed payload shape, with no live account to send a real event and verify it, would produce exactly the class of unverified, likely-wrong code this audit series warns against elsewhere (see MAINT-2). Deferred until a live Stripe account (test-mode secret key at minimum) is available to develop and verify against.
@@ -57,7 +59,7 @@ Overall the domain rules are coherent and defensively coded in the parts that ex
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
-| BIZ-3 | Medium | L | Implement webhook event dispatch + real checkout session for production — blocked on a live Stripe test account |
+| BIZ-3 | Medium — Accepted | L | Implement webhook event dispatch + real checkout session for production — blocked on a live Stripe test account; consciously deferred |
 | BIZ-5 | Low | S | Filter/lock assessments by `RequiredTier` in the list view |
 | BIZ-6 | Low | M | (Optional) enforce enrollment cap under stricter isolation |
 | BIZ-7 | Low | M | (Optional) re-evaluate completion/certificates on curriculum change |

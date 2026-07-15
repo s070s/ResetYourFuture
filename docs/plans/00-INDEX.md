@@ -1,14 +1,16 @@
 # docs/plans — Open Audit Backlog Index
 
-Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master) · Pruned to open findings: 2026-07-14
+Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master) · Pruned to open findings: 2026-07-14 · Medium backlog cleared: 2026-07-15
 
 This folder holds the **open backlog** from the 2026-07-11 audit suite (originally 4 implementation plans,
 25 audit reports, a Critical/High synthesis, and 255 findings). Everything completed has been removed:
-all four plans are implemented, and every Critical/High finding is fixed, downgraded after a partial fix,
-or consciously accepted as out of scope (the four "Accepted since audit" banners in reports 21/34/35/36
-record the accepted Redis/architecture cluster: `ARCH-1`, `PERF-1`, `SCALE-1/2/3`, `AVAIL-4`). What remains
-is the Medium/Low/Info backlog below — "worth scheduling" / "fix opportunistically" / "observation only" —
-plus the deferred cosmetic polish note. Full history of what was fixed lives in git (`git log docs/plans/`).
+all four plans are implemented, and every Critical/High **and Medium** finding is now fixed, downgraded
+after a partial fix, or consciously accepted. The accepted set is: the Critical/High Redis/architecture
+cluster (`ARCH-1`, `PERF-1`, `SCALE-1/2/3`, `AVAIL-4` — "Accepted since audit" banners in reports 21/34/35/36),
+plus three Medium items closed out on 2026-07-15 — `MAINT-2`, `MAINT-3` (large-effort structural refactors)
+and `BIZ-3` (real payments, blocked on a live Stripe account). What remains open is the Low/Info backlog
+below — "fix opportunistically" / "observation only" — plus the deferred cosmetic polish note. Full history
+of what was fixed lives in git (`git log docs/plans/`).
 
 ## Reports
 
@@ -97,11 +99,11 @@ Severity is judged in context: this is a university certificate project, not a p
 |--------|----------|------|--------|-----|------|-------|
 | ARCH (21) | 0 | 0 | 0 | 3 | 2 | 5 |
 | CQ (22) | 0 | 0 | 0 | 5 | 2 | 7 |
-| MAINT (23) | 0 | 0 | 2 | 4 | 1 | 7 |
+| MAINT (23) | 0 | 0 | 0 | 4 | 1 | 5 |
 | TEST (24) | 0 | 0 | 0 | 4 | 1 | 5 |
 | SEC (25) | 0 | 0 | 0 | 5 | 1 | 6 |
 | REL (26) | 0 | 0 | 0 | 5 | 0 | 5 |
-| BIZ (27) | 0 | 0 | 1 | 4 | 0 | 5 |
+| BIZ (27) | 0 | 0 | 0 | 4 | 0 | 4 |
 | DQ (28) | 0 | 0 | 0 | 3 | 1 | 4 |
 | COMP (29) | 0 | 0 | 0 | 3 | 1 | 4 |
 | DB (30) | 0 | 0 | 0 | 5 | 2 | 7 |
@@ -120,6 +122,6 @@ Severity is judged in context: this is a university certificate project, not a p
 | DEP (43) | 0 | 0 | 0 | 3 | 2 | 5 |
 | DOC (44) | 0 | 0 | 0 | 4 | 2 | 6 |
 | GOV (45) | 0 | 0 | 0 | 3 | 3 | 6 |
-| **Total** | **0** | **0** | **3** | **92** | **30** | **125** |
+| **Total** | **0** | **0** | **0** | **92** | **30** | **122** |
 
-Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, and downgraded findings (still open, less severe) sit in their new severity row. Of the original 255 findings, all 31 Critical/High are resolved: fixed, downgraded after a partial fix, or consciously accepted (the Redis/architecture cluster — see the "Accepted since audit" banners in reports 21/34/35/36). The record of every fix lives in git history.
+Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, downgraded findings (still open, less severe) sit in their new severity row, and consciously **accepted** findings are excluded (like fixed ones) though their bodies may be retained with an acceptance note. Of the original 255 findings, all 31 Critical/High are resolved and, as of 2026-07-15, so is the entire **Medium** backlog: every Medium is fixed except three consciously accepted as large-effort or externally-blocked — MAINT-2 and MAINT-3 (Effort-M structural refactors, see [23-audit-maintainability.md](23-audit-maintainability.md)) and BIZ-3 (real payments, blocked on a live Stripe account, see [27-audit-business-logic.md](27-audit-business-logic.md)). The earlier accepted Critical/High cluster (Redis/architecture — ARCH-1, PERF-1, SCALE-1/2/3, AVAIL-4) is recorded in the "Accepted since audit" banners in reports 21/34/35/36. What remains open is the Low/Info backlog. The record of every fix lives in git history.
