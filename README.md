@@ -1,6 +1,6 @@
 # ResetYourFuture
 
-A psychosocial career counseling platform with courses, assessments, real-time chat, video calls, subscriptions, blog, testimonials, certificate generation, and a local AI assistant.
+A psychosocial career counseling platform with courses, learning paths, assessments, course reviews, scheduled live sessions, real-time chat, video calls, in-app notifications, subscriptions, blog, testimonials, site search, certificate generation, and a local AI assistant.
 
 ---
 
@@ -39,7 +39,7 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 
 **Admin:** `admin@resetyourfuture.local` / *(password you set in `.env`)*
 
-> Seed data (students, courses, assessments) runs automatically in Development when `SeedData:Enabled = true` in `appsettings.Development.json`. The bulk student seeder runs in the background after startup. Set `SeedData:BulkStudentCount` in `.env` to control the count (default: 2000).
+> Seed data (students, courses, assessments) runs automatically in Development when `SeedData:Enabled = true` in `appsettings.Development.json`. The bulk student seeder runs in the background after startup. Set `SeedData:BulkStudentCount` in `.env` to control the count (default: 10).
 
 > **Never commit `.env`** — it is already in `.gitignore`. Use `.env.template` to document which keys are needed.
 
@@ -55,7 +55,7 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 | Frontend / Backend | Blazor SSR + ASP.NET Core Web API |
 | ORM | Entity Framework Core 10 (SQL Server) |
 | Auth | ASP.NET Core Identity · Cookie (SSR) · JWT Bearer · Refresh tokens |
-| Real-time | SignalR — chat (`/hubs/chat`) and video-call signaling (`/hubs/call`) |
+| Real-time | SignalR — chat (`/hubs/chat`), video-call signaling (`/hubs/call`), and notifications (`/hubs/notifications`) |
 | Video calls | Self-hosted WebRTC (P2P mesh, up to 6 participants) with SignalR signaling |
 | API docs | OpenAPI (`Microsoft.AspNetCore.OpenApi`) + Swagger UI — `/swagger` (Development only) |
 | PDF | QuestPDF 2026.2.4 |
@@ -191,6 +191,8 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | `POST` | `api/courses/{courseId}/enroll` | Enroll in a course | Yes |
 | `GET` | `api/courses/lessons/{lessonId}` | Lesson detail | Yes |
 | `POST` | `api/courses/lessons/{lessonId}/complete` | Mark lesson complete | Yes |
+| `GET` | `api/courses/{courseId}/reviews` | Approved reviews, aggregate rating, and the caller's own review — see [Course Reviews](#course-reviews) | Yes |
+| `POST` | `api/courses/{courseId}/reviews` | Create/update own review (enrolled only; edits reset it to Pending for moderation) | Yes |
 
 ### Lesson Assets — `api/lessons`
 
@@ -221,6 +223,26 @@ The tables below are a quick static reference; **Swagger UI is the authoritative
 | `POST` | `api/certificates/issue/{courseId}` | Issue certificate for completed course (certificate-enabled plan required) | Yes |
 | `GET` | `api/certificates/{certificateId}/download` | Download certificate PDF | Yes |
 | `GET` | `api/certificates/verify/{verificationId}` | Public certificate verification | No |
+
+### Learning Paths — `api/paths`
+
+Curated, ordered sequences of courses (see [Learning Paths](#learning-paths)). Public catalog; reads the caller's identity when present to project per-user step progress.
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/paths` | Published learning paths for the catalog (`?lang=en`) | No |
+| `GET` | `api/paths/{id}` | Path detail with ordered steps and, for signed-in users, per-step progress (locked / next / done) | No |
+
+### Scheduled Sessions — `api/sessions`
+
+Upcoming live sessions an admin schedules and users register for (see [Scheduled Sessions](#scheduled-sessions)).
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/sessions` | Upcoming (Scheduled/Live) sessions, soonest first (`?lang=en`) | Yes |
+| `POST` | `api/sessions/{id}/register` | Register the current user for a session | Yes |
+| `POST` | `api/sessions/{id}/unregister` | Unregister from a session | Yes |
+| `POST` | `api/sessions/{id}/link-call` | Record the video-call session a participant started for this scheduled session | Yes |
 
 ### Subscriptions — `api/subscriptions`
 
@@ -253,6 +275,18 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 |--------|-------|-------------|------|
 | — | `/hubs/call` (SignalR) | Call signaling hub — `StartCall` / `AcceptCall` / `DeclineCall` / `CancelCall` / `LeaveCall` / `InviteToCall` / `RejoinCall` / `UpdateMediaState` / `GetCallableUsers`, plus `SendOffer` / `SendAnswer` / `SendIceCandidate` for WebRTC negotiation | Yes (JWT via query string) |
 
+### Notifications — `api/notifications` + SignalR `/hubs/notifications`
+
+An in-app notification inbox with a bell badge and live push (see [Notifications](#notifications)). Available to every authenticated user.
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/notifications` | Paged, sortable notification history (`?page=&pageSize=&sortBy=&sortDir=`) | Yes |
+| `GET` | `api/notifications/unread-count` | Unread count for the bell badge | Yes |
+| `POST` | `api/notifications/{id}/read` | Mark one notification read | Yes |
+| `POST` | `api/notifications/read-all` | Mark all of the caller's notifications read | Yes |
+| — | `/hubs/notifications` (SignalR) | Live push of new notifications | Yes (JWT via query string) |
+
 ### Blog — `api/blog`
 
 | Method | Route | Description | Auth |
@@ -265,6 +299,12 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
 | `GET` | `api/testimonials` | All active testimonials ordered by `DisplayOrder` | No |
+
+### Search — `api/search`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/search` | Site-wide search over published courses, assessments, and blog articles (`?q=&limit=8&lang=en`; empty `q` returns no results) | No |
 
 ### Site Settings — `api/site`
 
@@ -382,6 +422,39 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 | `DELETE` | `api/admin/testimonials/{id}/avatar` | Remove avatar | Admin |
 | `DELETE` | `api/admin/testimonials/{id}` | Delete | Admin |
 
+### Admin — Learning Paths — `api/admin/paths`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/paths` | List all learning paths (paged) | Admin |
+| `GET` | `api/admin/paths/{id}` | Path detail with steps | Admin |
+| `POST` | `api/admin/paths` | Create path (unpublished, no steps) | Admin |
+| `PUT` | `api/admin/paths/{id}` | Update path details | Admin |
+| `POST` | `api/admin/paths/{id}/publish` | Publish to the public catalog | Admin |
+| `POST` | `api/admin/paths/{id}/unpublish` | Unpublish | Admin |
+| `DELETE` | `api/admin/paths/{id}` | Delete path and its steps | Admin |
+| `POST` | `api/admin/paths/{id}/steps` | Append a course as the next step | Admin |
+| `DELETE` | `api/admin/paths/{id}/steps/{stepId}` | Remove a step (remaining steps re-sequenced) | Admin |
+| `POST` | `api/admin/paths/{id}/steps/{stepId}/move-up` | Move a step one position earlier | Admin |
+| `POST` | `api/admin/paths/{id}/steps/{stepId}/move-down` | Move a step one position later | Admin |
+
+### Admin — Scheduled Sessions — `api/admin/sessions`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/sessions` | List all scheduled sessions (paged) | Admin |
+| `POST` | `api/admin/sessions` | Create a session (the creating admin becomes host) | Admin |
+| `PUT` | `api/admin/sessions/{id}` | Update session details | Admin |
+| `POST` | `api/admin/sessions/{id}/cancel` | Cancel a session | Admin |
+
+### Admin — Course Reviews — `api/admin/course-reviews`
+
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| `GET` | `api/admin/course-reviews` | Moderation queue (paged; `?status=Pending\|Approved\|Rejected`) | Admin |
+| `POST` | `api/admin/course-reviews/{id}/approve` | Approve — makes the review visible on the course page | Admin |
+| `POST` | `api/admin/course-reviews/{id}/reject` | Reject a pending review | Admin |
+
 ### Admin — Analytics — `api/admin/analytics`
 
 | Method | Route | Description | Auth |
@@ -408,7 +481,7 @@ Video calls have **no REST endpoints** — everything runs over the SignalR hub 
 | Role | Access |
 |------|--------|
 | `Admin` | Full access — content authoring, user/role management, site settings |
-| `Student` | Enroll in courses, view lessons, take assessments, manage profile/subscription, download certificates |
+| `Student` | Enroll in courses, follow learning paths, view lessons, take assessments, review courses, register for scheduled sessions, chat and call, manage profile/subscription, download certificates |
 
 ---
 
@@ -477,6 +550,22 @@ Admins classify **courses and assessments** with a shared pool of categories, an
 - **Browsing:** the public Courses and Assessments pages show a category chip on each card plus a filter bar of chips (with per-category counts) and a debounced search box. Both filters are applied server-side via the `?categoryId=` and `?search=` query params before pagination, so page totals stay correct.
 - **Deleting a category** soft-deletes it and nulls the reference on any course/assessment that used it — that content becomes "uncategorized" and stays visible, never hidden.
 
+## Learning Paths
+
+Curated, ordered sequences of courses that guide a student from one topic to the next.
+
+- **Authoring:** an admin builds a path by appending published courses as ordered **steps** (reorderable and removable), then publishes it to the public catalog (`api/admin/paths`).
+- **Per-user progress:** for a signed-in user each step is projected as **locked**, **next**, or **done** from their course completions, so the path shows exactly where to resume; anonymous visitors see the steps without progress.
+- **Bilingual:** path titles and descriptions carry EN/EL like the rest of the content. The public catalog is `api/paths`.
+
+## Course Reviews
+
+Enrolled students can leave a **one-per-course rating and review**, moderated before it appears publicly.
+
+- **Write:** an enrolled user posts or edits their review (`POST api/courses/{courseId}/reviews`); any edit resets it to **Pending** for re-moderation. Admins cannot review courses.
+- **Read:** the course page shows approved reviews, the aggregate star rating, and the caller's own review at whatever moderation status it's in (`GET api/courses/{courseId}/reviews`).
+- **Moderate:** admins work an approve/reject queue (`api/admin/course-reviews`); approving a review notifies its author (see [Notifications](#notifications)).
+
 ## Video Calls
 
 One-to-one and group video calls, started from the existing chat. Self-hosted **WebRTC** (peer-to-peer mesh, up to 6 participants) with **SignalR** (`/hubs/call`) handling only signaling — media flows browser-to-browser and never touches the server.
@@ -487,6 +576,35 @@ One-to-one and group video calls, started from the existing chat. Self-hosted **
 - **Reliability:** a background `CallRingMonitor` times out unanswered rings (45 s default), reaps disconnected participants after a short grace period, and sweeps dangling sessions left by a server restart. Ring timeout, max participants, and ICE/STUN servers are configurable under the `WebRtc` section of `appsettings.json`.
 
 > **Browser permissions:** the site's `Permissions-Policy` header allows `camera`, `microphone`, and `display-capture` for same-origin so calls work; JWT for the call hub is passed as the `access_token` query-string parameter, same as the chat hub.
+
+---
+
+## Scheduled Sessions
+
+Admin-scheduled live sessions (e.g. group counseling or Q&A) that users register for and join over the existing video-call stack.
+
+- **Schedule:** an admin creates a session with a start time and becomes its host (`api/admin/sessions`); it can be updated or cancelled.
+- **Register:** users see upcoming sessions and register or unregister (`api/sessions`). A background monitor sends registrants a reminder as the start time approaches (see [Notifications](#notifications)).
+- **Join:** when a participant starts the call, the client links the live call session back to the schedule (`POST api/sessions/{id}/link-call`) so everyone joins the same room.
+
+---
+
+## Presence & online status
+
+Signed-in users show a live **online/offline dot** and a **"last seen"** time across the app — in the chat conversation sidebar, the chat and call user pickers, and the admin users list.
+
+- **How it's tracked:** presence rides on the SignalR call hub that every user's browser already holds open (established globally by the call-host component). `PresenceService` seeds from the hub's online-user snapshot and updates live on `PresenceChanged` events, so status stays current without polling and re-seeds automatically after a reconnect.
+- **Last seen:** each account persists a `LastSeenAt` timestamp (`ApplicationUser.LastSeenAt`); the UI renders it as a relative time ("last seen 5 min ago") and a live event overrides the stored value the moment a user goes offline.
+
+---
+
+## Notifications
+
+An in-app notification inbox with a **bell badge** and live push over SignalR (`/hubs/notifications`), available to every authenticated user.
+
+- **What triggers one:** a new chat message, a subscription activating or nearing expiry, an approaching scheduled-session reminder, a certificate being issued, and a course review being approved.
+- **Inbox:** a paged, sortable history (`api/notifications`) with an unread count for the badge, plus mark-one-read and mark-all-read. New notifications arrive live without a refresh, falling back to the stored history on reconnect.
+- **Bilingual:** titles and bodies are resource-keyed (EN/EL) and formatted with per-notification arguments, and each carries a deep link to the relevant page.
 
 ---
 
