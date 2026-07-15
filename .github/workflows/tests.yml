@@ -32,6 +32,14 @@ jobs:
       - name: Build
         run: dotnet build ResetYourFuture.sln -c Release --no-restore
 
+      # GOV-2: .editorconfig style rules are advisory in local builds but a hard gate here.
+      # A file that drifts from the configured style (e.g. a block-scoped namespace where the
+      # repo uses file-scoped) fails CI, so drift can't accumulate silently as it did before.
+      # Scoped to `style --severity warn` (the warning-level IDE rules, currently clean); the
+      # whitespace/paren reformatting backlog and analyzer-warnings-as-errors are deferred.
+      - name: Verify code style
+        run: dotnet format style ResetYourFuture.sln --verify-no-changes --severity warn --no-restore
+
       - name: Test
         run: dotnet test ResetYourFuture.sln -c Release --no-build --logger "trx" --results-directory TestResults
 

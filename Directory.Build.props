@@ -4,6 +4,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 
+    <!-- GOV-1: give the built artifact an identity so the demoed/graded build is nameable
+         (assemblies stamp this version). Bump alongside the matching git tag at each milestone;
+         cut v1.0.0 at submission. -->
+    <VersionPrefix>0.9.0</VersionPrefix>
+
+    <!-- GOV-2: run the .editorconfig style rules (IDExxxx) and the recommended analyzers during
+         every build, not just inside an IDE, so drift surfaces as a build warning. CI escalates
+         these to errors via -warnaserror (see .github/workflows/tests.yml); local builds stay
+         warning-only so day-to-day work isn't blocked. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+
     <!-- BUILD-1: write a committed packages.lock.json per project so restores are reproducible and a
          silent version drift (notably the Microsoft.OpenApi auto-pin trap) fails loudly under CI's
          locked-mode restore instead of quietly breaking the build. -->
