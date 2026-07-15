@@ -37,6 +37,7 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
         Environment.SetEnvironmentVariable("Jwt__Issuer", "ResetYourFuture.Tests");
         Environment.SetEnvironmentVariable("Jwt__Audience", "ResetYourFuture.Tests");
         Environment.SetEnvironmentVariable("AdminUser__Password", "Admin-Test-1!");
+        Environment.SetEnvironmentVariable("SeedData__StudentPassword", "Seed-Student-Test-1!");
         Environment.SetEnvironmentVariable("ConnectionStrings__DefaultConnection", "Server=(localdb)\\dummy;Database=dummy;Trusted_Connection=True;");
         Environment.SetEnvironmentVariable("Payment__MockEnabled", "true");
         Environment.SetEnvironmentVariable("Sitemap__BaseUrl", "https://tests.local");
