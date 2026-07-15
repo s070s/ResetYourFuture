@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using ResetYourFuture.Web.Consumers;
 using ResetYourFuture.Application.DTOs;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace ResetYourFuture.Web.Pages;
 
@@ -81,7 +82,16 @@ public partial class Home : IDisposable
             var state = await AuthStateProvider.GetAuthenticationStateAsync();
             _isAuthenticated = state.User.Identity?.IsAuthenticated ?? false;
             _isStudent = state.User.IsInRole("Student");
-            _authenticatedUserName = state.User.Identity?.Name;
+            // The principal carries the name as separate firstName/lastName claims
+            // (UserClaimsBuilder) — there is no ClaimTypes.Name, so Identity.Name is always
+            // null. Greet by first name, falling back to full name then email so the header
+            // never reads "Welcome, !".
+            var firstName = state.User.FindFirst("firstName")?.Value;
+            var lastName = state.User.FindFirst("lastName")?.Value;
+            var fullName = $"{firstName} {lastName}".Trim();
+            _authenticatedUserName = !string.IsNullOrWhiteSpace(firstName) ? firstName
+                : !string.IsNullOrWhiteSpace(fullName) ? fullName
+                : state.User.FindFirst(ClaimTypes.Email)?.Value;
         }
 
         // Load only what wasn't already restored — flags are false when SetParametersAsync
