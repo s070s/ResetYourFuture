@@ -568,3 +568,9 @@ On startup the app probes Ollama and **auto-pulls any missing model** (`qwen3:1.
 ## Logging
 
 Daily rotating log files at `src/ResetYourFuture.Web/Logs/log-YYYY-MM-DD.txt`. The `Logs/` directory and all `*.log` files are gitignored.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE) — © 2026 s070s. Third-party dependencies keep their own licenses; note that QuestPDF is used under its **Community** tier, whose eligibility is conditional on the vendor's annual-revenue threshold (see `CertificateService.cs`).
