@@ -78,7 +78,7 @@ ResetYourFuture.sln
 │   ├── ResetYourFuture.Application/     Service interfaces, DTOs, application services, entity→DTO mapping helpers (Mappings/)
 │   ├── ResetYourFuture.Infrastructure/  EF Core DbContext, migrations, service implementations
 │   ├── ResetYourFuture.Web/             Blazor SSR + API controllers — the only deployable project
-│   └── ResetYourFuture.Shared/          DTOs shared with front-end, .resx resources, JSON seed data
+│   └── ResetYourFuture.Shared/          Localization resources (.resx EN/EL + Designer classes), JSON seed data
 └── tests/                               Unit, integration, e2e (Playwright), and shared test-support projects
 ```
 
@@ -260,9 +260,9 @@ Upcoming live sessions an admin schedules and users register for (see [Scheduled
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
 | `GET` | `api/chat/conversations` | List conversations | Yes |
-| `GET` | `api/chat/conversations/{id}/messages` | Load messages | Yes |
+| `GET` | `api/chat/conversations/{conversationId}/messages` | Load messages | Yes |
 | `POST` | `api/chat/conversations/start` | Start conversation | Yes |
-| `DELETE` | `api/chat/conversations/{id}` | Delete conversation | Yes |
+| `DELETE` | `api/chat/conversations/{conversationId}` | Delete conversation | Yes |
 | `GET` | `api/chat/users` | Users available to chat | Yes |
 | `GET` | `api/chat/unread-count` | Unread message count | Yes |
 | — | `/hubs/chat` (SignalR) | Real-time hub | Yes (JWT via query string) |
@@ -364,6 +364,7 @@ An in-app notification inbox with a bell badge and live push (see [Notifications
 | Method | Route | Description | Auth |
 |--------|-------|-------------|------|
 | `GET` | `api/admin/lessons/module/{moduleId}` | List lessons for a module | Admin |
+| `GET` | `api/admin/lessons/{id}` | Lesson detail | Admin |
 | `POST` | `api/admin/lessons` | Create lesson | Admin |
 | `PUT` | `api/admin/lessons/{id}` | Update lesson | Admin |
 | `DELETE` | `api/admin/lessons/{id}` | Delete lesson | Admin |
