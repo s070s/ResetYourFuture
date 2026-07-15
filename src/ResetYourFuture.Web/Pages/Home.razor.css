@@ -629,12 +629,15 @@
     line-height: 1.6;
 }
 
-.authenticated-home a {
+/* Inline text links only — the :not(.btn-cta) guard keeps this generic link color
+   from overriding the filled CTA button below (whose dark-on-accent label would
+   otherwise inherit this accent color and vanish against its accent background). */
+.authenticated-home a:not(.btn-cta) {
     color: var(--text-strong-accent);
     text-decoration: underline;
 }
 
-.authenticated-home a:hover {
+.authenticated-home a:not(.btn-cta):hover {
     color: var(--text-accent);
 }
 
