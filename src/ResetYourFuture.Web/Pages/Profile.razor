@@ -1,5 +1,6 @@
 @page "/profile"
 @attribute [Authorize]
+@using ResetYourFuture.Web.Extensions
 
 <PageTitle>@ProfileRes.PageTitle</PageTitle>
 
@@ -48,6 +49,16 @@
                         <div class="mb-3">
                             <label class="form-label" for="profile-display-name">@ProfileRes.LabelDisplayName</label>
                             <input id="profile-display-name" type="text" class="form-control" @bind="displayName" placeholder="@profile.Email" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="profile-status">@GlobalRes.Label_Info_Status</label>
+                            <select id="profile-status" class="form-select" @bind="profileStatus">
+                                @foreach (var status in UserStatusLabels.Selectable)
+                                {
+                                    <option value="@status">@UserStatusLabels.Label(status)</option>
+                                }
+                            </select>
                         </div>
 
                         <p><strong>@ProfileRes.LabelEmail</strong> @profile.Email</p>

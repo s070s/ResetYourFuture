@@ -165,7 +165,7 @@ public class AuthService : IAuthService
             FirstName = request.FirstName,
             LastName = request.LastName,
             DateOfBirth = dob,
-            Status = UserStatus.Student,
+            Status = request.Status == UserStatus.Unknown ? UserStatus.Student : request.Status,
             GdprConsentGiven = request.GdprConsent,
             GdprConsentDate = request.GdprConsent ? DateTime.UtcNow : null
         };

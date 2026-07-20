@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.DTOs;
@@ -12,7 +13,8 @@ public record ProfileDto(
     string LastName,
     string? DisplayName,
     string? AvatarPath,
-    DateOnly? DateOfBirth
+    DateOnly? DateOfBirth,
+    UserStatus Status
 );
 
 /// <summary>
@@ -22,7 +24,8 @@ public record UpdateProfileRequest(
     [Required, MaxLength(100)] string FirstName,
     [Required, MaxLength(100)] string LastName,
     [MaxLength(100)] string? DisplayName,
-    DateOnly? DateOfBirth
+    DateOnly? DateOfBirth,
+    UserStatus Status
 );
 
 /// <summary>
@@ -56,6 +59,7 @@ public record ProfileExportDto(
     string LastName,
     string? DisplayName,
     DateOnly? DateOfBirth,
+    string Status,
     DateTime AccountCreatedAt,
     bool GdprConsentGiven,
     DateTime? GdprConsentDate,

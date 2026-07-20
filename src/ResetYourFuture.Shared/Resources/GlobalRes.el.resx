@@ -138,6 +138,9 @@
   <data name="Label_Info_LastName" xml:space="preserve">
     <value>Επώνυμο</value>
   </data>
+  <data name="Label_Info_Status" xml:space="preserve">
+    <value>Ιδιότητα</value>
+  </data>
   <data name="Label_LoggingIn" xml:space="preserve">
     <value>Σύνδεση σε εξέλιξη</value>
   </data>
@@ -311,6 +314,18 @@
   </data>
   <data name="StatusDraft" xml:space="preserve">
     <value>Πρόχειρο</value>
+  </data>
+  <data name="StatusStudent" xml:space="preserve">
+    <value>Σπουδαστής/-τρια</value>
+  </data>
+  <data name="StatusGraduate" xml:space="preserve">
+    <value>Απόφοιτος/-η</value>
+  </data>
+  <data name="StatusNEET" xml:space="preserve">
+    <value>NEET (εκτός εκπαίδευσης, εργασίας ή κατάρτισης)</value>
+  </data>
+  <data name="StatusOther" xml:space="preserve">
+    <value>Άλλο</value>
   </data>
   <data name="NavigationMenu" xml:space="preserve">
     <value>Μενού πλοήγησης</value>

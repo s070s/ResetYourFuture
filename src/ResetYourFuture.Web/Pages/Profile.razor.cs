@@ -6,6 +6,7 @@ using ResetYourFuture.Web.Interfaces;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Web.Services;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Shared.Resources;
 
 namespace ResetYourFuture.Web.Pages;
@@ -21,6 +22,7 @@ public partial class Profile
     private ProfileDto? profile;
     private bool _isImpersonating;
     private string displayName = string.Empty;
+    private UserStatus profileStatus;
     private string currentPassword = string.Empty;
     private string newPassword = string.Empty;
     private string confirmPassword = string.Empty;
@@ -58,6 +60,7 @@ public partial class Profile
                 return;
             }
             displayName = profile.DisplayName ?? string.Empty;
+            profileStatus = profile.Status;
             await LoadAvatarAsync();
         }
         catch (Exception)
@@ -142,7 +145,8 @@ public partial class Profile
                 profile.FirstName,
                 profile.LastName,
                 string.IsNullOrWhiteSpace(displayName) ? null : displayName,
-                profile.DateOfBirth
+                profile.DateOfBirth,
+                profileStatus
             );
 
             var updated = await ProfileConsumer.UpdateProfileAsync(updateRequest);
@@ -150,6 +154,7 @@ public partial class Profile
             if (updated is not null)
             {
                 profile = updated;
+                profileStatus = updated.Status;
                 message = ProfileRes.ProfileUpdatedSuccess;
             }
             else

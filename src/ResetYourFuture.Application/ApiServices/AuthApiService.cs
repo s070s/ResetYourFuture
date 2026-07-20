@@ -41,7 +41,7 @@ public class AuthApiService(
             FirstName = request.FirstName,
             LastName = request.LastName,
             DateOfBirth = dob,
-            Status = UserStatus.Student, // Default status
+            Status = request.Status == UserStatus.Unknown ? UserStatus.Student : request.Status,
             GdprConsentGiven = request.GdprConsent,
             GdprConsentDate = request.GdprConsent ? DateTime.UtcNow : null
         };

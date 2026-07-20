@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Shared.Resources.Messages;
 
 namespace ResetYourFuture.Application.DTOs;
@@ -48,4 +49,12 @@ public class RegisterRequestDto
     /// <example>true</example>
     [Range(typeof(bool), "true", "true", ErrorMessageResourceType = typeof(ErrorMessagesRes), ErrorMessageResourceName = nameof(ErrorMessagesRes.Auth_GdprConsentRequired))]
     public bool GdprConsent { get; set; }
+
+    /// <summary>
+    /// Optional demographic status (Student/Graduate/NEET/Other). Defaults to Student;
+    /// <see cref="UserStatus.Unknown"/> is coerced back to Student server-side since it is
+    /// not a real user-facing option.
+    /// </summary>
+    /// <example>Student</example>
+    public UserStatus Status { get; set; } = UserStatus.Student;
 }

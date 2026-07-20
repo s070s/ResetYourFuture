@@ -5,6 +5,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.Common;
 using ResetYourFuture.Application.Data;
 using ResetYourFuture.Application.DTOs;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Shared.Resources.Messages;
 
@@ -32,6 +33,7 @@ public class ProfileService(
         user.LastName = request.LastName.Trim();
         user.DisplayName = request.DisplayName?.Trim();
         user.DateOfBirth = request.DateOfBirth;
+        user.Status = request.Status == UserStatus.Unknown ? UserStatus.Student : request.Status;
 
         var result = await userManager.UpdateAsync(user);
         if (!result.Succeeded)
@@ -104,6 +106,7 @@ public class ProfileService(
             user.LastName,
             user.DisplayName,
             user.DateOfBirth,
+            user.Status.ToString(),
             user.CreatedAt,
             user.GdprConsentGiven,
             user.GdprConsentDate,
@@ -156,6 +159,7 @@ public class ProfileService(
         user.LastName,
         user.DisplayName,
         user.AvatarPath,
-        user.DateOfBirth
+        user.DateOfBirth,
+        user.Status
     );
 }

@@ -212,7 +212,16 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("Label_Info_LastName", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Status.
+        /// </summary>
+        public static string Label_Info_Status {
+            get {
+                return ResourceManager.GetString("Label_Info_Status", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Logging In....
         /// </summary>
@@ -643,7 +652,43 @@ namespace ResetYourFuture.Shared.Resources {
                 return ResourceManager.GetString("StatusDraft", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Student.
+        /// </summary>
+        public static string StatusStudent {
+            get {
+                return ResourceManager.GetString("StatusStudent", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Graduate.
+        /// </summary>
+        public static string StatusGraduate {
+            get {
+                return ResourceManager.GetString("StatusGraduate", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to NEET (not in education, employment, or training).
+        /// </summary>
+        public static string StatusNEET {
+            get {
+                return ResourceManager.GetString("StatusNEET", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Other.
+        /// </summary>
+        public static string StatusOther {
+            get {
+                return ResourceManager.GetString("StatusOther", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Navigation menu.
         /// </summary>

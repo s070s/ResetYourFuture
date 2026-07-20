@@ -9,6 +9,7 @@ using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.TestSupport;
 using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Infrastructure.Data;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Infrastructure.Services;
 using Shouldly;
@@ -199,6 +200,52 @@ public class AuthServiceTests
 
         result.Success.ShouldBeFalse();
         result.Errors!.ShouldContain("Password too weak");
+    }
+
+    [Fact]
+    public async Task Register_WithNeetStatus_AssignsNeetStatusToCreatedUser()
+    {
+        var h = Build();
+        ApplicationUser? createdUser = null;
+        h.Um.CreateAsync(Arg.Do<ApplicationUser>(u => createdUser = u), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.AddToRoleAsync(Arg.Any<ApplicationUser>(), "Student").Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+
+        await h.Svc.RegisterAsync(new RegisterRequestDto
+        {
+            Email = "u@x.com",
+            Password = "Password1",
+            ConfirmPassword = "Password1",
+            FirstName = "F",
+            LastName = "L",
+            GdprConsent = true,
+            Status = UserStatus.NEET
+        });
+
+        createdUser!.Status.ShouldBe(UserStatus.NEET);
+    }
+
+    [Fact]
+    public async Task Register_WithUnknownStatus_CoercesToStudent()
+    {
+        var h = Build();
+        ApplicationUser? createdUser = null;
+        h.Um.CreateAsync(Arg.Do<ApplicationUser>(u => createdUser = u), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.AddToRoleAsync(Arg.Any<ApplicationUser>(), "Student").Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+
+        await h.Svc.RegisterAsync(new RegisterRequestDto
+        {
+            Email = "u@x.com",
+            Password = "Password1",
+            ConfirmPassword = "Password1",
+            FirstName = "F",
+            LastName = "L",
+            GdprConsent = true,
+            Status = UserStatus.Unknown
+        });
+
+        createdUser!.Status.ShouldBe(UserStatus.Student);
     }
 
     // ---- Forgot / Reset ------------------------------------------------------

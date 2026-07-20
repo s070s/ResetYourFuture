@@ -43,12 +43,13 @@ public class ProfileIntegrationTests : IClassFixture<CustomWebAppFactory>
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
 
         var response = await client.PutAsJsonAsync("/api/profile",
-            new UpdateProfileRequest("UpdatedFirst", "UpdatedLast", "Nick", null));
+            new UpdateProfileRequest("UpdatedFirst", "UpdatedLast", "Nick", null, UserStatus.Graduate));
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var dto = await response.Content.ReadFromJsonAsync<ProfileDto>();
         dto!.FirstName.ShouldBe("UpdatedFirst");
         dto.DisplayName.ShouldBe("Nick");
+        dto.Status.ShouldBe(UserStatus.Graduate);
     }
 
     [Fact]

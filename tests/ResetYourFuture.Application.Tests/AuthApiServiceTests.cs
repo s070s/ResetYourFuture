@@ -7,6 +7,7 @@ using ResetYourFuture.Application.ApiInterfaces;
 using ResetYourFuture.Application.ApiServices;
 using ResetYourFuture.Application.DTOs;
 using ResetYourFuture.Domain.Entities;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 using ResetYourFuture.Infrastructure.Data;
 using ResetYourFuture.TestSupport;
@@ -112,6 +113,36 @@ public class AuthApiServiceTests
 
         result.IsSuccess.ShouldBeTrue();
         await h.Email.Received(1).SendEmailConfirmationAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Register_WithGraduateStatus_AssignsGraduateStatusToCreatedUser()
+    {
+        var h = Build();
+        ApplicationUser? createdUser = null;
+        h.Um.CreateAsync(Arg.Do<ApplicationUser>(u => createdUser = u), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+
+        var request = RegisterRequest();
+        request.Status = UserStatus.Graduate;
+        await h.Svc.RegisterAsync(request, (userId, token) => $"https://x/confirm?userId={userId}&token={token}");
+
+        createdUser!.Status.ShouldBe(UserStatus.Graduate);
+    }
+
+    [Fact]
+    public async Task Register_WithUnknownStatus_CoercesToStudent()
+    {
+        var h = Build();
+        ApplicationUser? createdUser = null;
+        h.Um.CreateAsync(Arg.Do<ApplicationUser>(u => createdUser = u), Arg.Any<string>()).Returns(IdentityResult.Success);
+        h.Um.GenerateEmailConfirmationTokenAsync(Arg.Any<ApplicationUser>()).Returns("token");
+
+        var request = RegisterRequest();
+        request.Status = UserStatus.Unknown;
+        await h.Svc.RegisterAsync(request, (userId, token) => $"https://x/confirm?userId={userId}&token={token}");
+
+        createdUser!.Status.ShouldBe(UserStatus.Student);
     }
 
     // ---- RefreshAsync: baseline behaviour -------------------------------------

@@ -1,5 +1,6 @@
 @page "/register"
 @implements IDisposable
+@using ResetYourFuture.Web.Extensions
 
 <PageTitle>@GlobalRes.Label_Register</PageTitle>
 
@@ -68,6 +69,16 @@
         <div class="mb-3">
             <label for="dob" class="form-label">@GlobalRes.Label_Info_DateOfBirth</label>
             <InputDate id="dob" class="form-control" @bind-Value="registerRequest.DateOfBirth" />
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label">@GlobalRes.Label_Info_Status</label>
+            <InputSelect id="status" class="form-select" @bind-Value="registerRequest.Status">
+                @foreach (var status in UserStatusLabels.Selectable)
+                {
+                    <option value="@status">@UserStatusLabels.Label(status)</option>
+                }
+            </InputSelect>
         </div>
 
         <div class="mb-3">
