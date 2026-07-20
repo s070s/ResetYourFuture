@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using ResetYourFuture.Domain.Enums;
 using ResetYourFuture.Domain.Identity;
 
 namespace ResetYourFuture.Infrastructure.Seeding;
@@ -87,6 +88,7 @@ public static class BulkStudentSeeder
                 Email = email,
                 FirstName = firstName,
                 LastName = lastName,
+                Status = UserStatus.Student,
                 EmailConfirmed = true,
                 IsEnabled = true,
                 GdprConsentGiven = true,
