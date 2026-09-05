@@ -53,6 +53,22 @@ jobs:
       - name: Build
         run: dotnet build ResetYourFuture.sln -c Release --no-restore
 
+      # DEP-9: NuGetAuditMode=all already surfaces transitive advisories, but only as NU1903
+      # warnings that scroll past. This makes them a gate. It caught nothing when added only
+      # because the bump that fixes them had just been restored: a merge had silently reverted
+      # the ASP.NET Core family to 10.0.9, dragging back a vulnerable
+      # System.Security.Cryptography.Xml, with a green build and consistent lock files.
+      # --no-restore is deliberate: a restore here could spring the Microsoft.OpenApi auto-pin
+      # trap (BUILD-1). `dotnet list package` exits 0 even when it reports advisories, so the
+      # report itself has to be inspected.
+      - name: Audit for vulnerable packages
+        run: |
+          dotnet list package --vulnerable --include-transitive --no-restore | tee audit.log
+          if grep -q "has the following vulnerable packages" audit.log; then
+            echo "::error::Vulnerable packages found — see the report above."
+            exit 1
+          fi
+
       # GOV-2: .editorconfig style rules are advisory in local builds but a hard gate here.
       # A file that drifts from the configured style (e.g. a block-scoped namespace where the
       # repo uses file-scoped) fails CI, so drift can't accumulate silently as it did before.
