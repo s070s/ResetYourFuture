@@ -20,19 +20,26 @@ Read `Directory.Packages.props`, all ten `.csproj` files under `src/` and `tests
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 3 |
+| Low | 2 |
 | Info | 2 |
 
-The dependency foundation is genuinely good for a solo project: central package management is on with every version pinned in one file, the SDK is pinned via `global.json`, and `dotnet-ef` is pinned in lockstep with EF Core. The three Medium findings are now resolved: Dependabot (nuget + github-actions) plus `NuGetAuditMode=all` give ongoing update PRs and transitive vulnerability auditing (DEP-1); the vendored Bootstrap now has provenance and an update path via `libman.json`, with the 42 unused dist files trimmed (DEP-2); and the Microsoft.OpenApi pin rationale (CVE + 3.x-breaking) now lives beside the version (DEP-4). Committed lock files with CI `--locked-mode` also landed under BUILD-1 (closing DEP-7). What remains is three Low items and two Info.
+The dependency foundation is genuinely good for a solo project: central package management is on with every version pinned in one file, the SDK is pinned via `global.json`, and `dotnet-ef` is pinned in lockstep with EF Core. The three Medium findings are now resolved: Dependabot (nuget + github-actions) plus `NuGetAuditMode=all` give ongoing update PRs and transitive vulnerability auditing (DEP-1); the vendored Bootstrap now has provenance and an update path via `libman.json`, with the 42 unused dist files trimmed (DEP-2); and the Microsoft.OpenApi pin rationale (CVE + 3.x-breaking) now lives beside the version (DEP-4). Committed lock files with CI `--locked-mode` also landed under BUILD-1 (closing DEP-7). DEP-10 (added and resolved 2026-09-05) fixed the flip side of that guard: it made every Dependabot PR fail, so the whole DEP-1 pipeline had stalled with five PRs unmerged. What remains is two Low items and two Info.
 
 ## 3. Findings
 
-> The three Medium findings are resolved — DEP-1 (Dependabot + `NuGetAuditMode=all`), DEP-2 (Bootstrap provenance via `libman.json` + trimmed dist), DEP-4 (OpenApi pin rationale in `Directory.Packages.props`); see git (`Fix DEP-1`, `Fix DEP-2 and DEP-4`). DEP-7 (lock files) was closed under BUILD-1. The remaining open items are three Low and two Info.
+> The three Medium findings are resolved — DEP-1 (Dependabot + `NuGetAuditMode=all`), DEP-2 (Bootstrap provenance via `libman.json` + trimmed dist), DEP-4 (OpenApi pin rationale in `Directory.Packages.props`); see git (`Fix DEP-1`, `Fix DEP-2 and DEP-4`). DEP-7 (lock files) was closed under BUILD-1, and DEP-3 / DEP-10 on 2026-09-05. The remaining open items are two Low and two Info.
 
-### DEP-3: Test-tooling packages have drifted from their current patch releases  [Low] [Effort: S]
+### DEP-3: Test-tooling packages have drifted from their current patch releases  [Low] [Effort: S] — RESOLVED 2026-09-05
 - **Evidence:** Narrowed from the original finding (the ASP.NET Core/EF Core `10.0.x` half is fixed — the whole family in `Directory.Packages.props` is pinned at `10.0.9`, a bump that also patched the Critical CVE-2026-40372 present in the previous `10.0.5` pin). `Microsoft.NET.Test.Sdk` is at `17.12.0` (17.13/17.14 shipped in 2025) and `xunit.runner.visualstudio` at `2.8.2` against `xunit` `2.9.2`. Currency could not be confirmed live (no `dotnet list package --outdated` was run for this pass).
 - **Impact:** Test-only packages — no production attack surface. Downgraded from Medium: the security-relevant half of the original skew (the framework family) is resolved; this remaining piece is pure staleness, not a known vulnerability.
 - **Recommendation:** Bump `Microsoft.NET.Test.Sdk`/`xunit`/`xunit.runner.visualstudio` to current in the same pass as any other routine dependency maintenance. Adopt DEP-1's rule going forward: when touching any package family, bump the whole family to its current patch in one commit.
+- **Resolution (2026-09-05):** closed by merging the Dependabot `test-tooling` group PR (#15): `Microsoft.NET.Test.Sdk` `17.12.0` → `18.9.0`, `xunit` `2.9.2` → `2.9.3`, `xunit.runner.visualstudio` `2.8.2` → `4.0.0`, plus `bunit` `2.7.2` → `2.9.0` and `NSubstitute` `5.3.0` → `6.2.0`. All 974 tests pass on the new tooling.
+
+### DEP-10: Dependabot PRs always failed CI because it never regenerates the lock files  [Medium] [Effort: S] — RESOLVED 2026-09-05
+- **Evidence:** Every open Dependabot NuGet PR (#11, #14, #15, #16, #17) sat red. Dependabot updates `Directory.Packages.props` and at most one project's `packages.lock.json`, but never the `CentralTransitive` entries in the other nine, so the BUILD-1 `--locked-mode` restore failed with `NU1004` ("Mistmatch between the requestedVersion of a lock file dependency marked as CentralTransitive"). It also never rebases, so a branch opened before any lock-file commit on `master` failed on the stale entry too.
+- **Impact:** The dependency-update pipeline set up under DEP-1 was effectively inert — every PR needed a manual `restore --force-evaluate` and a hand-pushed commit, which for a solo maintainer means bumps quietly pile up unmerged. That is a security exposure, not just friction: it is the same pipeline that is supposed to deliver CVE patches.
+- **Resolution:** `.github/workflows/tests.yml` now branches on the ref. On `dependabot/*` only, both jobs restore with `--force-evaluate`, and the `test` job commits the refreshed lock files back to the PR branch **after** the build, style gate and tests pass — so the run that regenerates them is the run that verifies them, and a bump that breaks the suite leaves no commit behind. Every other branch keeps the strict `--locked-mode` guard, so BUILD-1's drift protection is intact where it matters. The job takes `permissions: contents: write` because Dependabot-triggered runs get a read-only token by default.
+- **Known limits:** a `GITHUB_TOKEN` push does not retrigger workflows, so the refreshed lock files are covered by the run that made them rather than a fresh run — acceptable, since that run tested exactly that tree. A bump that exposes a genuine version conflict still fails loudly and needs a human: PR #14's `Microsoft.AspNetCore.Authentication.JwtBearer` `10.0.11` required `System.IdentityModel.Tokens.Jwt` >= `8.19.2` against a direct `8.3.1` pin (`NU1605`), which `--force-evaluate` reports rather than fixes.
 
 ### DEP-5: Three runtime CDN dependencies with no local fallback  [Low] [Effort: M]
 - **Evidence:** `src/ResetYourFuture.Web/App.razor` loads bootstrap-icons 1.11.3 from jsDelivr (line 27, render-blocking by design per its own comment), Font Awesome 6.5.1 from cdnjs (line 32, the only one with an SRI hash), and Quill 2.0.3 CSS+JS from jsDelivr (lines 36, 53). Versions are pinned in the URLs, but none of these appear in any manifest, and there is no local fallback.
@@ -56,12 +63,11 @@ The dependency foundation is genuinely good for a solo project: central package 
 
 ## 4. Prioritized Action List
 
-All three Medium items (DEP-1, DEP-2, DEP-4) are resolved, as is DEP-7 (under BUILD-1). The remaining backlog:
+All three Medium items (DEP-1, DEP-2, DEP-4) are resolved, as is DEP-7 (under BUILD-1). DEP-3 and DEP-10 were closed on 2026-09-05 by merging the whole Dependabot backlog (#6, #11, #14, #15, #16, #17) and automating the lock-file refresh that had been blocking it. The remaining backlog:
 
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
 | DEP-6 | Low | S | Comment the QuestPDF Community-license eligibility; README third-party note |
-| DEP-3 | Low | S | Bump Microsoft.NET.Test.Sdk / xunit.runner.visualstudio to current |
 | DEP-5 | Low | M | Vendor bootstrap-icons / Font Awesome / Quill via libman; drop CDN coupling |
 | DEP-8 | Info | S | Document the dotnet-ef ↔ EF Core version coupling |
 | DEP-9 | Info | S | Add a live vulnerable-package scan in CI |
