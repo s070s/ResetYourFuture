@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageVersion Include="bunit" Version="2.7.2" />
+    <PackageVersion Include="bunit" Version="2.9.0" />
     <PackageVersion Include="HtmlSanitizer" Version="9.2.995" />
     <PackageVersion Include="MailKit" Version="4.17.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
@@ -21,7 +21,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="10.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
     <!-- BUILD-1 / DEP-4: KNOWN TRAP. Microsoft.OpenApi is pinned to the latest 2.x on purpose.
          Rationale: 2.7.5+ patches CVE-2026-49451, and 3.x is a breaking major for the transitively
          dependent Microsoft.AspNetCore.OpenApi (do NOT let a routine bump take it to 3.x). Some
@@ -29,7 +29,7 @@
          recover with `git checkout Directory.Packages.props` (and any changed .csproj), then restore
          again. See the "Known build issue" note in the README. -->
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.0" />
-    <PackageVersion Include="NSubstitute" Version="5.3.0" />
+    <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="OllamaSharp" Version="5.4.25" />
     <PackageVersion Include="QuestPDF" Version="2026.2.4" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
@@ -37,7 +37,7 @@
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
     <PackageVersion Include="System.Numerics.Tensors" Version="10.0.9" />
-    <PackageVersion Include="xunit" Version="2.9.2" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
   </ItemGroup>
 </Project>
