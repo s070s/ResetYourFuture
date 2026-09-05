@@ -23,20 +23,20 @@ namespace ResetYourFuture.Infrastructure.Data;
 /// </summary>
 public sealed class EncryptedStringConverter : ValueConverter<string, string>
 {
-    public EncryptedStringConverter( IDataProtector protector )
+    public EncryptedStringConverter(IDataProtector protector)
         : base(
-            plaintext => protector.Protect( plaintext ),
-            stored => Decrypt( protector, stored ) )
+            plaintext => protector.Protect(plaintext),
+            stored => Decrypt(protector, stored))
     {
     }
 
-    private static string Decrypt( IDataProtector protector, string stored )
+    private static string Decrypt(IDataProtector protector, string stored)
     {
         try
         {
-            return protector.Unprotect( stored );
+            return protector.Unprotect(stored);
         }
-        catch ( CryptographicException )
+        catch (CryptographicException)
         {
             // Value predates encryption (or the key ring can't read it) — return the raw
             // string rather than crashing the read. It becomes ciphertext on its next write.
