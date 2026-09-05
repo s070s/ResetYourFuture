@@ -30,3 +30,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+
+  # The Playwright e2e suite under tests/e2e is a tracked npm manifest. It is local-only (not run
+  # in CI), but leaving it out of Dependabot meant it got no update or vulnerability PRs at all.
+  - package-ecosystem: "npm"
+    directory: "/tests/e2e"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
