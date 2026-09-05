@@ -61,9 +61,15 @@ jobs:
       # --no-restore is deliberate: a restore here could spring the Microsoft.OpenApi auto-pin
       # trap (BUILD-1). `dotnet list package` exits 0 even when it reports advisories, so the
       # report itself has to be inspected.
+      #
+      # `shell: bash` is required, not cosmetic. The default step shell is `bash -e {0}`, which has
+      # no pipefail, so the pipe into `tee` would return tee's exit 0 and mask a failing audit —
+      # the gate would report green having audited nothing. `shell: bash` is `bash -eo pipefail`.
+      # 2>&1 folds in the stderr-only failures (e.g. no project found) so they reach audit.log too.
       - name: Audit for vulnerable packages
+        shell: bash
         run: |
-          dotnet list package --vulnerable --include-transitive --no-restore | tee audit.log
+          dotnet list package --vulnerable --include-transitive --no-restore 2>&1 | tee audit.log
           if grep -q "has the following vulnerable packages" audit.log; then
             echo "::error::Vulnerable packages found — see the report above."
             exit 1
