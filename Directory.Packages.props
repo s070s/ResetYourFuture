@@ -5,7 +5,7 @@
 
   <ItemGroup>
     <PackageVersion Include="bunit" Version="2.9.0" />
-    <PackageVersion Include="HtmlSanitizer" Version="9.2.995" />
+    <PackageVersion Include="HtmlSanitizer" Version="9.2.1039" />
     <PackageVersion Include="MailKit" Version="4.17.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
     <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.11" />
@@ -28,12 +28,12 @@
          restore paths also silently rewrite this pin to an incompatible version and break the build;
          recover with `git checkout Directory.Packages.props` (and any changed .csproj), then restore
          again. See the "Known build issue" note in the README. -->
-    <PackageVersion Include="Microsoft.OpenApi" Version="2.12.0" />
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
-    <PackageVersion Include="OllamaSharp" Version="5.4.27" />
-    <PackageVersion Include="QuestPDF" Version="2026.2.4" />
+    <PackageVersion Include="OllamaSharp" Version="5.4.30" />
+    <PackageVersion Include="QuestPDF" Version="2026.8.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
+    <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.1" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.19.2" />
     <PackageVersion Include="System.Numerics.Tensors" Version="10.0.9" />
