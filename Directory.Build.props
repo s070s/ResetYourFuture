@@ -24,8 +24,9 @@
          locked-mode restore instead of quietly breaking the build. -->
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
-    <!-- DEP-1: audit direct AND transitive packages against the NuGet advisory database so a known
-         vulnerability surfaces as a restore warning (NU190x), not just in a Dependabot alert. -->
+    <!-- Audit direct AND transitive packages against the NuGet advisory database, so a known
+         vulnerability surfaces as an NU190x restore warning. Dependabot was removed on
+         2026-09-05, so this is now the only dependency-security signal the repo produces. -->
     <NuGetAuditMode>all</NuGetAuditMode>
 
     <!-- Build speed: skip recompiling downstream projects when only method bodies change -->

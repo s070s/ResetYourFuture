@@ -13,8 +13,6 @@ App_Data/
 DataProtection-Keys/
 *.user
 TestResults/
-# Written into the workspace by the DEP-9 vulnerable-package gate in CI.
-audit.log
 
 # Playwright e2e suite (tests/e2e)
 node_modules/
