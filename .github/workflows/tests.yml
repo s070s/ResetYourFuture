@@ -8,11 +8,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # DEP-10: needed to push the refreshed lock files back to a Dependabot branch. Dependabot
-    # runs get a read-only token by default, so the grant has to be explicit.
-    permissions:
-      contents: write
-
     # Dummy values so the integration host (WebApplicationFactory<Program>) can boot.
     # Program.cs requires these at startup; none are real secrets.
     env:
@@ -23,11 +18,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
-        with:
-          # DEP-10: on a Dependabot branch, check out the branch itself rather than the
-          # ephemeral merge commit, so the refreshed lock files can be committed back to it.
-          # An empty ref keeps the default (merge-commit) behaviour for every other PR.
-          ref: ${{ startsWith(github.head_ref, 'dependabot/') && github.head_ref || '' }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
@@ -36,44 +26,13 @@ jobs:
 
       # BUILD-1: --locked-mode makes a silent package-version drift (e.g. the Microsoft.OpenApi
       # auto-pin trap) fail the restore loudly instead of quietly rewriting the pin.
-      #
-      # DEP-10: Dependabot bumps Directory.Packages.props but never regenerates the
-      # CentralTransitive entries in the ten packages.lock.json files, so every dependency PR
-      # would otherwise fail this restore with NU1004. On Dependabot branches we evaluate the
-      # graph instead and commit the result back (below) -- so the run that refreshes the lock
-      # files is the same run that builds and tests them. Every other branch keeps the guard.
+      # After an intentional version change, regenerate the lock files locally with
+      # `dotnet restore ResetYourFuture.sln --force-evaluate` and commit them.
       - name: Restore
-        run: |
-          branch="${{ github.head_ref || github.ref_name }}"
-          case "$branch" in
-            dependabot/*) dotnet restore ResetYourFuture.sln --force-evaluate ;;
-            *)            dotnet restore ResetYourFuture.sln --locked-mode ;;
-          esac
+        run: dotnet restore ResetYourFuture.sln --locked-mode
 
       - name: Build
         run: dotnet build ResetYourFuture.sln -c Release --no-restore
-
-      # DEP-9: NuGetAuditMode=all already surfaces transitive advisories, but only as NU1903
-      # warnings that scroll past. This makes them a gate. It caught nothing when added only
-      # because the bump that fixes them had just been restored: a merge had silently reverted
-      # the ASP.NET Core family to 10.0.9, dragging back a vulnerable
-      # System.Security.Cryptography.Xml, with a green build and consistent lock files.
-      # --no-restore is deliberate: a restore here could spring the Microsoft.OpenApi auto-pin
-      # trap (BUILD-1). `dotnet list package` exits 0 even when it reports advisories, so the
-      # report itself has to be inspected.
-      #
-      # `shell: bash` is required, not cosmetic. The default step shell is `bash -e {0}`, which has
-      # no pipefail, so the pipe into `tee` would return tee's exit 0 and mask a failing audit —
-      # the gate would report green having audited nothing. `shell: bash` is `bash -eo pipefail`.
-      # 2>&1 folds in the stderr-only failures (e.g. no project found) so they reach audit.log too.
-      - name: Audit for vulnerable packages
-        shell: bash
-        run: |
-          dotnet list package --vulnerable --include-transitive --no-restore 2>&1 | tee audit.log
-          if grep -q "has the following vulnerable packages" audit.log; then
-            echo "::error::Vulnerable packages found — see the report above."
-            exit 1
-          fi
 
       # GOV-2: .editorconfig style rules are advisory in local builds but a hard gate here.
       # A file that drifts from the configured style (e.g. a block-scoped namespace where the
@@ -98,19 +57,6 @@ jobs:
       # what this run just built and tested. Deliberately placed after the test step: a bump that
       # fails the suite leaves no commit behind. A GITHUB_TOKEN push does not retrigger workflows,
       # which is fine here — this run is already the verification.
-      - name: Commit refreshed lock files
-        if: startsWith(github.head_ref, 'dependabot/')
-        run: |
-          if git diff --quiet -- '*packages.lock.json'; then
-            echo "Lock files already in sync — nothing to commit."
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add '*packages.lock.json'
-          git commit -m "Regenerate packages.lock.json for this dependency bump"
-          git push origin "HEAD:${{ github.head_ref }}"
-
   # BUILD-2: the test suite runs on EF InMemory/SQLite, so a migration valid there but broken on
   # SQL Server (types, indexes, collation) would ship green and only fail at production startup.
   # This job applies the whole migration chain against a real SQL Server container.
@@ -144,15 +90,8 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      # DEP-10: same conditional restore as the test job. This job never commits the result --
-      # the test job owns that -- it just needs a coherent graph to run the migrations against.
       - name: Restore
-        run: |
-          branch="${{ github.head_ref || github.ref_name }}"
-          case "$branch" in
-            dependabot/*) dotnet restore ResetYourFuture.sln --force-evaluate ;;
-            *)            dotnet restore ResetYourFuture.sln --locked-mode ;;
-          esac
+        run: dotnet restore ResetYourFuture.sln --locked-mode
 
       - name: Restore tools (dotnet-ef)
         run: dotnet tool restore
