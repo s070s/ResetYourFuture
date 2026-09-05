@@ -128,8 +128,8 @@ internal sealed class ApiInfoAndSecuritySchemeTransformer(
         document.Components ??= new OpenApiComponents();
         foreach (var (name, type) in new (string Name, Type Type)[]
         {
-            ( "ChatMessageDto" , typeof( ChatMessageDto ) ) ,
-            ( "ChatNotificationDto" , typeof( ChatNotificationDto ) ) ,
+            ("ChatMessageDto", typeof(ChatMessageDto)),
+            ("ChatNotificationDto", typeof(ChatNotificationDto)),
         })
         {
             if (document.Components.Schemas?.ContainsKey(name) == true)

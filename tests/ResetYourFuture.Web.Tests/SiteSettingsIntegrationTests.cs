@@ -24,7 +24,7 @@ public class SiteSettingsIntegrationTests : IClassFixture<CustomWebAppFactory>
         var client = await _factory.CreateAuthenticatedClientAsync("Student");
         using var content = new MultipartFormDataContent
         {
-            { new ByteArrayContent( new byte[] { 1, 2, 3 } ), "file", "bg.png" }
+            { new ByteArrayContent(new byte[] { 1, 2, 3 }), "file", "bg.png" }
         };
 
         (await client.PostAsync("/api/admin/site/background-image", content)).StatusCode.ShouldBe(HttpStatusCode.Forbidden);
