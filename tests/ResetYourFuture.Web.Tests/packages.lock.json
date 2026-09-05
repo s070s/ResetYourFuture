@@ -1029,7 +1029,7 @@
           "Microsoft.AspNetCore.SignalR.Client": "[10.0.9, )",
           "Microsoft.EntityFrameworkCore.SqlServer": "[10.0.9, )",
           "Microsoft.Extensions.AI": "[10.7.0, )",
-          "Microsoft.OpenApi": "[2.9.0, )",
+          "Microsoft.OpenApi": "[2.12.0, )",
           "OllamaSharp": "[5.4.25, )",
           "ResetYourFuture.Application": "[0.9.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
@@ -1167,9 +1167,9 @@
       },
       "Microsoft.OpenApi": {
         "type": "CentralTransitive",
-        "requested": "[2.9.0, )",
-        "resolved": "2.9.0",
-        "contentHash": "uS2awDkgUvVhd735HEcNcOQdwbIDCAK3V1QzgWoszd/FPDLLVv9eF+fImmdJiGLIKKWJv2DMJQ7OSR9gYLd+uw=="
+        "requested": "[2.12.0, )",
+        "resolved": "2.12.0",
+        "contentHash": "0xB/be+f6qYOhvQPUrVsLrau+fkowYv6gt9RIkajMhwT7sZnqtcA797yW3bS5kgSje+AQW4xZgyLnW641YFioQ=="
       },
       "OllamaSharp": {
         "type": "CentralTransitive",
