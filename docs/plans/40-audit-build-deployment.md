@@ -42,8 +42,8 @@ Overall: the build foundation is genuinely solid — SDK pinned via `global.json
 - **Impact:** Coverage can silently erode; the substantial test suite (five test projects) has no visible number to defend.
 - **Recommendation:** Add `coverlet.collector` to `Directory.Packages.props` + `tests/Directory.Build.props`, run `dotnet test --collect:"XPlat Code Coverage"`, upload the Cobertura file as an artifact. A hard threshold gate is optional; visibility first.
 
-### BUILD-6: No build-quality gate (warnings-as-errors / analyzers) in CI  [Low] [Effort: S]
-- **Evidence:** `Directory.Build.props` sets no `TreatWarningsAsErrors`, `AnalysisLevel`, or `EnforceCodeStyleInBuild`; CI builds with plain `dotnet build -c Release --no-restore` (`.github/workflows/tests.yml:31`).
+### BUILD-6: No warnings-as-errors gate; the recommended analyzers stay advisory  [Low] [Effort: S]
+- **Evidence:** *(narrowed 2026-09-05 — the original evidence said `Directory.Build.props` sets no `AnalysisLevel` or `EnforceCodeStyleInBuild` and that CI was restore/build/test only. Both halves were overtaken by GOV-2 and by the DEP-9/DEP-10 work.)* `Directory.Build.props` now sets `EnforceCodeStyleInBuild` and `AnalysisLevel=latest-recommended`, and CI hard-gates the warning-level style rules (`dotnet format style --verify-no-changes --severity warn`) plus vulnerable packages. What is still missing is `TreatWarningsAsErrors`: the Release build step is plain `dotnet build -c Release --no-restore`, so the ~950 recommended-analyzer warnings remain advisory.
 - **Impact:** New warnings accumulate invisibly (the warning inventory itself is report 22, CQ, territory); nullable-annotation regressions — the repo enables `Nullable` solution-wide — never fail anything.
 - **Recommendation:** Add `-warnaserror` to the CI build step only (keeps local dev friction low), or `<TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)'=='true'">true</TreatWarningsAsErrors>` in `Directory.Build.props` once the existing warning count is at/near zero.
 
