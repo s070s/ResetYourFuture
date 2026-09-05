@@ -115,7 +115,7 @@ public class ConsumerTests
     {
         var body = new List<BlogArticleSummaryDto>
         {
-            new( Guid.NewGuid(), "Title", "slug", "Summary", null, "Author", Array.Empty<string>(), DateTimeOffset.UtcNow )
+            new(Guid.NewGuid(), "Title", "slug", "Summary", null, "Author", Array.Empty<string>(), DateTimeOffset.UtcNow)
         };
         var (client, handler) = TestHttp.Json(HttpStatusCode.OK, body);
         var consumer = new BlogConsumer(client, TokenProvider());
