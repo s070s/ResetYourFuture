@@ -105,12 +105,12 @@
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "Direct",
-        "requested": "[8.3.1, )",
-        "resolved": "8.3.1",
-        "contentHash": "SxdCv+SmnKOhUvryKvrpWJnkuVHj3hU8pUwj7R8zthi73TlBUlMyavon9qfuJsjnqY+L7jusp3Zo0fWFX6mwtw==",
+        "requested": "[8.19.2, )",
+        "resolved": "8.19.2",
+        "contentHash": "gqhDC/icByKEutygpr+OFgAmjwTVowyzFjWB8K0q1ww8uFj5a1BQNL+QvijUl9uhq4p8OdDwcAIrjVC+eC9FVA==",
         "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "8.3.1",
-          "Microsoft.IdentityModel.Tokens": "8.3.1"
+          "Microsoft.IdentityModel.JsonWebTokens": "8.19.2",
+          "Microsoft.IdentityModel.Tokens": "8.19.2"
         }
       },
       "AngleSharp": {
@@ -325,10 +325,10 @@
       },
       "Microsoft.IdentityModel.JsonWebTokens": {
         "type": "Transitive",
-        "resolved": "8.3.1",
-        "contentHash": "cA622rrXYdaO7inNZ8KY5leZpP6889wT+gHPgvy62PYlAITyxF9PxP5u+ecNBOsPx2PagBH7ZNr39yU/MOPn+w==",
+        "resolved": "8.19.2",
+        "contentHash": "ui3fuBT4fs8kdKfBthI4NzLYIBIneEVS8UrL1JVBzAn80UiKmngBBi0BEByE7n/9c+EElcfFlCMFFTqpkBSLNA==",
         "dependencies": {
-          "Microsoft.IdentityModel.Tokens": "8.3.1"
+          "Microsoft.IdentityModel.Tokens": "8.19.2"
         }
       },
       "Microsoft.IdentityModel.Logging": {
@@ -486,7 +486,7 @@
         "dependencies": {
           "HtmlSanitizer": "[9.0.892, )",
           "Microsoft.EntityFrameworkCore": "[10.0.11, )",
-          "Microsoft.Extensions.AI.Abstractions": "[10.7.0, )",
+          "Microsoft.Extensions.AI.Abstractions": "[10.9.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
           "ResetYourFuture.Shared": "[0.9.0, )",
           "System.Numerics.Tensors": "[10.0.9, )"
@@ -507,7 +507,7 @@
           "ResetYourFuture.Application": "[0.9.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
           "ResetYourFuture.Shared": "[0.9.0, )",
-          "System.IdentityModel.Tokens.Jwt": "[8.3.1, )"
+          "System.IdentityModel.Tokens.Jwt": "[8.19.2, )"
         }
       },
       "resetyourfuture.shared": {
@@ -553,7 +553,7 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[10.7.0, )",
+        "requested": "[10.9.0, )",
         "resolved": "10.9.0",
         "contentHash": "//nASHMCJVxnYfE/WSzfaLOao6/q816kPpgB9rxU0gfSmAny1u3rfQT0D4xAmcIo4yQqJs7rAeBB+M/dIMdZYA=="
       },
