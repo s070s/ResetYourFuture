@@ -1,5 +1,5 @@
 {
-  "//": "DEP-2: records the provenance of the vendored front-end libraries and gives them an update path (`libman restore` / `libman update`). Only the files the app actually references are kept, trimming the previously-full Bootstrap dist. Bump the version here and run `libman update` to update.",
+  "//": "DEP-2: records the provenance of the vendored front-end libraries and gives them an update path (`libman restore` / `libman update`). Those commands need the LibMan CLI, which is NOT in .config/dotnet-tools.json — install it first with `dotnet tool install -g Microsoft.Web.LibraryManager.Cli`, otherwise `dotnet libman` reports 'command not found' in a fresh clone. Only the files the app actually references are kept, trimming the previously-full Bootstrap dist. Bump the version here and run `libman update` to update.",
   "version": "1.0",
   "defaultProvider": "jsdelivr",
   "libraries": [
