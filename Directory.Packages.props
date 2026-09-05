@@ -31,7 +31,7 @@
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.0" />
     <PackageVersion Include="NSubstitute" Version="6.2.0" />
     <PackageVersion Include="OllamaSharp" Version="5.4.27" />
-    <PackageVersion Include="QuestPDF" Version="2026.2.4" />
+    <PackageVersion Include="QuestPDF" Version="2026.8.0" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.3" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.1" />

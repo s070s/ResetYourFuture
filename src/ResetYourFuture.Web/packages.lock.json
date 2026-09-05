@@ -504,7 +504,7 @@
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "[10.0.11, )",
           "Microsoft.EntityFrameworkCore.Design": "[10.0.11, )",
           "Microsoft.EntityFrameworkCore.SqlServer": "[10.0.11, )",
-          "QuestPDF": "[2026.2.4, )",
+          "QuestPDF": "[2026.8.0, )",
           "ResetYourFuture.Application": "[0.9.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
           "ResetYourFuture.Shared": "[0.9.0, )",
@@ -560,9 +560,9 @@
       },
       "QuestPDF": {
         "type": "CentralTransitive",
-        "requested": "[2026.2.4, )",
-        "resolved": "2026.2.4",
-        "contentHash": "fajBdRJFr3hu2Mr6mEVsXjvVKD9Q/Q6hfPEUMpV/xlwxWdFebmpGdi0FLQTApMvpapy72v9dvcGuk7e7NQmQyQ=="
+        "requested": "[2026.8.0, )",
+        "resolved": "2026.8.0",
+        "contentHash": "6c/YtDiZm8NgxnFdUDom+IWGVXKhiwBVJ3cvlyIXZYH7Wp0HaXWoR2XWj/RAsZfjpW7J5LMVc1EF6JnJFouoXQ=="
       },
       "System.Numerics.Tensors": {
         "type": "CentralTransitive",
