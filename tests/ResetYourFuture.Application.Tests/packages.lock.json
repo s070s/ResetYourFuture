@@ -612,7 +612,7 @@
         "dependencies": {
           "HtmlSanitizer": "[9.0.892, )",
           "Microsoft.EntityFrameworkCore": "[10.0.9, )",
-          "Microsoft.Extensions.AI.Abstractions": "[10.7.0, )",
+          "Microsoft.Extensions.AI.Abstractions": "[10.8.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
           "ResetYourFuture.Shared": "[0.9.0, )",
           "System.Numerics.Tensors": "[10.0.9, )"
@@ -732,9 +732,9 @@
       },
       "Microsoft.Extensions.AI.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[10.7.0, )",
-        "resolved": "10.7.0",
-        "contentHash": "Lf822igMm8NkTYHZhTp7kjoNYkLLEvJnX3SkG/LVBvsZHC0Y9choogHz8YtITBoy0TOylM3kVUZ6iaHf0my0ug=="
+        "requested": "[10.8.0, )",
+        "resolved": "10.8.0",
+        "contentHash": "1tJZ5sAYrEq1YjNg8GrZSL1tVodsWRfrgybGsZo5DQsWQgLZ+dSR5uFowIS6vb/9zxGBPl7xpYq53QMjNObO9w=="
       },
       "QuestPDF": {
         "type": "CentralTransitive",
