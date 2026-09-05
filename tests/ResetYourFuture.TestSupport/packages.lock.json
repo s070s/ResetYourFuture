@@ -49,13 +49,13 @@
       },
       "AngleSharp": {
         "type": "Transitive",
-        "resolved": "1.7.1",
-        "contentHash": "QBblGpRB3SYD66Mls7fHyl1mWkP93n7ErWDWHc1vd9sPHhdlTkmUoY3CjgfjcWNxGF9m7xjNyztRfErXqoBKOA=="
+        "resolved": "1.7.2",
+        "contentHash": "r1rb5Qo/0KPzmP0nbSiXPDVfh4Ctu0B+y1RyyUq73g4sgAmEW7q10RDyTq2ZsILwtO9O2LAvMrUles7eD4zz1g=="
       },
       "AngleSharp.Css": {
         "type": "Transitive",
-        "resolved": "1.0.1",
-        "contentHash": "6S13xNHH+SUGPZd6EO1MhkuDbpEnFroUM6A8DZpLJHQnLRTvtBJb3Ydu65s618E4gWF9FSWmM5jhKk4RIfwT2A==",
+        "resolved": "1.0.2",
+        "contentHash": "XeBxh0h/73+MWFsGfeMwiK7xbzAK3YeHFdUIrMH1P90amIrDFD/vUDIrPlF3CixqaMH5MRIUvT6Ux+2zvhJ3SA==",
         "dependencies": {
           "AngleSharp": "[1.5.0, 2.0.0)"
         }
@@ -670,7 +670,7 @@
       "resetyourfuture.application": {
         "type": "Project",
         "dependencies": {
-          "HtmlSanitizer": "[9.2.995, )",
+          "HtmlSanitizer": "[9.2.1039, )",
           "Microsoft.EntityFrameworkCore": "[10.0.11, )",
           "Microsoft.Extensions.AI.Abstractions": "[10.9.0, )",
           "ResetYourFuture.Domain": "[0.9.0, )",
@@ -701,12 +701,12 @@
       },
       "HtmlSanitizer": {
         "type": "CentralTransitive",
-        "requested": "[9.2.995, )",
-        "resolved": "9.2.995",
-        "contentHash": "Yws4FratoTx4FDlvOjQTfuE49ATTVwAxNosv2CE2XqnOcmPuWWOWbLwEYP5w9uqvrGRyOgQloisKVokrgxKaXg==",
+        "requested": "[9.2.1039, )",
+        "resolved": "9.2.1039",
+        "contentHash": "PKxy1hYknAij8YlHCC2a9GSqzUd4bh3IvY+abJBvOH1FKcZpbyafEHtdFcXQBt12Y7hNPkNEOP6Qa7uKNSs/yA==",
         "dependencies": {
-          "AngleSharp": "1.7.1",
-          "AngleSharp.Css": "1.0.1"
+          "AngleSharp": "1.7.2",
+          "AngleSharp.Css": "1.0.2"
         }
       },
       "MailKit": {
