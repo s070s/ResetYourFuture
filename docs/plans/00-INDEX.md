@@ -1,6 +1,6 @@
 # docs/plans — Open Audit Backlog Index
 
-Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master) · Pruned to open findings: 2026-07-14 · Medium backlog cleared: 2026-07-15
+Created: 2026-07-11 · Codebase snapshot: commit `b2dd9bd` (master) · Pruned to open findings: 2026-07-14 · Medium backlog cleared: 2026-07-15 · DEP backlog closed: 2026-09-05
 
 This folder holds the **open backlog** from the 2026-07-11 audit suite (originally 4 implementation plans,
 25 audit reports, a Critical/High synthesis, and 255 findings). Everything completed has been removed:
@@ -104,7 +104,7 @@ Severity is judged in context: this is a university certificate project, not a p
 | SEC (25) | 0 | 0 | 0 | 5 | 1 | 6 |
 | REL (26) | 0 | 0 | 0 | 5 | 0 | 5 |
 | BIZ (27) | 0 | 0 | 0 | 4 | 0 | 4 |
-| DQ (28) | 0 | 0 | 0 | 3 | 1 | 4 |
+| DQ (28) | 0 | 0 | 0 | 2 | 1 | 3 |
 | COMP (29) | 0 | 0 | 0 | 3 | 1 | 4 |
 | DB (30) | 0 | 0 | 0 | 5 | 2 | 7 |
 | API (31) | 0 | 0 | 0 | 5 | 3 | 8 |
@@ -119,9 +119,9 @@ Severity is judged in context: this is a university certificate project, not a p
 | BUILD (40) | 0 | 0 | 0 | 5 | 1 | 6 |
 | CLOUD (41) | 0 | 0 | 0 | 4 | 1 | 5 |
 | OPS (42) | 0 | 0 | 0 | 2 | 1 | 3 |
-| DEP (43) | 0 | 0 | 0 | 3 | 2 | 5 |
+| DEP (43) | 0 | 0 | 0 | 2 | 1 | 3 |
 | DOC (44) | 0 | 0 | 0 | 4 | 2 | 6 |
 | GOV (45) | 0 | 0 | 0 | 3 | 3 | 6 |
-| **Total** | **0** | **0** | **0** | **92** | **30** | **122** |
+| **Total** | **0** | **0** | **0** | **90** | **29** | **119** |
 
 Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, downgraded findings (still open, less severe) sit in their new severity row, and consciously **accepted** findings are excluded (like fixed ones) though their bodies may be retained with an acceptance note. Of the original 255 findings, all 31 Critical/High are resolved and, as of 2026-07-15, so is the entire **Medium** backlog: every Medium is fixed except three consciously accepted as large-effort or externally-blocked — MAINT-2 and MAINT-3 (Effort-M structural refactors, see [23-audit-maintainability.md](23-audit-maintainability.md)) and BIZ-3 (real payments, blocked on a live Stripe account, see [27-audit-business-logic.md](27-audit-business-logic.md)). The earlier accepted Critical/High cluster (Redis/architecture — ARCH-1, PERF-1, SCALE-1/2/3, AVAIL-4) is recorded in the "Accepted since audit" banners in reports 21/34/35/36. What remains open is the Low/Info backlog. The record of every fix lives in git history.

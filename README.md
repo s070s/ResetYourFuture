@@ -46,6 +46,8 @@ winget install Ollama.Ollama   # see the "AI Assistant" section below
 > **Never commit `.env`** — it is already in `.gitignore`. Use `.env.template` to document which keys are needed.
 
 > **Known build issue (OpenApi pin):** package versions are pinned centrally in `Directory.Packages.props`, and committed `packages.lock.json` files with CI `--locked-mode` guard against drift. If a `restore`/`build` ever fails with a `Microsoft.OpenApi` version conflict (some restore paths silently rewrite that pin), recover with `git checkout Directory.Packages.props` (and any changed `.csproj`), then restore again.
+>
+> **Known build issue (SDK-supplied lock entry):** `src/ResetYourFuture.Web/packages.lock.json` carries a `Direct` entry for `Microsoft.AspNetCore.App.Internal.Assets` that **no file in this repo declares** — its version comes from the installed .NET SDK's bundled-versions props. So an SDK servicing update changes what restore resolves, and `--locked-mode` then fails on a lock file nobody edited. This has already required two manual bumps (`9d8764c` → 10.0.10, `2df6bac` → 10.0.11). Recovery is the same each time: `dotnet restore ResetYourFuture.sln --force-evaluate` and commit the refreshed lock file. Note that CI installs `dotnet-version: 10.0.x` while `global.json` asks for `10.0.100` with `rollForward: latestFeature`, so the runner and a developer machine can resolve different SDK patches; switching CI to `global-json-file: global.json` would tie the two together, at the cost of pinning CI to whatever `global.json` allows.
 
 ---
 

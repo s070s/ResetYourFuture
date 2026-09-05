@@ -34,8 +34,9 @@ and reuses it if already running on `https://localhost:7090`.
   (`alice.johnson@` / `bob.smith@resetyourfuture.local`) to a known test value through the
   Development-only `/api/auth/dev/reset-password` endpoint. This only touches regenerable
   local seed data and keeps real credential values out of the suite.
-- **Not in CI:** the GitHub workflow is a Linux `dotnet test` job with no SQL Server/LocalDB,
-  and the suite depends on the seeded Development database and dev-only endpoints; it is a
-  local, on-demand suite by design.
+- **Not in CI:** the `test` job is a Linux `dotnet test` job with no database. CI does now have a
+  SQL Server container, but only in the separate `migrations` job, which applies the migration
+  chain and never boots or seeds the app. The suite depends on the seeded Development database and
+  dev-only endpoints, so it stays a local, on-demand suite by design.
 - **Serial by design:** one worker — the call spec drives two logged-in users against shared
   server state (presence/busy checks), so specs must not interleave.
