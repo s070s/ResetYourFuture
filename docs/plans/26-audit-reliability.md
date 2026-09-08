@@ -20,7 +20,7 @@ NOT examined: SQL Server failover behaviour (retry-on-failure is configured, `Au
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 5 |
+| Low | 4 |
 | Info | 0 |
 
 Overall reliability is above average for the project's stage. The background services are exemplary: every poll/index pass is wrapped in try/catch, cancellation is handled gracefully, `CallRingMonitor` even sweeps dangling call sessions left by a crashed process at startup, and the assistant path degrades to an "unavailable" event rather than throwing. The production pipeline funnels unhandled exceptions into RFC 7807 problem+json. All four Medium findings are now fixed or reassessed: registration email failure no longer 500s after account creation (REL-2), admin-seed and certificate-generation failures are now surfaced instead of swallowed (REL-4, REL-5), and REL-3's operator-visibility gap turned out to already be closed by the framework's default HTTP logging handlers (see below) — what remains of it is a larger, disproportionate UI-contract change, so it is now tracked as Low.
@@ -32,10 +32,11 @@ Overall reliability is above average for the project's stage. The background ser
 - **Impact:** What remains is narrower than originally scoped: pages still can't distinguish "genuinely empty result" from "call failed" (both come back as `default`/`null`/`false` from `ExecuteAsync`), so a failed call still renders as an empty state to the *user* rather than an error state. Fixing that requires changing `ExecuteAsync`'s return contract (e.g. a `Result<T>` wrapper) across all ~25 typed consumers in `Web/Consumers/` and every calling Razor page that consumes them — disproportionate for what's left once the operator-visibility half is accounted for.
 - **Recommendation:** No further action for the operator-visibility angle (already covered). If the user-facing distinction is wanted later, land it as its own scoped effort — start with the highest-traffic pages rather than a blanket contract change across all consumers. Longer term, calling the application services in-process (rather than over HTTP-to-self) removes the entire failure class (see ARCH/MAINT).
 
-### REL-6: Hosted-service exceptions outside the poll/index try-block can fault the host  [Low] [Effort: S]
+### REL-6: Hosted-service exceptions outside the poll/index try-block can fault the host  [Low] [Effort: S] — RESOLVED 2026-09-08
 - **Evidence:** `Infrastructure/Seeding/BulkStudentSeedingService.cs:30-51` runs `BulkStudentSeeder.SeedAsync` with no surrounding try/catch (only the missing-password guard). `AssistantIndexer` (`Web/Services/AssistantIndexer.cs`) and `CallRingMonitor` correctly guard each iteration, but a throw during `BulkStudentSeeder.SeedAsync` propagates out of `ExecuteAsync`.
 - **Impact:** An unhandled `BackgroundService` exception can fault the host (default .NET behaviour is `StopHost`). Development-only (guarded by `IsDevelopment()` + `SeedData:Enabled`), so production is unaffected, but a seeding error can take down the dev app.
 - **Recommendation:** Wrap the seed call in try/catch-log, matching the convention already used by the sibling background services.
+- **Resolution (2026-09-08):** the entire body of `ExecuteAsync` is now inside a try block with two catch arms — `catch (OperationCanceledException)` for normal shutdown and `catch (Exception ex)` logging `"BulkStudentSeeder: bulk student seeding failed."` — covering the startup delay, scope/`UserManager` resolution, the missing-password guard and the `BulkStudentSeeder.SeedAsync` call (`src/ResetYourFuture.Infrastructure/Seeding/BulkStudentSeedingService.cs:35-63`). This matches the convention used by `CallRingMonitor` and `AssistantIndexer`, so a seeding bug can no longer fault the generic host. Landed in commit d08987f (2026-07-14, "Fix AVAIL-5 and AVAIL-6: graceful shutdown + background-service fault isolation").
 
 ### REL-7: Security-stamp revalidation performs a DB lookup on every authenticated request  [Low] [Effort: M]
 - **Evidence:** `Startup/AuthenticationSetupExtensions.cs:107-127` (`OnValidatePrincipal`) and `:159-180` (`OnTokenValidated`) both call `userManager.FindByIdAsync` on every request/token validation.
@@ -57,7 +58,6 @@ Overall reliability is above average for the project's stage. The background ser
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
 | REL-3 | Low | M | (Optional) distinguish empty vs failed results in the UI — operator logging already covered by the framework |
-| REL-6 | Low | S | Wrap `BulkStudentSeedingService` work in try/catch-log |
 | REL-7 | Low | M | Cache security-stamp/IsEnabled to bound per-request DB dependency |
 | REL-8 | Low | M | Make refresh rotation atomic + unique to prevent double-spend |
 | REL-9 | Low | S | Graceful fallback for missing `Sitemap:BaseUrl` |

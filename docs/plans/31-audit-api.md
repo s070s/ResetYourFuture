@@ -21,7 +21,7 @@ NOT examined: SignalR hub method contracts beyond their OpenAPI description (hub
 | High | 0 |
 | Medium | 0 |
 | Low | 5 |
-| Info | 3 |
+| Info | 2 |
 
 For ~90 endpoints built incrementally, the API surface is in good shape where it was designed deliberately: routes are consistently `api/{resource}` with admin surfaces under `api/admin/*`, every controller carries `[Tags]` grouping, list endpoints share a real `PagedResult<T>` envelope with one clamp semantic via `PagingParams.Normalize`, `AddProblemDetails` + `UseStatusCodePages` + a production exception handler give bare status codes a uniform RFC 7807 body with `traceId` (and the correct `application/problem+json` content type), and the OpenAPI pipeline is unusually mature (per-operation bearer requirements, curated parameter docs, request examples, SSE and SignalR documented in prose, minimal APIs included with summaries). All nine Medium findings (dead ModelState blocks, 400-vs-409 semantics, misleading `CreatedAtAction` targets, OpenAPI schema/content-type accuracy, false `PagedResult` sort defaults, duplicated paging clamps, resource-modeling drift, and inconsistent authorization declarations) are fixed; API-1's remaining sub-item — folding the auth failure envelope and outcome-embedded DTOs into ProblemDetails — is downgraded to Low (see API-1) because it would fight a different, already-documented convention (CQ-3) rather than fix an oversight.
 
@@ -57,10 +57,11 @@ For ~90 endpoints built incrementally, the API surface is in good shape where it
 - **Impact:** Acceptable — the only consumers are the app's own SSR consumers and Swagger; per 00-INDEX calibration this cannot rate higher. Worth a one-line ADR so the choice reads as deliberate.
 - **Recommendation:** Document "single-version API, breaking changes allowed" in the README/architecture notes; revisit only if third-party consumers appear.
 
-### API-15: OpenAPI/Swagger served in Development only  [Info] [Effort: S]
+### API-15: OpenAPI/Swagger served in Development only  [Info] [Effort: S] — RESOLVED 2026-09-08
 - **Evidence:** `Program.cs:22-39` — `MapOpenApi()` and `UseSwaggerUI` sit inside `if (app.Environment.IsDevelopment())`; the `#if DEBUG` dev auth endpoints (`AuthController.cs:134-160`) therefore appear only in documents no production build serves.
 - **Impact:** Deliberate and sensible (smaller prod surface); noted so nobody files "docs missing in prod" as a bug. If the API were ever offered to external consumers, publish the generated `v1.json` as a build artifact instead of exposing the UI.
 - **Recommendation:** None required.
+- **Resolution (2026-09-08):** No action was required and the choice is now documented. `README.md:137` states the Swagger UI is "served **in Development only**", `README.md:153` spells out that "the Swagger UI and `/openapi/v1.json` endpoints are mapped only when `ASPNETCORE_ENVIRONMENT=Development`; they are **not** exposed in Production", and the tech-stack row at `README.md:64` marks `/swagger` as Development only. The code matches and now says so: `src/ResetYourFuture.Web/Program.cs:33-49` keeps `MapOpenApi()` and `UseSwaggerUI` inside `if (app.Environment.IsDevelopment())` with "Development only" comments at :36 and :40-41, and the dev auth endpoints remain behind `#if DEBUG` (`src/ResetYourFuture.Web/Controllers/AuthController.cs:126`). The observation is recorded durably, so it cannot be mistaken for a bug.
 
 ### API-16: Certificate verification returns 200 with Valid=false for unknown IDs  [Info] [Effort: S]
 - **Evidence:** `CertificatesController.cs:161-165` — unknown `verificationId` returns `200 OK` + `CertificateVerificationDto(false, ..., "Certificate not found.")` rather than 404; revoked certificates likewise 200 with `Valid=false` (lines 167-179).
@@ -77,7 +78,6 @@ For ~90 endpoints built incrementally, the API surface is in good shape where it
 | API-12 | Low | S | Public `TestimonialDto` instead of AdminTestimonialDto |
 | API-13 | Low | S | Confirmation link → page + POST; stop mutating on GET |
 | API-14 | Info | S | One-line ADR: unversioned single-consumer API |
-| API-15 | Info | S | (No action) Dev-only Swagger is deliberate |
 | API-16 | Info | S | Document the 200-with-verdict verification contract |
 
 ## 5. Related Findings Elsewhere
