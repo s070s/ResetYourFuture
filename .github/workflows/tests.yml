@@ -22,7 +22,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          # Pinned, not `10.0.x`. src/ResetYourFuture.Web/packages.lock.json carries an
+          # SDK-supplied `Microsoft.AspNetCore.App.Internal.Assets` entry whose version is
+          # whatever ASP.NET Core the installed SDK bundles, so a floating SDK breaks the
+          # `--locked-mode` restore below with NU1004 the moment a new patch ships
+          # (10.0.401 bundles 10.0.12; the lock file says 10.0.11). 10.0.400 bundles 10.0.11.
+          # When that lock entry is next refreshed, bump this pin to the matching SDK.
+          dotnet-version: 10.0.400
 
       # BUILD-1: --locked-mode makes a silent package-version drift (e.g. the Microsoft.OpenApi
       # auto-pin trap) fail the restore loudly instead of quietly rewriting the pin.
@@ -88,7 +94,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 10.0.x
+          # Pinned, not `10.0.x`. src/ResetYourFuture.Web/packages.lock.json carries an
+          # SDK-supplied `Microsoft.AspNetCore.App.Internal.Assets` entry whose version is
+          # whatever ASP.NET Core the installed SDK bundles, so a floating SDK breaks the
+          # `--locked-mode` restore below with NU1004 the moment a new patch ships
+          # (10.0.401 bundles 10.0.12; the lock file says 10.0.11). 10.0.400 bundles 10.0.11.
+          # When that lock entry is next refreshed, bump this pin to the matching SDK.
+          dotnet-version: 10.0.400
 
       - name: Restore
         run: dotnet restore ResetYourFuture.sln --locked-mode
