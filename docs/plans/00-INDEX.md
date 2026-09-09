@@ -115,13 +115,13 @@ Severity is judged in context: this is a university certificate project, not a p
 | AVAIL (36) | 0 | 0 | 0 | 2 | 1 | 3 |
 | LOG (37) | 0 | 0 | 0 | 4 | 0 | 4 |
 | OBS (38) | 0 | 0 | 0 | 3 | 0 | 3 |
-| CFG (39) | 0 | 0 | 0 | 3 | 1 | 4 |
+| CFG (39) | 0 | 0 | 0 | 2 | 1 | 3 |
 | BUILD (40) | 0 | 0 | 0 | 5 | 1 | 6 |
 | CLOUD (41) | 0 | 0 | 0 | 4 | 1 | 5 |
 | OPS (42) | 0 | 0 | 0 | 2 | 1 | 3 |
 | DEP (43) | 0 | 0 | 0 | 2 | 1 | 3 |
 | DOC (44) | 0 | 0 | 0 | 4 | 2 | 6 |
 | GOV (45) | 0 | 0 | 0 | 3 | 3 | 6 |
-| **Total** | **0** | **0** | **0** | **89** | **28** | **117** |
+| **Total** | **0** | **0** | **0** | **88** | **28** | **116** |
 
 Counts reflect **open** findings only — fixed findings were removed from their reports as the work landed, downgraded findings (still open, less severe) sit in their new severity row, and consciously **accepted** findings are excluded (like fixed ones) though their bodies may be retained with an acceptance note. Of the original 255 findings, all 31 Critical/High are resolved and, as of 2026-07-15, so is the entire **Medium** backlog: every Medium is fixed except three consciously accepted as large-effort or externally-blocked — MAINT-2 and MAINT-3 (Effort-M structural refactors, see [23-audit-maintainability.md](23-audit-maintainability.md)) and BIZ-3 (real payments, blocked on a live Stripe account, see [27-audit-business-logic.md](27-audit-business-logic.md)). The earlier accepted Critical/High cluster (Redis/architecture — ARCH-1, PERF-1, SCALE-1/2/3, AVAIL-4) is recorded in the "Accepted since audit" banners in reports 21/34/35/36. What remains open is the Low/Info backlog. The record of every fix lives in git history.

@@ -18,7 +18,7 @@ Read in full: `src/ResetYourFuture.Web/appsettings.json`, `appsettings.Developme
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 3 |
+| Low | 2 |
 | Info | 1 |
 
 Overall: the configuration design is thoughtful for a project of this scale — secrets are kept out of the repo by design, the custom `EnvFileLoader` runs *before* `CreateBuilder`, and the most dangerous keys fail fast at startup with clear messages. All four Medium findings are now resolved: `.env.template` covers the production-required keys (CFG-2); `EnvFileLoader` respects real env-var precedence, strips quotes, logs its source, and handles read errors (CFG-3); Assistant/WebRtc/Email options are validated at startup and `Sitemap:BaseUrl` moved to the aggregated startup check (CFG-4); and the payment keys are bound through a discoverable `PaymentOptions` class (CFG-5, its security half already closed under SEC-4). What remains is two Low items and one Info.
