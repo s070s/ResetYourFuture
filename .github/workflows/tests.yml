@@ -3,6 +3,8 @@ name: tests
 on:
   push:
   pull_request:
+  # Adds a "Run workflow" button on the Actions tab, so CI can be re-run without a push.
+  workflow_dispatch:
 
 jobs:
   test:
