@@ -56,8 +56,8 @@ All three Medium items are resolved (OBS-1 via AVAIL-1, OBS-3 fixed, OBS-2 accep
 
 ## 5. Related Findings Elsewhere
 
-- **37 (LOG)** — owns the file logger's current-state defects that OBS-3/OBS-4 build on (scope support LOG-8, retention LOG-5, alerting LOG-1).
-- **36 (AVAIL)** — owns the uptime/detection consequence of having no health endpoint; OBS-1 is the instrument.
+- **37 (LOG)** — owns the file logger's current-state defects that OBS-3 (fixed) and OBS-4 build on (scope support LOG-8, retention LOG-5, alerting LOG-1).
+- **36 (AVAIL)** — owns the uptime/detection consequence of having no health endpoint; OBS-1 (fixed) is the instrument.
 - **34 (PERF)** — performance findings lack baselines until OBS-2 exists.
 - **39 (CFG)** — hardcoded assistant `MinScore` (CFG territory) is untunable partly because OBS-6 data is missing.
 - **41 (CLOUD)** — where an OTLP backend/dashboard would actually be hosted.

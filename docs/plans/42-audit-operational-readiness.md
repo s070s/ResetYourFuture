@@ -58,6 +58,6 @@ All four Medium items (OPS-2 through OPS-5) are resolved. The remaining backlog:
 - **38 (OBS)** — health endpoints and metrics the runbook/monitoring would consume.
 - **39 (CFG)** — fail-fast enforcement (CFG-1, CFG-5) that shrinks the OPS-5 checklist; `.env` loader behavior (CFG-3) behind OPS-6's rotation confusion.
 - **40 (BUILD)** — CI migration testing (BUILD-2) de-risks OPS-3; publish artifact (BUILD-3) is a prerequisite for a clean update procedure.
-- **41 (CLOUD)** — state locations that OPS-2 must back up (CLOUD-1) and the host/topology the runbook describes (CLOUD-5).
+- **41 (CLOUD)** — state locations that OPS-2 must back up (CLOUD-1) and the host/topology the runbook describes (former CLOUD-5, fixed — see `docs/DEPLOYMENT.md`).
 - **28 (DQ) / 26 (REL)** — data-integrity and startup-failure framing of the seeding/migration behaviors whose *procedures* are owned here.
 - **27 (BIZ)** — checkout dead-end when mock payments are off; OPS-5 covers only the checklist omission.

@@ -65,5 +65,5 @@ All four Medium items (LOG-1 through LOG-4) are resolved, along with LOG-6. The 
 - **38 (OBS)** — owns the forward-looking fix for correlation (traceId in logs, OBS finding on ProblemDetails traceId), health checks, and the OTel adoption path that would eventually replace this file logger's monitoring role.
 - **29 (COMP)** — regulatory angle of PII retention in logs (LOG-2/LOG-5 provide the technical evidence).
 - **42 (OPS)** — no runbook/incident procedure; LOG-1 is the tooling half, OPS owns the process half.
-- **36 (AVAIL)** — uptime consequences of nobody noticing failures; LOG-1 is the detection mechanism gap.
+- **36 (AVAIL)** — uptime consequences of nobody noticing failures; LOG-1 (fixed) was the detection mechanism gap.
 - **25 (SEC)** — webhook signature-check skip is *logged* but only as a Warning (`SubscriptionController.cs:113`); the vulnerability itself is SEC/CFG territory (see CFG-5 in report 39).

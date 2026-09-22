@@ -65,7 +65,7 @@ For a solo certificate project, the automated test estate is genuinely strong: ~
 
 ## 5. Related Findings Elsewhere
 
-- **ARCH (21)** owns the structural decisions this suite tests around: the loopback self-API (whose silent-`default` consumers make failures invisible to e2e-less testing), the convention-only pages→consumers boundary (TEST-10 supplies the enforcement) — chat's hub-inline writes were fixed by ARCH-4, unblocking Application-level unit tests for that logic.
+- **ARCH (21)** owns the structural decisions this suite tests around: the loopback self-API (whose silent-`default` consumers make failures invisible to e2e-less testing), the convention-only pages→consumers boundary (TEST-10 supplies the enforcement) — chat's hub-inline writes were fixed by former ARCH-4, unblocking Application-level unit tests for that logic.
 - **MAINT (23)** owns the comment-enforced DI lifetime invariants (MAINT-10) that TEST-10 would pin, and the change-ripple that makes forgotten test updates likely.
 - **CQ (22)** owns production-code duplication; test-side duplication (TEST-7) is homed here.
 - **DB (30)** owned the schema consequences of the DateTimeOffset string storage (TEST-5, now fixed alongside DB-2 — the converter is SQLite-only and SQL Server uses native `datetimeoffset`); migrations previously ran under no test (TEST-1, now fixed — the chain is verified against LocalDB by `MigrationChainTests`).

@@ -60,7 +60,7 @@ All six Medium items (SCALE-4 through SCALE-9) are resolved — SCALE-8 fixed, S
 ## 5. Related Findings Elsewhere
 
 - **ARCH (21):** ARCH-1 owns the loopback design behind SCALE-3; ARCH-10 describes the calls-state design SCALE-1 re-backs; ARCH-7 owns the render-mode decision behind SCALE-8; ARCH-8 documents the hub-owning service lifetimes SCALE-3 counts connections for.
-- **PERF (34):** PERF-5 (data-URL avatars) is the largest single per-circuit memory item in SCALE-8; PERF-1 quantifies the per-call cost of the loopback topology.
+- **PERF (34):** PERF-5 (data-URL avatars, now fixed) was the largest single per-circuit memory item in SCALE-8; PERF-1 quantifies the per-call cost of the loopback topology.
 - **AVAIL (36):** Single-instance pinning (SCALE-1/2/4) is why zero-downtime deploys are impossible — AVAIL owns the restart/drain consequences.
 - **DB (30):** former DB-11 (RefreshToken growth, fixed) was the same unbounded-growth pattern as SCALE-11; DB-14 endorses the current chunk-storage design SCALE-10 puts a ceiling on.
 - **SEC (25):** SEC-3 added a per-user rate limiter on several previously-unprotected endpoints; SCALE-7's per-instance limiter multiplication applies to it (and every other ASP.NET Core rate limiter here) the same way.

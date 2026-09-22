@@ -80,7 +80,7 @@ Day-to-day maintainability rests on strong foundations: central package manageme
 ## 5. Related Findings Elsewhere
 
 - **ARCH (21)** owns the root cause of MAINT-1: the loopback self-API design (ARCH-1) mandates the consumer layer, and the global InteractiveServer mode (ARCH-7) mandates the auth-completion machinery whose knowledge burden shows up here.
-- **CQ (22)** owns the micro-duplications that compound the ripple (bilingual ternary ×30, twin token-mint methods, DTO file organization) — fixed.
+- **CQ (22)** owns the micro-duplications that compound the ripple: bilingual ternary ×30 — fixed; twin token-mint methods (CQ-4) and DTO file organization (CQ-6) remain open, Low findings.
 - **TEST (24)** owns the fitness/DI tests recommended in MAINT-10 and ARCH-9, and the test-infrastructure duplication in CustomWebAppFactory.
 - **DOC (44)** owns README/overall documentation quality; MAINT-4 (fixed) only claimed the three operational facts that had to move out of comments — see `docs/DEPLOYMENT.md`.
 - **CFG (39)** owns configuration validation architecture and secrets handling; MAINT-5 (fixed) was the minimal maintainability slice — see `Startup/StartupConfigValidation.cs`.

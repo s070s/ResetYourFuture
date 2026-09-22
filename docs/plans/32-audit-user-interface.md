@@ -70,9 +70,9 @@ The UI layer is in better shape than most student projects: a coherent dark-them
 
 ## 5. Related Findings Elsewhere
 
-- **UX-1 (33)** — the hardcoded English strings that ship inside these components (DismissibleAlert/ConfirmModal/PaginationNav/StatusBadge defaults, `blazor-error-ui` text, `ItemLabel` values) are quantified there; the banner's colors (former UI-2) are fixed.
-- **UX-2 / UX-6 (33)** — silent failure and infinite-spinner *flows* behind the loading components (now consistently `LoadingSpinner`, see former UI-9, fixed).
-- **UX-5 (33)** — where and how the `DismissibleAlert` messages appear (placement, severity styling, dismissibility) is flow-level and lives there.
-- **UX-12 (33)** — inconsistent date/time formats rendered inside the tables audited here.
+- **Former UX-1 (33, fixed)** — the hardcoded English strings that ship inside these components (DismissibleAlert/ConfirmModal/PaginationNav/StatusBadge defaults, `blazor-error-ui` text, `ItemLabel` values) were quantified there; the banner's colors (former UI-2) are fixed.
+- **Former UX-2 / UX-6 (33, fixed)** — silent failure and infinite-spinner *flows* behind the loading components (now consistently `LoadingSpinner`, see former UI-9, fixed).
+- **Former UX-5 (33, fixed)** — where and how the `DismissibleAlert` messages appear (placement, severity styling, dismissibility) was flow-level and lived there.
+- **Former UX-12 (33, fixed)** — inconsistent date/time formats rendered inside the tables audited here.
 - **Former plans 10 and 13 (both implemented)** — table sorting is rolled out across every admin/student table (including Billing, whose bespoke table/toolbar was migrated to the shared components), and the visual-polish system (tokens, `:focus-visible`, skeletons, reduced-motion) shipped; only the cosmetic token sweep remains deferred (see the plan-13 note in [00-INDEX.md](00-INDEX.md)).
 - **PERF (34)** — `ScrollableTable` renders all rows without virtualization (by design for paged lists); any render-cost concerns belong there.

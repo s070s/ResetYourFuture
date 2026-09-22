@@ -57,12 +57,6 @@ For ~90 endpoints built incrementally, the API surface is in good shape where it
 - **Impact:** Acceptable — the only consumers are the app's own SSR consumers and Swagger; per 00-INDEX calibration this cannot rate higher. Worth a one-line ADR so the choice reads as deliberate.
 - **Recommendation:** Document "single-version API, breaking changes allowed" in the README/architecture notes; revisit only if third-party consumers appear.
 
-### API-15: OpenAPI/Swagger served in Development only  [Info] [Effort: S] — RESOLVED 2026-09-08
-- **Evidence:** `Program.cs:22-39` — `MapOpenApi()` and `UseSwaggerUI` sit inside `if (app.Environment.IsDevelopment())`; the `#if DEBUG` dev auth endpoints (`AuthController.cs:134-160`) therefore appear only in documents no production build serves.
-- **Impact:** Deliberate and sensible (smaller prod surface); noted so nobody files "docs missing in prod" as a bug. If the API were ever offered to external consumers, publish the generated `v1.json` as a build artifact instead of exposing the UI.
-- **Recommendation:** None required.
-- **Resolution (2026-09-08):** No action was required and the choice is now documented. `README.md:137` states the Swagger UI is "served **in Development only**", `README.md:153` spells out that "the Swagger UI and `/openapi/v1.json` endpoints are mapped only when `ASPNETCORE_ENVIRONMENT=Development`; they are **not** exposed in Production", and the tech-stack row at `README.md:64` marks `/swagger` as Development only. The code matches and now says so: `src/ResetYourFuture.Web/Program.cs:33-49` keeps `MapOpenApi()` and `UseSwaggerUI` inside `if (app.Environment.IsDevelopment())` with "Development only" comments at :36 and :40-41, and the dev auth endpoints remain behind `#if DEBUG` (`src/ResetYourFuture.Web/Controllers/AuthController.cs:126`). The observation is recorded durably, so it cannot be mistaken for a bug.
-
 ### API-16: Certificate verification returns 200 with Valid=false for unknown IDs  [Info] [Effort: S]
 - **Evidence:** `CertificatesController.cs:161-165` — unknown `verificationId` returns `200 OK` + `CertificateVerificationDto(false, ..., "Certificate not found.")` rather than 404; revoked certificates likewise 200 with `Valid=false` (lines 167-179).
 - **Impact:** Defensible design (verification is a query about validity, not resource retrieval, and it avoids status-code-based enumeration signals), but it departs from the 404 convention used everywhere else, so it should be an explicit, documented choice.
@@ -82,7 +76,7 @@ For ~90 endpoints built incrementally, the API surface is in good shape where it
 
 ## 5. Related Findings Elsewhere
 
-- **30 (DB):** DB-7 — concurrency tokens now exist on every admin-edited aggregate, with `AdminLessonsController` demonstrating the `DbUpdateConcurrencyException` → 409 mapping now used consistently across uniqueness/conflict handling (the other six controllers still need the same three-line wiring); DB-8 — AnswersJson/SchemaJson now have matching DTO/column caps, closing the unbounded-payload gap.
+- **30 (DB):** DB-7 — concurrency tokens now exist on every admin-edited aggregate, with `AdminLessonsController` demonstrating the `DbUpdateConcurrencyException` → 409 mapping now used consistently across uniqueness/conflict handling (the other six controllers still need the same three-line wiring); former DB-8 (fixed) — AnswersJson/SchemaJson now have matching DTO/column caps, closing the unbounded-payload gap.
 - **25 (SEC):** endpoint-level authorization *vulnerabilities* (anonymous Stripe webhook signature-skip when no secret is configured, JWT accepted via query string for `/api/lessons` and hubs, media/asset access rules, impersonation endpoint hardening) and the globally shared fixed-window "auth" rate limiter (one bucket for all clients).
 - **26 (REL):** behavior of the self-calling SSR HttpClient consumers when API responses are non-success (`ApiClientBase` swallowing failures), and rate-limiter availability effects.
 - **27 (BIZ):** correctness of enrollment/checkout/certificate business outcomes those endpoints return (e.g. mock-payment plan assignment).

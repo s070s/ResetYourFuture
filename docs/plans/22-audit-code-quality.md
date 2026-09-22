@@ -28,7 +28,7 @@ Micro-level quality is high and — more unusually — *improving on record*: a 
 ## 3. Findings
 
 ### CQ-4: TokenService's two mint methods still duplicate the signing/token-construction boilerplate  [Low] [Effort: S]
-- **Evidence:** `src/ResetYourFuture.Infrastructure/ApiServices/TokenService.cs:43-62` (`GenerateAccessTokenAsync`) vs `:76-95` (`GenerateImpersonationTokenAsync`) — the nine-claim list itself is no longer duplicated (both now call the shared `UserClaimsBuilder.Build`, ARCH-2's fix), but the surrounding signing-credentials/expiration/`JwtSecurityToken` construction (~8 lines) is still repeated verbatim in both methods.
+- **Evidence:** `src/ResetYourFuture.Infrastructure/ApiServices/TokenService.cs:43-62` (`GenerateAccessTokenAsync`) vs `:76-95` (`GenerateImpersonationTokenAsync`) — the nine-claim list itself is no longer duplicated (both now call the shared `UserClaimsBuilder.Build`, former ARCH-2's fix), but the surrounding signing-credentials/expiration/`JwtSecurityToken` construction (~8 lines) is still repeated verbatim in both methods.
 - **Impact:** Low now that the claim-drift risk is gone — a change to signing algorithm or token construction still needs two edits, but that's boilerplate, not business-significant data.
 - **Recommendation:** Fold into one method with an optional `adminId` parameter, or extract a private `BuildToken(IEnumerable<Claim>)` helper. Opportunistic.
 
@@ -47,7 +47,7 @@ Micro-level quality is high and — more unusually — *improving on record*: a 
 - **Impact:** Every non-user paged response silently reports `SortBy="email"` unless the constructor caller remembers to override — a small lie in the payload that consumers might one day trust. A generic type carrying a leaked domain default is also a confusing precedent.
 - **Recommendation:** Default `SortBy`/`SortDir` to `null`/omit them from the generic record (move them to a derived or wrapper type for the sortable admin lists).
 
-### CQ-8: Residual spaced-paren formatting in 3 files, and no automated format gate to prevent regression  [Low] [Effort: S] — RESIDUE FIXED 2026-09-05, GATE STILL ABSENT
+### CQ-8: Residual spaced-paren formatting in 4 files, and no automated format gate to prevent regression  [Low] [Effort: S] — RESIDUE FIXED 2026-09-05, GATE STILL ABSENT
 - **Evidence:** The legacy `Method( arg )` style — once dominant — survives only at `src/ResetYourFuture.Web/OpenApi/OpenApiExtensions.cs:126-127`, `tests/ResetYourFuture.Web.Tests/ConsumerTests.cs:118`, and `tests/ResetYourFuture.Web.Tests/SiteSettingsIntegrationTests.cs:28`. `.editorconfig` (root, lines 18-27) now mandates no-space parens, but nothing runs `dotnet format` in CI (`.github/workflows/tests.yml` has restore/build/test only).
 - **Impact:** Trivial today (4 lines), but the `.editorconfig` rules are advisory — IDE-dependent — so the style can drift back without anyone noticing. The cleanup investment already made deserves a lock.
 - **Recommendation:** Fix the 4 residual lines; optionally add a `dotnet format --verify-no-changes` step to the existing workflow (BUILD 40 owns CI design — coordinate there).
@@ -78,7 +78,7 @@ Micro-level quality is high and — more unusually — *improving on record*: a 
 
 ## 5. Related Findings Elsewhere
 
-- **ARCH (21)** owns the cross-file JWT-mint duplication that CQ-4 was the within-file instance of — both fixed via the shared `UserClaimsBuilder` (ARCH-2).
+- **ARCH (21)** owns the cross-file JWT-mint duplication that CQ-4 was the within-file instance of — both fixed via the shared `UserClaimsBuilder` (ARCH-2, fixed).
 - **MAINT (23)** owns the macro duplication engine: 18 hand-written consumer+interface pairs mirroring controllers, and 18 hand-maintained resx `Designer.cs` files — file-level repetition that is architectural, not micro.
 - **TEST (24)** owns test-code duplication (CustomWebAppFactory's triplicated user-provisioning block) and test-side style.
 - **API (31)** owns the wire-format consistency of the now-named `ToActionResult`/`ToEmbeddedActionResult` conventions (CQ-3, fixed).

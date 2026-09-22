@@ -74,6 +74,6 @@ Overall the security foundations are notably strong for a certificate project: H
 - **REL (26):** SSR loopback consumers (`ApiClientBase`) swallow non-success responses → silent blank pages; interacted with the now-fixed lesson-asset flow (SEC-2).
 - **BIZ (27):** Webhook event dispatch is unimplemented (why the pre-fix SEC-4 fail-open default wasn't yet exploitable) and mock payment grants plans without charge.
 - **COMP (29):** GDPR erasure completeness, special-category (psychosocial) data at rest, and minor-consent enforcement — the regulatory counterparts to the account/data handling reviewed here.
-- **DQ (28):** DTO/column `MaxLength` mismatch on testimonials can 500 on save (input-validation integrity).
+- **DQ (28):** DTO/column `MaxLength` mismatch on testimonials could 500 on save — fixed under DQ-3, which found and fixed the same pattern in three places, not just testimonials.
 - **CFG (39):** `AllowedHosts` restricted to localhost, HSTS toggle, and production secret provisioning.
 - **DEP (43):** Ganss.Xss / MailKit / QuestPDF / OpenIddict-adjacent JWT library versions and CVE status.

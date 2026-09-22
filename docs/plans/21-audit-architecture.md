@@ -68,7 +68,7 @@ The solution is in far better architectural shape than a typical certificate pro
 
 - **MAINT (23)** owns the change-amplification cost of the layered loopback stack (one new field touches entity→DTO→service→controller→consumer→page→resx) and the hand-maintained consumer/Designer artifacts — the day-to-day tax of ARCH-1.
 - **CQ (22)** owns the micro-level symptoms: duplicated bilingual-fallback ternaries, the two competing ServiceResult conventions, duplicated returnUrl sanitization in the minimal endpoints.
-- **TEST (24)** owns the InMemory-vs-relational integration-test gap, the missing e2e layer for circuit-only flows (the auth-completion handshake and global InteractiveServer render mode have no browser-level test), and the proposed architecture/DI fitness tests.
+- **TEST (24)** owns the InMemory-vs-relational integration-test gap and the missing e2e layer for circuit-only flows (both fixed — TEST-1, TEST-2), and the proposed architecture/DI fitness tests (TEST-10, still open).
 - **SEC (25)** owns JWT key handling, cookie flags, the `access_token`-in-query-string allowance, and impersonation security around the auth-completion and token-minting flows.
 - **PERF (34)** owns quantifying the loopback per-request tax (serialization, TLS, `OnTokenValidated` DB lookup per API call) identified in ARCH-1.
 - **SCALE (35)** owns the single-instance constraints (CallRegistry in-memory state, filesystem DataProtection keys) acknowledged in ARCH-10.

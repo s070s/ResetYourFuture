@@ -42,7 +42,7 @@ The background-service layer shows real availability awareness in places — `Ca
 - **Recommendation:** No architectural change needed. Optionally add a startup assertion that rejects an empty/LocalDB connection string outside Development, so a misconfiguration is a clear fail-fast message rather than a generic migration exception.
 
 ### AVAIL-9: Reconnect and dangling-session recovery are genuine strengths worth preserving  [Info]
-- **Evidence:** `ChatService.StartAsync`/`CallService.EnsureConnectedAsync` both use `.WithAutomaticReconnect()` and re-run `RejoinCall` on reconnect (`CallService.cs:89-96`); `CallRingMonitor.SweepDanglingSessionsAsync` repairs `CallSession` rows orphaned by a prior crashed process on every boot (`CallRingMonitor.cs:133-154`); EF's `EnableRetryOnFailure` (`AuthenticationSetupExtensions.cs:28-31`) absorbs transient SQL Server blips once the app is running (as opposed to at boot, per AVAIL-2).
+- **Evidence:** `ChatService.StartAsync`/`CallService.EnsureConnectedAsync` both use `.WithAutomaticReconnect()` and re-run `RejoinCall` on reconnect (`CallService.cs:89-96`); `CallRingMonitor.SweepDanglingSessionsAsync` repairs `CallSession` rows orphaned by a prior crashed process on every boot (`CallRingMonitor.cs:133-154`); EF's `EnableRetryOnFailure` (`AuthenticationSetupExtensions.cs:28-31`) absorbs transient SQL Server blips once the app is running (as opposed to at boot, per AVAIL-2, fixed).
 - **Impact:** None — these are the parts of the recovery story already done well and should be the template extended to AVAIL-5/7's gaps.
 - **Recommendation:** None; preserve.
 
@@ -58,7 +58,7 @@ Both Medium items (AVAIL-5, AVAIL-6) are fixed. The remaining backlog:
 ## 5. Related Findings Elsewhere
 
 - **SCALE (35):** SCALE-1 (CallRegistry singleton), SCALE-2 (no SignalR backplane), and SCALE-4 (DPAPI-only DataProtection key protection) are the root causes AVAIL-4 names as the reason no failover is possible; SCALE-3's loopback-connection multiplier compounds AVAIL-3's blast radius during restarts.
-- **REL (26):** REL-6 identifies the specific unguarded `BulkStudentSeedingService` code path that AVAIL-6 gives the host-wide-outage framing for; REL-3 (consumer swallowing of non-success status codes) is the sibling gap to AVAIL-3 (consumer swallowing of network-level exceptions) in the same `ApiClientBase` class; REL-7 (per-request DB lookup in auth validation) is a related DB-availability coupling on the request hot path rather than at boot.
+- **REL (26):** Former REL-6 (fixed) identified the specific unguarded `BulkStudentSeedingService` code path that AVAIL-6 gives the host-wide-outage framing for; REL-3 (consumer swallowing of non-success status codes) is the sibling gap to AVAIL-3 (consumer swallowing of network-level exceptions) in the same `ApiClientBase` class; REL-7 (per-request DB lookup in auth validation) is a related DB-availability coupling on the request hot path rather than at boot.
 - **DB (30):** DB-13 notes the startup auto-migrate+seed and design-time hardcoded fallback connection string as Info; AVAIL-2 gives that same startup path its failure-mode treatment.
 - **PERF (34):** PERF-1 quantifies the per-call cost of the same loopback consumers AVAIL-3 flags for missing resilience — one report owns cost, the other owns failure behaviour.
 - **OBS (38):** Owns the forward-looking instrumentation (structured health metrics, alerting) beyond the minimal liveness/readiness pair AVAIL-1 asks for.

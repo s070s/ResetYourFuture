@@ -60,6 +60,6 @@ The project shows GDPR *awareness* — registration requires explicit `GdprConse
 
 - **DQ (28):** DQ-1 — the FK/cascade design; COMP-3's erasure path (fixed) explicitly cleans up chat/call/certificate rows before the Identity delete rather than relying on cascade alone.
 - **REL (26):** REL-1 — the unhandled exception that used to surface when erasure was attempted on a user with chat/call history; unblocked, same as COMP-3.
-- **SEC (25):** SEC-1 (refresh-token lifecycle) and SEC-10 (secret handling) — the token store whose expired-row purge COMP-5 also addresses (fixed for that slice).
+- **SEC (25):** Refresh-token lifecycle (former SEC-1, fixed) and SEC-10 (secret handling) — the token store whose expired-row purge COMP-5 also addresses (fixed for that slice).
 - **BIZ (27):** BIZ — subscription/billing records are part of the retained personal-data set (now included in COMP-4's export).
 - **UX (33):** Consent-flow wording and the presence/visibility of policy links in the registration UX.

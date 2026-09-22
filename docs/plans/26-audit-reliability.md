@@ -32,12 +32,6 @@ Overall reliability is above average for the project's stage. The background ser
 - **Impact:** What remains is narrower than originally scoped: pages still can't distinguish "genuinely empty result" from "call failed" (both come back as `default`/`null`/`false` from `ExecuteAsync`), so a failed call still renders as an empty state to the *user* rather than an error state. Fixing that requires changing `ExecuteAsync`'s return contract (e.g. a `Result<T>` wrapper) across all ~25 typed consumers in `Web/Consumers/` and every calling Razor page that consumes them — disproportionate for what's left once the operator-visibility half is accounted for.
 - **Recommendation:** No further action for the operator-visibility angle (already covered). If the user-facing distinction is wanted later, land it as its own scoped effort — start with the highest-traffic pages rather than a blanket contract change across all consumers. Longer term, calling the application services in-process (rather than over HTTP-to-self) removes the entire failure class (see ARCH/MAINT).
 
-### REL-6: Hosted-service exceptions outside the poll/index try-block can fault the host  [Low] [Effort: S] — RESOLVED 2026-09-08
-- **Evidence:** `Infrastructure/Seeding/BulkStudentSeedingService.cs:30-51` runs `BulkStudentSeeder.SeedAsync` with no surrounding try/catch (only the missing-password guard). `AssistantIndexer` (`Web/Services/AssistantIndexer.cs`) and `CallRingMonitor` correctly guard each iteration, but a throw during `BulkStudentSeeder.SeedAsync` propagates out of `ExecuteAsync`.
-- **Impact:** An unhandled `BackgroundService` exception can fault the host (default .NET behaviour is `StopHost`). Development-only (guarded by `IsDevelopment()` + `SeedData:Enabled`), so production is unaffected, but a seeding error can take down the dev app.
-- **Recommendation:** Wrap the seed call in try/catch-log, matching the convention already used by the sibling background services.
-- **Resolution (2026-09-08):** the entire body of `ExecuteAsync` is now inside a try block with two catch arms — `catch (OperationCanceledException)` for normal shutdown and `catch (Exception ex)` logging `"BulkStudentSeeder: bulk student seeding failed."` — covering the startup delay, scope/`UserManager` resolution, the missing-password guard and the `BulkStudentSeeder.SeedAsync` call (`src/ResetYourFuture.Infrastructure/Seeding/BulkStudentSeedingService.cs:35-63`). This matches the convention used by `CallRingMonitor` and `AssistantIndexer`, so a seeding bug can no longer fault the generic host. Landed in commit d08987f (2026-07-14, "Fix AVAIL-5 and AVAIL-6: graceful shutdown + background-service fault isolation").
-
 ### REL-7: Security-stamp revalidation performs a DB lookup on every authenticated request  [Low] [Effort: M]
 - **Evidence:** `Startup/AuthenticationSetupExtensions.cs:107-127` (`OnValidatePrincipal`) and `:159-180` (`OnTokenValidated`) both call `userManager.FindByIdAsync` on every request/token validation.
 - **Impact:** Correct for security, but it couples every authenticated request to a live DB read. Under a database outage or slowdown, all authenticated traffic fails or stalls rather than degrading gracefully, and it adds a query to the hot path.
@@ -64,7 +58,7 @@ Overall reliability is above average for the project's stage. The background ser
 
 ## 5. Related Findings Elsewhere
 
-- **SEC (25):** Refresh-token lifecycle (SEC-1) — REL-8 is the concurrency angle of the same token flow; SEC owns the security/reuse-detection angle.
+- **SEC (25):** Refresh-token lifecycle (former SEC-1, fixed) — REL-8 is the concurrency angle of the same token flow; SEC owned the security/reuse-detection angle.
 - **COMP (29):** GDPR erasure is unblocked now that user deletion works (former REL-1, fixed); COMP owns the remaining regulatory obligations.
 - **BIZ (27):** Payment webhook/activation gaps determine whether the mock-vs-real payment failure modes matter.
 - **OBS (38) / LOG (37):** REL-3's remaining user-facing gap (empty vs failed result) still argues for structured error-state rendering; the operator-side logging is already handled by the framework's default `HttpClientFactory` handlers.

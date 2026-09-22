@@ -5,7 +5,7 @@
 | Finding prefix | DOC |
 | Created | 2026-07-11 |
 | Scope | README.md accuracy and coverage, the `docs/` folder, XML doc comments on public APIs, code-comment quality and staleness, OpenAPI/Swagger as living API documentation, `.env.template` as setup documentation, LICENSE and CHANGELOG presence. |
-| Delegated | The *functional* gap behind the stale email plan (no reset/confirm pages, UI calling dev-only endpoints) → GAP (20) / UX (33). OpenAPI document correctness/exposure at runtime → API (31). Privacy-policy/terms pages (user-facing legal docs) → COMP (29). Versioning/tags/release discipline that a CHANGELOG would hang off → GOV (45). Third-party license posture (QuestPDF) → DEP (43). |
+| Delegated | The *functional* gap behind the stale email plan (no reset/confirm pages, UI calling dev-only endpoints) → UX (33). OpenAPI document correctness/exposure at runtime → API (31). Privacy-policy/terms pages (user-facing legal docs) → COMP (29). Versioning/tags/release discipline that a CHANGELOG would hang off → GOV (45). Third-party license posture (QuestPDF) → DEP (43). |
 
 ## 1. Methodology
 
@@ -20,29 +20,19 @@ NOT examined: rendered Swagger UI output (would require running the app); XML do
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 4 |
+| Low | 2 |
 | Info | 2 |
 
-Documentation is a relative strength of this project. The README is a genuine operator's manual — quickstart, full endpoint tables with an explicit "Swagger UI is the authoritative source" disclaimer, config reference, production checklist, per-feature sections, and a troubleshooting table — and it has demonstrably been updated per feature (commits `c7e8b27`, `3d33110`). XML doc coverage is high (Domain 34/34 files with summaries, Application 74/83, Infrastructure 32/44) and load-bearing, feeding the OpenAPI document via `GenerateDocumentationFile` on the Web and Application projects. All three Medium findings — drift, not absence — are now resolved: the Email section and Configuration table were rewritten to match `SmtpEmailService` and document the `Email__Smtp__*` keys (DOC-1); the stale email-flows plan/spec now carry accurate dated status headers (DOC-2); and the repo ships an MIT `LICENSE` (© 2026 s070s) with a README License section (DOC-3). What remains is four Low items (dangling `_PLAN.md` references, minor README drift, `.env.template` gaps, no architecture doc) and two Info.
+Documentation is a relative strength of this project. The README is a genuine operator's manual — quickstart, full endpoint tables with an explicit "Swagger UI is the authoritative source" disclaimer, config reference, production checklist, per-feature sections, and a troubleshooting table — and it has demonstrably been updated per feature (commits `c7e8b27`, `3d33110`). XML doc coverage is high (Domain 34/34 files with summaries, Application 74/83, Infrastructure 32/44) and load-bearing, feeding the OpenAPI document via `GenerateDocumentationFile` on the Web and Application projects. All three Medium findings — drift, not absence — are now resolved: the Email section and Configuration table were rewritten to match `SmtpEmailService` and document the `Email__Smtp__*` keys (DOC-1); the stale email-flows plan/spec now carry accurate dated status headers (DOC-2); and the repo ships an MIT `LICENSE` (© 2026 s070s) with a README License section (DOC-3). What remains is two Low items (dangling `_PLAN.md` references, no architecture doc) and two Info.
 
 ## 3. Findings
 
-> The three Medium findings are resolved: **DOC-1** — the README Email section, Tech Stack line, production checklist, and Configuration table were rewritten to match `SmtpEmailService` (MailKit, auto-registered when `Email__Smtp__Host` is set; stub only in Development; fail-fast otherwise), with the `Email__Smtp__*` keys documented in both the table and `.env.template`. **DOC-2** — `docs/superpowers/plans/2026-06-25-email-service-auth-flows.md` and its design spec now carry accurate dated status headers recording what landed (SmtpEmailService, EmailOptions, tests) versus what did not (the reset/confirm pages, owned by GAP 20/UX 33). **DOC-3** — the repo now ships an MIT `LICENSE` (© 2026 s070s) and a README License section that also flags the conditional QuestPDF Community tier (see git: `Fix DOC-3`). The remaining open items are four Low and two Info.
+> The three Medium findings are resolved: **DOC-1** — the README Email section, Tech Stack line, production checklist, and Configuration table were rewritten to match `SmtpEmailService` (MailKit, auto-registered when `Email__Smtp__Host` is set; stub only in Development; fail-fast otherwise), with the `Email__Smtp__*` keys documented in both the table and `.env.template`. **DOC-2** — `docs/superpowers/plans/2026-06-25-email-service-auth-flows.md` and its design spec now carry accurate dated status headers recording what landed (SmtpEmailService, EmailOptions, tests) versus what did not (the reset/confirm pages, owned by UX 33). **DOC-3** — the repo now ships an MIT `LICENSE` (© 2026 s070s) and a README License section that also flags the conditional QuestPDF Community tier (see git: `Fix DOC-3`). The remaining open items are four Low and two Info.
 
 ### DOC-4: Code comments reference plan documents that were deleted from the repo  [Low] [Effort: S]
 - **Evidence:** `src/ResetYourFuture.Web/Controllers/AssistantController.cs:14` ("See AI_ASSISTANT_PLAN.md for the overall design") and `src/ResetYourFuture.Application/DTOs/Assistant/AssistantDtos.cs:6` ("no server-side conversation persistence — see AI_ASSISTANT_PLAN.md D7") reference a file deleted in commit `dff8e94`; `src/ResetYourFuture.Web/wwwroot/js/webrtc-interop.js:1` references `VIDEO_CALL_PLAN.md`, deleted in `1730c4d`.
 - **Impact:** Dangling pointers in the most design-dense areas of the code. The `AssistantDtos.cs` case is the worst: it cites a specific decision ("D7") whose rationale now exists nowhere in the repo — the delete-plan-on-completion convention (DOC-2) silently orphaned it.
 - **Recommendation:** Inline the one-sentence rationale where the decision matters (e.g. "clients replay the transcript; the server deliberately stores nothing per-conversation") and drop the file references. A repo-wide grep for `_PLAN.md` on future plan deletions prevents recurrence.
-
-### DOC-5: README factual drift — wrong seed default, newest feature undocumented  [Low] [Effort: S]
-- **Evidence:** (a) `README.md:41` claims the bulk student seeder default is 2000; the code default is 10 (`BulkStudentSeedingService.cs:42` — `GetValue<int>("SeedData:BulkStudentCount", 10)`) and `appsettings.Development.json:21` also sets 10. (b) Real-time user presence tracking (commit `b2dd9bd`, 2026-07-10 19:52 — `PresenceService.cs`, last-seen display in chat/call/admin pages) is absent from the README, whose last update (`README.md` mtime 2026-07-10 10:43, commit `c7e8b27`) predates the feature.
-- **Impact:** (a) misleads capacity expectations by 200× for anyone tuning seed data; (b) the otherwise-reliable "README documents every feature" pattern has its first gap, which matters when the README doubles as the feature inventory for grading.
-- **Recommendation:** Fix the number (or change the code default if 2000 was the intent) and add a short presence note under the Chat/Video Calls sections. Adopt the existing habit formally: README update in the same commit or PR as the feature.
-
-### DOC-6: .env.template does not cover the configurable surface the README points at  [Low] [Effort: S]
-- **Evidence:** `.env.template` documents 6 keys (connection string, JWT key, admin/student passwords, webhook secret, AllowedHosts). Missing: `Assistant__Enabled` — the README's AI Assistant setup (`README.md:462-463, 470`) explicitly says to set it "in `appsettings.json` / `.env`"; all `Email__Smtp__*` keys (DOC-1); `App__BaseUrl` / `SelfBaseUrl` (absolute-link generation, set only in appsettings for localhost); `SeedData__BulkStudentCount` is present but commented with `50`, a third value distinct from both the code default (10) and the README claim (2000) (DOC-5).
-- **Impact:** `.env.template` is the repo's declared setup contract ("Use `.env.template` to document which keys are needed" — `README.md:43`). Every key it omits forces the code-spelunking the template exists to prevent.
-- **Recommendation:** Add commented-out entries for `Assistant__Enabled`, the `Email__Smtp__*` group, and `App__BaseUrl`, keeping the existing grouped-comment style; align the `BulkStudentCount` example with the real default.
 
 ### DOC-7: No architecture overview or decision records beyond a 7-line folder tree  [Low] [Effort: M]
 - **Evidence:** `README.md:69-80` shows the solution layout with one-line project descriptions — the sum total of architecture documentation. Recurring, non-obvious decisions are recorded nowhere durable: the two parallel auth paths (cookie for Blazor SSR, JWT for the API — described only inside the stale plan doc `docs/superpowers/specs/...-design.md`), the global `InteractiveServerRenderMode` on `<Routes>` (`App.razor:44`) and its consequences (no real form POSTs), the CSS layering rule (app.css vs shared-components.css vs scoped), and the assistant's deliberate single-turn-RAG/no-persistence design (its rationale pointer now dangling, DOC-4).
@@ -66,17 +56,15 @@ All three Medium items (DOC-1, DOC-2, DOC-3) are resolved. The remaining backlog
 | ID | Severity | Effort | Action |
 |----|----------|--------|--------|
 | DOC-4 | Low | S | Fix three dangling references to deleted plan docs; inline the D7 rationale |
-| DOC-5 | Low | S | Correct seed-count claim; document presence tracking |
-| DOC-6 | Low | S | Extend .env.template (Assistant__Enabled, Email__Smtp__*, App__BaseUrl) |
 | DOC-7 | Low | M | Write docs/architecture.md with the standing decisions (auth paths, render mode, CSS layers) |
 | DOC-8 | Info | S | CHANGELOG — defer until GOV-1 tagging exists |
 | DOC-9 | Info | S | (Strength) keep XML-doc→OpenAPI pipeline as-is |
 
 ## 5. Related Findings Elsewhere
 
-- **GAP (20) / UX (33):** the functional side of DOC-2 — no user-facing reset/confirm pages in Release; Login/Register/ForgotPassword pages call `#if DEBUG`-only endpoints.
+- **UX (33):** the functional side of DOC-2 — no user-facing reset/confirm pages in Release; Login/Register/ForgotPassword pages call `#if DEBUG`-only endpoints.
 - **API (31):** runtime correctness and exposure of the OpenAPI document that DOC-9's pipeline produces.
 - **COMP (29):** COMP-1 — missing privacy policy/terms pages, the user-facing legal documentation companion to DOC-3.
 - **DEP (43):** DEP-6 — QuestPDF Community license note; DEP-2 — recording vendored-asset provenance (documentation of dependencies).
 - **GOV (45):** GOV-1 — no tags/versioning (prerequisite for DOC-8); GOV-6 — absent CONTRIBUTING/health files.
-- **CFG (39):** configuration-surface documentation overlaps DOC-6 from the operations side.
+- **CFG (39):** configuration-surface documentation overlaps former DOC-6 (fixed) from the operations side.

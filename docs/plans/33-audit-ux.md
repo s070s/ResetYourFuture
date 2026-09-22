@@ -63,7 +63,7 @@ All nine Medium items (UX-5 through UX-13) are resolved. The remaining backlog:
 
 ## 5. Related Findings Elsewhere
 
-- **UI-2 (32)** — the `#blazor-error-ui` contrast defect; its hardcoded English text is counted under UX-1 here.
+- **Former UI-2 (32, fixed)** — the `#blazor-error-ui` contrast defect; its hardcoded English text is counted under UX-1 here.
 - **UI-5 (32, fixed)** — modal focus trap/restore; the *flows* those modals guard include UX-10 here (Pricing's downgrade flow, former UX-4, now also uses this modal).
 - **UI-9 (32, fixed)** — Chat's unlabeled raw spinner (component-level face of the loading-state inconsistency in UX-6).
 - **UI-10 (32, fixed)** — unlabeled search inputs belonging to the search flows in UX-13.
