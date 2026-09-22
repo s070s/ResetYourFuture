@@ -15,3 +15,6 @@
 ## Committing
 
 - Commit at each complete, working boundary (the change builds/passes tests and stands on its own) rather than bundling multiple boundaries into one commit.
+
+## Efficiency & Context Optimization
+- Optimize every task for maximum efficiency and minimum Context Window/Plan usage: reuse existing context, avoid repetition, skip unnecessary reasoning/tool calls, ask only essential clarifying questions, produce the smallest complete solution, and stop immediately when the task is satisfied.
